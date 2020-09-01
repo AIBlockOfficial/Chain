@@ -11,3 +11,9 @@ pub mod utils;
 pub mod script;
 pub mod constants;
 pub mod primitives;
+
+use crate::db::display::list_assets;
+
+fn main() {
+    list_assets();
+}
