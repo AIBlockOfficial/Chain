@@ -3,6 +3,7 @@ use bincode::{deserialize, serialize};
 use colored::*;
 use rocksdb::{Options, DB};
 use sha3::Sha3_256;
+use hex::encode;
 
 use crate::primitives::asset::Asset;
 use crate::primitives::block::Block;
@@ -17,7 +18,7 @@ pub fn list_assets() {
 
     println!("");
     while iter.valid() {
-        let key = String::from_utf8_lossy(iter.key().unwrap());
+        let key = hex::encode(iter.key().unwrap());
         let block = deserialize::<Block>(iter.value().unwrap()).unwrap();
 
         println!("//###########################//");

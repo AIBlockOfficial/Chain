@@ -5,6 +5,7 @@ extern crate bytes;
 extern crate sodiumoxide;
 extern crate sha3;
 extern crate crypto;
+extern crate hex;
 
 pub mod db;
 pub mod utils;
