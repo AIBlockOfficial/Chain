@@ -20,6 +20,10 @@ pub fn list_assets() {
     while iter.valid() {
         let key = hex::encode(iter.key().unwrap());
         let block = deserialize::<Block>(iter.value().unwrap()).unwrap();
+        let previous_hash = match block.header.previous_hash {
+            Some(v) => hex::encode(v),
+            None => "Φ".to_string()
+        };
 
         println!("//###########################//");
         println!("");
@@ -28,7 +32,7 @@ pub fn list_assets() {
         println!(
             "{}: {:?}",
             "Previous Hash".magenta(),
-            block.header.previous_hash
+            previous_hash
         );
         println!(
             "{}: {}",
@@ -80,14 +84,23 @@ pub fn list_assets() {
                     None => "None",
                 };
 
+                let drs_root_hash = match &output.drs_block_hash {
+                    Some(v) => hex::encode(v.clone()),
+                    None => "Φ".to_string()
+                };
+
+                let script_pub_key = match &output.script_public_key {
+                    Some(v) => hex::encode(v.clone()),
+                    None => "Φ".to_string()
+                };
+
                 println!("{}: {:?}", "Asset Type".green(), asset_type);
                 println!("{}: {:?}", "Asset".green(), asset);
                 println!("{}: {:?}", "Amount".green(), output.amount);
-                println!("{}: {:?}", "DRS Root Hash".green(), output.drs_block_hash);
+                println!("{}: {:?}", "DRS Root Hash".green(), drs_root_hash);
                 println!(
                     "{}: {:?}",
-                    "Script with PubKey".green(),
-                    output.script_public_key
+                    "Script with PubKey".green(), script_pub_key
                 );
                 println!("");
             }
