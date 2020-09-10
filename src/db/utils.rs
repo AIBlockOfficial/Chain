@@ -66,7 +66,7 @@ pub fn tx_has_spent(prev_out: Option<OutPoint>) -> bool {
 /// * `b_hash`  - Block hash
 /// * `t_hash`  - Transaction hash
 /// * `net`     - Which network blockchain to fetch
-pub fn get_transaction(b_hash: Vec<u8>, t_hash: Vec<u8>, net: usize) -> Option<Transaction> {
+pub fn get_transaction(b_hash: String, t_hash: String, net: usize) -> Option<Transaction> {
     let load_path = match net {
         0 => format!("{}/{}", DB_PATH, DB_PATH_TEST),
         _ => format!("{}/{}", DB_PATH, DB_PATH_LIVE),
@@ -82,9 +82,10 @@ pub fn get_transaction(b_hash: Vec<u8>, t_hash: Vec<u8>, net: usize) -> Option<T
 
     for tx in block.transactions {
         let hash_input = Bytes::from(serialize(&tx).unwrap());
-        let hash_key = Sha3_256::digest(&hash_input);
+        let hash_key_raw = Sha3_256::digest(&hash_input);
+        let hash_key = hex::encode(hash_key_raw);
 
-        if hash_key.to_vec() == t_hash {
+        if hash_key == t_hash {
             return Some(tx);
         }
     }

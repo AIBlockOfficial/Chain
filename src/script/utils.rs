@@ -5,6 +5,7 @@ use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use crate::sha3::Digest;
 
+use hex::encode;
 use bincode::serialize;
 use bytes::Bytes;
 use sha3::Sha3_256;
@@ -39,7 +40,7 @@ pub fn member_multisig_is_valid(script: Script) -> bool {
                     _ => panic!("Check data bytes not present to verify transaction"),
                 };
 
-                if (!sign::verify_detached(&sig, &check_data, &pub_key)) {
+                if (!sign::verify_detached(&sig, check_data.as_bytes(), &pub_key)) {
                     error!("Signature not valid. Member multisig input invalid");
                     return false;
                 }
@@ -161,7 +162,8 @@ fn tx_has_valid_p2pkh_sig(script: Script) -> bool {
                 println!("256 bit hashing last stack entry");
                 let last_entry = current_stack.pop().unwrap();
                 let pub_key_bytes = Bytes::from(serialize(&last_entry).unwrap());
-                let new_entry = Sha3_256::digest(&pub_key_bytes).to_vec();
+                let new_entry_raw = Sha3_256::digest(&pub_key_bytes).to_vec();
+                let new_entry = hex::encode(new_entry_raw);
 
                 current_stack.push(StackEntry::PubKeyHash(new_entry));
             }
@@ -192,7 +194,7 @@ fn tx_has_valid_p2pkh_sig(script: Script) -> bool {
                     _ => panic!("Check data bytes not present to verify transaction"),
                 };
 
-                if (!sign::verify_detached(&sig, &check_data, &pub_key)) {
+                if (!sign::verify_detached(&sig, check_data.as_bytes(), &pub_key)) {
                     error!("Signature not valid. Transaction input invalid");
                     return false;
                 }
@@ -216,7 +218,7 @@ fn tx_has_valid_p2pkh_sig(script: Script) -> bool {
 /// * `pub_keys`    - Public keys to check
 /// * `m`           - Number of keys required
 fn match_on_multisig_to_pubkey(
-    check_data: Vec<u8>,
+    check_data: String,
     signatures: Vec<Signature>,
     pub_keys: Vec<PublicKey>,
     m: usize,
@@ -225,7 +227,7 @@ fn match_on_multisig_to_pubkey(
 
     'outer: for sig in signatures {
         'inner: for pub_key in &pub_keys {
-            if sign::verify_detached(&sig, &check_data, pub_key) {
+            if sign::verify_detached(&sig, check_data.as_bytes(), pub_key) {
                 counter += 1;
                 break 'inner;
             }
@@ -261,26 +263,6 @@ mod tests {
         tx_ins
     }
 
-    /// Util function to create multisig TxIns
-    // fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
-    //     let mut tx_ins = Vec::new();
-
-    //     for entry in tx_values {
-    //         let mut new_tx_in = TxIn::new();
-    //         new_tx_in.script_signature = Script::pay2pkh(
-    //             entry.t_hash.clone(),
-    //             entry.signatures[0],
-    //             entry.pub_keys[0],
-    //         );
-    //         new_tx_in.previous_out =
-    //             Some(OutPoint::new(entry.b_hash, entry.t_hash, entry.prev_n));
-
-    //         tx_ins.push(new_tx_in);
-    //     }
-
-    //     tx_ins
-    // }
-
     /// Util function to create multisig member TxIns
     fn create_multisig_member_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
         let mut tx_ins = Vec::new();
@@ -304,13 +286,13 @@ mod tests {
     /// Checks that correct member multisig scripts are validated as such
     fn should_pass_member_multisig_valid() {
         let (pk, sk) = sign::gen_keypair();
-        let t_hash = vec![0, 0, 0];
-        let signature = sign::sign_detached(&t_hash.clone(), &sk);
+        let t_hash = hex::encode(vec![0, 0, 0]);
+        let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
             t_hash: t_hash,
             prev_n: 0,
-            b_hash: vec![0],
+            b_hash: hex::encode(vec![0]),
             signatures: vec![signature],
             pub_keys: vec![pk],
         };
@@ -325,13 +307,13 @@ mod tests {
     fn should_fail_member_multisig_invalid() {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
-        let t_hash = vec![0, 0, 0];
-        let signature = sign::sign_detached(&t_hash.clone(), &sk);
+        let t_hash = hex::encode(vec![0, 0, 0]);
+        let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
             t_hash: t_hash,
             prev_n: 0,
-            b_hash: vec![0],
+            b_hash: hex::encode(vec![0]),
             signatures: vec![signature],
             pub_keys: vec![pk],
         };
@@ -348,13 +330,13 @@ mod tests {
     /// Checks that correct p2pkh transaction signatures are validated as such
     fn should_pass_p2pkh_sig_valid() {
         let (pk, sk) = sign::gen_keypair();
-        let t_hash = vec![0, 0, 0];
-        let signature = sign::sign_detached(&t_hash.clone(), &sk);
+        let t_hash = hex::encode(vec![0, 0, 0]);
+        let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
             t_hash: t_hash,
             prev_n: 0,
-            b_hash: vec![0],
+            b_hash: hex::encode(vec![0]),
             signatures: vec![signature],
             pub_keys: vec![pk],
         };
@@ -369,13 +351,13 @@ mod tests {
     fn should_fail_p2pkh_sig_invalid() {
         let (_pk, sk) = sign::gen_keypair();
         let (second_pk, _s) = sign::gen_keypair();
-        let t_hash = vec![0, 0, 0];
-        let signature = sign::sign_detached(&t_hash.clone(), &sk);
+        let t_hash = hex::encode(vec![0, 0, 0]);
+        let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
             t_hash: t_hash,
             prev_n: 0,
-            b_hash: vec![0],
+            b_hash: hex::encode(vec![0]),
             signatures: vec![signature],
             pub_keys: vec![second_pk],
         };
@@ -394,17 +376,17 @@ mod tests {
         let (first_pk, first_sk) = sign::gen_keypair();
         let (second_pk, second_sk) = sign::gen_keypair();
         let (third_pk, third_sk) = sign::gen_keypair();
-        let check_data = vec![0, 0, 0];
+        let check_data = hex::encode(vec![0, 0, 0]);
 
         let m = 2;
-        let first_sig = sign::sign_detached(&check_data.clone(), &first_sk);
-        let second_sig = sign::sign_detached(&check_data.clone(), &second_sk);
-        let third_sig = sign::sign_detached(&check_data.clone(), &third_sk);
+        let first_sig = sign::sign_detached(check_data.as_bytes(), &first_sk);
+        let second_sig = sign::sign_detached(check_data.as_bytes(), &second_sk);
+        let third_sig = sign::sign_detached(check_data.as_bytes(), &third_sk);
 
         let tx_const = TxConstructor {
-            t_hash: check_data,
+            t_hash: hex::encode(vec![0, 0, 0]),
             prev_n: 0,
-            b_hash: vec![0],
+            b_hash: hex::encode(vec![0]),
             signatures: vec![first_sig, second_sig, third_sig],
             pub_keys: vec![first_pk, second_pk, third_pk],
         };
@@ -422,12 +404,12 @@ mod tests {
         let (first_pk, first_sk) = sign::gen_keypair();
         let (second_pk, second_sk) = sign::gen_keypair();
         let (third_pk, third_sk) = sign::gen_keypair();
-        let check_data = vec![0, 0, 0];
+        let check_data = hex::encode(vec![0, 0, 0]);
 
         let m = 2;
-        let first_sig = sign::sign_detached(&check_data.clone(), &first_sk);
-        let second_sig = sign::sign_detached(&check_data.clone(), &second_sk);
-        let third_sig = sign::sign_detached(&check_data.clone(), &third_sk);
+        let first_sig = sign::sign_detached(check_data.as_bytes(), &first_sk);
+        let second_sig = sign::sign_detached(check_data.as_bytes(), &second_sk);
+        let third_sig = sign::sign_detached(check_data.as_bytes(), &third_sk);
 
         assert!(match_on_multisig_to_pubkey(
             check_data,

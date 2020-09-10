@@ -1,12 +1,13 @@
 #![allow(unused)]
-use crate::script::{OpCodes, StackEntry};
-use crate::sha3::Digest;
+use hex::encode;
+use sha3::Sha3_256;
 use bincode::serialize;
 use bytes::Bytes;
-use serde::{Deserialize, Serialize};
-use sha3::Sha3_256;
-use sodiumoxide::crypto::sign::{sign_detached, PublicKey, Signature};
+use crate::sha3::Digest;
 use tracing::{error, warn};
+use serde::{Deserialize, Serialize};
+use crate::script::{OpCodes, StackEntry};
+use sodiumoxide::crypto::sign::{sign_detached, PublicKey, Signature};
 
 /// Scripts are defined as a sequence of stack entries
 /// NOTE: A tuple struct could probably work here as well
@@ -42,12 +43,13 @@ impl Script {
     /// * `check_data`  - Check data to provide signature
     /// * `signature`   - Signature of check data
     /// * `pub_key`     - Public key of the payer
-    pub fn pay2pkh(check_data: Vec<u8>, signature: Signature, pub_key: PublicKey) -> Script {
+    pub fn pay2pkh(check_data: String, signature: Signature, pub_key: PublicKey) -> Script {
         let mut new_script = Script::new();
         let pub_key_stack_entry = StackEntry::PubKey(pub_key);
 
         let pub_key_bytes = Bytes::from(serialize(&pub_key_stack_entry).unwrap());
-        let new_key = Sha3_256::digest(&pub_key_bytes).to_vec();
+        let new_key_raw = Sha3_256::digest(&pub_key_bytes).to_vec();
+        let new_key = hex::encode(new_key_raw);
 
         new_script.stack.push(StackEntry::Bytes(check_data));
         new_script.stack.push(StackEntry::Signature(signature));
@@ -71,7 +73,7 @@ impl Script {
     /// * `pub_key`     - Public key of this party
     /// * `signature`   - Signature of this party
     pub fn member_multisig(
-        check_data: Vec<u8>,
+        check_data: String,
         pub_key: PublicKey,
         signature: Signature,
     ) -> Script {
@@ -96,7 +98,7 @@ impl Script {
     pub fn multisig_lock(
         m: usize,
         n: usize,
-        check_data: Vec<u8>,
+        check_data: String,
         pub_keys: Vec<PublicKey>,
     ) -> Script {
         let mut new_script = Script::new();
@@ -132,7 +134,7 @@ impl Script {
     ///
     /// * `check_data`  - Data to have signed
     /// * `signatures`  - Signatures to unlock with
-    pub fn multisig_unlock(check_data: Vec<u8>, signatures: Vec<Signature>) -> Script {
+    pub fn multisig_unlock(check_data: String, signatures: Vec<Signature>) -> Script {
         let mut new_script = Script::new();
         new_script.stack = vec![StackEntry::Bytes(check_data)];
         new_script.stack.append(
@@ -156,7 +158,7 @@ impl Script {
     pub fn multisig_validation(
         m: usize,
         n: usize,
-        check_data: Vec<u8>,
+        check_data: String,
         signatures: Vec<Signature>,
         pub_keys: Vec<PublicKey>,
     ) -> Script {

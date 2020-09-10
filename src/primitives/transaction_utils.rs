@@ -155,9 +155,9 @@ mod tests {
         let drs_tx_hash = vec![1, 2, 3, 4, 5, 6];
 
         let tx_const = TxConstructor {
-            t_hash: t_hash,
+            t_hash: hex::encode(t_hash),
             prev_n: 0,
-            b_hash: vec![0],
+            b_hash: hex::encode(vec![0]),
             signatures: vec![signature],
             pub_keys: vec![pk],
         };
@@ -192,9 +192,9 @@ mod tests {
         let signature = sign::sign_detached(&t_hash.clone(), &sk);
 
         let tx_const = TxConstructor {
-            t_hash: t_hash,
+            t_hash: hex::encode(t_hash),
             prev_n: 0,
-            b_hash: vec![0],
+            b_hash: hex::encode(vec![0]),
             signatures: vec![signature],
             pub_keys: vec![pk],
         };

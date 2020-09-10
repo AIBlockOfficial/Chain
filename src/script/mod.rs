@@ -13,9 +13,9 @@ pub enum StackEntry {
     Op(OpCodes),
     Signature(Signature),
     PubKey(PublicKey),
-    PubKeyHash(Vec<u8>),
+    PubKeyHash(String),
     Num(usize),
-    Bytes(Vec<u8>),
+    Bytes(String),
 }
 
 impl StackEntry {
