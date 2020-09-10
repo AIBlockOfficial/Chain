@@ -80,9 +80,9 @@ impl TxIn {
 pub struct TxOut {
     pub value: Option<Asset>,
     pub amount: u64,
-    pub drs_block_hash: Option<Vec<u8>>,
-    pub drs_tx_hash: Option<Vec<u8>>,
-    pub script_public_key: Option<Vec<u8>>,
+    pub drs_block_hash: Option<String>,
+    pub drs_tx_hash: Option<String>,
+    pub script_public_key: Option<String>,
 }
 
 impl TxOut {
@@ -105,7 +105,7 @@ pub struct Transaction {
     pub inputs: Vec<TxIn>,
     pub outputs: Vec<TxOut>,
     pub version: usize,
-    pub druid: Option<Vec<u8>>,
+    pub druid: Option<String>,
     pub druid_participants: Option<usize>,
     pub expect_value: Option<Asset>,
     pub expect_value_amount: Option<u64>,
@@ -139,7 +139,7 @@ impl Transaction {
         inputs: Vec<TxIn>,
         outputs: Vec<TxOut>,
         version: usize,
-        druid: Option<Vec<u8>>,
+        druid: Option<String>,
         druid_participants: Option<usize>,
         expect_value: Option<Asset>,
         expect_value_amount: Option<u64>,

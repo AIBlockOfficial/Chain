@@ -9,7 +9,7 @@ use crate::script::lang::Script;
 /// * `drs` - Digital rights signature for the new asset
 /// * `receiver_address` - Address to receive the newly created asset
 /// * `amount`  - Amount of the asset to generate
-pub fn construct_create_tx(drs: Vec<u8>, receiver_address: Vec<u8>, amount: u64) -> Transaction {
+pub fn construct_create_tx(drs: Vec<u8>, receiver_address: String, amount: u64) -> Transaction {
     let mut tx = Transaction::new();
     let mut tx_out = TxOut::new();
 
@@ -39,9 +39,9 @@ pub fn construct_create_tx(drs: Vec<u8>, receiver_address: Vec<u8>, amount: u64)
 /// * `amount`              - Number of tokens to send
 pub fn construct_payment_tx(
     tx_ins: Vec<TxIn>,
-    receiver_address: Vec<u8>,
-    drs_block_hash: Option<Vec<u8>>,
-    drs_tx_hash: Option<Vec<u8>>,
+    receiver_address: String,
+    drs_block_hash: Option<String>,
+    drs_tx_hash: Option<String>,
     asset: Asset,
     amount: u64,
 ) -> Transaction {
@@ -94,11 +94,11 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
 /// * `druid_participants`  - Number of DRUID values to match with
 pub fn construct_dde_tx(
     tx_ins: Vec<TxIn>,
-    address: Vec<u8>,
+    address: String,
     send_asset: AssetInTransit,
     receive_asset: AssetInTransit,
-    send_asset_drs_hash: Option<Vec<u8>>,
-    druid: Vec<u8>,
+    send_asset_drs_hash: Option<String>,
+    druid: String,
     druid_participants: usize,
 ) -> Transaction {
     let mut tx = Transaction::new();
@@ -130,7 +130,7 @@ mod tests {
     #[test]
     // Creates a valid creation transaction
     fn should_construct_a_valid_create_tx() {
-        let receiver_address = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let receiver_address = hex::encode(vec![1, 2, 3, 4, 5, 6, 7, 8, 9]);
         let amount = 1;
         let drs = vec![0, 8, 30, 20, 1];
 
@@ -151,8 +151,8 @@ mod tests {
         let (pk, _sk) = sign::gen_keypair();
         let t_hash = vec![0, 0, 0];
         let signature = sign::sign_detached(&t_hash.clone(), &sk);
-        let drs_block_hash = vec![1, 2, 3, 4, 5, 6];
-        let drs_tx_hash = vec![1, 2, 3, 4, 5, 6];
+        let drs_block_hash = hex::encode(vec![1, 2, 3, 4, 5, 6]);
+        let drs_tx_hash = hex::encode(vec![1, 2, 3, 4, 5, 6]);
 
         let tx_const = TxConstructor {
             t_hash: hex::encode(t_hash),
@@ -165,7 +165,7 @@ mod tests {
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
         let payment_tx = construct_payment_tx(
             tx_ins,
-            vec![0, 0, 0, 0],
+            hex::encode(vec![0, 0, 0, 0]),
             Some(drs_block_hash),
             Some(drs_tx_hash),
             Asset::Token(4),
@@ -178,7 +178,7 @@ mod tests {
         );
         assert_eq!(
             payment_tx.outputs[0].clone().script_public_key,
-            Some(vec![0, 0, 0, 0])
+            Some(hex::encode(vec![0, 0, 0, 0]))
         );
     }
 
@@ -187,9 +187,9 @@ mod tests {
     fn should_construct_a_valid_dde_tx() {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
-        let t_hash = vec![0, 0, 0];
-        let drs_block_hash = vec![1, 2, 3, 4, 5, 6];
-        let signature = sign::sign_detached(&t_hash.clone(), &sk);
+        let t_hash = hex::encode(vec![0, 0, 0]);
+        let drs_block_hash = hex::encode(vec![1, 2, 3, 4, 5, 6]);
+        let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
             t_hash: hex::encode(t_hash),
@@ -202,7 +202,7 @@ mod tests {
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
 
         // DDE params
-        let druid = vec![1, 2, 3, 4, 5];
+        let druid = hex::encode(vec![1, 2, 3, 4, 5]);
         let druid_participants = 2;
 
         let first_asset = Asset::Token(10);
@@ -222,7 +222,7 @@ mod tests {
         // Actual DDE
         let dde = construct_dde_tx(
             tx_ins,
-            vec![0, 0, 0, 0],
+            hex::encode(vec![0, 0, 0, 0]),
             first_asset_t.clone(),
             second_asset_t,
             Some(drs_block_hash),
