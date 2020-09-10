@@ -85,12 +85,12 @@ pub fn list_assets() {
                 };
 
                 let drs_root_hash = match &output.drs_block_hash {
-                    Some(v) => hex::encode(v.clone()),
+                    Some(v) => v.clone(),
                     None => "Φ".to_string()
                 };
 
                 let script_pub_key = match &output.script_public_key {
-                    Some(v) => hex::encode(v.clone()),
+                    Some(v) => v.clone(),
                     None => "Φ".to_string()
                 };
 
