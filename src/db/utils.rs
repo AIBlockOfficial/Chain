@@ -20,7 +20,7 @@ pub fn tx_has_spent(prev_out: Option<OutPoint>) -> bool {
 
     if let Some(o) = prev_out {
         // TODO: Allow for net type change
-        let _prev_out_tx = match get_transaction(o.b_hash.clone(), o.t_hash.clone(), 0) {
+        let _prev_out_tx = match get_transaction(o.t_hash.clone(), 0) {
             Some(t) => t,
             None => return true,
         };
@@ -39,15 +39,24 @@ pub fn tx_has_spent(prev_out: Option<OutPoint>) -> bool {
 
             // TODO: Work on a better seeking structure
             for tx in next_block.transactions {
-                for input in tx.inputs {
-                    let hash_input = Bytes::from(serialize(&input.previous_out).unwrap());
-                    let hash_key = Sha3_256::digest(&hash_input);
+                iter.seek(tx);
 
-                    // TODO: This is not the best check, as it is possible to spend a portion of the amount
-                    // Need to check amount validity
-                    if hash_key == current_prev_out_key {
-                        return true;
+                if iter.valid() {
+                    let tx_full = deserialize::<Transaction>(&iter.value().unwrap()).unwrap();
+
+                    for input in tx_full.inputs {
+                        let hash_input = Bytes::from(serialize(&input.previous_out).unwrap());
+                        let hash_key = Sha3_256::digest(&hash_input);
+    
+                        // TODO: This is not the best check, as it is possible to spend a portion of the amount
+                        // Need to check amount validity
+                        if hash_key == current_prev_out_key {
+                            return true;
+                        }
                     }
+                } else {
+                    println!("Transaction hash not found in blockchain");
+                    return true;
                 }
             }
 
@@ -58,15 +67,14 @@ pub fn tx_has_spent(prev_out: Option<OutPoint>) -> bool {
     false
 }
 
-/// Finds the relevant transaction based on a block and tx hash. If the transaction is not found
+/// Finds the relevant transaction based on a block or tx hash. If the transaction is not found
 /// the return value will be None
 ///
 /// ### Arguments
 ///
-/// * `b_hash`  - Block hash
-/// * `t_hash`  - Transaction hash
+/// * `hash`    - Hash to fetch the tx with
 /// * `net`     - Which network blockchain to fetch
-pub fn get_transaction(b_hash: String, t_hash: String, net: usize) -> Option<Transaction> {
+pub fn get_transaction(hash: String, net: usize) -> Option<Transaction> {
     let load_path = match net {
         0 => format!("{}/{}", DB_PATH, DB_PATH_TEST),
         _ => format!("{}/{}", DB_PATH, DB_PATH_LIVE),
@@ -74,21 +82,9 @@ pub fn get_transaction(b_hash: String, t_hash: String, net: usize) -> Option<Tra
 
     let db = DB::open_default(load_path.clone()).unwrap();
 
-    let block = match db.get(b_hash) {
-        Ok(Some(value)) => deserialize::<Block>(&value).unwrap(),
-        Ok(None) => panic!("Block hash not present in this blockchain"),
+    match db.get(hash) {
+        Ok(Some(value)) => Some(deserialize::<Transaction>(&value).unwrap()),
+        Ok(None) => None,
         Err(e) => panic!("Error retrieving block: {:?}", e),
-    };
-
-    for tx in block.transactions {
-        let hash_input = Bytes::from(serialize(&tx).unwrap());
-        let hash_key_raw = Sha3_256::digest(&hash_input);
-        let hash_key = hex::encode(hash_key_raw);
-
-        if hash_key == t_hash {
-            return Some(tx);
-        }
     }
-
-    None
 }

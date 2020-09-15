@@ -50,7 +50,7 @@ impl BlockHeader {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Block {
     pub header: BlockHeader,
-    pub transactions: Vec<Transaction>,
+    pub transactions: Vec<String>,
 }
 
 impl Block {
@@ -155,8 +155,11 @@ pub fn create_raw_genesis_block(
     genesis.header.nonce = nonce.clone();
     genesis.header.time = *time;
 
+    let hash_input = Bytes::from(serialize(&gen_transaction).unwrap());
+    let hash_key = hex::encode(Sha3_256::digest(&hash_input));
+
     // Add genesis transaction
-    genesis.transactions.push(gen_transaction);
+    genesis.transactions.push(hash_key);
 
     // Other stuff accepts defaults, so just return the block
     genesis

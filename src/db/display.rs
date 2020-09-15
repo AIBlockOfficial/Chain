@@ -5,6 +5,7 @@ use rocksdb::{Options, DB};
 use sha3::Sha3_256;
 use hex::encode;
 
+use crate::db::utils::get_transaction;
 use crate::primitives::asset::Asset;
 use crate::primitives::block::Block;
 
@@ -43,7 +44,8 @@ pub fn list_assets() {
         println!("");
 
         for i in 0..block.transactions.len() {
-            let tx = &block.transactions[i];
+            let tx_hash = &block.transactions[i];
+            let tx = get_transaction(tx_hash.to_string(), 0).unwrap();
 
             println!("{} {}", "TRANSACTION".cyan(), i.to_string().cyan());
             println!("{}: {}", "Version".cyan(), tx.version);

@@ -2,6 +2,11 @@ use crate::primitives::asset::{Asset, AssetInTransit};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
 
+use bincode::serialize;
+use bytes::Bytes;
+use sha3::Sha3_256;
+use crate::sha3::Digest;
+
 /// Constructs a transaction for the creation of a new smart data asset
 ///
 /// ### Arguments
