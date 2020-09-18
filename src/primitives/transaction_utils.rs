@@ -7,6 +7,22 @@ use bytes::Bytes;
 use sha3::Sha3_256;
 use crate::sha3::Digest;
 
+/// Constructs a search-valid hash for a transaction to be added to the blockchain
+/// 
+/// ### Arguments
+/// 
+/// * `tx`  - Transaction to hash
+pub fn construct_tx_hash(tx: &Transaction) -> String {
+    let tx_bytes = Bytes::from(serialize(tx).unwrap());
+    let tx_raw_h = Sha3_256::digest(&tx_bytes).to_vec();
+    let mut hash = hex::encode(tx_raw_h);
+
+    hash.insert(0, 'g');
+    hash.truncate(32);
+
+    hash
+}
+
 /// Constructs a transaction for the creation of a new smart data asset
 ///
 /// ### Arguments
