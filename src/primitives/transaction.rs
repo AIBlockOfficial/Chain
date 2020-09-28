@@ -22,16 +22,14 @@ pub struct TxConstructor {
 /// An outpoint - a combination of a block hash, transaction hash and an index n into its vout
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct OutPoint {
-    pub b_hash: String,
     pub t_hash: String,
     pub n: i32,
 }
 
 impl OutPoint {
     /// Creates a new outpoint instance
-    pub fn new(b_hash: String, t_hash: String, n: i32) -> OutPoint {
+    pub fn new(t_hash: String, n: i32) -> OutPoint {
         OutPoint {
-            b_hash: b_hash,
             t_hash: t_hash,
             n: n,
         }

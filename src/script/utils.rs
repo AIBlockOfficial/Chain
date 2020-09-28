@@ -255,7 +255,7 @@ mod tests {
                 entry.signatures,
                 entry.pub_keys,
             );
-            new_tx_in.previous_out = Some(OutPoint::new(entry.b_hash, entry.t_hash, entry.prev_n));
+            new_tx_in.previous_out = Some(OutPoint::new(entry.t_hash, entry.prev_n));
 
             tx_ins.push(new_tx_in);
         }
@@ -274,7 +274,7 @@ mod tests {
                 entry.pub_keys[0],
                 entry.signatures[0],
             );
-            new_tx_in.previous_out = Some(OutPoint::new(entry.b_hash, entry.t_hash, entry.prev_n));
+            new_tx_in.previous_out = Some(OutPoint::new(entry.t_hash, entry.prev_n));
 
             tx_ins.push(new_tx_in);
         }

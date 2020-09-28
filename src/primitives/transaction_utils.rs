@@ -1,16 +1,44 @@
 use crate::primitives::asset::{Asset, AssetInTransit};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
+use crate::sha3::Digest;
 
 use bincode::serialize;
 use bytes::Bytes;
+use rayon::prelude::*;
 use sha3::Sha3_256;
-use crate::sha3::Digest;
+use std::collections::BTreeMap;
+use std::sync::{Arc, Mutex};
+
+/// Constructs the UTXO set for the current state of the blockchain. The set passed
+/// needs to consist of all transactions which the system does not currently know the state of.
+///
+/// ### Arguments
+///
+/// * `current_utxo` - The current UTXO set to be updated.
+pub fn construct_utxo_set(current_utxo: &mut Arc<Mutex<BTreeMap<String, Transaction>>>) {
+    let value_set: Vec<Transaction> = current_utxo
+        .lock()
+        .unwrap()
+        .clone()
+        .into_iter()
+        .map(|(_, val)| val.clone())
+        .collect();
+
+    let _= value_set.par_iter().map(|x| {
+        for input in x.inputs.clone() {
+            current_utxo
+                .lock()
+                .unwrap()
+                .remove(&input.previous_out.unwrap().t_hash);
+        }
+    });
+}
 
 /// Constructs a search-valid hash for a transaction to be added to the blockchain
-/// 
+///
 /// ### Arguments
-/// 
+///
 /// * `tx`  - Transaction to hash
 pub fn construct_tx_hash(tx: &Transaction) -> String {
     let tx_bytes = Bytes::from(serialize(tx).unwrap());
@@ -94,7 +122,7 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
         let mut new_tx_in = TxIn::new();
         new_tx_in.script_signature =
             Script::pay2pkh(entry.t_hash.clone(), entry.signatures[0], entry.pub_keys[0]);
-        new_tx_in.previous_out = Some(OutPoint::new(entry.b_hash, entry.t_hash, entry.prev_n));
+        new_tx_in.previous_out = Some(OutPoint::new(entry.t_hash, entry.prev_n));
 
         tx_ins.push(new_tx_in);
     }

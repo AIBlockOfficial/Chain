@@ -31,7 +31,7 @@ pub fn tx_has_spent(prev_out: Option<OutPoint>) -> bool {
         let mut iter = db.raw_iterator();
 
         // Start from block
-        iter.seek(o.b_hash);
+        iter.seek(o.t_hash);
         iter.next();
 
         while iter.valid() {

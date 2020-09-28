@@ -465,6 +465,7 @@ dependencies = [
  "crypto",
  "hex",
  "merkletree",
+ "rayon",
  "rocksdb",
  "serde",
  "sha3",
