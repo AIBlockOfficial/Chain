@@ -25,7 +25,7 @@ pub fn construct_utxo_set(current_utxo: &mut Arc<Mutex<BTreeMap<String, Transact
         .map(|(_, val)| val.clone())
         .collect();
 
-    let _= value_set.par_iter().map(|x| {
+    value_set.par_iter().for_each(|x| {
         for input in x.inputs.clone() {
             current_utxo
                 .lock()
@@ -229,6 +229,65 @@ mod tests {
             payment_tx.outputs[0].clone().script_public_key,
             Some(hex::encode(vec![0, 0, 0, 0]))
         );
+    }
+
+    #[test]
+    // Creates a valid UTXO set
+    fn should_construct_valid_utxo_set() {
+        let (pk, sk) = sign::gen_keypair();
+        
+        let t_hash_1 = hex::encode(vec![0,0,0]);
+        let signed = sign::sign_detached(t_hash_1.as_bytes(), &sk);
+
+        let tx_1 = TxConstructor {
+            t_hash: "".to_string(),
+            prev_n: 0,
+            b_hash: hex::encode(vec![0]),
+            signatures: vec![signed],
+            pub_keys: vec![pk]
+        };
+        
+        let tx_ins_1 = construct_payment_tx_ins(vec![tx_1]);
+        let payment_tx_1 = construct_payment_tx(
+            tx_ins_1,
+            hex::encode(vec![0, 0, 0, 0]),
+            None,
+            None,
+            Asset::Token(4),
+            4,
+        );
+        let tx_1_hash = construct_tx_hash(&payment_tx_1);
+
+        // Second tx referencing first
+        let tx_2 = TxConstructor {
+            t_hash: tx_1_hash.clone(),
+            prev_n: 0,
+            b_hash: hex::encode(vec![0]),
+            signatures: vec![signed],
+            pub_keys: vec![pk]
+        };
+        let tx_ins_2 = construct_payment_tx_ins(vec![tx_2]);
+        let payment_tx_2 = construct_payment_tx(
+            tx_ins_2,
+            hex::encode(vec![0, 0, 0, 0]),
+            None,
+            None,
+            Asset::Token(4),
+            4,
+        );
+        let tx_2_hash = construct_tx_hash(&payment_tx_2);
+
+        // BTreemap
+        let mut btree = BTreeMap::new();
+        btree.insert(tx_1_hash, payment_tx_1);
+        btree.insert(tx_2_hash.clone(), payment_tx_2);
+
+        let mut barc = Arc::new(Mutex::new(btree));
+        construct_utxo_set(&mut barc);
+
+        // Check that only one entry remains
+        assert_eq!(barc.lock().unwrap().len(), 1);
+        assert_ne!(barc.lock().unwrap().get(&tx_2_hash), None);
     }
 
     #[test]
