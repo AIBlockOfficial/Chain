@@ -55,9 +55,9 @@ pub fn construct_tx_hash(tx: &Transaction) -> String {
 ///
 /// ### Arguments
 ///
-/// * `drs` - Digital rights signature for the new asset
-/// * `receiver_address` - Address to receive the newly created asset
-/// * `amount`  - Amount of the asset to generate
+/// * `drs`                 - Digital rights signature for the new asset
+/// * `receiver_address`    - Address to receive the newly created asset
+/// * `amount`              - Amount of the asset to generate
 pub fn construct_create_tx(drs: Vec<u8>, receiver_address: String, amount: u64) -> Transaction {
     let mut tx = Transaction::new();
     let mut tx_out = TxOut::new();
@@ -138,7 +138,7 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
 /// * `address`             - Address to send the asset to
 /// * `send_asset`          - Asset to be sent as payment
 /// * `receive_asset`       - Asset to receive
-/// * `send_asset_drs_hash`  - Hash of the block containing the DRS for the sent asset. Only applicable to data trades
+/// * `send_asset_drs_hash` - Hash of the block containing the DRS for the sent asset. Only applicable to data trades
 /// * `druid`               - DRUID value to match with the other party
 /// * `druid_participants`  - Number of DRUID values to match with
 pub fn construct_dde_tx(

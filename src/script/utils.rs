@@ -1,4 +1,3 @@
-use crate::db::utils::tx_has_spent;
 use crate::primitives::asset::Asset;
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
@@ -12,6 +11,7 @@ use sha3::Sha3_256;
 use sodiumoxide::crypto::sign;
 use sodiumoxide::crypto::sign::ed25519::{PublicKey, Signature};
 use tracing::{debug, error, info};
+use std::collections::BTreeMap;
 
 /// Verifies that a member of a multisig tx script is valid
 ///
@@ -61,9 +61,11 @@ pub fn member_multisig_is_valid(script: Script) -> bool {
 /// ### Arguments
 ///
 /// * `tx_ins`  - Tx_ins to verify
-pub fn tx_ins_are_valid(tx_ins: Vec<TxIn>) -> bool {
+pub fn tx_ins_are_valid(tx_ins: Vec<TxIn>, utxo: &BTreeMap<String, Transaction>) -> bool {
     for tx_in in tx_ins {
-        if !tx_has_valid_p2pkh_sig(tx_in.script_signature) || tx_has_spent(tx_in.previous_out) {
+        let tx_hash = tx_in.previous_out.unwrap().t_hash;
+
+        if !tx_has_valid_p2pkh_sig(tx_in.script_signature) || utxo.get(&tx_hash).is_none() {
             return false;
         }
     }
