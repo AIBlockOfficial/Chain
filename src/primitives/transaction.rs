@@ -19,7 +19,7 @@ pub struct TxConstructor {
     pub pub_keys: Vec<PublicKey>,
 }
 
-/// An outpoint - a combination of a block hash, transaction hash and an index n into its vout
+/// An outpoint - a combination of a transaction hash and an index n into its vout
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct OutPoint {
     pub t_hash: String,

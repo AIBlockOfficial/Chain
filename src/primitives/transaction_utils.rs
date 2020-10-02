@@ -10,8 +10,7 @@ use sha3::Sha3_256;
 use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex};
 
-/// Constructs the UTXO set for the current state of the blockchain. The set passed
-/// needs to consist of all transactions which the system does not currently know the state of.
+/// Constructs the UTXO set for the current state of the blockchain
 ///
 /// ### Arguments
 ///
