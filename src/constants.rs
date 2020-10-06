@@ -31,6 +31,9 @@ pub const MAX_OPCODE: u8 = OpCodes::OP_NOP10 as u8;
 
 /*------- STORAGE CONSTANTS -------*/
 
+/// The constant prepending character for a transaction
+pub const TX_PREPEND: char = 'g';
+
 /// Path to chain DB
 pub const DB_PATH: &'static str = "/Users/byron/code/zenotta/naom/src/db/db";
 

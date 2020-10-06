@@ -1,3 +1,5 @@
+#![allow(warnings)]
+
 extern crate serde;
 extern crate merkletree;
 extern crate bincode;

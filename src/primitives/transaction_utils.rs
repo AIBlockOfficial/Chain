@@ -2,6 +2,7 @@ use crate::primitives::asset::{Asset, AssetInTransit};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
 use crate::sha3::Digest;
+use crate::constants::TX_PREPEND;
 
 use bincode::serialize;
 use bytes::Bytes;
@@ -34,6 +35,31 @@ pub fn construct_utxo_set(current_utxo: &mut Arc<Mutex<BTreeMap<String, Transact
     });
 }
 
+/// Constructs a coinbase transaction
+/// 
+/// TODO: Check u64 type and maybe move to big int
+/// 
+/// ### Arguments
+/// 
+/// * `amount`      - Amount of tokens allowed in coinbase
+/// * `block_time`  - Block time to assign to script
+/// * `address`     - Address to send the coinbase amount to
+pub fn construct_coinbase_tx(amount: u64, block_time: u32, address: String) -> Transaction {
+    let mut tx = Transaction::new();
+    let mut tx_in = TxIn::new();
+    tx_in.script_signature = Script::new_for_coinbase(block_time);
+
+    let mut tx_out = TxOut::new();
+    tx_out.amount = amount;
+    tx_out.value = Some(Asset::Token(amount));
+    tx_out.script_public_key = Some(address);
+
+    tx.inputs.push(tx_in);
+    tx.outputs.push(tx_out);
+
+    tx
+}
+
 /// Constructs a search-valid hash for a transaction to be added to the blockchain
 ///
 /// ### Arguments
@@ -44,7 +70,7 @@ pub fn construct_tx_hash(tx: &Transaction) -> String {
     let tx_raw_h = Sha3_256::digest(&tx_bytes).to_vec();
     let mut hash = hex::encode(tx_raw_h);
 
-    hash.insert(0, 'g');
+    hash.insert(0, TX_PREPEND);
     hash.truncate(32);
 
     hash
