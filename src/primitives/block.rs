@@ -21,7 +21,7 @@ pub struct BlockHeader {
     pub nonce: Vec<u8>,
     pub b_num: u64,
     pub seed_value: Vec<u8>, // for commercial
-    pub previous_hash: Option<Vec<u8>>,
+    pub previous_hash: Option<String>,
     pub merkle_root_hash: Vec<u8>,
 }
 
