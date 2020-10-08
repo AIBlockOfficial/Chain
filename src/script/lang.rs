@@ -1,13 +1,13 @@
 #![allow(unused)]
-use hex::encode;
-use sha3::Sha3_256;
+use crate::script::{OpCodes, StackEntry};
+use crate::sha3::Digest;
 use bincode::serialize;
 use bytes::Bytes;
-use crate::sha3::Digest;
-use tracing::{error, warn};
+use hex::encode;
 use serde::{Deserialize, Serialize};
-use crate::script::{OpCodes, StackEntry};
+use sha3::Sha3_256;
 use sodiumoxide::crypto::sign::{sign_detached, PublicKey, Signature};
+use tracing::{error, warn};
 
 /// Scripts are defined as a sequence of stack entries
 /// NOTE: A tuple struct could probably work here as well
@@ -72,11 +72,7 @@ impl Script {
     /// * `check_data`  - Data to be signed for verification
     /// * `pub_key`     - Public key of this party
     /// * `signature`   - Signature of this party
-    pub fn member_multisig(
-        check_data: String,
-        pub_key: PublicKey,
-        signature: Signature,
-    ) -> Script {
+    pub fn member_multisig(check_data: String, pub_key: PublicKey, signature: Signature) -> Script {
         let mut new_script = Script::new();
 
         new_script.stack.push(StackEntry::Bytes(check_data));

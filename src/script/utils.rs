@@ -4,14 +4,14 @@ use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use crate::sha3::Digest;
 
-use hex::encode;
 use bincode::serialize;
 use bytes::Bytes;
+use hex::encode;
 use sha3::Sha3_256;
 use sodiumoxide::crypto::sign;
 use sodiumoxide::crypto::sign::ed25519::{PublicKey, Signature};
-use tracing::{debug, error, info};
 use std::collections::BTreeMap;
+use tracing::{debug, error, info};
 
 /// Verifies that a member of a multisig tx script is valid
 ///
@@ -57,7 +57,7 @@ pub fn member_multisig_is_valid(script: Script) -> bool {
 
 /// Verifies that all incoming tx_ins are allowed to be spent. Returns false if a single
 /// transaction doesn't verify
-/// 
+///
 /// TODO: Currently assumes p2pkh, abstract to all tx types
 ///
 /// ### Arguments

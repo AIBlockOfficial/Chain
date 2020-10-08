@@ -1,8 +1,8 @@
+use crate::constants::TX_PREPEND;
 use crate::primitives::asset::{Asset, AssetInTransit};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
 use crate::sha3::Digest;
-use crate::constants::TX_PREPEND;
 
 use bincode::serialize;
 use bytes::Bytes;
@@ -36,11 +36,11 @@ pub fn construct_utxo_set(current_utxo: &mut Arc<Mutex<BTreeMap<String, Transact
 }
 
 /// Constructs a coinbase transaction
-/// 
+///
 /// TODO: Check u64 type and maybe move to big int
-/// 
+///
 /// ### Arguments
-/// 
+///
 /// * `amount`      - Amount of tokens allowed in coinbase
 /// * `block_time`  - Block time to assign to script
 /// * `address`     - Address to send the coinbase amount to
@@ -260,8 +260,8 @@ mod tests {
     // Creates a valid UTXO set
     fn should_construct_valid_utxo_set() {
         let (pk, sk) = sign::gen_keypair();
-        
-        let t_hash_1 = hex::encode(vec![0,0,0]);
+
+        let t_hash_1 = hex::encode(vec![0, 0, 0]);
         let signed = sign::sign_detached(t_hash_1.as_bytes(), &sk);
 
         let tx_1 = TxConstructor {
@@ -269,9 +269,9 @@ mod tests {
             prev_n: 0,
             b_hash: hex::encode(vec![0]),
             signatures: vec![signed],
-            pub_keys: vec![pk]
+            pub_keys: vec![pk],
         };
-        
+
         let tx_ins_1 = construct_payment_tx_ins(vec![tx_1]);
         let payment_tx_1 = construct_payment_tx(
             tx_ins_1,
@@ -289,7 +289,7 @@ mod tests {
             prev_n: 0,
             b_hash: hex::encode(vec![0]),
             signatures: vec![signed],
-            pub_keys: vec![pk]
+            pub_keys: vec![pk],
         };
         let tx_ins_2 = construct_payment_tx_ins(vec![tx_2]);
         let payment_tx_2 = construct_payment_tx(

@@ -1,16 +1,16 @@
-use std::mem;
-use rocksdb::DB;
-use rayon::prelude::*;
-use bincode::deserialize;
-use std::sync::{Arc, Mutex};
 use crate::constants::{DB_PATH, DB_PATH_TEST};
 use crate::primitives::block::Block;
 use crate::primitives::transaction::Transaction;
+use bincode::deserialize;
+use rayon::prelude::*;
+use rocksdb::DB;
+use std::mem;
+use std::sync::{Arc, Mutex};
 
 /// Finds all matching transactions for a given DRUID
-/// 
+///
 /// ### Arguments
-/// 
+///
 /// * `druid`   - DRUID to find transaction for
 /// * `block`   - Block hash containing DRUID
 pub fn find_all_matching_druids(druid: String, block: String) -> Vec<Transaction> {
