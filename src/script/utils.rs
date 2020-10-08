@@ -57,6 +57,8 @@ pub fn member_multisig_is_valid(script: Script) -> bool {
 
 /// Verifies that all incoming tx_ins are allowed to be spent. Returns false if a single
 /// transaction doesn't verify
+/// 
+/// TODO: Currently assumes p2pkh, abstract to all tx types
 ///
 /// ### Arguments
 ///

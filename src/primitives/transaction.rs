@@ -155,7 +155,7 @@ impl Transaction {
 
     /// Gets the total value of all outputs and checks that it is within the
     /// possible amounts set by chain system
-    fn get_output_value(&mut self) -> u64 {
+    pub fn get_output_value(&mut self) -> u64 {
         let mut total_value: u64 = 0;
 
         for txout in &mut self.outputs {
@@ -184,13 +184,13 @@ impl Transaction {
     }
 
     /// Get the total transaction size in bytes
-    fn get_total_size(&self) -> usize {
+    pub fn get_total_size(&self) -> usize {
         let data = Bytes::from(serialize(&self).unwrap());
         data.len()
     }
 
     /// Returns whether current transaction is a coinbase tx
-    fn is_coinbase(&self) -> bool {
-        self.inputs.len() == 1 && self.inputs[0].previous_out != None
+    pub fn is_coinbase(&self) -> bool {
+        self.inputs.len() == 1 && self.inputs[0].previous_out == None
     }
 }
