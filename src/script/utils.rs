@@ -67,7 +67,10 @@ pub fn tx_ins_are_valid(tx_ins: Vec<TxIn>, utxo: &BTreeMap<String, Transaction>)
     for tx_in in tx_ins {
         let tx_hash = tx_in.previous_out.unwrap().t_hash;
 
-        if !tx_has_valid_p2pkh_sig(tx_in.script_signature) || utxo.get(&tx_hash).is_none() {
+        if (!tx_has_valid_p2pkh_sig(tx_in.script_signature.clone())
+            && !tx_has_valid_multsig_validation(tx_in.script_signature))
+            || utxo.get(&tx_hash).is_none()
+        {
             return false;
         }
     }
