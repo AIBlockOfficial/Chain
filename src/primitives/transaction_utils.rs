@@ -16,7 +16,7 @@ use std::sync::{Arc, Mutex};
 /// ### Arguments
 ///
 /// * `current_utxo` - The current UTXO set to be updated.
-pub fn construct_utxo_set(current_utxo: &mut Arc<Mutex<BTreeMap<String, Transaction>>>) {
+pub fn update_utxo_set(current_utxo: &mut Arc<Mutex<BTreeMap<String, Transaction>>>) {
     let value_set: Vec<Transaction> = current_utxo
         .lock()
         .unwrap()
@@ -308,7 +308,7 @@ mod tests {
         btree.insert(tx_2_hash.clone(), payment_tx_2);
 
         let mut barc = Arc::new(Mutex::new(btree));
-        construct_utxo_set(&mut barc);
+        update_utxo_set(&mut barc);
 
         // Check that only one entry remains
         assert_eq!(barc.lock().unwrap().len(), 1);

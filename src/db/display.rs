@@ -18,7 +18,6 @@ pub fn list_assets() {
     println!("");
     while iter.valid() {
         let key_raw = iter.key().unwrap().to_vec();
-
         let key = String::from_utf8_lossy(&key_raw);
 
         if key.chars().nth(0).unwrap() != 'g' {
