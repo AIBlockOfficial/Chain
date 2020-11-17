@@ -7,12 +7,12 @@ Other language options can be found here:
 - [Afrikaans](https://gitlab.com/zenotta/naom/-/blob/master/README.af.md)
 
 If you'd like to help with translations, or spot a mistake, feel free to open a new merge request.
+
 ..
 
 ## Getting Started
 
-In order to get up and running with NAOM, you can clone this repo and run the `Makefile` to set everything up for a 
-development environment in Unix:
+Running NAOM assumes you have Rust installed and are using a Unix system. You can clone this repo and run the `Makefile` to set everything up for a development environment:
 
 ```
 make

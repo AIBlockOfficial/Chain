@@ -12,7 +12,6 @@ use crate::utils::is_valid_amount;
 /// A user-friendly construction struct for a TxIn
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct TxConstructor {
-    pub b_hash: String,
     pub t_hash: String,
     pub prev_n: i32,
     pub signatures: Vec<Signature>,

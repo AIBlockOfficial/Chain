@@ -67,6 +67,12 @@ pub fn tx_ins_are_valid(tx_ins: Vec<TxIn>, utxo: &BTreeMap<String, Transaction>)
     for tx_in in tx_ins {
         let tx_hash = tx_in.previous_out.unwrap().t_hash;
 
+        if utxo.get(&tx_hash).is_none() {
+            println!("");
+            println!("UTXO DOESN'T CONTAIN THIS TX");
+            println!("");
+        }
+
         if (!tx_has_valid_p2pkh_sig(tx_in.script_signature.clone())
             && !tx_has_valid_multsig_validation(tx_in.script_signature))
             || utxo.get(&tx_hash).is_none()
@@ -299,7 +305,6 @@ mod tests {
         let tx_const = TxConstructor {
             t_hash: t_hash,
             prev_n: 0,
-            b_hash: hex::encode(vec![0]),
             signatures: vec![signature],
             pub_keys: vec![pk],
         };
@@ -320,7 +325,6 @@ mod tests {
         let tx_const = TxConstructor {
             t_hash: t_hash,
             prev_n: 0,
-            b_hash: hex::encode(vec![0]),
             signatures: vec![signature],
             pub_keys: vec![pk],
         };
@@ -343,7 +347,6 @@ mod tests {
         let tx_const = TxConstructor {
             t_hash: t_hash,
             prev_n: 0,
-            b_hash: hex::encode(vec![0]),
             signatures: vec![signature],
             pub_keys: vec![pk],
         };
@@ -364,7 +367,6 @@ mod tests {
         let tx_const = TxConstructor {
             t_hash: t_hash,
             prev_n: 0,
-            b_hash: hex::encode(vec![0]),
             signatures: vec![signature],
             pub_keys: vec![second_pk],
         };
@@ -393,7 +395,6 @@ mod tests {
         let tx_const = TxConstructor {
             t_hash: hex::encode(vec![0, 0, 0]),
             prev_n: 0,
-            b_hash: hex::encode(vec![0]),
             signatures: vec![first_sig, second_sig, third_sig],
             pub_keys: vec![first_pk, second_pk, third_pk],
         };

@@ -231,7 +231,6 @@ mod tests {
         let tx_const = TxConstructor {
             t_hash: hex::encode(t_hash),
             prev_n: 0,
-            b_hash: hex::encode(vec![0]),
             signatures: vec![signature],
             pub_keys: vec![pk],
         };
@@ -267,7 +266,6 @@ mod tests {
         let tx_1 = TxConstructor {
             t_hash: "".to_string(),
             prev_n: 0,
-            b_hash: hex::encode(vec![0]),
             signatures: vec![signed],
             pub_keys: vec![pk],
         };
@@ -287,7 +285,6 @@ mod tests {
         let tx_2 = TxConstructor {
             t_hash: tx_1_hash.clone(),
             prev_n: 0,
-            b_hash: hex::encode(vec![0]),
             signatures: vec![signed],
             pub_keys: vec![pk],
         };
@@ -327,7 +324,6 @@ mod tests {
         let tx_const = TxConstructor {
             t_hash: hex::encode(t_hash),
             prev_n: 0,
-            b_hash: hex::encode(vec![0]),
             signatures: vec![signature],
             pub_keys: vec![pk],
         };
