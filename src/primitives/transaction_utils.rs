@@ -10,16 +10,27 @@ use rayon::prelude::*;
 use sha3::Sha3_256;
 use std::collections::BTreeMap;
 
+/// Get all the hash to remove from UTXO set for the utxo_entries
+///
+/// ### Arguments
+///
+/// * `utxo_entries` - The entries to to provide an update for.
+pub fn get_inputs_previous_out_hash<'a>(
+    utxo_entries: impl Iterator<Item = &'a Transaction>,
+) -> impl Iterator<Item = &'a String> {
+    utxo_entries
+        .flat_map(|val| val.inputs.iter())
+        .map(|input| &input.previous_out.as_ref().unwrap().t_hash)
+}
+
 /// Constructs the UTXO set for the current state of the blockchain
 ///
 /// ### Arguments
 ///
 /// * `current_utxo` - The current UTXO set to be updated.
 pub fn update_utxo_set(current_utxo: &mut BTreeMap<String, Transaction>) {
-    let value_set: Vec<String> = current_utxo
-        .iter()
-        .flat_map(|(_, val)| val.inputs.iter())
-        .map(|input| input.previous_out.as_ref().unwrap().t_hash.clone())
+    let value_set: Vec<String> = get_inputs_previous_out_hash(current_utxo.values())
+        .cloned()
         .collect();
 
     value_set.iter().for_each(move |t_hash| {
