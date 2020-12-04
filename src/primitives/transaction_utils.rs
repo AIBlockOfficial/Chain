@@ -9,29 +9,32 @@ use bytes::Bytes;
 use rayon::prelude::*;
 use sha3::Sha3_256;
 use std::collections::BTreeMap;
-use std::sync::{Arc, Mutex};
+
+/// Get all the hash to remove from UTXO set for the utxo_entries
+///
+/// ### Arguments
+///
+/// * `utxo_entries` - The entries to to provide an update for.
+pub fn get_inputs_previous_out_hash<'a>(
+    utxo_entries: impl Iterator<Item = &'a Transaction>,
+) -> impl Iterator<Item = &'a String> {
+    utxo_entries
+        .flat_map(|val| val.inputs.iter())
+        .map(|input| &input.previous_out.as_ref().unwrap().t_hash)
+}
 
 /// Constructs the UTXO set for the current state of the blockchain
 ///
 /// ### Arguments
 ///
 /// * `current_utxo` - The current UTXO set to be updated.
-pub fn update_utxo_set(current_utxo: &mut Arc<Mutex<BTreeMap<String, Transaction>>>) {
-    let value_set: Vec<Transaction> = current_utxo
-        .lock()
-        .unwrap()
-        .clone()
-        .into_iter()
-        .map(|(_, val)| val.clone())
+pub fn update_utxo_set(current_utxo: &mut BTreeMap<String, Transaction>) {
+    let value_set: Vec<String> = get_inputs_previous_out_hash(current_utxo.values())
+        .cloned()
         .collect();
 
-    value_set.par_iter().for_each(|x| {
-        for input in x.inputs.clone() {
-            current_utxo
-                .lock()
-                .unwrap()
-                .remove(&input.previous_out.unwrap().t_hash);
-        }
+    value_set.iter().for_each(move |t_hash| {
+        current_utxo.remove(t_hash);
     });
 }
 
@@ -304,12 +307,11 @@ mod tests {
         btree.insert(tx_1_hash, payment_tx_1);
         btree.insert(tx_2_hash.clone(), payment_tx_2);
 
-        let mut barc = Arc::new(Mutex::new(btree));
-        update_utxo_set(&mut barc);
+        update_utxo_set(&mut btree);
 
         // Check that only one entry remains
-        assert_eq!(barc.lock().unwrap().len(), 1);
-        assert_ne!(barc.lock().unwrap().get(&tx_2_hash), None);
+        assert_eq!(btree.len(), 1);
+        assert_ne!(btree.get(&tx_2_hash), None);
     }
 
     #[test]
