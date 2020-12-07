@@ -15,7 +15,7 @@ pub fn list_assets() {
     let mut iter = db.raw_iterator();
     iter.seek_to_first();
 
-    println!("");
+    println!();
     while iter.valid() {
         let key_raw = iter.key().unwrap().to_vec();
         let key = String::from_utf8_lossy(&key_raw);
@@ -28,7 +28,7 @@ pub fn list_assets() {
             };
 
             println!("//###########################//");
-            println!("");
+            println!();
             println!("{}: {}", "BLOCK".magenta(), hex::encode(key_raw));
             println!("{}: {}", "Version".magenta(), block.header.version);
             println!("{}: {:?}", "Previous Hash".magenta(), previous_hash);
@@ -38,7 +38,7 @@ pub fn list_assets() {
                 String::from_utf8_lossy(&block.header.merkle_root_hash)
             );
             println!("{}: {}", "Block Number".magenta(), block.header.b_num);
-            println!("");
+            println!();
 
             for i in 0..block.transactions.len() {
                 let tx_hash = &block.transactions[i];
@@ -63,17 +63,17 @@ pub fn list_assets() {
                     "Expected Trade Amount".cyan(),
                     tx.expect_value_amount
                 );
-                println!("");
+                println!();
                 println!("//------//");
-                println!("");
+                println!();
                 println!("{}", "INPUTS:".cyan());
                 for input in &tx.inputs {
                     println!("{}: {:?}", "Previous Out".green(), input.previous_out);
                     println!("{}: {:?}", "Script".green(), input.script_signature);
-                    println!("");
+                    println!();
                 }
                 println!("//------//");
-                println!("");
+                println!();
                 println!("{}", "OUTPUTS:".cyan());
                 for output in &tx.outputs {
                     let asset = match &output.value {
@@ -103,7 +103,7 @@ pub fn list_assets() {
                     println!("{}: {:?}", "Amount".green(), output.amount);
                     println!("{}: {:?}", "DRS Root Hash".green(), drs_root_hash);
                     println!("{}: {:?}", "Script with PubKey".green(), script_pub_key);
-                    println!("");
+                    println!();
                 }
                 println!("//###########################//");
             }
@@ -111,9 +111,9 @@ pub fn list_assets() {
 
         iter.next();
     }
-    println!("");
+    println!();
     println!("END OF BLOCKCHAIN");
-    println!("");
+    println!();
 
     let _ = DB::destroy(&Options::default(), save_path.clone());
 }
