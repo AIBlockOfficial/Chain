@@ -68,9 +68,9 @@ pub fn tx_ins_are_valid(tx_ins: Vec<TxIn>, utxo: &BTreeMap<String, Transaction>)
         let tx_hash = tx_in.previous_out.unwrap().t_hash;
 
         if utxo.get(&tx_hash).is_none() {
-            println!("");
+            println!();
             println!("UTXO DOESN'T CONTAIN THIS TX");
-            println!("");
+            println!();
         }
 
         if (!tx_has_valid_p2pkh_sig(tx_in.script_signature.clone())
