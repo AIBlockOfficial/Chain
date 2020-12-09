@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 /// A placeholder Asset struct
-#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialOrd, PartialEq)]
 pub enum Asset {
-    Token(u64),
+    Token(f64),
     Data(Vec<u8>),
 }
 
@@ -11,5 +11,5 @@ pub enum Asset {
 #[derive(Debug, Clone)]
 pub struct AssetInTransit {
     pub asset: Asset,
-    pub amount: u64,
+    pub amount: f64,
 }
