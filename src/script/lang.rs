@@ -11,7 +11,7 @@ use tracing::{error, warn};
 
 /// Scripts are defined as a sequence of stack entries
 /// NOTE: A tuple struct could probably work here as well
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialOrd, PartialEq, Serialize, Deserialize)]
 pub struct Script {
     pub stack: Vec<StackEntry>,
 }

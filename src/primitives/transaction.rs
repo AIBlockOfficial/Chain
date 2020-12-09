@@ -10,7 +10,7 @@ use crate::script::{OpCodes, StackEntry};
 use crate::utils::is_valid_amount;
 
 /// A user-friendly construction struct for a TxIn
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialOrd, PartialEq, Serialize, Deserialize)]
 pub struct TxConstructor {
     pub t_hash: String,
     pub prev_n: i32,
@@ -19,7 +19,7 @@ pub struct TxConstructor {
 }
 
 /// An outpoint - a combination of a transaction hash and an index n into its vout
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialOrd, PartialEq, Serialize, Deserialize)]
 pub struct OutPoint {
     pub t_hash: String,
     pub n: i32,
@@ -38,7 +38,7 @@ impl OutPoint {
 /// An input of a transaction. It contains the location of the previous
 /// transaction's output that it claims and a signature that matches the
 /// output's public key.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialOrd, PartialEq, Serialize, Deserialize)]
 pub struct TxIn {
     pub previous_out: Option<OutPoint>,
     pub script_signature: Script,
@@ -73,10 +73,10 @@ impl TxIn {
 /// An output of a transaction. It contains the public key that the next input
 /// must be able to sign with to claim it. It also contains the block hash for the
 /// potential DRS if this is a data asset transaction
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialOrd, PartialEq, Serialize, Deserialize)]
 pub struct TxOut {
     pub value: Option<Asset>,
-    pub amount: u64,
+    pub amount: f64,
     pub drs_block_hash: Option<String>,
     pub drs_tx_hash: Option<String>,
     pub script_public_key: Option<String>,
@@ -87,7 +87,7 @@ impl TxOut {
     pub fn new() -> TxOut {
         TxOut {
             value: None,
-            amount: 0,
+            amount: 0.0,
             drs_tx_hash: None,
             drs_block_hash: None,
             script_public_key: None,
@@ -97,7 +97,7 @@ impl TxOut {
 
 /// The basic transaction that is broadcasted on the network and contained in
 /// blocks. A transaction can contain multiple inputs and outputs.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialOrd, PartialEq, Serialize, Deserialize)]
 pub struct Transaction {
     pub inputs: Vec<TxIn>,
     pub outputs: Vec<TxOut>,
@@ -105,7 +105,7 @@ pub struct Transaction {
     pub druid: Option<String>,
     pub druid_participants: Option<usize>,
     pub expect_value: Option<Asset>,
-    pub expect_value_amount: Option<u64>,
+    pub expect_value_amount: Option<f64>,
 }
 
 impl Transaction {
@@ -139,7 +139,7 @@ impl Transaction {
         druid: Option<String>,
         druid_participants: Option<usize>,
         expect_value: Option<Asset>,
-        expect_value_amount: Option<u64>,
+        expect_value_amount: Option<f64>,
     ) -> Transaction {
         Transaction {
             inputs: inputs,
@@ -154,8 +154,8 @@ impl Transaction {
 
     /// Gets the total value of all outputs and checks that it is within the
     /// possible amounts set by chain system
-    pub fn get_output_value(&mut self) -> u64 {
-        let mut total_value: u64 = 0;
+    pub fn get_output_value(&mut self) -> f64 {
+        let mut total_value: f64 = 0.0;
 
         for txout in &mut self.outputs {
             if txout.value.is_some() {

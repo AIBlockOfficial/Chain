@@ -40,14 +40,12 @@ pub fn update_utxo_set(current_utxo: &mut BTreeMap<String, Transaction>) {
 
 /// Constructs a coinbase transaction
 ///
-/// TODO: Check u64 type and maybe move to big int
-///
 /// ### Arguments
 ///
 /// * `amount`      - Amount of tokens allowed in coinbase
 /// * `block_time`  - Block time to assign to script
 /// * `address`     - Address to send the coinbase amount to
-pub fn construct_coinbase_tx(amount: u64, block_time: u32, address: String) -> Transaction {
+pub fn construct_coinbase_tx(amount: f64, block_time: u32, address: String) -> Transaction {
     let mut tx = Transaction::new();
     let mut tx_in = TxIn::new();
     tx_in.script_signature = Script::new_for_coinbase(block_time);
@@ -86,7 +84,7 @@ pub fn construct_tx_hash(tx: &Transaction) -> String {
 /// * `drs`                 - Digital rights signature for the new asset
 /// * `receiver_address`    - Address to receive the newly created asset
 /// * `amount`              - Amount of the asset to generate
-pub fn construct_create_tx(drs: Vec<u8>, receiver_address: String, amount: u64) -> Transaction {
+pub fn construct_create_tx(drs: Vec<u8>, receiver_address: String, amount: f64) -> Transaction {
     let mut tx = Transaction::new();
     let mut tx_out = TxOut::new();
 
@@ -120,7 +118,7 @@ pub fn construct_payment_tx(
     drs_block_hash: Option<String>,
     drs_tx_hash: Option<String>,
     asset: Asset,
-    amount: u64,
+    amount: f64,
 ) -> Transaction {
     let mut tx = Transaction::new();
     let mut tx_out = TxOut::new();
@@ -208,7 +206,7 @@ mod tests {
     // Creates a valid creation transaction
     fn should_construct_a_valid_create_tx() {
         let receiver_address = hex::encode(vec![1, 2, 3, 4, 5, 6, 7, 8, 9]);
-        let amount = 1;
+        let amount = 1.0;
         let drs = vec![0, 8, 30, 20, 1];
 
         let tx = construct_create_tx(drs.clone(), receiver_address.clone(), amount);
@@ -244,12 +242,12 @@ mod tests {
             hex::encode(vec![0, 0, 0, 0]),
             Some(drs_block_hash),
             Some(drs_tx_hash),
-            Asset::Token(4),
-            4,
+            Asset::Token(4.0),
+            4.0,
         );
 
         assert_eq!(
-            Asset::Token(4),
+            Asset::Token(4.0),
             payment_tx.outputs[0].clone().value.unwrap()
         );
         assert_eq!(
@@ -279,8 +277,8 @@ mod tests {
             hex::encode(vec![0, 0, 0, 0]),
             None,
             None,
-            Asset::Token(4),
-            4,
+            Asset::Token(4.0),
+            4.0,
         );
         let tx_1_hash = construct_tx_hash(&payment_tx_1);
 
@@ -297,8 +295,8 @@ mod tests {
             hex::encode(vec![0, 0, 0, 0]),
             None,
             None,
-            Asset::Token(4),
-            4,
+            Asset::Token(4.0),
+            4.0,
         );
         let tx_2_hash = construct_tx_hash(&payment_tx_2);
 
@@ -336,10 +334,10 @@ mod tests {
         let druid = hex::encode(vec![1, 2, 3, 4, 5]);
         let druid_participants = 2;
 
-        let first_asset = Asset::Token(10);
-        let first_amount = 10;
-        let second_asset = Asset::Token(0);
-        let second_amount = 0;
+        let first_asset = Asset::Token(10.0);
+        let first_amount = 10.0;
+        let second_asset = Asset::Token(0.0);
+        let second_amount = 0.0;
 
         let first_asset_t = AssetInTransit {
             asset: first_asset,
