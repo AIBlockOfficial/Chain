@@ -122,7 +122,7 @@ pub fn construct_payment_tx(
     drs_block_hash: Option<String>,
     drs_tx_hash: Option<String>,
     asset: Asset,
-    amount: TokenAmount
+    amount: TokenAmount,
 ) -> Transaction {
     let mut tx = Transaction::new();
     let mut tx_out = TxOut::new();
