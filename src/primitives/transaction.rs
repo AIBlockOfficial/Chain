@@ -4,7 +4,7 @@ use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use sodiumoxide::crypto::sign::ed25519::{PublicKey, Signature};
 
-use crate::primitives::asset::Asset;
+use crate::primitives::asset::{Asset, TokenAmount};
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::is_valid_amount;
@@ -76,7 +76,7 @@ impl TxIn {
 #[derive(Clone, Debug, PartialOrd, PartialEq, Serialize, Deserialize)]
 pub struct TxOut {
     pub value: Option<Asset>,
-    pub amount: f64,
+    pub amount: TokenAmount,
     pub drs_block_hash: Option<String>,
     pub drs_tx_hash: Option<String>,
     pub script_public_key: Option<String>,
@@ -87,7 +87,7 @@ impl TxOut {
     pub fn new() -> TxOut {
         TxOut {
             value: None,
-            amount: 0.0,
+            amount: TokenAmount(0),
             drs_tx_hash: None,
             drs_block_hash: None,
             script_public_key: None,
@@ -105,7 +105,7 @@ pub struct Transaction {
     pub druid: Option<String>,
     pub druid_participants: Option<usize>,
     pub expect_value: Option<Asset>,
-    pub expect_value_amount: Option<f64>,
+    pub expect_value_amount: Option<TokenAmount>,
 }
 
 impl Transaction {
@@ -139,7 +139,7 @@ impl Transaction {
         druid: Option<String>,
         druid_participants: Option<usize>,
         expect_value: Option<Asset>,
-        expect_value_amount: Option<f64>,
+        expect_value_amount: Option<TokenAmount>,
     ) -> Transaction {
         Transaction {
             inputs: inputs,
@@ -154,8 +154,8 @@ impl Transaction {
 
     /// Gets the total value of all outputs and checks that it is within the
     /// possible amounts set by chain system
-    pub fn get_output_value(&mut self) -> f64 {
-        let mut total_value: f64 = 0.0;
+    pub fn get_output_value(&mut self) -> TokenAmount {
+        let mut total_value = TokenAmount(0);
 
         for txout in &mut self.outputs {
             if txout.value.is_some() {
@@ -167,7 +167,7 @@ impl Transaction {
                         panic!("TxOut value {value} out of range", value = token_val);
                     }
 
-                    total_value += token_val;
+                    total_value.0 += token_val.0;
 
                     if !is_valid_amount(&total_value) {
                         panic!(

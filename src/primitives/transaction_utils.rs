@@ -1,5 +1,5 @@
 use crate::constants::TX_PREPEND;
-use crate::primitives::asset::{Asset, AssetInTransit};
+use crate::primitives::asset::{Asset, AssetInTransit, TokenAmount};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
 use crate::sha3::Digest;
@@ -45,13 +45,13 @@ pub fn update_utxo_set(current_utxo: &mut BTreeMap<String, Transaction>) {
 /// * `amount`      - Amount of tokens allowed in coinbase
 /// * `block_time`  - Block time to assign to script
 /// * `address`     - Address to send the coinbase amount to
-pub fn construct_coinbase_tx(amount: f64, block_time: u32, address: String) -> Transaction {
+pub fn construct_coinbase_tx(amount: TokenAmount, block_time: u32, address: String) -> Transaction {
     let mut tx = Transaction::new();
     let mut tx_in = TxIn::new();
     tx_in.script_signature = Script::new_for_coinbase(block_time);
 
     let mut tx_out = TxOut::new();
-    tx_out.amount = amount;
+    tx_out.amount = amount.clone();
     tx_out.value = Some(Asset::Token(amount));
     tx_out.script_public_key = Some(address);
 
@@ -84,7 +84,11 @@ pub fn construct_tx_hash(tx: &Transaction) -> String {
 /// * `drs`                 - Digital rights signature for the new asset
 /// * `receiver_address`    - Address to receive the newly created asset
 /// * `amount`              - Amount of the asset to generate
-pub fn construct_create_tx(drs: Vec<u8>, receiver_address: String, amount: f64) -> Transaction {
+pub fn construct_create_tx(
+    drs: Vec<u8>,
+    receiver_address: String,
+    amount: TokenAmount,
+) -> Transaction {
     let mut tx = Transaction::new();
     let mut tx_out = TxOut::new();
 
@@ -118,7 +122,7 @@ pub fn construct_payment_tx(
     drs_block_hash: Option<String>,
     drs_tx_hash: Option<String>,
     asset: Asset,
-    amount: f64,
+    amount: TokenAmount
 ) -> Transaction {
     let mut tx = Transaction::new();
     let mut tx_out = TxOut::new();
@@ -206,10 +210,10 @@ mod tests {
     // Creates a valid creation transaction
     fn should_construct_a_valid_create_tx() {
         let receiver_address = hex::encode(vec![1, 2, 3, 4, 5, 6, 7, 8, 9]);
-        let amount = 1.0;
+        let amount = TokenAmount(1);
         let drs = vec![0, 8, 30, 20, 1];
 
-        let tx = construct_create_tx(drs.clone(), receiver_address.clone(), amount);
+        let tx = construct_create_tx(drs.clone(), receiver_address.clone(), amount.clone());
 
         assert_eq!(tx.druid, None);
         assert_eq!(tx.outputs.len(), 1);
@@ -236,18 +240,19 @@ mod tests {
             pub_keys: vec![pk],
         };
 
+        let token_amount = TokenAmount(400000);
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
         let payment_tx = construct_payment_tx(
             tx_ins,
             hex::encode(vec![0, 0, 0, 0]),
             Some(drs_block_hash),
             Some(drs_tx_hash),
-            Asset::Token(4.0),
-            4.0,
+            Asset::Token(token_amount.clone()),
+            token_amount.clone(),
         );
 
         assert_eq!(
-            Asset::Token(4.0),
+            Asset::Token(token_amount),
             payment_tx.outputs[0].clone().value.unwrap()
         );
         assert_eq!(
@@ -271,14 +276,15 @@ mod tests {
             pub_keys: vec![pk],
         };
 
+        let token_amount = TokenAmount(400000);
         let tx_ins_1 = construct_payment_tx_ins(vec![tx_1]);
         let payment_tx_1 = construct_payment_tx(
             tx_ins_1,
             hex::encode(vec![0, 0, 0, 0]),
             None,
             None,
-            Asset::Token(4.0),
-            4.0,
+            Asset::Token(token_amount.clone()),
+            token_amount.clone(),
         );
         let tx_1_hash = construct_tx_hash(&payment_tx_1);
 
@@ -295,8 +301,8 @@ mod tests {
             hex::encode(vec![0, 0, 0, 0]),
             None,
             None,
-            Asset::Token(4.0),
-            4.0,
+            Asset::Token(token_amount.clone()),
+            token_amount,
         );
         let tx_2_hash = construct_tx_hash(&payment_tx_2);
 
@@ -334,18 +340,19 @@ mod tests {
         let druid = hex::encode(vec![1, 2, 3, 4, 5]);
         let druid_participants = 2;
 
-        let first_asset = Asset::Token(10.0);
-        let first_amount = 10.0;
-        let second_asset = Asset::Token(0.0);
-        let second_amount = 0.0;
+        let first_token_amount = TokenAmount(1000000);
+        let second_token_amount = TokenAmount(0);
+
+        let first_asset = Asset::Token(first_token_amount.clone());
+        let second_asset = Asset::Token(second_token_amount.clone());
 
         let first_asset_t = AssetInTransit {
             asset: first_asset,
-            amount: first_amount,
+            amount: first_token_amount,
         };
         let second_asset_t = AssetInTransit {
             asset: second_asset,
-            amount: second_amount,
+            amount: second_token_amount,
         };
 
         // Actual DDE
