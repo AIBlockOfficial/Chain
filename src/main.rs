@@ -17,7 +17,10 @@ pub mod script;
 pub mod utils;
 
 use crate::db::display::list_assets;
+use crate::primitives::asset::TokenAmount;
 
 fn main() {
-    list_assets();
+    // list_assets();
+    let x = TokenAmount(53040400);
+    println!("X: {}", x);
 }

@@ -1,5 +1,10 @@
 use crate::script::OpCodes;
 
+/*------- VALUE HANDLING CONSTANTS --------*/
+
+// Number of decimal places to divide to in display
+pub const D_DISPLAY_PLACES: f64 = 1000.0;
+
 /*------- BLOCK CONSTANTS --------*/
 
 // Maximum number of bytes that a block can contain
