@@ -14,7 +14,7 @@ impl fmt::Display for TokenAmount {
 }
 
 /// A placeholder Asset struct
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq)]
 pub enum Asset {
     Token(TokenAmount),
     Data(Vec<u8>),

@@ -8,7 +8,7 @@ use std::fmt;
 
 /// Stack entry enum which embodies the range of possible
 /// operations that could be performed in a Script stack process
-#[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum StackEntry {
     Op(OpCodes),
     Signature(Signature),
