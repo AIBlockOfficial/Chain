@@ -40,13 +40,13 @@ pub const MAX_OPCODE: u8 = OpCodes::OP_NOP10 as u8;
 pub const TX_PREPEND: char = 'g';
 
 /// Path to chain DB
-pub const DB_PATH: &'static str = "/Users/byron/code/zenotta/naom/src/db/db";
+pub const DB_PATH: &str = "/Users/byron/code/zenotta/naom/src/db/db";
 
 /// Path to test net DB
-pub const DB_PATH_TEST: &'static str = "test";
+pub const DB_PATH_TEST: &str = "test";
 
 /// Path to live net DB
-pub const DB_PATH_LIVE: &'static str = "live";
+pub const DB_PATH_LIVE: &str = "live";
 
 /// Path to wallet DB
-pub const WALLET_PATH: &'static str = "/Users/byron/code/zenotta/naom/src/wallet/wallet";
+pub const WALLET_PATH: &str = "/Users/byron/code/zenotta/naom/src/wallet/wallet";

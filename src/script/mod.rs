@@ -31,14 +31,12 @@ impl StackEntry {
 
     /// Checks whether this stack entry is an ops code
     pub fn is_an_op(&self) -> bool {
-        match self {
-            StackEntry::Op(_) => true,
-            _ => false,
-        }
+        matches!(self, StackEntry::Op(_))
     }
 }
 
 /// Ops code for stack scripts
+#[allow(non_camel_case_types)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub enum OpCodes {
     // push value
