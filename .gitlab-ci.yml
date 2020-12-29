@@ -3,23 +3,47 @@
 # https://hub.docker.com/r/library/rust/tags/
 image: "rust:latest"
 
-# Install dependencies needed.
-before_script:
-    - rustup component add clippy
-    - rustup component add rustfmt
-#   - apt-get install -yqq --no-install-recommends build-essential
+.cache:
+  variables:
+    CARGO_HOME: "${CI_PROJECT_DIR}/cargo_cache"
+  before_script:
+    - mkdir -p cargo_cache
+    - echo $CARGO_HOME
+  cache:
+    when: 'on_success'
+    key:
+      files:
+        - Cargo.lock
+    paths:
+      # Rust cache
+      # https://doc.rust-lang.org/cargo/guide/cargo-home.html#caching-the-cargo-home-in-ci
+      - cargo_cache/bin
+      - cargo_cache/registry/index
+      - cargo_cache/registry/cache
+      - cargo_cache/git/db
+      - target/
 
 # Test and lint the project: do not build binaries
 # that require rocksdb and other dependencies
 test:cargo:
+  extends: '.cache'
+  cache:
+    key:
+      prefix: test
   script:
     - rustc --version && cargo --version  # Print version info for debugging
     - cargo test --workspace --verbose
 
 lint:rustfmt:
   script:
+    - rustup component add rustfmt
     - cargo fmt -- --check
 
 lint:clippy:
+  extends: '.cache'
+  cache:
+    key:
+      prefix: clippy
   script:
+    - rustup component add clippy
     - cargo clippy --all-targets -- -D warnings
