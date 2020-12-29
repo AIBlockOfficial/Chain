@@ -6,7 +6,6 @@ use crate::sha3::Digest;
 
 use bincode::serialize;
 use bytes::Bytes;
-use rayon::prelude::*;
 use sha3::Sha3_256;
 use std::collections::BTreeMap;
 

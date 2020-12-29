@@ -2,7 +2,6 @@ use crate::constants::{DB_PATH, DB_PATH_TEST};
 use crate::primitives::block::Block;
 use crate::primitives::transaction::Transaction;
 use bincode::deserialize;
-use rayon::prelude::*;
 use rocksdb::DB;
 use std::mem;
 use std::sync::{Arc, Mutex};
@@ -24,7 +23,7 @@ pub fn find_all_matching_druids(druid: String, block: String) -> Vec<Transaction
         Err(e) => panic!("Error retrieving block: {:?}", e),
     };
 
-    block.transactions.par_iter().for_each(|x| {
+    block.transactions.iter().for_each(|x| {
         let tx = match db.get(x) {
             Ok(Some(value)) => deserialize::<Transaction>(&value).unwrap(),
             Ok(None) => panic!("Transaction not found in blockchain"),
