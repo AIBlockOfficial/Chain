@@ -1,6 +1,6 @@
-use bincode::{deserialize, serialize};
+use bincode::deserialize;
 use colored::*;
-use naom::constants::{DB_PATH, DB_PATH_LIVE, DB_PATH_TEST};
+use naom::constants::{DB_PATH, DB_PATH_TEST};
 use rocksdb::{Options, DB};
 
 use naom::primitives::asset::Asset;
@@ -20,7 +20,7 @@ pub fn list_assets() {
         let key_raw = iter.key().unwrap().to_vec();
         let key = String::from_utf8_lossy(&key_raw);
 
-        if key.chars().nth(0).unwrap() != 'g' {
+        if !key.starts_with('g') {
             let block = deserialize::<Block>(iter.value().unwrap()).unwrap();
             let previous_hash = match block.clone().header.previous_hash {
                 Some(v) => hex::encode(v),
@@ -115,5 +115,5 @@ pub fn list_assets() {
     println!("END OF BLOCKCHAIN");
     println!();
 
-    let _ = DB::destroy(&Options::default(), save_path.clone());
+    let _ = DB::destroy(&Options::default(), save_path);
 }

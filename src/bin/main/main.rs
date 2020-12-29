@@ -1,5 +1,5 @@
 //! App using NAOM library.
-#![allow(warnings)]
+#![allow(dead_code)]
 
 //use naom::db::display::list_assets;
 use naom::primitives::asset::TokenAmount;
