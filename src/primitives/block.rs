@@ -25,6 +25,12 @@ pub struct BlockHeader {
     pub merkle_root_hash: Vec<u8>,
 }
 
+impl Default for BlockHeader {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl BlockHeader {
     /// Creates a new BlockHeader
     pub fn new() -> BlockHeader {
@@ -51,6 +57,12 @@ impl BlockHeader {
 pub struct Block {
     pub header: BlockHeader,
     pub transactions: Vec<String>,
+}
+
+impl Default for Block {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Block {
@@ -152,7 +164,7 @@ pub fn create_raw_genesis_block(
     // Handle block header
     genesis.header.version = *version;
     genesis.header.bits = *bits;
-    genesis.header.nonce = nonce.clone();
+    genesis.header.nonce = nonce;
     genesis.header.time = *time;
 
     let hash_input = Bytes::from(serialize(&gen_transaction).unwrap());

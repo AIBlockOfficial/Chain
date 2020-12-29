@@ -1,4 +1,4 @@
-#![allow(warnings)]
+#![allow(dead_code)]
 
 extern crate bincode;
 extern crate bytes;

@@ -16,6 +16,12 @@ pub struct Script {
     pub stack: Vec<StackEntry>,
 }
 
+impl Default for Script {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Script {
     /// Constructs a new script
     pub fn new() -> Script {
@@ -53,7 +59,7 @@ impl Script {
 
         new_script.stack.push(StackEntry::Bytes(check_data));
         new_script.stack.push(StackEntry::Signature(signature));
-        new_script.stack.push(pub_key_stack_entry.clone());
+        new_script.stack.push(pub_key_stack_entry);
         new_script.stack.push(StackEntry::Op(OpCodes::OP_DUP));
         new_script.stack.push(StackEntry::Op(OpCodes::OP_HASH256));
         new_script.stack.push(StackEntry::PubKeyHash(new_key));
@@ -108,13 +114,7 @@ impl Script {
 
             new_stack.push(StackEntry::Bytes(check_data));
             new_stack.push(StackEntry::Num(m));
-            new_stack.append(
-                &mut pub_keys
-                    .clone()
-                    .iter()
-                    .map(|e| StackEntry::PubKey(*e))
-                    .collect(),
-            );
+            new_stack.append(&mut pub_keys.iter().map(|e| StackEntry::PubKey(*e)).collect());
             new_stack.push(StackEntry::Num(n));
             new_stack.push(StackEntry::Op(OpCodes::OP_CHECKMULTISIG));
 

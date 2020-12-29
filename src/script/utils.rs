@@ -303,7 +303,7 @@ mod tests {
         let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
-            t_hash: t_hash,
+            t_hash,
             prev_n: 0,
             signatures: vec![signature],
             pub_keys: vec![pk],
@@ -323,7 +323,7 @@ mod tests {
         let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
-            t_hash: t_hash,
+            t_hash,
             prev_n: 0,
             signatures: vec![signature],
             pub_keys: vec![pk],
@@ -345,7 +345,7 @@ mod tests {
         let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
-            t_hash: t_hash,
+            t_hash,
             prev_n: 0,
             signatures: vec![signature],
             pub_keys: vec![pk],
@@ -365,7 +365,7 @@ mod tests {
         let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
-            t_hash: t_hash,
+            t_hash,
             prev_n: 0,
             signatures: vec![signature],
             pub_keys: vec![second_pk],

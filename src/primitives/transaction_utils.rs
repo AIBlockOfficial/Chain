@@ -228,7 +228,7 @@ mod tests {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
         let t_hash = vec![0, 0, 0];
-        let signature = sign::sign_detached(&t_hash.clone(), &sk);
+        let signature = sign::sign_detached(&t_hash, &sk);
         let drs_block_hash = hex::encode(vec![1, 2, 3, 4, 5, 6]);
         let drs_tx_hash = hex::encode(vec![1, 2, 3, 4, 5, 6]);
 
@@ -362,15 +362,15 @@ mod tests {
             second_asset_t,
             Some(drs_block_hash),
             druid.clone(),
-            druid_participants.clone(),
+            druid_participants,
         );
 
-        assert_eq!(dde.druid, Some(druid.clone()));
+        assert_eq!(dde.druid, Some(druid));
         assert_eq!(
             dde.outputs[0].clone().value,
             Some(first_asset_t.clone().asset)
         );
-        assert_eq!(dde.outputs[0].clone().amount, first_asset_t.clone().amount);
-        assert_eq!(dde.druid_participants, Some(druid_participants.clone()));
+        assert_eq!(dde.outputs[0].clone().amount, first_asset_t.amount);
+        assert_eq!(dde.druid_participants, Some(druid_participants));
     }
 }

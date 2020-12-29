@@ -28,10 +28,7 @@ pub struct OutPoint {
 impl OutPoint {
     /// Creates a new outpoint instance
     pub fn new(t_hash: String, n: i32) -> OutPoint {
-        OutPoint {
-            t_hash: t_hash,
-            n: n,
-        }
+        OutPoint { t_hash, n }
     }
 }
 
@@ -42,6 +39,12 @@ impl OutPoint {
 pub struct TxIn {
     pub previous_out: Option<OutPoint>,
     pub script_signature: Script,
+}
+
+impl Default for TxIn {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl TxIn {
@@ -82,6 +85,12 @@ pub struct TxOut {
     pub script_public_key: Option<String>,
 }
 
+impl Default for TxOut {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TxOut {
     /// Creates a new TxOut instance
     pub fn new() -> TxOut {
@@ -106,6 +115,12 @@ pub struct Transaction {
     pub druid_participants: Option<usize>,
     pub expect_value: Option<Asset>,
     pub expect_value_amount: Option<TokenAmount>,
+}
+
+impl Default for Transaction {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Transaction {
@@ -142,13 +157,13 @@ impl Transaction {
         expect_value_amount: Option<TokenAmount>,
     ) -> Transaction {
         Transaction {
-            inputs: inputs,
-            outputs: outputs,
-            version: version,
-            druid: druid,
-            druid_participants: druid_participants,
-            expect_value: expect_value,
-            expect_value_amount: expect_value_amount,
+            inputs,
+            outputs,
+            version,
+            druid,
+            druid_participants,
+            expect_value,
+            expect_value_amount,
         }
     }
 
