@@ -1,11 +1,11 @@
-use crate::constants::{DB_PATH, DB_PATH_LIVE, DB_PATH_TEST};
 use bincode::{deserialize, serialize};
 use colored::*;
+use naom::constants::{DB_PATH, DB_PATH_LIVE, DB_PATH_TEST};
 use rocksdb::{Options, DB};
 
-use crate::primitives::asset::Asset;
-use crate::primitives::block::Block;
-use crate::primitives::transaction::Transaction;
+use naom::primitives::asset::Asset;
+use naom::primitives::block::Block;
+use naom::primitives::transaction::Transaction;
 
 /// Lists all assets in the blockchain and outputs them to stdout
 pub fn list_assets() {

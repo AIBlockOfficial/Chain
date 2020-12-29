@@ -1,7 +1,10 @@
-//! App using NOAM library.
+//! App using NAOM library.
+#![allow(warnings)]
 
 //use naom::db::display::list_assets;
 use naom::primitives::asset::TokenAmount;
+
+mod db;
 
 fn main() {
     // list_assets();

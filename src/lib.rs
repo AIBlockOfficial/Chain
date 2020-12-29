@@ -9,8 +9,6 @@ extern crate sha3;
 extern crate sodiumoxide;
 
 pub mod constants;
-#[cfg(feature = "build_bin")]
-pub mod db;
 pub mod primitives;
 pub mod script;
 pub mod utils;
