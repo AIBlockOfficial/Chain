@@ -24,6 +24,6 @@ cargo test
 
 ## Use
 
-Running `cargo run` will currently list all assets on the local instance. NAOM is not generally intended to be 
+Running `cargo run --bin main` will currently list all assets on the local instance. NAOM is not generally intended to be
 used directly, and is instead intended to be used from other programs that require access to the blockchain data 
 structure.
