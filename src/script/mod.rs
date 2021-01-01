@@ -21,12 +21,7 @@ pub enum StackEntry {
 impl StackEntry {
     /// Checks whether this stack entry is a hash (either a signature or pubkey)
     pub fn is_a_hash(&self) -> bool {
-        match self {
-            StackEntry::Signature(_) => true,
-            StackEntry::PubKey(_) => true,
-            StackEntry::PubKeyHash(_) => true,
-            _ => false,
-        }
+        matches!(self, StackEntry::Signature(_) | StackEntry::PubKey(_) | StackEntry::PubKeyHash(_))
     }
 
     /// Checks whether this stack entry is an ops code
