@@ -50,7 +50,7 @@ pub fn construct_coinbase_tx(amount: TokenAmount, block_time: u32, address: Stri
     tx_in.script_signature = Script::new_for_coinbase(block_time);
 
     let mut tx_out = TxOut::new();
-    tx_out.amount = amount.clone();
+    tx_out.amount = amount;
     tx_out.value = Some(Asset::Token(amount));
     tx_out.script_public_key = Some(address);
 
@@ -212,7 +212,7 @@ mod tests {
         let amount = TokenAmount(1);
         let drs = vec![0, 8, 30, 20, 1];
 
-        let tx = construct_create_tx(drs.clone(), receiver_address.clone(), amount.clone());
+        let tx = construct_create_tx(drs.clone(), receiver_address.clone(), amount);
 
         assert_eq!(tx.druid, None);
         assert_eq!(tx.outputs.len(), 1);
@@ -246,8 +246,8 @@ mod tests {
             hex::encode(vec![0, 0, 0, 0]),
             Some(drs_block_hash),
             Some(drs_tx_hash),
-            Asset::Token(token_amount.clone()),
-            token_amount.clone(),
+            Asset::Token(token_amount),
+            token_amount,
         );
 
         assert_eq!(
@@ -282,8 +282,8 @@ mod tests {
             hex::encode(vec![0, 0, 0, 0]),
             None,
             None,
-            Asset::Token(token_amount.clone()),
-            token_amount.clone(),
+            Asset::Token(token_amount),
+            token_amount,
         );
         let tx_1_hash = construct_tx_hash(&payment_tx_1);
 
@@ -300,7 +300,7 @@ mod tests {
             hex::encode(vec![0, 0, 0, 0]),
             None,
             None,
-            Asset::Token(token_amount.clone()),
+            Asset::Token(token_amount),
             token_amount,
         );
         let tx_2_hash = construct_tx_hash(&payment_tx_2);
@@ -342,8 +342,8 @@ mod tests {
         let first_token_amount = TokenAmount(1000000);
         let second_token_amount = TokenAmount(0);
 
-        let first_asset = Asset::Token(first_token_amount.clone());
-        let second_asset = Asset::Token(second_token_amount.clone());
+        let first_asset = Asset::Token(first_token_amount);
+        let second_asset = Asset::Token(second_token_amount);
 
         let first_asset_t = AssetInTransit {
             asset: first_asset,
