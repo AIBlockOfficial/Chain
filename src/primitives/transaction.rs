@@ -19,7 +19,7 @@ pub struct TxConstructor {
 }
 
 /// An outpoint - a combination of a transaction hash and an index n into its vout
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize)]
 pub struct OutPoint {
     pub t_hash: String,
     pub n: i32,
@@ -100,6 +100,16 @@ impl TxOut {
             drs_tx_hash: None,
             drs_block_hash: None,
             script_public_key: None,
+        }
+    }
+
+    pub fn new_amount(to_address: String, amount: TokenAmount) -> TxOut {
+        TxOut {
+            value: Some(Asset::Token(amount)),
+            amount,
+            script_public_key: Some(to_address),
+            drs_block_hash: None,
+            drs_tx_hash: None,
         }
     }
 }

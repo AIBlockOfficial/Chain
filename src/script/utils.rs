@@ -63,19 +63,19 @@ pub fn member_multisig_is_valid(script: Script) -> bool {
 /// ### Arguments
 ///
 /// * `tx_ins`  - Tx_ins to verify
-pub fn tx_ins_are_valid(tx_ins: Vec<TxIn>, utxo: &BTreeMap<String, Transaction>) -> bool {
+pub fn tx_ins_are_valid(tx_ins: &[TxIn], is_in_utxo: impl Fn(&OutPoint) -> bool) -> bool {
     for tx_in in tx_ins {
-        let tx_hash = tx_in.previous_out.unwrap().t_hash;
+        let tx_out_point = tx_in.previous_out.as_ref().unwrap();
 
-        if utxo.get(&tx_hash).is_none() {
+        if !is_in_utxo(tx_out_point) {
             println!();
             println!("UTXO DOESN'T CONTAIN THIS TX");
             println!();
         }
 
-        if (!tx_has_valid_p2pkh_sig(tx_in.script_signature.clone())
-            && !tx_has_valid_multsig_validation(tx_in.script_signature))
-            || utxo.get(&tx_hash).is_none()
+        if (!tx_has_valid_p2pkh_sig(&tx_in.script_signature)
+            && !tx_has_valid_multsig_validation(&tx_in.script_signature))
+            || !is_in_utxo(tx_out_point)
         {
             return false;
         }
@@ -89,10 +89,10 @@ pub fn tx_ins_are_valid(tx_ins: Vec<TxIn>, utxo: &BTreeMap<String, Transaction>)
 /// ### Arguments
 ///
 /// * `script`  - Script to validate
-fn tx_has_valid_multsig_validation(script: Script) -> bool {
+fn tx_has_valid_multsig_validation(script: &Script) -> bool {
     let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
 
-    for stack_entry in script.stack {
+    for stack_entry in &script.stack {
         match stack_entry {
             StackEntry::Op(OpCodes::OP_CHECKMULTISIG) => {
                 let mut pub_keys = Vec::new();
@@ -148,7 +148,7 @@ fn tx_has_valid_multsig_validation(script: Script) -> bool {
 
             _ => {
                 println!("Adding constant to stack: {:?}", stack_entry);
-                current_stack.push(stack_entry);
+                current_stack.push(stack_entry.clone());
             }
         }
     }
@@ -161,10 +161,10 @@ fn tx_has_valid_multsig_validation(script: Script) -> bool {
 /// ### Arguments
 ///
 /// * `script`  - Script to validate
-fn tx_has_valid_p2pkh_sig(script: Script) -> bool {
+fn tx_has_valid_p2pkh_sig(script: &Script) -> bool {
     let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
 
-    for stack_entry in script.stack {
+    for stack_entry in &script.stack {
         match stack_entry {
             StackEntry::Op(OpCodes::OP_DUP) => {
                 println!("Duplicating last entry in script stack");
@@ -214,7 +214,7 @@ fn tx_has_valid_p2pkh_sig(script: Script) -> bool {
             }
             _ => {
                 println!("Adding constant to stack: {:?}", stack_entry);
-                current_stack.push(stack_entry);
+                current_stack.push(stack_entry.clone());
             }
         }
     }
@@ -353,7 +353,7 @@ mod tests {
 
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
 
-        assert!(tx_has_valid_p2pkh_sig(tx_ins[0].clone().script_signature));
+        assert!(tx_has_valid_p2pkh_sig(&tx_ins[0].script_signature));
     }
 
     #[test]
@@ -373,10 +373,7 @@ mod tests {
 
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
 
-        assert_eq!(
-            tx_has_valid_p2pkh_sig(tx_ins[0].clone().script_signature),
-            false
-        );
+        assert_eq!(tx_has_valid_p2pkh_sig(&tx_ins[0].script_signature), false);
     }
 
     #[test]
@@ -401,9 +398,7 @@ mod tests {
 
         let tx_ins = create_multisig_tx_ins(vec![tx_const], m);
 
-        assert!(tx_has_valid_multsig_validation(
-            tx_ins[0].clone().script_signature
-        ));
+        assert!(tx_has_valid_multsig_validation(&tx_ins[0].script_signature));
     }
 
     #[test]
