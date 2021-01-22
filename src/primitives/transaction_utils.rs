@@ -46,6 +46,19 @@ pub fn get_tx_with_out_point_cloned<'a>(
     get_tx_with_out_point(txs).map(|(h, tx)| (h, tx.clone()))
 }
 
+/// Get all the OutPoint and TxOut from the (hash,transactions)
+///
+/// ### Arguments
+///
+/// * `txs` - The entries to to provide an update for.
+pub fn get_tx_out_with_out_point<'a>(
+    txs: impl Iterator<Item = (&'a String, &'a Transaction)>,
+) -> impl Iterator<Item = (OutPoint, &'a TxOut)> {
+    txs.map(|(hash, tx)| (hash, tx.outputs.iter()))
+        .flat_map(|(hash, outs)| outs.enumerate().map(move |(idx, txo)| (hash, idx, txo)))
+        .map(|(hash, idx, txo)| (OutPoint::new(hash.clone(), idx as i32), txo))
+}
+
 /// Constructs the UTXO set for the current state of the blockchain
 ///
 /// ### Arguments
