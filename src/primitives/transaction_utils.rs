@@ -14,12 +14,49 @@ use std::collections::BTreeMap;
 /// ### Arguments
 ///
 /// * `utxo_entries` - The entries to to provide an update for.
-pub fn get_inputs_previous_out_hash<'a>(
+pub fn get_inputs_previous_out_point<'a>(
     utxo_entries: impl Iterator<Item = &'a Transaction>,
-) -> impl Iterator<Item = &'a String> {
+) -> impl Iterator<Item = &'a OutPoint> {
     utxo_entries
         .flat_map(|val| val.inputs.iter())
-        .map(|input| &input.previous_out.as_ref().unwrap().t_hash)
+        .map(|input| input.previous_out.as_ref().unwrap())
+}
+
+/// Get all the OutPoint and Transaction from the (hash,transactions)
+///
+/// ### Arguments
+///
+/// * `txs` - The entries to to provide an update for.
+pub fn get_tx_with_out_point<'a>(
+    txs: impl Iterator<Item = (&'a String, &'a Transaction)>,
+) -> impl Iterator<Item = (OutPoint, &'a Transaction)> {
+    txs.map(|(hash, tx)| (hash, tx, &tx.outputs))
+        .flat_map(|(hash, tx, outs)| outs.iter().enumerate().map(move |(idx, _)| (hash, idx, tx)))
+        .map(|(hash, idx, tx)| (OutPoint::new(hash.clone(), idx as i32), tx))
+}
+
+/// Get all the OutPoint and Transaction from the (hash,transactions)
+///
+/// ### Arguments
+///
+/// * `txs` - The entries to to provide an update for.
+pub fn get_tx_with_out_point_cloned<'a>(
+    txs: impl Iterator<Item = (&'a String, &'a Transaction)> + 'a,
+) -> impl Iterator<Item = (OutPoint, Transaction)> + 'a {
+    get_tx_with_out_point(txs).map(|(h, tx)| (h, tx.clone()))
+}
+
+/// Get all the OutPoint and TxOut from the (hash,transactions)
+///
+/// ### Arguments
+///
+/// * `txs` - The entries to to provide an update for.
+pub fn get_tx_out_with_out_point<'a>(
+    txs: impl Iterator<Item = (&'a String, &'a Transaction)>,
+) -> impl Iterator<Item = (OutPoint, &'a TxOut)> {
+    txs.map(|(hash, tx)| (hash, tx.outputs.iter()))
+        .flat_map(|(hash, outs)| outs.enumerate().map(move |(idx, txo)| (hash, idx, txo)))
+        .map(|(hash, idx, txo)| (OutPoint::new(hash.clone(), idx as i32), txo))
 }
 
 /// Constructs the UTXO set for the current state of the blockchain
@@ -27,8 +64,8 @@ pub fn get_inputs_previous_out_hash<'a>(
 /// ### Arguments
 ///
 /// * `current_utxo` - The current UTXO set to be updated.
-pub fn update_utxo_set(current_utxo: &mut BTreeMap<String, Transaction>) {
-    let value_set: Vec<String> = get_inputs_previous_out_hash(current_utxo.values())
+pub fn update_utxo_set(current_utxo: &mut BTreeMap<OutPoint, Transaction>) {
+    let value_set: Vec<OutPoint> = get_inputs_previous_out_point(current_utxo.values())
         .cloned()
         .collect();
 
@@ -123,20 +160,36 @@ pub fn construct_payment_tx(
     asset: Asset,
     amount: TokenAmount,
 ) -> Transaction {
-    let mut tx = Transaction::new();
-    let mut tx_out = TxOut::new();
+    let tx_out = TxOut {
+        value: Some(asset),
+        amount,
+        script_public_key: Some(receiver_address),
+        drs_block_hash,
+        drs_tx_hash,
+    };
 
-    tx_out.value = Some(asset);
-    tx_out.amount = amount;
-    tx_out.script_public_key = Some(receiver_address);
-    tx_out.drs_block_hash = drs_block_hash;
-    tx_out.drs_tx_hash = drs_tx_hash;
+    construct_payments_tx(tx_ins, vec![tx_out])
+}
 
-    tx.outputs = vec![tx_out];
-    tx.inputs = tx_ins;
-    tx.version = 0;
-
-    tx
+/// Constructs a transaction to pay a receivers
+/// If TxIn collection does not add up to the exact amount to pay,
+/// payer will always need to provide a return payment in tx_outs,
+/// otherwise the excess will be burnt and unusable.
+///
+/// TODO: Check whether the `amount` is valid in the TxIns
+/// TODO: Call this a charity tx or something, as a payment is an exchange of goods
+///
+/// ### Arguments
+///
+/// * `tx_ins`     - Address/es to pay from
+/// * `tx_outs`    - Address/es to send to
+pub fn construct_payments_tx(tx_ins: Vec<TxIn>, tx_outs: Vec<TxOut>) -> Transaction {
+    Transaction {
+        outputs: tx_outs,
+        inputs: tx_ins,
+        version: 0,
+        ..Default::default()
+    }
 }
 
 /// Constructs a set of TxIns for a payment
@@ -286,10 +339,11 @@ mod tests {
             token_amount,
         );
         let tx_1_hash = construct_tx_hash(&payment_tx_1);
+        let tx_1_out_p = OutPoint::new(tx_1_hash.clone(), 0);
 
         // Second tx referencing first
         let tx_2 = TxConstructor {
-            t_hash: tx_1_hash.clone(),
+            t_hash: tx_1_hash,
             prev_n: 0,
             signatures: vec![signed],
             pub_keys: vec![pk],
@@ -304,17 +358,18 @@ mod tests {
             token_amount,
         );
         let tx_2_hash = construct_tx_hash(&payment_tx_2);
+        let tx_2_out_p = OutPoint::new(tx_2_hash, 0);
 
         // BTreemap
         let mut btree = BTreeMap::new();
-        btree.insert(tx_1_hash, payment_tx_1);
-        btree.insert(tx_2_hash.clone(), payment_tx_2);
+        btree.insert(tx_1_out_p, payment_tx_1);
+        btree.insert(tx_2_out_p.clone(), payment_tx_2);
 
         update_utxo_set(&mut btree);
 
         // Check that only one entry remains
         assert_eq!(btree.len(), 1);
-        assert_ne!(btree.get(&tx_2_hash), None);
+        assert_ne!(btree.get(&tx_2_out_p), None);
     }
 
     #[test]
