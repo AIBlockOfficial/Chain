@@ -169,11 +169,13 @@ pub fn construct_payment_tx(
     drs_block_hash: Option<String>,
     drs_tx_hash: Option<String>,
     asset: Asset,
+    locktime: u64,
     amount: TokenAmount,
 ) -> Transaction {
     let tx_out = TxOut {
         value: Some(asset),
         amount,
+        locktime,
         script_public_key: Some(receiver_address),
         drs_block_hash,
         drs_tx_hash,
@@ -311,6 +313,7 @@ mod tests {
             Some(drs_block_hash),
             Some(drs_tx_hash),
             Asset::Token(token_amount),
+            0,
             token_amount,
         );
 
@@ -347,6 +350,7 @@ mod tests {
             None,
             None,
             Asset::Token(token_amount),
+            0,
             token_amount,
         );
         let tx_1_hash = construct_tx_hash(&payment_tx_1);
@@ -366,6 +370,7 @@ mod tests {
             None,
             None,
             Asset::Token(token_amount),
+            0,
             token_amount,
         );
         let tx_2_hash = construct_tx_hash(&payment_tx_2);

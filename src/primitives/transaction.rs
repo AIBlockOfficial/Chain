@@ -80,6 +80,7 @@ impl TxIn {
 pub struct TxOut {
     pub value: Option<Asset>,
     pub amount: TokenAmount,
+    pub locktime: u64,
     pub drs_block_hash: Option<String>,
     pub drs_tx_hash: Option<String>,
     pub script_public_key: Option<String>,
@@ -98,6 +99,7 @@ impl TxOut {
             value: None,
             amount: TokenAmount(0),
             drs_tx_hash: None,
+            locktime: 0,
             drs_block_hash: None,
             script_public_key: None,
         }
@@ -107,6 +109,7 @@ impl TxOut {
         TxOut {
             value: Some(Asset::Token(amount)),
             amount,
+            locktime: 0,
             script_public_key: Some(to_address),
             drs_block_hash: None,
             drs_tx_hash: None,
