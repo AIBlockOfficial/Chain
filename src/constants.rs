@@ -5,6 +5,9 @@ use crate::script::OpCodes;
 // Number of decimal places to divide to in display
 pub const D_DISPLAY_PLACES: f64 = 1000.0;
 
+// Number of possible tokens in existence (10 billion)
+pub const TOTAL_TOKENS: u64 = 10000000000000;
+
 /*------- BLOCK CONSTANTS --------*/
 
 // Maximum number of bytes that a block can contain
