@@ -27,6 +27,8 @@ image: "rust:latest"
 # that require rocksdb and other dependencies
 test:cargo:
   extends: '.cache'
+  only:
+    - merge_requests
   cache:
     key:
       prefix: test
@@ -35,12 +37,16 @@ test:cargo:
     - cargo test --workspace --verbose
 
 lint:rustfmt:
+  only:
+    - merge_requests
   script:
     - rustup component add rustfmt
     - cargo fmt -- --check
 
 lint:clippy:
   extends: '.cache'
+  only:
+    - merge_requests
   cache:
     key:
       prefix: clippy
