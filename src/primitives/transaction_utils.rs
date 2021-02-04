@@ -7,7 +7,24 @@ use crate::sha3::Digest;
 use bincode::serialize;
 use bytes::Bytes;
 use sha3::Sha3_256;
+use sodiumoxide::crypto::sign::PublicKey;
 use std::collections::BTreeMap;
+
+/// Builds an address from a public key
+///
+/// ### Arguments
+///
+/// * `pub_key` - A public key to build an address from
+pub fn construct_address(pub_key: PublicKey) -> String {
+    let first_pubkey_bytes = serialize(&pub_key).unwrap();
+    let mut first_hash = Sha3_256::digest(&first_pubkey_bytes).to_vec();
+
+    // TODO: Add RIPEMD
+
+    first_hash.truncate(16);
+
+    hex::encode(first_hash)
+}
 
 /// Get all the hash to remove from UTXO set for the utxo_entries
 ///
@@ -215,9 +232,13 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
 
     for entry in tx_values {
         let mut new_tx_in = TxIn::new();
+        let outpoint = OutPoint::new(entry.t_hash, entry.prev_n);
+
+        new_tx_in.previous_out = Some(outpoint.clone());
+        let signable_hash = hex::encode(serialize(&outpoint).unwrap());
+
         new_tx_in.script_signature =
-            Script::pay2pkh(entry.t_hash.clone(), entry.signatures[0], entry.pub_keys[0]);
-        new_tx_in.previous_out = Some(OutPoint::new(entry.t_hash, entry.prev_n));
+            Script::pay2pkh(signable_hash, entry.signatures[0], entry.pub_keys[0]);
 
         tx_ins.push(new_tx_in);
     }

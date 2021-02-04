@@ -1,4 +1,5 @@
 #![allow(unused)]
+use crate::primitives::transaction_utils::construct_address;
 use crate::script::{OpCodes, StackEntry};
 use crate::sha3::Digest;
 use bincode::serialize;
@@ -44,6 +45,8 @@ impl Script {
 
     /// Constructs a pay to public key hash script
     ///
+    /// TODO: Function will need to take network version
+    ///
     /// ### Arguments
     ///
     /// * `check_data`  - Check data to provide signature
@@ -52,10 +55,7 @@ impl Script {
     pub fn pay2pkh(check_data: String, signature: Signature, pub_key: PublicKey) -> Script {
         let mut new_script = Script::new();
         let pub_key_stack_entry = StackEntry::PubKey(pub_key);
-
-        let pub_key_bytes = Bytes::from(serialize(&pub_key_stack_entry).unwrap());
-        let new_key_raw = Sha3_256::digest(&pub_key_bytes).to_vec();
-        let new_key = hex::encode(new_key_raw);
+        let new_key = construct_address(pub_key);
 
         new_script.stack.push(StackEntry::Bytes(check_data));
         new_script.stack.push(StackEntry::Signature(signature));
