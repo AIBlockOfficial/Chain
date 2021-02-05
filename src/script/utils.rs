@@ -75,13 +75,15 @@ pub fn tx_is_valid<'a>(
         let tx_out_point = tx_in.previous_out.as_ref().unwrap().clone();
         let tx_out = is_in_utxo(&tx_out_point);
 
-        if tx_out.is_none() {
+        let tx_out = if let Some(tx_out) = is_in_utxo(&tx_out_point) {
+            tx_out
+        } else {
             error!("UTXO DOESN'T CONTAIN THIS TX");
             return false;
-        }
+        };
 
         // At this point TxOut will be valid
-        let tx_out_pk = tx_out.unwrap().script_public_key.as_ref();
+        let tx_out_pk = tx_out.script_public_key.as_ref();
         let tx_out_hash = hex::encode(serialize(&tx_out_point).unwrap());
 
         if let Some(pk) = tx_out_pk {
@@ -93,7 +95,7 @@ pub fn tx_is_valid<'a>(
             return false;
         }
 
-        tx_in_amount += tx_out.unwrap().amount;
+        tx_in_amount += tx_out.amount;
     }
 
     tx_outs_are_valid(&tx.outputs, tx_in_amount)
@@ -107,13 +109,9 @@ pub fn tx_is_valid<'a>(
 /// * `tx_outs` - TxOuts to verify
 /// * `amount_spent` - Total amount spendable from TxIns
 pub fn tx_outs_are_valid(tx_outs: &[TxOut], amount_spent: TokenAmount) -> bool {
-    let mut tx_out_amount = TokenAmount(0);
+    let tx_out_amount = tx_outs.iter().fold(TokenAmount(0), |acc, i| acc + i.amount);
 
-    for tx_out in tx_outs {
-        tx_out_amount += tx_out.amount;
-    }
-
-    tx_out_amount <= TokenAmount(TOTAL_TOKENS)
+    tx_out_amount <= TokenAmount(TOTAL_TOKENS) && tx_out_amount == amount_spent
 }
 
 /// Checks whether a complete validation multisig transaction is in fact valid
