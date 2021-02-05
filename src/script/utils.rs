@@ -1,4 +1,5 @@
-use crate::primitives::asset::Asset;
+use crate::constants::TOTAL_TOKENS;
+use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::transaction::*;
 use crate::primitives::transaction_utils::construct_address;
 use crate::script::lang::Script;
@@ -56,7 +57,7 @@ pub fn member_multisig_is_valid(script: Script) -> bool {
     true
 }
 
-/// Verifies that all incoming tx_ins are allowed to be spent. Returns false if a single
+/// Verifies that all incoming transactions are allowed to be spent. Returns false if a single
 /// transaction doesn't verify
 ///
 /// TODO: Currently assumes p2pkh, abstract to all tx types
@@ -64,24 +65,25 @@ pub fn member_multisig_is_valid(script: Script) -> bool {
 /// ### Arguments
 ///
 /// * `tx_ins`  - Tx_ins to verify
-pub fn tx_ins_are_valid<'a>(
-    tx_ins: &[TxIn],
+pub fn tx_is_valid<'a>(
+    tx: &Transaction,
     is_in_utxo: impl Fn(&OutPoint) -> Option<&'a TxOut> + 'a,
 ) -> bool {
-    for tx_in in tx_ins {
+    let mut tx_in_amount = TokenAmount(0);
+
+    for tx_in in &tx.inputs {
         let tx_out_point = tx_in.previous_out.as_ref().unwrap().clone();
         let tx_out = is_in_utxo(&tx_out_point);
 
-        if tx_out.is_none() {
-            println!();
-            println!("UTXO DOESN'T CONTAIN THIS TX");
-            println!();
-
+        let tx_out = if let Some(tx_out) = is_in_utxo(&tx_out_point) {
+            tx_out
+        } else {
+            error!("UTXO DOESN'T CONTAIN THIS TX");
             return false;
-        }
+        };
 
         // At this point TxOut will be valid
-        let tx_out_pk = tx_out.unwrap().script_public_key.as_ref();
+        let tx_out_pk = tx_out.script_public_key.as_ref();
         let tx_out_hash = hex::encode(serialize(&tx_out_point).unwrap());
 
         if let Some(pk) = tx_out_pk {
@@ -92,9 +94,24 @@ pub fn tx_ins_are_valid<'a>(
         } else {
             return false;
         }
+
+        tx_in_amount += tx_out.amount;
     }
 
-    true
+    tx_outs_are_valid(&tx.outputs, tx_in_amount)
+}
+
+/// Verifies that the outgoing TxOuts are valid. Returns false if a single
+/// transaction doesn't verify
+///
+/// ### Arguments
+///
+/// * `tx_outs` - TxOuts to verify
+/// * `amount_spent` - Total amount spendable from TxIns
+pub fn tx_outs_are_valid(tx_outs: &[TxOut], amount_spent: TokenAmount) -> bool {
+    let tx_out_amount = tx_outs.iter().fold(TokenAmount(0), |acc, i| acc + i.amount);
+
+    tx_out_amount <= TokenAmount(TOTAL_TOKENS) && tx_out_amount == amount_spent
 }
 
 /// Checks whether a complete validation multisig transaction is in fact valid
@@ -214,6 +231,11 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
     false
 }
 
+/// Handles the byte code unwrap and execution for transaction scripts
+///
+/// ### Arguments
+///
+/// * `script`  - Script to unwrap and execute
 fn interpret_script(script: &Script) -> bool {
     let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
 
@@ -579,8 +601,8 @@ mod tests {
     }
 
     #[test]
-    /// Validate tx_ins_are_valid for multiple TxIn configurations
-    fn test_tx_ins_are_valid() {
+    /// Validate tx_is_valid for multiple TxIn configurations
+    fn test_tx_is_valid() {
         //
         // Arrange
         //
@@ -627,8 +649,11 @@ mod tests {
                 },
                 previous_out: Some(tx_outpoint.clone()),
             }];
+            let ongoing_tx_outs = vec![TxOut::new()];
+            let tx =
+                Transaction::new_from_input(tx_ins, ongoing_tx_outs, 0, None, None, None, None);
 
-            let result = tx_ins_are_valid(&tx_ins, |v| Some(&tx_out).filter(|_| v == &tx_outpoint));
+            let result = tx_is_valid(&tx, |v| Some(&tx_out).filter(|_| v == &tx_outpoint));
             actual_result.push(result);
         }
 
