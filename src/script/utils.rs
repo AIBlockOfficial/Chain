@@ -1,3 +1,4 @@
+#![allow(unused)]
 use crate::constants::TOTAL_TOKENS;
 use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::transaction::*;
