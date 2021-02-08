@@ -3,6 +3,7 @@ use crate::constants::TOTAL_TOKENS;
 use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::transaction::*;
 use crate::primitives::transaction_utils::construct_address;
+use crate::script::interface_ops;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use crate::sha3::Digest;
@@ -243,9 +244,10 @@ fn interpret_script(script: &Script) -> bool {
     for stack_entry in &script.stack {
         match stack_entry {
             StackEntry::Op(OpCodes::OP_DUP) => {
-                println!("Duplicating last entry in script stack");
-                let dup = current_stack[current_stack.len() - 1].clone();
-                current_stack.push(dup);
+                interface_ops::op_dup(&mut current_stack);
+                //println!("Duplicating last entry in script stack");
+                //let dup = current_stack[current_stack.len() - 1].clone();
+                //current_stack.push(dup);
             }
             StackEntry::Op(OpCodes::OP_HASH256) => {
                 println!("256 bit hashing last stack entry");

@@ -1,5 +1,4 @@
 #![allow(unused)]
-pub mod utils;
 
 use crate::constants::TOTAL_TOKENS;
 use crate::primitives::asset::{Asset, TokenAmount};
@@ -18,14 +17,12 @@ use sodiumoxide::crypto::sign::ed25519::{PublicKey, Signature};
 use std::collections::BTreeMap;
 use tracing::{debug, error, info, trace};
 
-
-pub fn op_dup(current_stack:&mut Vec<StackEntry>)
-{
+pub fn op_dup(current_stack: &mut Vec<StackEntry>) {
     println!("Duplicating last entry in script stack");
     let dup = current_stack[current_stack.len() - 1].clone();
     current_stack.push(dup);
 }
-pub fn op_hash256(current_stack:&mut Vec<StackEntry>) -> bool{
+pub fn op_hash256(current_stack: &mut Vec<StackEntry>) -> bool {
     println!("256 bit hashing last stack entry");
     let last_entry = current_stack.pop().unwrap();
     let pub_key = match last_entry {
@@ -34,8 +31,7 @@ pub fn op_hash256(current_stack:&mut Vec<StackEntry>) -> bool{
     };
     return true;
 }
-pub fn op_equalverify(current_stack:&mut Vec<StackEntry>) -> bool
-{
+pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
     println!("Verifying p2pkh hash");
     let input_hash = current_stack.pop();
     let computed_hash = current_stack.pop();
@@ -46,8 +42,7 @@ pub fn op_equalverify(current_stack:&mut Vec<StackEntry>) -> bool
     }
     return true;
 }
-pub fn op_checksig(current_stack:&mut Vec<StackEntry>) -> bool
-{
+pub fn op_checksig(current_stack: &mut Vec<StackEntry>) -> bool {
     println!("Checking p2pkh signature");
     let pub_key: PublicKey = match current_stack.pop().unwrap() {
         StackEntry::PubKey(pub_key) => pub_key,
