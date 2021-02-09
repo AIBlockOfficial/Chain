@@ -33,8 +33,7 @@ pub fn member_multisig_is_valid(script: Script) -> bool {
                         test_for_return & interface_ops::op_checkmultisigmem(&mut current_stack);
                 }
                 _ => {
-                    println!("Adding constant to stack: {:?}", stack_entry);
-                    current_stack.push(stack_entry);
+                    interface_ops::op_else(stack_entry, &mut current_stack);
                 }
             }
         } else {
