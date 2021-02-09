@@ -99,7 +99,7 @@ pub fn op_checksig(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_checkmultisigmem(current_stack: &mut Vec<StackEntry>) -> bool {
-    println!("Checking p2pkh signature");
+    println!("Checking signature matches public key for multisig member");
     let pub_key: PublicKey = match current_stack.pop().unwrap() {
         StackEntry::PubKey(pub_key) => pub_key,
         _ => panic!("Public key not present to verify transaction"),
@@ -214,8 +214,8 @@ fn match_on_multisig_to_pubkey(
 ///
 /// * `stack_entry`  - reference to the current entry on the stack
 /// * `current_stack`  - mutable reference to the current stack
-pub fn op_else(stack_entry: &StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
+pub fn op_else(stack_entry: StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
     println!("Adding constant to stack: {:?}", stack_entry);
-    current_stack.push(stack_entry.clone());
+    current_stack.push(stack_entry);
     return true;
 }

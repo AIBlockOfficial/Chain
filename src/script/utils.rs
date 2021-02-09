@@ -24,20 +24,25 @@ use tracing::{debug, error, info, trace};
 /// * `script`  - Script to verify
 pub fn member_multisig_is_valid(script: Script) -> bool {
     let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
-
+    let mut test_for_return = true;
     for stack_entry in script.stack {
-        match stack_entry {
-            StackEntry::Op(OpCodes::OP_CHECKSIG) => {
-                return interface_ops::op_checkmultisigmem(&mut current_stack);
+        if test_for_return {
+            match stack_entry {
+                StackEntry::Op(OpCodes::OP_CHECKSIG) => {
+                    test_for_return =
+                        test_for_return & interface_ops::op_checkmultisigmem(&mut current_stack);
+                }
+                _ => {
+                    println!("Adding constant to stack: {:?}", stack_entry);
+                    current_stack.push(stack_entry);
+                }
             }
-            _ => {
-                println!("Adding constant to stack: {:?}", stack_entry);
-                current_stack.push(stack_entry);
-            }
+        } else {
+            return false;
         }
     }
 
-    true
+    return test_for_return;
 }
 
 /// Verifies that all incoming transactions are allowed to be spent. Returns false if a single
@@ -104,19 +109,26 @@ pub fn tx_outs_are_valid(tx_outs: &[TxOut], amount_spent: TokenAmount) -> bool {
 /// * `script`  - Script to validate
 fn tx_has_valid_multsig_validation(script: &Script) -> bool {
     let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
-
+    let mut test_for_return = true;
     for stack_entry in &script.stack {
-        match stack_entry {
-            StackEntry::Op(OpCodes::OP_CHECKMULTISIG) => {
-                return interface_ops::op_multisig(&mut current_stack);
+        if test_for_return {
+            match stack_entry {
+                StackEntry::Op(OpCodes::OP_CHECKMULTISIG) => {
+                    test_for_return =
+                        test_for_return & interface_ops::op_multisig(&mut current_stack);
+                }
+                _ => {
+                    println!("Adding constant to stack: {:?}", stack_entry);
+                    current_stack.push(stack_entry.clone());
+                    test_for_return = test_for_return & true;
+                }
             }
-            _ => {
-                return interface_ops::op_else(&stack_entry, &mut current_stack);
-            }
+        } else {
+            return false;
         }
     }
 
-    true
+    return test_for_return;
 }
 
 /// Checks whether a transaction to spend tokens in P2PKH has a valid signature
@@ -200,7 +212,7 @@ fn interpret_script(script: &Script) -> bool {
         }
     }
 
-    true
+    return test_for_return;
 }
 
 /// Does pairwise validation of signatures against public keys
@@ -568,5 +580,47 @@ mod tests {
             actual_result,
             inputs.iter().map(|(_, e)| *e).collect::<Vec<bool>>(),
         );
+    }
+
+    #[test]
+    /// Checks that incorrect member interpret scripts are validated as such
+    fn should_fail_interpret_valid() {
+        let (_pk, sk) = sign::gen_keypair();
+        let (pk, _sk) = sign::gen_keypair();
+        let t_hash = hex::encode(vec![0, 0, 0]);
+        let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
+
+        let tx_const = TxConstructor {
+            t_hash,
+            prev_n: 0,
+            signatures: vec![signature],
+            pub_keys: vec![pk],
+        };
+
+        let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
+
+        assert_eq!(
+            interpret_script(&(tx_ins[0].clone().script_signature)),
+            false
+        );
+    }
+
+    #[test]
+    /// Checks that interpret scripts are validated as such
+    fn should_pass_interpret_valid() {
+        let (pk, sk) = sign::gen_keypair();
+        let t_hash = hex::encode(vec![0, 0, 0]);
+        let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
+
+        let tx_const = TxConstructor {
+            t_hash,
+            prev_n: 0,
+            signatures: vec![signature],
+            pub_keys: vec![pk],
+        };
+
+        let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
+
+        assert!(interpret_script(&(tx_ins[0].clone().script_signature)));
     }
 }
