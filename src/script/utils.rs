@@ -250,15 +250,16 @@ fn interpret_script(script: &Script) -> bool {
                 //current_stack.push(dup);
             }
             StackEntry::Op(OpCodes::OP_HASH256) => {
-                println!("256 bit hashing last stack entry");
-                let last_entry = current_stack.pop().unwrap();
-                let pub_key = match last_entry {
-                    StackEntry::PubKey(v) => v,
-                    _ => return false,
-                };
+                interface_ops::op_hash256(&mut current_stack);
+                //println!("256 bit hashing last stack entry");
+                //let last_entry = current_stack.pop().unwrap();
+                //let pub_key = match last_entry {
+                //    StackEntry::PubKey(v) => v,
+                //    _ => return false,
+                //};
 
-                let new_entry = construct_address(pub_key);
-                current_stack.push(StackEntry::PubKeyHash(new_entry));
+                //let new_entry = construct_address(pub_key);
+                //current_stack.push(StackEntry::PubKeyHash(new_entry));
             }
             StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
                 println!("Verifying p2pkh hash");

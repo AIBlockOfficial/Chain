@@ -22,14 +22,16 @@ pub fn op_dup(current_stack: &mut Vec<StackEntry>) {
     let dup = current_stack[current_stack.len() - 1].clone();
     current_stack.push(dup);
 }
-pub fn op_hash256(current_stack: &mut Vec<StackEntry>) -> bool {
+pub fn op_hash256(current_stack: &mut Vec<StackEntry>) {
     println!("256 bit hashing last stack entry");
     let last_entry = current_stack.pop().unwrap();
     let pub_key = match last_entry {
         StackEntry::PubKey(v) => v,
-        _ => return false,
+        _ => panic!("No match"),
     };
-    return true;
+
+    let new_entry = construct_address(pub_key);
+    current_stack.push(StackEntry::PubKeyHash(new_entry));
 }
 pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
     println!("Verifying p2pkh hash");
