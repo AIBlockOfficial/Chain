@@ -1,7 +1,9 @@
+#![allow(unused)]
 use crate::constants::TOTAL_TOKENS;
 use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::transaction::*;
 use crate::primitives::transaction_utils::construct_address;
+use crate::script::interface_ops;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use crate::sha3::Digest;
@@ -22,39 +24,23 @@ use tracing::{debug, error, info, trace};
 /// * `script`  - Script to verify
 pub fn member_multisig_is_valid(script: Script) -> bool {
     let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
-
+    let mut test_for_return = true;
     for stack_entry in script.stack {
-        match stack_entry {
-            StackEntry::Op(OpCodes::OP_CHECKSIG) => {
-                println!("Checking signature matches public key for multisig member");
-                let pub_key: PublicKey = match current_stack.pop().unwrap() {
-                    StackEntry::PubKey(pub_key) => pub_key,
-                    _ => panic!("Public key not present to verify transaction"),
-                };
-
-                let sig: Signature = match current_stack.pop().unwrap() {
-                    StackEntry::Signature(sig) => sig,
-                    _ => panic!("Signature not present to verify transaction"),
-                };
-
-                let check_data = match current_stack.pop().unwrap() {
-                    StackEntry::Bytes(check_data) => check_data,
-                    _ => panic!("Check data bytes not present to verify transaction"),
-                };
-
-                if (!sign::verify_detached(&sig, check_data.as_bytes(), &pub_key)) {
-                    error!("Signature not valid. Member multisig input invalid");
-                    return false;
+        if test_for_return {
+            match stack_entry {
+                StackEntry::Op(OpCodes::OP_CHECKSIG) => {
+                    test_for_return &= interface_ops::op_checkmultisigmem(&mut current_stack);
+                }
+                _ => {
+                    interface_ops::op_else(stack_entry, &mut current_stack);
                 }
             }
-            _ => {
-                println!("Adding constant to stack: {:?}", stack_entry);
-                current_stack.push(stack_entry);
-            }
+        } else {
+            return false;
         }
     }
 
-    true
+    test_for_return
 }
 
 /// Verifies that all incoming transactions are allowed to be spent. Returns false if a single
@@ -121,69 +107,23 @@ pub fn tx_outs_are_valid(tx_outs: &[TxOut], amount_spent: TokenAmount) -> bool {
 /// * `script`  - Script to validate
 fn tx_has_valid_multsig_validation(script: &Script) -> bool {
     let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
-
+    let mut test_for_return = true;
     for stack_entry in &script.stack {
-        match stack_entry {
-            StackEntry::Op(OpCodes::OP_CHECKMULTISIG) => {
-                let mut pub_keys = Vec::new();
-                let mut signatures = Vec::new();
-                let mut last_val = StackEntry::Op(OpCodes::OP_0);
-                let n = match current_stack.pop().unwrap() {
-                    StackEntry::Num(n) => n,
-                    _ => panic!("No n value of keys for multisig present"),
-                };
-
-                while let StackEntry::PubKey(_pk) = current_stack[current_stack.len() - 1] {
-                    let next_key = current_stack.pop();
-
-                    if let Some(StackEntry::PubKey(pub_key)) = next_key {
-                        pub_keys.push(pub_key);
-                    }
+        if test_for_return {
+            match stack_entry {
+                StackEntry::Op(OpCodes::OP_CHECKMULTISIG) => {
+                    test_for_return &= interface_ops::op_multisig(&mut current_stack);
                 }
-
-                // If there are too few public keys
-                if pub_keys.len() < n {
-                    println!("Too few public keys provided");
-                    return false;
-                }
-
-                let m = match current_stack.pop().unwrap() {
-                    StackEntry::Num(m) => m,
-                    _ => panic!("No n value of keys for multisig present"),
-                };
-
-                // If there are more keys required than available
-                if m > n || m > pub_keys.len() {
-                    println!("Number of keys required is greater than the number available");
-                    return false;
-                }
-
-                while let StackEntry::Signature(_sig) = current_stack[current_stack.len() - 1] {
-                    let next_key = current_stack.pop();
-
-                    if let Some(StackEntry::Signature(sig)) = next_key {
-                        signatures.push(sig);
-                    }
-                }
-
-                let check_data = match current_stack.pop().unwrap() {
-                    StackEntry::Bytes(check_data) => check_data,
-                    _ => panic!("Check data for validation not present"),
-                };
-
-                if !match_on_multisig_to_pubkey(check_data, signatures, pub_keys, m) {
-                    return false;
+                _ => {
+                    test_for_return &= interface_ops::op_else_ref(&stack_entry, &mut current_stack);
                 }
             }
-
-            _ => {
-                println!("Adding constant to stack: {:?}", stack_entry);
-                current_stack.push(stack_entry.clone());
-            }
+        } else {
+            return false;
         }
     }
 
-    true
+    test_for_return
 }
 
 /// Checks whether a transaction to spend tokens in P2PKH has a valid signature
@@ -238,65 +178,32 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
 /// * `script`  - Script to unwrap and execute
 fn interpret_script(script: &Script) -> bool {
     let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
-
+    let mut test_for_return = true;
     for stack_entry in &script.stack {
-        match stack_entry {
-            StackEntry::Op(OpCodes::OP_DUP) => {
-                println!("Duplicating last entry in script stack");
-                let dup = current_stack[current_stack.len() - 1].clone();
-                current_stack.push(dup);
-            }
-            StackEntry::Op(OpCodes::OP_HASH256) => {
-                println!("256 bit hashing last stack entry");
-                let last_entry = current_stack.pop().unwrap();
-                let pub_key = match last_entry {
-                    StackEntry::PubKey(v) => v,
-                    _ => return false,
-                };
-
-                let new_entry = construct_address(pub_key);
-                current_stack.push(StackEntry::PubKeyHash(new_entry));
-            }
-            StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
-                println!("Verifying p2pkh hash");
-                let input_hash = current_stack.pop();
-                let computed_hash = current_stack.pop();
-
-                if input_hash != computed_hash {
-                    error!("Hash not valid. Transaction input invalid");
-                    return false;
+        if test_for_return {
+            match stack_entry {
+                StackEntry::Op(OpCodes::OP_DUP) => {
+                    test_for_return &= interface_ops::op_dup(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_HASH256) => {
+                    test_for_return &= interface_ops::op_hash256(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
+                    test_for_return &= interface_ops::op_equalverify(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_CHECKSIG) => {
+                    test_for_return &= interface_ops::op_checksig(&mut current_stack);
+                }
+                _ => {
+                    test_for_return &= interface_ops::op_else_ref(&stack_entry, &mut current_stack);
                 }
             }
-            StackEntry::Op(OpCodes::OP_CHECKSIG) => {
-                println!("Checking p2pkh signature");
-                let pub_key: PublicKey = match current_stack.pop().unwrap() {
-                    StackEntry::PubKey(pub_key) => pub_key,
-                    _ => panic!("Public key not present to verify transaction"),
-                };
-
-                let sig: Signature = match current_stack.pop().unwrap() {
-                    StackEntry::Signature(sig) => sig,
-                    _ => panic!("Signature not present to verify transaction"),
-                };
-
-                let check_data = match current_stack.pop().unwrap() {
-                    StackEntry::Bytes(check_data) => check_data,
-                    _ => panic!("Check data bytes not present to verify transaction"),
-                };
-
-                if (!sign::verify_detached(&sig, check_data.as_bytes(), &pub_key)) {
-                    error!("Signature not valid. Transaction input invalid");
-                    return false;
-                }
-            }
-            _ => {
-                println!("Adding constant to stack: {:?}", stack_entry);
-                current_stack.push(stack_entry.clone());
-            }
+        } else {
+            return false;
         }
     }
 
-    true
+    test_for_return
 }
 
 /// Does pairwise validation of signatures against public keys
@@ -664,5 +571,47 @@ mod tests {
             actual_result,
             inputs.iter().map(|(_, e)| *e).collect::<Vec<bool>>(),
         );
+    }
+
+    #[test]
+    /// Checks that incorrect member interpret scripts are validated as such
+    fn should_fail_interpret_valid() {
+        let (_pk, sk) = sign::gen_keypair();
+        let (pk, _sk) = sign::gen_keypair();
+        let t_hash = hex::encode(vec![0, 0, 0]);
+        let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
+
+        let tx_const = TxConstructor {
+            t_hash,
+            prev_n: 0,
+            signatures: vec![signature],
+            pub_keys: vec![pk],
+        };
+
+        let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
+
+        assert_eq!(
+            interpret_script(&(tx_ins[0].clone().script_signature)),
+            false
+        );
+    }
+
+    #[test]
+    /// Checks that interpret scripts are validated as such
+    fn should_pass_interpret_valid() {
+        let (pk, sk) = sign::gen_keypair();
+        let t_hash = hex::encode(vec![0, 0, 0]);
+        let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
+
+        let tx_const = TxConstructor {
+            t_hash,
+            prev_n: 0,
+            signatures: vec![signature],
+            pub_keys: vec![pk],
+        };
+
+        let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
+
+        assert!(interpret_script(&(tx_ins[0].clone().script_signature)));
     }
 }
