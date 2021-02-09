@@ -604,4 +604,29 @@ mod tests {
 
         assert!(interpret_script(&(tx_ins[0].clone().script_signature)));
     }
+
+    #[test]
+    /// Checks that interpret works
+    fn interpret_is_valid() {
+        let (first_pk, first_sk) = sign::gen_keypair();
+        let (second_pk, second_sk) = sign::gen_keypair();
+        let (third_pk, third_sk) = sign::gen_keypair();
+        let check_data = hex::encode(vec![0, 0, 0]);
+
+        let m = 2;
+        let first_sig = sign::sign_detached(check_data.as_bytes(), &first_sk);
+        let second_sig = sign::sign_detached(check_data.as_bytes(), &second_sk);
+        let third_sig = sign::sign_detached(check_data.as_bytes(), &third_sk);
+
+        let tx_const = TxConstructor {
+            t_hash: hex::encode(vec![0, 0, 0]),
+            prev_n: 0,
+            signatures: vec![first_sig, second_sig, third_sig],
+            pub_keys: vec![first_pk, second_pk, third_pk],
+        };
+
+        let tx_ins = create_multisig_tx_ins(vec![tx_const], m);
+
+        assert!(interpret_script(&tx_ins[0].script_signature));
+    }
 }
