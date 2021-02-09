@@ -245,31 +245,12 @@ fn interpret_script(script: &Script) -> bool {
         match stack_entry {
             StackEntry::Op(OpCodes::OP_DUP) => {
                 interface_ops::op_dup(&mut current_stack);
-                //println!("Duplicating last entry in script stack");
-                //let dup = current_stack[current_stack.len() - 1].clone();
-                //current_stack.push(dup);
             }
             StackEntry::Op(OpCodes::OP_HASH256) => {
                 interface_ops::op_hash256(&mut current_stack);
-                //println!("256 bit hashing last stack entry");
-                //let last_entry = current_stack.pop().unwrap();
-                //let pub_key = match last_entry {
-                //    StackEntry::PubKey(v) => v,
-                //    _ => return false,
-                //};
-
-                //let new_entry = construct_address(pub_key);
-                //current_stack.push(StackEntry::PubKeyHash(new_entry));
             }
             StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
-                println!("Verifying p2pkh hash");
-                let input_hash = current_stack.pop();
-                let computed_hash = current_stack.pop();
-
-                if input_hash != computed_hash {
-                    error!("Hash not valid. Transaction input invalid");
-                    return false;
-                }
+                interface_ops::op_equalverify(&mut current_stack);
             }
             StackEntry::Op(OpCodes::OP_CHECKSIG) => {
                 println!("Checking p2pkh signature");

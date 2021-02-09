@@ -33,16 +33,14 @@ pub fn op_hash256(current_stack: &mut Vec<StackEntry>) {
     let new_entry = construct_address(pub_key);
     current_stack.push(StackEntry::PubKeyHash(new_entry));
 }
-pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
+pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) {
     println!("Verifying p2pkh hash");
     let input_hash = current_stack.pop();
     let computed_hash = current_stack.pop();
 
     if input_hash != computed_hash {
         error!("Hash not valid. Transaction input invalid");
-        return false;
     }
-    return true;
 }
 pub fn op_checksig(current_stack: &mut Vec<StackEntry>) -> bool {
     println!("Checking p2pkh signature");
