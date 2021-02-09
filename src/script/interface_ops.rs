@@ -17,30 +17,34 @@ use sodiumoxide::crypto::sign::ed25519::{PublicKey, Signature};
 use std::collections::BTreeMap;
 use tracing::{debug, error, info, trace};
 
-pub fn op_dup(current_stack: &mut Vec<StackEntry>) {
+pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
     println!("Duplicating last entry in script stack");
     let dup = current_stack[current_stack.len() - 1].clone();
     current_stack.push(dup);
+    return true;
 }
-pub fn op_hash256(current_stack: &mut Vec<StackEntry>) {
+pub fn op_hash256(current_stack: &mut Vec<StackEntry>) -> bool {
     println!("256 bit hashing last stack entry");
     let last_entry = current_stack.pop().unwrap();
     let pub_key = match last_entry {
         StackEntry::PubKey(v) => v,
-        _ => panic!("No match"),
+        _ => return false,
     };
 
     let new_entry = construct_address(pub_key);
     current_stack.push(StackEntry::PubKeyHash(new_entry));
+    return true;
 }
-pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) {
+pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
     println!("Verifying p2pkh hash");
     let input_hash = current_stack.pop();
     let computed_hash = current_stack.pop();
 
     if input_hash != computed_hash {
         error!("Hash not valid. Transaction input invalid");
+        return false;
     }
+    return true;
 }
 pub fn op_checksig(current_stack: &mut Vec<StackEntry>) -> bool {
     println!("Checking p2pkh signature");
@@ -63,5 +67,10 @@ pub fn op_checksig(current_stack: &mut Vec<StackEntry>) -> bool {
         error!("Signature not valid. Transaction input invalid");
         return false;
     }
+    return true;
+}
+pub fn op_else(stack_entry: &StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
+    println!("Adding constant to stack: {:?}", stack_entry);
+    current_stack.push(stack_entry.clone());
     return true;
 }

@@ -244,39 +244,19 @@ fn interpret_script(script: &Script) -> bool {
     for stack_entry in &script.stack {
         match stack_entry {
             StackEntry::Op(OpCodes::OP_DUP) => {
-                interface_ops::op_dup(&mut current_stack);
+                return interface_ops::op_dup(&mut current_stack);
             }
             StackEntry::Op(OpCodes::OP_HASH256) => {
-                interface_ops::op_hash256(&mut current_stack);
+                return interface_ops::op_hash256(&mut current_stack);
             }
             StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
-                interface_ops::op_equalverify(&mut current_stack);
+                return interface_ops::op_equalverify(&mut current_stack);
             }
             StackEntry::Op(OpCodes::OP_CHECKSIG) => {
-                println!("Checking p2pkh signature");
-                let pub_key: PublicKey = match current_stack.pop().unwrap() {
-                    StackEntry::PubKey(pub_key) => pub_key,
-                    _ => panic!("Public key not present to verify transaction"),
-                };
-
-                let sig: Signature = match current_stack.pop().unwrap() {
-                    StackEntry::Signature(sig) => sig,
-                    _ => panic!("Signature not present to verify transaction"),
-                };
-
-                let check_data = match current_stack.pop().unwrap() {
-                    StackEntry::Bytes(check_data) => check_data,
-                    _ => panic!("Check data bytes not present to verify transaction"),
-                };
-
-                if (!sign::verify_detached(&sig, check_data.as_bytes(), &pub_key)) {
-                    error!("Signature not valid. Transaction input invalid");
-                    return false;
-                }
+                return interface_ops::op_checksig(&mut current_stack);
             }
             _ => {
-                println!("Adding constant to stack: {:?}", stack_entry);
-                current_stack.push(stack_entry.clone());
+                return interface_ops::op_else(stack_entry, &mut current_stack);
             }
         }
     }
