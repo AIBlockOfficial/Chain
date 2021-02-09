@@ -117,9 +117,8 @@ fn tx_has_valid_multsig_validation(script: &Script) -> bool {
                         test_for_return & interface_ops::op_multisig(&mut current_stack);
                 }
                 _ => {
-                    println!("Adding constant to stack: {:?}", stack_entry);
-                    current_stack.push(stack_entry.clone());
-                    test_for_return = test_for_return & true;
+                    test_for_return = test_for_return
+                        & interface_ops::op_elseRef(&stack_entry, &mut current_stack);
                 }
             }
         } else {
@@ -202,8 +201,8 @@ fn interpret_script(script: &Script) -> bool {
                         (test_for_return & interface_ops::op_checksig(&mut current_stack));
                 }
                 _ => {
-                    println!("Adding constant to stack: {:?}", stack_entry);
-                    current_stack.push(stack_entry.clone());
+                    test_for_return = test_for_return
+                        & interface_ops::op_elseRef(&stack_entry, &mut current_stack);
                 }
             }
         } else {
