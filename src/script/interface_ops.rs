@@ -122,6 +122,11 @@ pub fn op_checkmultisigmem(current_stack: &mut Vec<StackEntry>) -> bool {
     return true;
 }
 
+/// Handles the execution for the multisig op_code. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
 pub fn op_multisig(current_stack: &mut Vec<StackEntry>) -> bool {
     let mut pub_keys = Vec::new();
     let mut signatures = Vec::new();
