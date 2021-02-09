@@ -187,7 +187,8 @@ fn interpret_script(script: &Script) -> bool {
                 return interface_ops::op_checksig(&mut current_stack);
             }
             _ => {
-                return interface_ops::op_else(stack_entry, &mut current_stack);
+                println!("Adding constant to stack: {:?}", stack_entry);
+                current_stack.push(stack_entry.clone());
             }
         }
     }
@@ -559,6 +560,29 @@ mod tests {
         assert_eq!(
             actual_result,
             inputs.iter().map(|(_, e)| *e).collect::<Vec<bool>>(),
+        );
+    }
+
+    #[test]
+    /// Checks that incorrect member multisig scripts are validated as such
+    fn test_interpret_should_fail() {
+        let (_pk, sk) = sign::gen_keypair();
+        let (pk, _sk) = sign::gen_keypair();
+        let t_hash = hex::encode(vec![0, 0, 0]);
+        let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
+
+        let tx_const = TxConstructor {
+            t_hash,
+            prev_n: 0,
+            signatures: vec![signature],
+            pub_keys: vec![pk],
+        };
+
+        let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
+
+        assert_eq!(
+            interpret_script(&(tx_ins[0].clone().script_signature)),
+            false
         );
     }
 }
