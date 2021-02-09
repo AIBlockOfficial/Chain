@@ -26,7 +26,7 @@ pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
     println!("Duplicating last entry in script stack");
     let dup = current_stack[current_stack.len() - 1].clone();
     current_stack.push(dup);
-    return true;
+    true
 }
 
 /// Handles the execution for the hash256 op_code. Returns a bool.
@@ -44,7 +44,7 @@ pub fn op_hash256(current_stack: &mut Vec<StackEntry>) -> bool {
 
     let new_entry = construct_address(pub_key);
     current_stack.push(StackEntry::PubKeyHash(new_entry));
-    return true;
+    true
 }
 
 /// Handles the execution for the equalverify op_code. Returns a bool.
@@ -61,7 +61,7 @@ pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
         error!("Hash not valid. Transaction input invalid");
         return false;
     }
-    return true;
+    true
 }
 
 /// Handles the execution for the checksig op_code. Returns a bool.
@@ -90,7 +90,7 @@ pub fn op_checksig(current_stack: &mut Vec<StackEntry>) -> bool {
         error!("Signature not valid. Transaction input invalid");
         return false;
     }
-    return true;
+    true
 }
 
 /// Handles the execution for the checksig op_code when checking a member of a multisig. Returns a bool.
@@ -119,7 +119,7 @@ pub fn op_checkmultisigmem(current_stack: &mut Vec<StackEntry>) -> bool {
         error!("Signature not valid. Member multisig input invalid");
         return false;
     }
-    return true;
+    true
 }
 
 /// Handles the execution for the multisig op_code. Returns a bool.
@@ -177,7 +177,7 @@ pub fn op_multisig(current_stack: &mut Vec<StackEntry>) -> bool {
     if !match_on_multisig_to_pubkey(check_data, signatures, pub_keys, m) {
         return false;
     }
-    return true;
+    true
 }
 
 /// Does pairwise validation of signatures against public keys
@@ -217,7 +217,7 @@ fn match_on_multisig_to_pubkey(
 pub fn op_else(stack_entry: StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
     println!("Adding constant to stack: {:?}", stack_entry);
     current_stack.push(stack_entry);
-    return true;
+    true
 }
 
 /// Handles the execution for the default if the op code does not match. Returns a bool.
@@ -229,5 +229,5 @@ pub fn op_else(stack_entry: StackEntry, current_stack: &mut Vec<StackEntry>) -> 
 pub fn op_elseRef(stack_entry: &StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
     println!("Adding constant to stack: {:?}", stack_entry);
     current_stack.push(stack_entry.clone());
-    return true;
+    true
 }

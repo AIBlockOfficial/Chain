@@ -29,8 +29,7 @@ pub fn member_multisig_is_valid(script: Script) -> bool {
         if test_for_return {
             match stack_entry {
                 StackEntry::Op(OpCodes::OP_CHECKSIG) => {
-                    test_for_return =
-                        test_for_return & interface_ops::op_checkmultisigmem(&mut current_stack);
+                    test_for_return &= interface_ops::op_checkmultisigmem(&mut current_stack);
                 }
                 _ => {
                     interface_ops::op_else(stack_entry, &mut current_stack);
@@ -41,7 +40,7 @@ pub fn member_multisig_is_valid(script: Script) -> bool {
         }
     }
 
-    return test_for_return;
+    test_for_return
 }
 
 /// Verifies that all incoming transactions are allowed to be spent. Returns false if a single
@@ -113,12 +112,10 @@ fn tx_has_valid_multsig_validation(script: &Script) -> bool {
         if test_for_return {
             match stack_entry {
                 StackEntry::Op(OpCodes::OP_CHECKMULTISIG) => {
-                    test_for_return =
-                        test_for_return & interface_ops::op_multisig(&mut current_stack);
+                    test_for_return &= interface_ops::op_multisig(&mut current_stack);
                 }
                 _ => {
-                    test_for_return = test_for_return
-                        & interface_ops::op_elseRef(&stack_entry, &mut current_stack);
+                    test_for_return &= interface_ops::op_elseRef(&stack_entry, &mut current_stack);
                 }
             }
         } else {
@@ -126,7 +123,7 @@ fn tx_has_valid_multsig_validation(script: &Script) -> bool {
         }
     }
 
-    return test_for_return;
+    test_for_return
 }
 
 /// Checks whether a transaction to spend tokens in P2PKH has a valid signature
@@ -186,23 +183,19 @@ fn interpret_script(script: &Script) -> bool {
         if test_for_return {
             match stack_entry {
                 StackEntry::Op(OpCodes::OP_DUP) => {
-                    test_for_return = (test_for_return & interface_ops::op_dup(&mut current_stack));
+                    test_for_return &= interface_ops::op_dup(&mut current_stack);
                 }
                 StackEntry::Op(OpCodes::OP_HASH256) => {
-                    test_for_return =
-                        (test_for_return & interface_ops::op_hash256(&mut current_stack));
+                    test_for_return &= interface_ops::op_hash256(&mut current_stack);
                 }
                 StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
-                    test_for_return =
-                        (test_for_return & interface_ops::op_equalverify(&mut current_stack));
+                    test_for_return &= interface_ops::op_equalverify(&mut current_stack);
                 }
                 StackEntry::Op(OpCodes::OP_CHECKSIG) => {
-                    test_for_return =
-                        (test_for_return & interface_ops::op_checksig(&mut current_stack));
+                    test_for_return &= interface_ops::op_checksig(&mut current_stack);
                 }
                 _ => {
-                    test_for_return = test_for_return
-                        & interface_ops::op_elseRef(&stack_entry, &mut current_stack);
+                    test_for_return &= interface_ops::op_elseRef(&stack_entry, &mut current_stack);
                 }
             }
         } else {
@@ -210,7 +203,7 @@ fn interpret_script(script: &Script) -> bool {
         }
     }
 
-    return test_for_return;
+    test_for_return
 }
 
 /// Does pairwise validation of signatures against public keys
