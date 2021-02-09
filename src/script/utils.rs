@@ -127,60 +127,10 @@ fn tx_has_valid_multsig_validation(script: &Script) -> bool {
     for stack_entry in &script.stack {
         match stack_entry {
             StackEntry::Op(OpCodes::OP_CHECKMULTISIG) => {
-                let mut pub_keys = Vec::new();
-                let mut signatures = Vec::new();
-                let mut last_val = StackEntry::Op(OpCodes::OP_0);
-                let n = match current_stack.pop().unwrap() {
-                    StackEntry::Num(n) => n,
-                    _ => panic!("No n value of keys for multisig present"),
-                };
-
-                while let StackEntry::PubKey(_pk) = current_stack[current_stack.len() - 1] {
-                    let next_key = current_stack.pop();
-
-                    if let Some(StackEntry::PubKey(pub_key)) = next_key {
-                        pub_keys.push(pub_key);
-                    }
-                }
-
-                // If there are too few public keys
-                if pub_keys.len() < n {
-                    println!("Too few public keys provided");
-                    return false;
-                }
-
-                let m = match current_stack.pop().unwrap() {
-                    StackEntry::Num(m) => m,
-                    _ => panic!("No n value of keys for multisig present"),
-                };
-
-                // If there are more keys required than available
-                if m > n || m > pub_keys.len() {
-                    println!("Number of keys required is greater than the number available");
-                    return false;
-                }
-
-                while let StackEntry::Signature(_sig) = current_stack[current_stack.len() - 1] {
-                    let next_key = current_stack.pop();
-
-                    if let Some(StackEntry::Signature(sig)) = next_key {
-                        signatures.push(sig);
-                    }
-                }
-
-                let check_data = match current_stack.pop().unwrap() {
-                    StackEntry::Bytes(check_data) => check_data,
-                    _ => panic!("Check data for validation not present"),
-                };
-
-                if !match_on_multisig_to_pubkey(check_data, signatures, pub_keys, m) {
-                    return false;
-                }
+                return interface_ops::op_multisig(&mut current_stack);
             }
-
             _ => {
-                println!("Adding constant to stack: {:?}", stack_entry);
-                current_stack.push(stack_entry.clone());
+                return interface_ops::op_else(&stack_entry, &mut current_stack);
             }
         }
     }
