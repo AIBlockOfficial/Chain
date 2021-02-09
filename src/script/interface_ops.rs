@@ -226,7 +226,7 @@ pub fn op_else(stack_entry: StackEntry, current_stack: &mut Vec<StackEntry>) -> 
 ///
 /// * `stack_entry`  - reference to the current entry on the stack
 /// * `current_stack`  - mutable reference to the current stack
-pub fn op_elseRef(stack_entry: &StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
+pub fn op_else_ref(stack_entry: &StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
     println!("Adding constant to stack: {:?}", stack_entry);
     current_stack.push(stack_entry.clone());
     true
