@@ -171,25 +171,32 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
 /// * `script`  - Script to unwrap and execute
 fn interpret_script(script: &Script) -> bool {
     let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
-
+    let mut test_for_return = true;
     for stack_entry in &script.stack {
-        match stack_entry {
-            StackEntry::Op(OpCodes::OP_DUP) => {
-                return interface_ops::op_dup(&mut current_stack);
+        if test_for_return {
+            match stack_entry {
+                StackEntry::Op(OpCodes::OP_DUP) => {
+                    test_for_return = (test_for_return & interface_ops::op_dup(&mut current_stack));
+                }
+                StackEntry::Op(OpCodes::OP_HASH256) => {
+                    test_for_return =
+                        (test_for_return & interface_ops::op_hash256(&mut current_stack));
+                }
+                StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
+                    test_for_return =
+                        (test_for_return & interface_ops::op_equalverify(&mut current_stack));
+                }
+                StackEntry::Op(OpCodes::OP_CHECKSIG) => {
+                    test_for_return =
+                        (test_for_return & interface_ops::op_checksig(&mut current_stack));
+                }
+                _ => {
+                    println!("Adding constant to stack: {:?}", stack_entry);
+                    current_stack.push(stack_entry.clone());
+                }
             }
-            StackEntry::Op(OpCodes::OP_HASH256) => {
-                return interface_ops::op_hash256(&mut current_stack);
-            }
-            StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
-                return interface_ops::op_equalverify(&mut current_stack);
-            }
-            StackEntry::Op(OpCodes::OP_CHECKSIG) => {
-                return interface_ops::op_checksig(&mut current_stack);
-            }
-            _ => {
-                println!("Adding constant to stack: {:?}", stack_entry);
-                current_stack.push(stack_entry.clone());
-            }
+        } else {
+            return false;
         }
     }
 
@@ -561,47 +568,5 @@ mod tests {
             actual_result,
             inputs.iter().map(|(_, e)| *e).collect::<Vec<bool>>(),
         );
-    }
-
-    #[test]
-    /// Checks that incorrect member interpret scripts are validated as such
-    fn should_fail_interpret_valid() {
-        let (_pk, sk) = sign::gen_keypair();
-        let (pk, _sk) = sign::gen_keypair();
-        let t_hash = hex::encode(vec![0, 0, 0]);
-        let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
-
-        let tx_const = TxConstructor {
-            t_hash,
-            prev_n: 0,
-            signatures: vec![signature],
-            pub_keys: vec![pk],
-        };
-
-        let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
-
-        assert_eq!(
-            interpret_script(&(tx_ins[0].clone().script_signature)),
-            false
-        );
-    }
-
-    #[test]
-    /// Checks that interpret scripts are validated as such
-    fn should_pass_interpret_valid() {
-        let (pk, sk) = sign::gen_keypair();
-        let t_hash = hex::encode(vec![0, 0, 0]);
-        let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
-
-        let tx_const = TxConstructor {
-            t_hash,
-            prev_n: 0,
-            signatures: vec![signature],
-            pub_keys: vec![pk],
-        };
-
-        let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
-
-        assert!(interpret_script(&(tx_ins[0].clone().script_signature)));
     }
 }
