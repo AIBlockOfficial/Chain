@@ -565,7 +565,7 @@ mod tests {
 
     #[test]
     /// Checks that incorrect member multisig scripts are validated as such
-    fn test_interpret_should_fail() {
+    fn should_fail_interpret_valid() {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
         let t_hash = hex::encode(vec![0, 0, 0]);
@@ -584,5 +584,24 @@ mod tests {
             interpret_script(&(tx_ins[0].clone().script_signature)),
             false
         );
+    }
+
+    #[test]
+    /// Checks that correct member multisig scripts are validated as such
+    fn should_pass_interpret_valid() {
+        let (pk, sk) = sign::gen_keypair();
+        let t_hash = hex::encode(vec![0, 0, 0]);
+        let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
+
+        let tx_const = TxConstructor {
+            t_hash,
+            prev_n: 0,
+            signatures: vec![signature],
+            pub_keys: vec![pk],
+        };
+
+        let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
+
+        assert!(interpret_script(&(tx_ins[0].clone().script_signature)));
     }
 }
