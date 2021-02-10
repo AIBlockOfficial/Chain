@@ -185,6 +185,7 @@ mod tests {
     }
 
     #[actix_rt::test]
+    /// Ensures that a tx's entry in the merkle tree can be successfully proven
     async fn should_produce_valid_merkle_proof() {
         let mut transactions = vec![
             "f479fc771c19c64b14b1b9e446ccccf36b6d705c891eb9a7662c82134e362732".to_string(),
