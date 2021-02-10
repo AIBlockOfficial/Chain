@@ -10,7 +10,6 @@ use serde::{Deserialize, Serialize};
 use sha3::Sha3_256;
 use sodiumoxide::crypto::sign::ed25519::PublicKey;
 use std::convert::TryInto;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
@@ -22,7 +21,6 @@ use merkle_log::{MemoryStore, MerkleLog, Store};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct BlockHeader {
     pub version: u32,
-    pub time: u64,
     pub bits: usize,
     pub nonce: Vec<u8>,
     pub b_num: u64,
@@ -45,7 +43,6 @@ impl BlockHeader {
             previous_hash: None,
             merkle_root_hash: String::default(),
             seed_value: Vec::new(),
-            time: get_current_time(),
             bits: 0,
             b_num: 0,
             nonce: Vec::new(),
@@ -111,14 +108,6 @@ fn from_slice(bytes: &[u8]) -> [u8; 32] {
     let bytes = &bytes[..array.len()]; // panics if not enough data
     array.copy_from_slice(bytes);
     array
-}
-
-/// Gets the current time as a UNIX timestamp
-fn get_current_time() -> u64 {
-    match SystemTime::now().duration_since(UNIX_EPOCH) {
-        Ok(n) => n.as_secs(),
-        Err(_) => panic!("SystemTime before UNIX EPOCH!"),
-    }
 }
 
 /// Generates a random transaction hash for testing
