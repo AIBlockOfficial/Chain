@@ -138,9 +138,8 @@ pub fn gen_random_hash() -> String {
 /// * `transactions`    - Transactions to construct a merkle tree for
 pub async fn build_merkle_tree(transactions: &[String]) -> (MerkleLog<Sha3_256>, MemoryStore) {
     let mut store = MemoryStore::default();
-    let mut tx = transactions.clone();
 
-    if let Some((first_entry, other_entries)) = tx.split_first() {
+    if let Some((first_entry, other_entries)) = transactions.split_first() {
         let mut log = MerkleLog::<Sha3_256>::new(&first_entry, &mut store)
             .await
             .unwrap();
