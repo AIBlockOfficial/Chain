@@ -11,18 +11,22 @@ use sha3::Sha3_256;
 use sodiumoxide::crypto::sign::ed25519::PublicKey;
 use std::convert::TryInto;
 
+use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
+
+use merkle_log::{MemoryStore, MerkleLog, Store};
+
 /// Block header, which contains a smaller footprint view of the block.
 /// Hash records are assumed to be 256 bit
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct BlockHeader {
     pub version: u32,
-    pub time: u32,
     pub bits: usize,
     pub nonce: Vec<u8>,
     pub b_num: u64,
     pub seed_value: Vec<u8>, // for commercial
     pub previous_hash: Option<String>,
-    pub merkle_root_hash: Vec<u8>,
+    pub merkle_root_hash: String,
 }
 
 impl Default for BlockHeader {
@@ -37,9 +41,8 @@ impl BlockHeader {
         BlockHeader {
             version: 0,
             previous_hash: None,
-            merkle_root_hash: Vec::with_capacity(32),
+            merkle_root_hash: String::default(),
             seed_value: Vec::new(),
-            time: 0,
             bits: 0,
             b_num: 0,
             nonce: Vec::new(),
@@ -87,29 +90,10 @@ impl Block {
     }
 
     /// Get the merkle root for the current set of transactions
-    pub fn get_merkle_root(&mut self) -> Vec<u8> {
-        //let merkle = self.build_merkle_tree();
-        //let root_hash = merkle.root().to_vec();
-        let root_hash = Vec::new();
-
-        self.header.merkle_root_hash = root_hash.clone();
-        root_hash
+    pub async fn set_merkle_root(&mut self) {
+        let (merkle_tree, _) = build_merkle_tree(&self.transactions).await;
+        self.header.merkle_root_hash = hex::encode(merkle_tree.root());
     }
-
-    // /// Builds a merkle tree for secure reference
-    // fn build_merkle_tree(&self) -> MerkleTree<[u8; 32], MerkleHasher, VecStore<[u8; 32]>> {
-    //     let mut tx_hashes = Vec::new();
-
-    //     for tx in &self.transactions {
-    //         let tx_bytes = Bytes::from(serialize(&tx).unwrap());
-    //         let tx_hash = Sha3_256::digest(&tx_bytes).to_vec();
-    //         let merkle_hash = from_slice(tx_hash.as_slice());
-
-    //         tx_hashes.push(merkle_hash);
-    //     }
-
-    //     MerkleTree::try_from_iter(tx_hashes.clone().into_iter().map(Ok)).unwrap()
-    // }
 }
 
 /*---- FUNCTIONS ----*/
@@ -126,80 +110,89 @@ fn from_slice(bytes: &[u8]) -> [u8; 32] {
     array
 }
 
-/// Builds the scaffold of a genesis block
-///
-/// ### Arguments
-///
-/// * `time`            - Time value of block
-/// * `nonce`           - Block nonce
-/// * `bits`            - Bit length of block
-/// * `version`         - Network version to keep track of
-/// * `genesis_reward`  - Token reward for the block output
-/// * `genesis_output`  - Output script for the genesis output (STILL TODO)
-pub fn create_raw_genesis_block(
-    time: &u32,
-    nonce: Vec<u8>,
-    bits: &usize,
-    version: &u32,
-    genesis_reward: &u64,
-    genesis_output: String,
-) -> Block {
-    let unicorn_val = String::from("Belgien hat pro Kopf nun am meisten Todesfälle");
-    let mut genesis = Block::new();
-
-    let mut gen_transaction = Transaction::new();
-    let mut tx_in = TxIn::new();
-    let mut tx_out = TxOut::new();
-
-    // Handle genesis transaction
-    let hashed_key = Sha3_256::digest(&unicorn_val.as_bytes()).to_vec();
-    let unicorn_key: [u8; 32] = hashed_key[..].try_into().unwrap();
-
-    //tx_in.script_signature = Some(PublicKey(unicorn_key));
-    //tx_out.value = Some(Asset::Token(*genesis_reward));
-
-    gen_transaction.inputs.push(tx_in);
-    gen_transaction.outputs.push(tx_out);
-
-    // Handle block header
-    genesis.header.version = *version;
-    genesis.header.bits = *bits;
-    genesis.header.nonce = nonce;
-    genesis.header.time = *time;
-
-    let hash_input = Bytes::from(serialize(&gen_transaction).unwrap());
-    let hash_key = hex::encode(Sha3_256::digest(&hash_input));
-
-    // Add genesis transaction
-    genesis.transactions.push(hash_key);
-
-    // Other stuff accepts defaults, so just return the block
-    genesis
+/// Generates a random transaction hash for testing
+pub fn gen_random_hash() -> String {
+    let rand_2: String = thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(32)
+        .map(char::from)
+        .collect();
+    hex::encode(Sha3_256::digest(&rand_2.as_bytes()).to_vec())
 }
 
-/// Creates a final genesis block for inclusion in the chain
+/// Builds a merkle tree of the passed transactions
 ///
 /// ### Arguments
 ///
-/// * `time`            - Time of the genesis block
-/// * `nonce`           - Nonce of the genesis block
-/// * `bits`            - Bit length of the block
-/// * `version`         - Version of the block
-/// * `genesis_reward`  - Coinbase reward from the initial block
-pub fn create_genesis_block(
-    time: u32,
-    nonce: Vec<u8>,
-    bits: usize,
-    version: u32,
-    genesis_reward: u64,
-) -> Block {
-    // Using straight constant in this case, but will need to incorporate some kind of scripting situation
-    create_raw_genesis_block(
-        &time,
-        nonce,
-        &bits,
-        &version,
-        &genesis_reward,
-        "".to_string(),
-    )
+/// * `transactions`    - Transactions to construct a merkle tree for
+pub async fn build_merkle_tree(transactions: &[String]) -> (MerkleLog<Sha3_256>, MemoryStore) {
+    let mut store = MemoryStore::default();
+
+    if let Some((first_entry, other_entries)) = transactions.split_first() {
+        let mut log = MerkleLog::<Sha3_256>::new(&first_entry, &mut store)
+            .await
+            .unwrap();
+
+        for entry in other_entries {
+            log.append(entry, &mut store).await.unwrap();
+        }
+
+        (log, store)
+    } else {
+        panic!("Transactions empty. Cannot create merkle root");
+    }
+}
+
+/*---- TESTS ----*/
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use sha3::Sha3_256;
+
+    #[actix_rt::test]
+    /// Ensures that a static set of tx produces a valid merkle root hash
+    async fn should_construct_a_valid_merkle_root() {
+        let mut block = Block::new();
+        block.transactions = vec![
+            "f479fc771c19c64b14b1b9e446ccccf36b6d705c891eb9a7662c82134e362732".to_string(),
+            "ac24e4c5dc8d0a29cac34ddcf7902bc2f2e8a98ec376def02c06db267d0f5477".to_string(),
+            "4d04366cb153bdcc11b97a9d1176fc889eafc63edbd2c010a6a62a4f9232d156".to_string(),
+            "6486b86af39db28e4f61c7b484e0869ad478e8cb2475b91e92d1b721b70d1746".to_string(),
+            "03b45b843d60b1e43241553c9aeb95fed82cc1bbb599c6c066ddaa75709b3186".to_string(),
+            "8d0250ea0864ac426fe4f4142dae721c74da732476de83d424e1ba0b638238a7".to_string(),
+            "f57e38fb8499b7c2b3d4cf75a24a5dd8a8f7b46f28b9671eb8168ffb93a85424".to_string(),
+            "e0acad209b680e61c3ef4624d9a61b32a5e7e3f0691a8f8d41fd50b1c946e338".to_string(),
+        ];
+
+        block.set_merkle_root().await;
+        assert_eq!(
+            block.header.merkle_root_hash,
+            "49adba4740eb78c38318bbe2951a3c49e8a5bda6b892870bdcbe0713cf1e0af2"
+        );
+    }
+
+    #[actix_rt::test]
+    /// Ensures that a tx's entry in the merkle tree can be successfully proven
+    async fn should_produce_valid_merkle_proof() {
+        let mut transactions = vec![
+            "f479fc771c19c64b14b1b9e446ccccf36b6d705c891eb9a7662c82134e362732".to_string(),
+            "ac24e4c5dc8d0a29cac34ddcf7902bc2f2e8a98ec376def02c06db267d0f5477".to_string(),
+            "4d04366cb153bdcc11b97a9d1176fc889eafc63edbd2c010a6a62a4f9232d156".to_string(),
+            "6486b86af39db28e4f61c7b484e0869ad478e8cb2475b91e92d1b721b70d1746".to_string(),
+            "03b45b843d60b1e43241553c9aeb95fed82cc1bbb599c6c066ddaa75709b3186".to_string(),
+            "8d0250ea0864ac426fe4f4142dae721c74da732476de83d424e1bab638238a7".to_string(),
+            "f57e38fb8499b7c2b3d4cf75a24a5dd8a8f7b46f28b9671eb8168ffb93a85424".to_string(),
+            "e0acad209b680e61c3ef4624d9a61b32a5e7e3f0691a8f8d41fd50b1c946e338".to_string(),
+        ];
+
+        let (mtree, store) = build_merkle_tree(&transactions).await;
+        let check_entry = Sha3_256::digest(&transactions[0].as_bytes());
+        let proof = mtree
+            .prove(0, &from_slice(&check_entry), &store)
+            .await
+            .unwrap();
+
+        assert!(mtree.verify(0, &from_slice(&check_entry), &proof));
+    }
 }
