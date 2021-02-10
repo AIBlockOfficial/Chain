@@ -2,11 +2,13 @@
 
 extern crate bincode;
 extern crate bytes;
-extern crate crypto;
 extern crate hex;
+extern crate merkle_log;
+extern crate rand;
 extern crate serde;
 extern crate sha3;
 extern crate sodiumoxide;
+extern crate time;
 
 pub mod constants;
 pub mod primitives;
