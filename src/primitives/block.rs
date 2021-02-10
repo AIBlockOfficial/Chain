@@ -140,7 +140,7 @@ pub async fn build_merkle_tree(transactions: &Vec<String>) -> (MerkleLog<Sha3_25
     let mut store = MemoryStore::default();
     let mut tx = transactions.clone();
 
-    if tx.len() == 0 {
+    if tx.is_empty() {
         panic!("Transactions empty. Cannot create merkle root");
     }
 
