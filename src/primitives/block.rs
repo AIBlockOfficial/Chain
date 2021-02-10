@@ -136,24 +136,23 @@ pub fn gen_random_hash() -> String {
 /// ### Arguments
 ///
 /// * `transactions`    - Transactions to construct a merkle tree for
-pub async fn build_merkle_tree(transactions: &Vec<String>) -> (MerkleLog<Sha3_256>, MemoryStore) {
+pub async fn build_merkle_tree(transactions: &[String]) -> (MerkleLog<Sha3_256>, MemoryStore) {
     let mut store = MemoryStore::default();
     let mut tx = transactions.clone();
 
-    if tx.is_empty() {
+    if let Some((first_entry, other_entries)) = tx.split_first() {
+        let mut log = MerkleLog::<Sha3_256>::new(&first_entry, &mut store)
+            .await
+            .unwrap();
+
+        for entry in other_entries {
+            log.append(entry, &mut store).await.unwrap();
+        }
+
+        (log, store)
+    } else {
         panic!("Transactions empty. Cannot create merkle root");
     }
-
-    let first_entry = tx.pop().unwrap();
-    let mut log = MerkleLog::<Sha3_256>::new(&first_entry, &mut store)
-        .await
-        .unwrap();
-
-    for entry in tx {
-        log.append(entry, &mut store).await.unwrap();
-    }
-
-    (log, store)
 }
 
 /*---- TESTS ----*/
@@ -181,7 +180,7 @@ mod tests {
         block.set_merkle_root().await;
         assert_eq!(
             block.header.merkle_root_hash,
-            "901fb2a6f5f84f26f49fea07274ff3b1e02529795a0ff0653beb46bce28657b4"
+            "49adba4740eb78c38318bbe2951a3c49e8a5bda6b892870bdcbe0713cf1e0af2"
         );
     }
 
@@ -193,13 +192,13 @@ mod tests {
             "4d04366cb153bdcc11b97a9d1176fc889eafc63edbd2c010a6a62a4f9232d156".to_string(),
             "6486b86af39db28e4f61c7b484e0869ad478e8cb2475b91e92d1b721b70d1746".to_string(),
             "03b45b843d60b1e43241553c9aeb95fed82cc1bbb599c6c066ddaa75709b3186".to_string(),
-            "8d0250ea0864ac426fe4f4142dae721c74da732476de83d424e1ba0b638238a7".to_string(),
+            "8d0250ea0864ac426fe4f4142dae721c74da732476de83d424e1bab638238a7".to_string(),
             "f57e38fb8499b7c2b3d4cf75a24a5dd8a8f7b46f28b9671eb8168ffb93a85424".to_string(),
             "e0acad209b680e61c3ef4624d9a61b32a5e7e3f0691a8f8d41fd50b1c946e338".to_string(),
         ];
 
         let (mtree, store) = build_merkle_tree(&transactions).await;
-        let check_entry = Sha3_256::digest(&transactions.pop().unwrap().as_bytes());
+        let check_entry = Sha3_256::digest(&transactions[0].as_bytes());
         let proof = mtree
             .prove(0, &from_slice(&check_entry), &store)
             .await
