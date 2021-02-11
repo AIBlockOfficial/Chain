@@ -109,10 +109,9 @@ pub fn update_utxo_set(current_utxo: &mut BTreeMap<OutPoint, Transaction>) {
 /// * `amount`      - Amount of tokens allowed in coinbase
 /// * `block_time`  - Block time to assign to script
 /// * `address`     - Address to send the coinbase amount to
-pub fn construct_coinbase_tx(amount: TokenAmount, block_time: u32, address: String) -> Transaction {
+pub fn construct_coinbase_tx(amount: TokenAmount, address: String) -> Transaction {
     let mut tx = Transaction::new();
-    let mut tx_in = TxIn::new();
-    tx_in.script_signature = Script::new_for_coinbase(block_time);
+    let tx_in = TxIn::new();
 
     let mut tx_out = TxOut::new();
     tx_out.amount = amount;
