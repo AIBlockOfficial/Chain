@@ -103,14 +103,18 @@ pub fn update_utxo_set(current_utxo: &mut BTreeMap<OutPoint, Transaction>) {
 }
 
 /// Constructs a coinbase transaction
+/// TODO: Adding block number to coinbase construction non-ideal. Consider moving to Compute
+/// construction or mining later
 ///
 /// ### Arguments
 ///
+/// * `b_num`       - Block number for the current coinbase block
 /// * `amount`      - Amount of tokens allowed in coinbase
 /// * `address`     - Address to send the coinbase amount to
-pub fn construct_coinbase_tx(amount: TokenAmount, address: String) -> Transaction {
+pub fn construct_coinbase_tx(b_num: u64, amount: TokenAmount, address: String) -> Transaction {
     let mut tx = Transaction::new();
-    let tx_in = TxIn::new();
+    let mut tx_in = TxIn::new();
+    tx_in.script_signature = Script::new_for_coinbase(b_num);
 
     let mut tx_out = TxOut::new();
     tx_out.amount = amount;
