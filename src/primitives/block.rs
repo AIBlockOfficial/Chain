@@ -91,8 +91,13 @@ impl Block {
 
     /// Get the merkle root for the current set of transactions
     pub async fn set_merkle_root(&mut self) {
-        let (merkle_tree, _) = build_merkle_tree(&self.transactions).await;
-        self.header.merkle_root_hash = hex::encode(merkle_tree.root());
+        let merkle_result = build_merkle_tree(&self.transactions).await;
+
+        self.header.merkle_root_hash = if let Some((merkle_tree, _)) = merkle_result {
+            hex::encode(merkle_tree.root())
+        } else {
+            "".to_string()
+        }
     }
 }
 
@@ -125,7 +130,9 @@ pub fn gen_random_hash() -> String {
 /// ### Arguments
 ///
 /// * `transactions`    - Transactions to construct a merkle tree for
-pub async fn build_merkle_tree(transactions: &[String]) -> (MerkleLog<Sha3_256>, MemoryStore) {
+pub async fn build_merkle_tree(
+    transactions: &[String],
+) -> Option<(MerkleLog<Sha3_256>, MemoryStore)> {
     let mut store = MemoryStore::default();
 
     if let Some((first_entry, other_entries)) = transactions.split_first() {
@@ -137,10 +144,10 @@ pub async fn build_merkle_tree(transactions: &[String]) -> (MerkleLog<Sha3_256>,
             log.append(entry, &mut store).await.unwrap();
         }
 
-        (log, store)
-    } else {
-        panic!("Transactions empty. Cannot create merkle root");
+        return Some((log, store));
     }
+
+    None
 }
 
 /*---- TESTS ----*/
@@ -149,6 +156,14 @@ pub async fn build_merkle_tree(transactions: &[String]) -> (MerkleLog<Sha3_256>,
 mod tests {
     use super::*;
     use sha3::Sha3_256;
+
+    #[actix_rt::test]
+    async fn should_construct_merkle_root_with_no_tx() {
+        let mut block = Block::new();
+        block.set_merkle_root().await;
+
+        assert_eq!(block.header.merkle_root_hash, "".to_string());
+    }
 
     #[actix_rt::test]
     /// Ensures that a static set of tx produces a valid merkle root hash
@@ -186,7 +201,7 @@ mod tests {
             "e0acad209b680e61c3ef4624d9a61b32a5e7e3f0691a8f8d41fd50b1c946e338".to_string(),
         ];
 
-        let (mtree, store) = build_merkle_tree(&transactions).await;
+        let (mtree, store) = build_merkle_tree(&transactions).await.unwrap();
         let check_entry = Sha3_256::digest(&transactions[0].as_bytes());
         let proof = mtree
             .prove(0, &from_slice(&check_entry), &store)
