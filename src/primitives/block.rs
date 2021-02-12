@@ -158,6 +158,7 @@ mod tests {
     use sha3::Sha3_256;
 
     #[actix_rt::test]
+    /// Ensures that the merkle root is set to a valid empty string when no tx's are present
     async fn should_construct_merkle_root_with_no_tx() {
         let mut block = Block::new();
         block.set_merkle_root().await;
