@@ -35,7 +35,7 @@ pub fn list_assets() {
             println!(
                 "{}: {}",
                 "Merkle Root Hash".magenta(),
-                String::from_utf8_lossy(&block.header.merkle_root_hash)
+                hex::encode(block.header.merkle_root_hash)
             );
             println!("{}: {}", "Block Number".magenta(), block.header.b_num);
             println!();
