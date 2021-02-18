@@ -3,10 +3,11 @@ use crate::script::OpCodes;
 /*------- VALUE HANDLING CONSTANTS --------*/
 
 // Number of decimal places to divide to in display
-pub const D_DISPLAY_PLACES: f64 = 1000.0;
+pub const D_DISPLAY_PLACES: u128 = 6983776800;
+pub const D_DISPLAY_PLACES_F64: f64 = 6983776800.0;
 
 // Number of possible tokens in existence (10 billion)
-pub const TOTAL_TOKENS: u64 = 10000000000000;
+pub const TOTAL_TOKENS: u128 = 69837768000000000000000;
 
 /*------- BLOCK CONSTANTS --------*/
 
