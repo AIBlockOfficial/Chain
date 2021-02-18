@@ -4,12 +4,12 @@ use std::{fmt, iter, ops};
 
 /// A structure representing the amount of tokens in an instance
 #[derive(Deserialize, Serialize, Default, Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
-pub struct TokenAmount(pub u64);
+pub struct TokenAmount(pub u128);
 
 impl fmt::Display for TokenAmount {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let format_result = format_for_display(&self.0);
-        write!(f, "{:.3}", format_result)
+        write!(f, "{}", format_result)
     }
 }
 

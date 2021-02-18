@@ -14,6 +14,9 @@ pub fn is_valid_amount(_value: &TokenAmount) -> bool {
 /// ### Arguments
 ///
 /// * `value`   - Value to format for display
-pub fn format_for_display(value: &u64) -> f64 {
-    *value as f64 / D_DISPLAY_PLACES
+pub fn format_for_display(value: &u128) -> String {
+    let whole_num = (value / D_DISPLAY_PLACES).to_string();
+    let remd_num = (value % D_DISPLAY_PLACES).to_string();
+    let final_string = String::from(whole_num + "." + &remd_num);
+    final_string
 }
