@@ -23,7 +23,7 @@ use tracing::{debug, error, info, trace};
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    println!("Duplicating last entry in script stack");
+    trace!("Duplicating last entry in script stack");
     let dup = current_stack[current_stack.len() - 1].clone();
     current_stack.push(dup);
     true
@@ -35,7 +35,7 @@ pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_hash256(current_stack: &mut Vec<StackEntry>) -> bool {
-    println!("256 bit hashing last stack entry");
+    trace!("256 bit hashing last stack entry");
     let last_entry = current_stack.pop().unwrap();
     let pub_key = match last_entry {
         StackEntry::PubKey(v) => v,
@@ -53,7 +53,7 @@ pub fn op_hash256(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
-    println!("Verifying p2pkh hash");
+    trace!("Verifying p2pkh hash");
     let input_hash = current_stack.pop();
     let computed_hash = current_stack.pop();
 
@@ -70,7 +70,7 @@ pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_checksig(current_stack: &mut Vec<StackEntry>) -> bool {
-    println!("Checking p2pkh signature");
+    trace!("Checking p2pkh signature");
     let pub_key: PublicKey = match current_stack.pop().unwrap() {
         StackEntry::PubKey(pub_key) => pub_key,
         _ => panic!("Public key not present to verify transaction"),
@@ -99,7 +99,7 @@ pub fn op_checksig(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_checkmultisigmem(current_stack: &mut Vec<StackEntry>) -> bool {
-    println!("Checking signature matches public key for multisig member");
+    trace!("Checking signature matches public key for multisig member");
     let pub_key: PublicKey = match current_stack.pop().unwrap() {
         StackEntry::PubKey(pub_key) => pub_key,
         _ => panic!("Public key not present to verify transaction"),
@@ -146,7 +146,7 @@ pub fn op_multisig(current_stack: &mut Vec<StackEntry>) -> bool {
 
     // If there are too few public keys
     if pub_keys.len() < n {
-        println!("Too few public keys provided");
+        error!("Too few public keys provided");
         return false;
     }
 
@@ -157,7 +157,7 @@ pub fn op_multisig(current_stack: &mut Vec<StackEntry>) -> bool {
 
     // If there are more keys required than available
     if m > n || m > pub_keys.len() {
-        println!("Number of keys required is greater than the number available");
+        error!("Number of keys required is greater than the number available");
         return false;
     }
 
@@ -215,7 +215,7 @@ fn match_on_multisig_to_pubkey(
 /// * `stack_entry`  - The current entry on the stack
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_else(stack_entry: StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
-    println!("Adding constant to stack: {:?}", stack_entry);
+    trace!("Adding constant to stack: {:?}", stack_entry);
     current_stack.push(stack_entry);
     true
 }
@@ -227,7 +227,7 @@ pub fn op_else(stack_entry: StackEntry, current_stack: &mut Vec<StackEntry>) -> 
 /// * `stack_entry`  - reference to the current entry on the stack
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_else_ref(stack_entry: &StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
-    println!("Adding constant to stack: {:?}", stack_entry);
+    trace!("Adding constant to stack: {:?}", stack_entry);
     current_stack.push(stack_entry.clone());
     true
 }
