@@ -15,7 +15,6 @@ pub fn is_valid_amount(_value: &TokenAmount) -> bool {
 ///
 /// * `value`   - Value to format for display
 pub fn format_for_display(value: &u64) -> String {
-    let value_f64 = value.clone() as f64;
-    let s = (value_f64 / D_DISPLAY_PLACES).to_string();
-    String::from(s)
+    let value_f64 = *value as f64;
+    (value_f64 / D_DISPLAY_PLACES).to_string()
 }
