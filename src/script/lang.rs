@@ -203,7 +203,7 @@ impl Script {
     /// Gets the op_code for a specific data entry, if it exists
     pub fn get_op_code(&self, entry: &u8) -> Option<u8> {
         let mut op_code = OpCodes::OP_INVALIDOPCODE as u8;
-        println!("get_op_code not implemented");
+        warn!("get_op_code not implemented");
 
         // TODO
 
