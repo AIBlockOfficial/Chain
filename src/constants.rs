@@ -7,7 +7,7 @@ pub const D_DISPLAY_PLACES_U64: u64 = 25200;
 pub const D_DISPLAY_PLACES: f64 = 25200.0;
 
 // Number of possible tokens in existence (10 billion)
-pub const TOTAL_TOKENS: u64 = 252000000000000;
+pub const TOTAL_TOKENS: u64 = D_DISPLAY_PLACES_U64 * 10000000000;
 
 /*------- BLOCK CONSTANTS --------*/
 
