@@ -41,6 +41,34 @@ impl ops::SubAssign for TokenAmount {
     }
 }
 
+impl ops::Div<u64> for TokenAmount {
+    type Output = Self;
+
+    fn div(self, rhs: u64) -> Self {
+        Self(self.0 / rhs)
+    }
+}
+
+impl ops::DivAssign<u64> for TokenAmount {
+    fn div_assign(&mut self, rhs: u64) {
+        self.0 /= rhs;
+    }
+}
+
+impl ops::Mul<u64> for TokenAmount {
+    type Output = Self;
+
+    fn mul(self, rhs: u64) -> Self {
+        Self(self.0 * rhs)
+    }
+}
+
+impl ops::MulAssign<u64> for TokenAmount {
+    fn mul_assign(&mut self, rhs: u64) {
+        self.0 *= rhs;
+    }
+}
+
 impl iter::Sum for TokenAmount {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
         iter.fold(Self::default(), |r, l| r + l)
