@@ -3,8 +3,8 @@
 Die NAOM repo bevat al die nodige kode om 'n plaaslike instansie van die Zenotta blockchain op te stel en te kommunikeer. 
 Ander taalopsies kan hier gevind word:
 
-- [English](https://gitlab.com/zenotta/naom/-/blob/master/README.md)
-- [Française](https://gitlab.com/zenotta/naom/-/blob/master/README.fr.md)
+- [English](https://gitlab.com/zenotta/naom/-/blob/main/README.md)
+- [Française](https://gitlab.com/zenotta/naom/-/blob/main/README.fr.md)
 
 As jy met vertalings wil help, of as jy 'n fout sien, open dan gerus 'n nuwe merge request.
 
