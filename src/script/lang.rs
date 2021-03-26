@@ -35,11 +35,8 @@ impl Script {
     ///
     /// * `block_number`  - The block time to push
     pub fn new_for_coinbase(block_number: u64) -> Script {
-        let mut coinbase_stack = Vec::new();
-        coinbase_stack.push(StackEntry::Num(block_number as usize));
-
         Script {
-            stack: coinbase_stack,
+            stack: vec![StackEntry::Num(block_number as usize)],
         }
     }
 

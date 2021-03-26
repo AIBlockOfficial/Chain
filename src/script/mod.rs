@@ -35,7 +35,7 @@ impl StackEntry {
 }
 
 /// Ops code for stack scripts
-#[allow(non_camel_case_types)]
+#[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub enum OpCodes {
     // push value
