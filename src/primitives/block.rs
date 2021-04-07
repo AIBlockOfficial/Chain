@@ -108,7 +108,7 @@ impl Block {
 /// ### Arguments
 ///
 /// * `bytes`   - Bytes to cast
-fn from_slice(bytes: &[u8]) -> [u8; 32] {
+pub fn from_slice(bytes: &[u8]) -> [u8; 32] {
     let mut array = [0; 32];
     let bytes = &bytes[..array.len()]; // panics if not enough data
     array.copy_from_slice(bytes);
