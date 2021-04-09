@@ -115,6 +115,18 @@ pub fn from_slice(bytes: &[u8]) -> [u8; 32] {
     array
 }
 
+/// Converts a dynamic array into a static 64 bit
+///
+/// ### Arguments
+///
+/// * `bytes`   - Bytes to cast
+pub fn from_slice_64(bytes: &[u8]) -> [u8; 64] {
+    let mut array = [0; 64];
+    let bytes = &bytes[..array.len()]; // panics if not enough data
+    array.copy_from_slice(bytes);
+    array
+}
+
 /// Generates a random transaction hash for testing
 pub fn gen_random_hash() -> String {
     let rand_2: String = thread_rng()
