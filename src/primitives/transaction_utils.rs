@@ -105,9 +105,9 @@ pub fn update_utxo_set(current_utxo: &mut BTreeMap<OutPoint, Transaction>) {
 }
 
 /// Reconstructs a signature type from an input vector
-/// 
+///
 /// ### Arguments
-/// 
+///
 /// * `input`   - Input vector
 pub fn reconstruct_signature(input: Vec<u8>) -> Signature {
     let static_entry = from_slice_64(input.as_slice());
@@ -493,7 +493,11 @@ mod tests {
         let sig_vec = signed_receipt.0.to_vec();
 
         let recon = reconstruct_signature(sig_vec);
-        assert!(sign::verify_detached(&recon, RECEIPT_ACCEPT_VAL.as_bytes(), &pk));
+        assert!(sign::verify_detached(
+            &recon,
+            RECEIPT_ACCEPT_VAL.as_bytes(),
+            &pk
+        ));
     }
 
     #[test]
