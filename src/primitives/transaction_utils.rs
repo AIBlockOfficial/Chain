@@ -584,8 +584,8 @@ mod tests {
             let tx_outs = {
                 // Tx outs with the one at relevant address with the relevant amount
                 let excess_tx_out =
-                    TxOut::new_amount(sender_address_excess.clone(), TokenAmount(22));
-                let druid_tx_out = TxOut::new_amount(receiver_addr.clone(), amount);
+                    TxOut::new_amount(sender_address_excess, TokenAmount(22));
+                let druid_tx_out = TxOut::new_amount(receiver_addr, amount);
                 vec![druid_tx_out, excess_tx_out]
             };
 
@@ -598,7 +598,7 @@ mod tests {
                 sender_address,
                 asset_transfered,
                 TokenAmount(33),
-                druid.clone(),
+                druid,
                 0,
                 sender_sk,
             )

@@ -152,38 +152,6 @@ impl Transaction {
         }
     }
 
-    /// Creates a new Transaction instance from inputs
-    ///
-    /// ### Arguments
-    ///
-    /// * `inputs`              - Transaction inputs
-    /// * `outputs`             - Transaction outputs
-    /// * `version`             - Network version
-    /// * `druid`               - DRUID value for a dual double entry
-    /// * `expect_value`        - Value expected in return for this payment (only in dual double)
-    /// * `expect_value_amount` - Amount of value expected in return for this payment (only in dual double)
-    pub fn new_from_input(
-        inputs: Vec<TxIn>,
-        outputs: Vec<TxOut>,
-        version: usize,
-        druid: Option<String>,
-        druid_participants: Option<usize>,
-        expect_value: Option<Asset>,
-        expect_value_amount: Option<TokenAmount>,
-        expect_address: Option<String>,
-    ) -> Transaction {
-        Transaction {
-            inputs,
-            outputs,
-            version,
-            druid,
-            druid_participants,
-            expect_value,
-            expect_value_amount,
-            expect_address,
-        }
-    }
-
     /// Gets the total value of all outputs and checks that it is within the
     /// possible amounts set by chain system
     pub fn get_output_value(&mut self) -> TokenAmount {
