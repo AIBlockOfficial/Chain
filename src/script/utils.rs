@@ -558,8 +558,16 @@ mod tests {
                 previous_out: Some(tx_outpoint.clone()),
             }];
             let ongoing_tx_outs = vec![TxOut::new()];
-            let tx =
-                Transaction::new_from_input(tx_ins, ongoing_tx_outs, 0, None, None, None, None, None);
+            let tx = Transaction::new_from_input(
+                tx_ins,
+                ongoing_tx_outs,
+                0,
+                None,
+                None,
+                None,
+                None,
+                None,
+            );
 
             let result = tx_is_valid(&tx, |v| Some(&tx_out).filter(|_| v == &tx_outpoint));
             actual_result.push(result);

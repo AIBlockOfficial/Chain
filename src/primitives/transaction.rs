@@ -128,7 +128,7 @@ pub struct Transaction {
     pub druid_participants: Option<usize>,
     pub expect_value: Option<Asset>,
     pub expect_value_amount: Option<TokenAmount>,
-    pub expect_address: Option<String>
+    pub expect_address: Option<String>,
 }
 
 impl Default for Transaction {
@@ -148,7 +148,7 @@ impl Transaction {
             druid_participants: None,
             expect_value: None,
             expect_value_amount: None,
-            expect_address: None
+            expect_address: None,
         }
     }
 
@@ -170,7 +170,7 @@ impl Transaction {
         druid_participants: Option<usize>,
         expect_value: Option<Asset>,
         expect_value_amount: Option<TokenAmount>,
-        expect_address: Option<String>
+        expect_address: Option<String>,
     ) -> Transaction {
         Transaction {
             inputs,
@@ -180,7 +180,7 @@ impl Transaction {
             druid_participants,
             expect_value,
             expect_value_amount,
-            expect_address
+            expect_address,
         }
     }
 

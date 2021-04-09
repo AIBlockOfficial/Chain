@@ -264,7 +264,6 @@ pub fn construct_rb_payments_send_tx(
     tx
 }
 
-
 /// Constructs the "receive" half of a receipt-based payment
 /// transaction
 ///
@@ -578,23 +577,31 @@ mod tests {
         //
         let send_tx = {
             let tx_ins = {
-                // constructors with enough money for amount and excess, caller responsibility. 
+                // constructors with enough money for amount and excess, caller responsibility.
                 let tx_ins_constructor = vec![];
                 construct_payment_tx_ins(tx_ins_constructor)
             };
             let tx_outs = {
                 // Tx outs with the one at relevant address with the relevant amount
-                let excess_tx_out = TxOut::new_amount(sender_address_excess.clone(), TokenAmount(22));
+                let excess_tx_out =
+                    TxOut::new_amount(sender_address_excess.clone(), TokenAmount(22));
                 let druid_tx_out = TxOut::new_amount(receiver_addr.clone(), amount);
                 vec![druid_tx_out, excess_tx_out]
             };
-            
-            construct_rb_payments_send_tx( tx_ins, tx_outs, druid.clone() )
+
+            construct_rb_payments_send_tx(tx_ins, tx_outs, druid.clone())
         };
 
         let recv_tx = {
             // create the sender that match the receiver.
-            construct_rb_receive_payment_tx( sender_address, asset_transfered, TokenAmount(33), druid.clone(), 0, sender_sk)
+            construct_rb_receive_payment_tx(
+                sender_address,
+                asset_transfered,
+                TokenAmount(33),
+                druid.clone(),
+                0,
+                sender_sk,
+            )
         };
 
         // Assert
@@ -603,5 +610,4 @@ mod tests {
         assert_eq!(send_tx.druid_participants, Some(2));
         assert_eq!(Some(send_tx.outputs[0].amount), recv_tx.expect_value_amount);
     }
-
 }
