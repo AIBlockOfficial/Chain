@@ -1,6 +1,5 @@
 use crate::constants::{RECEIPT_ACCEPT_VAL, TX_PREPEND};
 use crate::primitives::asset::{Asset, AssetInTransit, TokenAmount};
-use crate::primitives::block::from_slice_64;
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
 use crate::sha3::Digest;
@@ -110,8 +109,7 @@ pub fn update_utxo_set(current_utxo: &mut BTreeMap<OutPoint, Transaction>) {
 ///
 /// * `input`   - Input vector
 pub fn reconstruct_signature(input: Vec<u8>) -> Signature {
-    let static_entry = from_slice_64(input.as_slice());
-    Signature(static_entry)
+    Signature::from_slice(&input).unwrap()
 }
 
 /// Constructs a coinbase transaction
@@ -223,6 +221,27 @@ pub fn construct_payment_tx(
     }
 }
 
+/// Constructs a transaction to pay a receivers
+/// If TxIn collection does not add up to the exact amount to pay,
+/// payer will always need to provide a return payment in tx_outs,
+/// otherwise the excess will be burnt and unusable.
+///
+/// TODO: Check whether the `amount` is valid in the TxIns
+/// TODO: Call this a charity tx or something, as a payment is an exchange of goods
+///
+/// ### Arguments
+///
+/// * `tx_ins`     - Address/es to pay from
+/// * `tx_outs`    - Address/es to send to
+pub fn construct_payments_tx(tx_ins: Vec<TxIn>, tx_outs: Vec<TxOut>) -> Transaction {
+    Transaction {
+        outputs: tx_outs,
+        inputs: tx_ins,
+        version: 0,
+        ..Default::default()
+    }
+}
+
 /// Constructs the "send" half of a receipt-based payment
 /// transaction
 ///
@@ -234,28 +253,17 @@ pub fn construct_payment_tx(
 /// * `locktime`            - Block height below which the payment is restricted. "0" means no locktime
 /// * `druid`               - The matching DRUID value
 /// * `amount`              - Number of tokens to send
-pub fn construct_rb_send_payment_tx(
+pub fn construct_rb_payments_send_tx(
     tx_ins: Vec<TxIn>,
-    receiver_address: String,
-    asset: Asset,
-    locktime: u64,
+    tx_outs: Vec<TxOut>,
     druid: String,
-    amount: TokenAmount,
 ) -> Transaction {
-    let mut tx = construct_payment_tx(
-        tx_ins,
-        receiver_address,
-        None,
-        None,
-        asset,
-        locktime,
-        amount,
-    );
-
+    let mut tx = construct_payments_tx(tx_ins, tx_outs);
     tx.druid = Some(druid);
     tx.druid_participants = Some(2);
     tx
 }
+
 
 /// Constructs the "receive" half of a receipt-based payment
 /// transaction
@@ -287,7 +295,7 @@ pub fn construct_rb_receive_payment_tx(
         None,
         signed_receipt_asset,
         locktime,
-        TokenAmount(1),
+        TokenAmount(0),
     );
 
     tx.druid = Some(druid);
@@ -488,16 +496,12 @@ mod tests {
     #[test]
     // Creates a valid receipt signature
     fn should_construct_a_valid_receipt_signature() {
-        let (pk, sk) = sign::gen_keypair();
+        let (_, sk) = sign::gen_keypair();
         let signed_receipt = sign::sign_detached(RECEIPT_ACCEPT_VAL.as_bytes(), &sk);
         let sig_vec = signed_receipt.0.to_vec();
 
         let recon = reconstruct_signature(sig_vec);
-        assert!(sign::verify_detached(
-            &recon,
-            RECEIPT_ACCEPT_VAL.as_bytes(),
-            &pk
-        ));
+        assert_eq!(recon, signed_receipt);
     }
 
     #[test]
@@ -556,4 +560,48 @@ mod tests {
         assert_eq!(dde.outputs[0].clone().amount, first_asset_t.amount);
         assert_eq!(dde.druid_participants, Some(druid_participants));
     }
+
+    #[test]
+    // Creates a valid receipt based tx pair
+    fn should_construct_a_valid_receipt_tx_pair() {
+        // Arrange
+        //
+        let amount = TokenAmount(33);
+        let druid = "VALUE".to_owned();
+        let receiver_addr = "00000".to_owned();
+        let sender_address_excess = "11112".to_owned();
+        let sender_address = "11111".to_owned();
+        let asset_transfered = Asset::Data(RECEIPT_ACCEPT_VAL.as_bytes().to_vec());
+        let (_sender_pk, sender_sk) = sign::gen_keypair();
+
+        // Act
+        //
+        let send_tx = {
+            let tx_ins = {
+                // constructors with enough money for amount and excess, caller responsibility. 
+                let tx_ins_constructor = vec![];
+                construct_payment_tx_ins(tx_ins_constructor)
+            };
+            let tx_outs = {
+                // Tx outs with the one at relevant address with the relevant amount
+                let excess_tx_out = TxOut::new_amount(sender_address_excess.clone(), TokenAmount(22));
+                let druid_tx_out = TxOut::new_amount(receiver_addr.clone(), amount);
+                vec![druid_tx_out, excess_tx_out]
+            };
+            
+            construct_rb_payments_send_tx( tx_ins, tx_outs, druid.clone() )
+        };
+
+        let recv_tx = {
+            // create the sender that match the receiver.
+            construct_rb_receive_payment_tx( sender_address, asset_transfered, TokenAmount(33), druid.clone(), 0, sender_sk)
+        };
+
+        // Assert
+        assert_eq!(send_tx.druid, recv_tx.druid);
+        assert_eq!(send_tx.druid_participants, recv_tx.druid_participants);
+        assert_eq!(send_tx.druid_participants, Some(2));
+        assert_eq!(Some(send_tx.outputs[0].amount), recv_tx.expect_value_amount);
+    }
+
 }
