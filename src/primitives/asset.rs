@@ -89,6 +89,10 @@ impl Asset {
             Asset::Data(v) => v.len(),
         }
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 }
 
 /// A structure for an asset to send, along with its quantity

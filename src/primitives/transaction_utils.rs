@@ -234,7 +234,6 @@ pub fn construct_tx_core(tx_ins: Vec<TxIn>, tx_outs: Vec<TxOut>) -> Transaction 
         outputs: tx_outs,
         inputs: tx_ins,
         version: 0,
-        ..Default::default()
     }
 }
 
@@ -351,10 +350,8 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
 /// * `participants`  - Number of DRUID values to match with
 pub fn construct_dde_tx(
     tx_ins: Vec<TxIn>,
-    send_address: String,
-    receive_address: String,
-    send_asset: AssetInTransit,
-    receive_asset: AssetInTransit,
+    send_receive_addresses: (String, String),
+    send_receive_assets: (AssetInTransit, AssetInTransit),
     send_asset_drs_hash: Option<String>,
     druid: String,
     participants: usize,
@@ -362,13 +359,18 @@ pub fn construct_dde_tx(
     let mut tx = Transaction::new();
     let mut tx_out = TxOut::new();
 
+    let send_asset = send_receive_assets.0;
+    let receive_asset = send_receive_assets.1;
+    let send_address = send_receive_addresses.0;
+    let receive_address = send_receive_addresses.1;
+
     tx_out.value = Some(send_asset.asset);
     tx_out.amount = send_asset.amount;
     tx_out.script_public_key = Some(send_address);
     tx_out.drs_block_hash = send_asset_drs_hash;
     tx_out.druid_info = Some(DDEValues {
         druid,
-        participants: participants,
+        participants,
         expect_address: receive_address,
         expect_value: Some(receive_asset.asset),
         expect_value_amount: Some(receive_asset.amount),
@@ -556,10 +558,8 @@ mod tests {
         // Actual DDE
         let dde = construct_dde_tx(
             tx_ins,
-            hex::encode(vec![0, 0, 0, 0]),
-            hex::encode(vec![1, 1, 1, 1]),
-            first_asset_t.clone(),
-            second_asset_t,
+            (hex::encode(vec![0, 0, 0, 0]), hex::encode(vec![1, 1, 1, 1])),
+            (first_asset_t.clone(), second_asset_t),
             Some(drs_block_hash),
             druid.clone(),
             participants,
