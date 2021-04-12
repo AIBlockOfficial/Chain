@@ -213,12 +213,7 @@ pub fn construct_payment_tx(
         drs_tx_hash,
     };
 
-    Transaction {
-        outputs: vec![tx_out],
-        inputs: tx_ins,
-        version: 0,
-        ..Default::default()
-    }
+    construct_tx_core(tx_ins, vec![tx_out])
 }
 
 /// Constructs a transaction to pay a receivers
@@ -233,7 +228,7 @@ pub fn construct_payment_tx(
 ///
 /// * `tx_ins`     - Address/es to pay from
 /// * `tx_outs`    - Address/es to send to
-pub fn construct_payments_tx(tx_ins: Vec<TxIn>, tx_outs: Vec<TxOut>) -> Transaction {
+pub fn construct_tx_core(tx_ins: Vec<TxIn>, tx_outs: Vec<TxOut>) -> Transaction {
     Transaction {
         outputs: tx_outs,
         inputs: tx_ins,
@@ -247,20 +242,21 @@ pub fn construct_payments_tx(tx_ins: Vec<TxIn>, tx_outs: Vec<TxOut>) -> Transact
 ///
 /// ### Arguments
 ///
-/// * `tx_ins`              - Address/es to pay from
-/// * `receiver_address`    - Address to send to
-/// * `asset`               - Asset to send
-/// * `locktime`            - Block height below which the payment is restricted. "0" means no locktime
-/// * `druid`               - The matching DRUID value
-/// * `amount`              - Number of tokens to send
+/// * `tx_ins`      - Address/es to pay from
+/// * `tx_outs`     - Address/es to pay to
+/// * `druid`       - DRUID of the transaction
+/// * `own_address` - Own address to receive receipt to
 pub fn construct_rb_payments_send_tx(
     tx_ins: Vec<TxIn>,
     tx_outs: Vec<TxOut>,
     druid: String,
+    own_address: String,
 ) -> Transaction {
-    let mut tx = construct_payments_tx(tx_ins, tx_outs);
+    let mut tx = construct_tx_core(tx_ins, tx_outs);
     tx.druid = Some(druid);
     tx.druid_participants = Some(2);
+    tx.expect_address = Some(own_address);
+
     tx
 }
 
@@ -270,6 +266,7 @@ pub fn construct_rb_payments_send_tx(
 /// ### Arguments
 ///
 /// * `sender_address`      - Address of sender
+/// * `own_address`         - Address of this receiver
 /// * `asset`               - Asset expected
 /// * `amount`              - Number of tokens expected
 /// * `druid`               - The matching DRUID value
@@ -277,6 +274,7 @@ pub fn construct_rb_payments_send_tx(
 /// * `sk`                  - Secret key to sign the receipt-value with
 pub fn construct_rb_receive_payment_tx(
     sender_address: String,
+    own_address: String,
     asset: Asset,
     amount: TokenAmount,
     druid: String,
@@ -284,24 +282,38 @@ pub fn construct_rb_receive_payment_tx(
     sk: SecretKey,
 ) -> Transaction {
     let signed_receipt = sign::sign_detached(RECEIPT_ACCEPT_VAL.as_bytes(), &sk);
-    let tx_in = TxIn::new();
     let signed_receipt_asset = Asset::Data(signed_receipt.0.to_vec());
 
-    let mut tx = construct_payment_tx(
-        vec![tx_in],
-        sender_address,
-        None,
-        None,
-        signed_receipt_asset,
+    let tx_out = TxOut {
+        value: Some(signed_receipt_asset),
+        amount: TokenAmount(0),
         locktime,
-        TokenAmount(0),
-    );
-
-    tx.druid = Some(druid);
-    tx.druid_participants = Some(2);
+        script_public_key: Some(sender_address),
+        drs_block_hash: None,
+        drs_tx_hash: None,
+    };
+    let mut tx = construct_rb_payments_tx_core(vec![], vec![tx_out], druid);
     tx.expect_value = Some(asset);
     tx.expect_value_amount = Some(amount);
+    tx.expect_address = Some(own_address);
+    tx
+}
 
+/// Constructs the core receipt-based transaction
+///
+/// ### Arguments
+///
+/// * `tx_ins`  - TxIns for the transaction
+/// * `tx_outs` - TxOuts for the transaction
+/// * `druid`   - Receipt-based payment DRUID
+fn construct_rb_payments_tx_core(
+    tx_ins: Vec<TxIn>,
+    tx_outs: Vec<TxOut>,
+    druid: String,
+) -> Transaction {
+    let mut tx = construct_tx_core(tx_ins, tx_outs);
+    tx.druid = Some(druid);
+    tx.druid_participants = Some(2);
     tx
 }
 
@@ -570,6 +582,7 @@ mod tests {
         let receiver_addr = "00000".to_owned();
         let sender_address_excess = "11112".to_owned();
         let sender_address = "11111".to_owned();
+
         let asset_transfered = Asset::Data(RECEIPT_ACCEPT_VAL.as_bytes().to_vec());
         let (_sender_pk, sender_sk) = sign::gen_keypair();
 
@@ -584,17 +597,18 @@ mod tests {
             let tx_outs = {
                 // Tx outs with the one at relevant address with the relevant amount
                 let excess_tx_out = TxOut::new_amount(sender_address_excess, TokenAmount(22));
-                let druid_tx_out = TxOut::new_amount(receiver_addr, amount);
+                let druid_tx_out = TxOut::new_amount(receiver_addr.clone(), amount);
                 vec![druid_tx_out, excess_tx_out]
             };
 
-            construct_rb_payments_send_tx(tx_ins, tx_outs, druid.clone())
+            construct_rb_payments_send_tx(tx_ins, tx_outs, druid.clone(), sender_address.clone())
         };
 
         let recv_tx = {
             // create the sender that match the receiver.
             construct_rb_receive_payment_tx(
                 sender_address,
+                receiver_addr,
                 asset_transfered,
                 TokenAmount(33),
                 druid,
