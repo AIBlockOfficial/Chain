@@ -211,6 +211,7 @@ pub fn construct_payment_tx(
         script_public_key: Some(receiver_address),
         drs_block_hash,
         drs_tx_hash,
+        druid_info: None,
     };
 
     construct_tx_core(tx_ins, vec![tx_out])
@@ -242,24 +243,32 @@ pub fn construct_tx_core(tx_ins: Vec<TxIn>, tx_outs: Vec<TxOut>) -> Transaction 
 ///
 /// ### Arguments
 ///
-/// * `tx_ins`      - Address/es to pay from
-/// * `tx_outs`     - Address/es to pay to
-/// * `druid`       - DRUID of the transaction
-/// * `own_address` - Own address to receive receipt to
-pub fn construct_rb_payments_send_tx(
-    tx_ins: Vec<TxIn>,
-    tx_outs: Vec<TxOut>,
+/// * `amount`              - Amount of token to send
+/// * `druid`               - DRUID of the transaction
+/// * `own_address`         - Own address to receive receipt to
+/// * `locktime`            - Block height to lock the current transaction to
+/// * `receiver_address`    - Own address to receive receipt to
+pub fn construct_rb_payments_send_tx_out(
+    amount: TokenAmount,
     druid: String,
     own_address: String,
-) -> Transaction {
-    let mut tx = construct_rb_payments_tx_core(tx_ins, tx_outs, druid);
-    let mut info = tx.druid_info.unwrap();
-
-    info.participants = 2;
-    info.expect_address = own_address;
-
-    tx.druid_info = Some(info);
-    tx
+    locktime: u64,
+    receiver_address: String,
+) -> TxOut {
+    TxOut {
+        value: None,
+        amount,
+        locktime,
+        script_public_key: Some(receiver_address),
+        drs_block_hash: None,
+        drs_tx_hash: None,
+        druid_info: Some(DDEValues {
+            druid,
+            participants: 2,
+            expect_address: own_address,
+            ..Default::default()
+        }),
+    }
 }
 
 /// Constructs the "receive" half of a receipt-based payment
@@ -277,7 +286,7 @@ pub fn construct_rb_payments_send_tx(
 pub fn construct_rb_receive_payment_tx(
     sender_address: String,
     own_address: String,
-    asset: Asset,
+    asset: Option<Asset>,
     amount: TokenAmount,
     druid: String,
     locktime: u64,
@@ -293,39 +302,15 @@ pub fn construct_rb_receive_payment_tx(
         script_public_key: Some(sender_address),
         drs_block_hash: None,
         drs_tx_hash: None,
+        druid_info: Some(DDEValues {
+            druid,
+            participants: 2,
+            expect_address: own_address,
+            expect_value: asset,
+            expect_value_amount: Some(amount),
+        }),
     };
-    let mut tx = construct_tx_core(vec![], vec![tx_out]);
-    tx.druid_info = Some(DDEValues {
-        druid,
-        participants: 2,
-        expect_address: own_address,
-        expect_value: Some(asset),
-        expect_value_amount: Some(amount),
-    });
-
-    tx
-}
-
-/// Constructs the core receipt-based transaction
-///
-/// ### Arguments
-///
-/// * `tx_ins`  - TxIns for the transaction
-/// * `tx_outs` - TxOuts for the transaction
-/// * `druid`   - Receipt-based payment DRUID
-fn construct_rb_payments_tx_core(
-    tx_ins: Vec<TxIn>,
-    tx_outs: Vec<TxOut>,
-    druid: String,
-) -> Transaction {
-    let mut tx = construct_tx_core(tx_ins, tx_outs);
-
-    tx.druid_info = Some(DDEValues {
-        druid,
-        ..Default::default()
-    });
-
-    tx
+    construct_tx_core(vec![], vec![tx_out])
 }
 
 /// Constructs a set of TxIns for a payment
@@ -381,18 +366,17 @@ pub fn construct_dde_tx(
     tx_out.amount = send_asset.amount;
     tx_out.script_public_key = Some(send_address);
     tx_out.drs_block_hash = send_asset_drs_hash;
-
-    tx.outputs = vec![tx_out];
-    tx.inputs = tx_ins;
-    tx.version = 0;
-
-    tx.druid_info = Some(DDEValues {
+    tx_out.druid_info = Some(DDEValues {
         druid,
         participants: dparticipants,
         expect_address: receive_address,
         expect_value: Some(receive_asset.asset),
         expect_value_amount: Some(receive_asset.amount),
     });
+
+    tx.outputs = vec![tx_out];
+    tx.inputs = tx_ins;
+    tx.version = 0;
 
     tx
 }
@@ -413,9 +397,9 @@ mod tests {
 
         let tx = construct_create_tx(drs.clone(), receiver_address.clone(), amount);
 
-        assert_eq!(tx.druid_info, None);
         assert_eq!(tx.outputs.len(), 1);
         assert_eq!(tx.outputs[0].amount, amount);
+        assert_eq!(tx.outputs[0].druid_info, None);
         assert_eq!(tx.outputs[0].drs_block_hash, None);
         assert_eq!(tx.outputs[0].script_public_key, Some(receiver_address));
         assert_eq!(tx.outputs[0].value, Some(Asset::Data(drs)));
@@ -581,13 +565,16 @@ mod tests {
             participants,
         );
 
-        assert_eq!(dde.druid_info.clone().unwrap().druid, druid);
+        assert_eq!(dde.outputs[0].clone().druid_info.unwrap().druid, druid);
         assert_eq!(
             dde.outputs[0].clone().value,
             Some(first_asset_t.clone().asset)
         );
         assert_eq!(dde.outputs[0].clone().amount, first_asset_t.amount);
-        assert_eq!(dde.druid_info.unwrap().participants, participants);
+        assert_eq!(
+            dde.outputs[0].druid_info.as_ref().unwrap().participants,
+            participants
+        );
     }
 
     #[test]
@@ -596,13 +583,12 @@ mod tests {
         // Arrange
         //
         let amount = TokenAmount(33);
+        let payment = TokenAmount(11);
         let druid = "VALUE".to_owned();
         let receiver_addr = "00000".to_owned();
         let sender_address_excess = "11112".to_owned();
         let sender_address = "11111".to_owned();
-
-        let asset_transfered = Asset::Data(RECEIPT_ACCEPT_VAL.as_bytes().to_vec());
-        let (_sender_pk, sender_sk) = sign::gen_keypair();
+        let (sender_pk, sender_sk) = sign::gen_keypair();
 
         // Act
         //
@@ -614,12 +600,18 @@ mod tests {
             };
             let tx_outs = {
                 // Tx outs with the one at relevant address with the relevant amount
-                let excess_tx_out = TxOut::new_amount(sender_address_excess, TokenAmount(22));
-                let druid_tx_out = TxOut::new_amount(receiver_addr.clone(), amount);
+                let excess_tx_out = TxOut::new_amount(sender_address_excess, amount - payment);
+                let druid_tx_out = construct_rb_payments_send_tx_out(
+                    payment,
+                    druid.clone(),
+                    sender_address.clone(),
+                    0,
+                    receiver_addr.clone(),
+                );
                 vec![druid_tx_out, excess_tx_out]
             };
 
-            construct_rb_payments_send_tx(tx_ins, tx_outs, druid.clone(), sender_address.clone())
+            construct_tx_core(tx_ins, tx_outs)
         };
 
         let recv_tx = {
@@ -627,8 +619,8 @@ mod tests {
             construct_rb_receive_payment_tx(
                 sender_address,
                 receiver_addr,
-                asset_transfered,
-                TokenAmount(33),
+                None,
+                payment,
                 druid,
                 0,
                 sender_sk,
@@ -637,17 +629,35 @@ mod tests {
 
         // Assert
         assert_eq!(
-            send_tx.druid_info.clone().unwrap().druid,
-            recv_tx.druid_info.clone().unwrap().druid
+            send_tx.outputs[0].druid_info.clone().unwrap().druid,
+            recv_tx.outputs[0].druid_info.clone().unwrap().druid
         );
         assert_eq!(
-            send_tx.druid_info.clone().unwrap().participants,
-            recv_tx.druid_info.clone().unwrap().participants
+            send_tx.outputs[0].druid_info.clone().unwrap().participants,
+            recv_tx.outputs[0].druid_info.clone().unwrap().participants
         );
-        assert_eq!(send_tx.druid_info.unwrap().participants, 2);
+        assert_eq!(
+            send_tx.outputs[0].druid_info.as_ref().unwrap().participants,
+            2
+        );
         assert_eq!(
             Some(send_tx.outputs[0].amount),
-            recv_tx.druid_info.unwrap().expect_value_amount
+            recv_tx.outputs[0]
+                .druid_info
+                .as_ref()
+                .unwrap()
+                .expect_value_amount
         );
+
+        if let Asset::Data(v) = recv_tx.outputs[0].value.as_ref().unwrap() {
+            let sig = reconstruct_signature(v.to_vec());
+            assert!(sign::verify_detached(
+                &sig,
+                RECEIPT_ACCEPT_VAL.as_bytes(),
+                &sender_pk
+            ));
+        } else {
+            panic!("Receiver did not provide data asset");
+        }
     }
 }

@@ -1,6 +1,6 @@
 use crate::utils::format_for_display;
 use serde::{Deserialize, Serialize};
-use std::{fmt, iter, ops};
+use std::{fmt, iter, mem::size_of, ops};
 
 /// A structure representing the amount of tokens in an instance
 #[derive(Deserialize, Serialize, Default, Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
@@ -80,6 +80,15 @@ impl iter::Sum for TokenAmount {
 pub enum Asset {
     Token(TokenAmount),
     Data(Vec<u8>),
+}
+
+impl Asset {
+    pub fn len(&self) -> usize {
+        match self {
+            Asset::Token(_) => size_of::<u64>(),
+            Asset::Data(v) => v.len(),
+        }
+    }
 }
 
 /// A structure for an asset to send, along with its quantity

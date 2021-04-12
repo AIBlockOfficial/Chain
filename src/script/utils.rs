@@ -94,29 +94,27 @@ pub fn tx_is_valid<'a>(
 ///
 /// * `transactions`    - Transactions to verify
 pub fn verify_dde_expectations(transactions: &Vec<Transaction>) -> bool {
-    let mut seen: BTreeMap<String, &DDEValues> = BTreeMap::new();
+    let mut seen: BTreeMap<String, &TxOut> = BTreeMap::new();
 
     for tx in transactions {
-        // Non-DRUIDs return an immediate fail
-        if tx.druid_info.is_none() {
-            return false;
-        }
-
         for output in &tx.outputs {
-            if let Some(address) = &output.script_public_key {
-                let druid_info = tx.druid_info.as_ref().unwrap();
+            // Check for a DRUID output
+            if output.druid_info.is_some() {
+                if let Some(address) = &output.script_public_key {
+                    if !seen.contains_key(&address.clone()) {
+                        let match_addr = output.druid_info.as_ref().unwrap().expect_address.clone();
+                        seen.insert(match_addr, output);
+                    } else {
+                        let seen_tx = seen.get(&address.clone()).unwrap();
 
-                if !seen.contains_key(&address.clone()) {
-                    seen.insert(address.clone(), druid_info);
-                } else {
-                    let seen_tx = seen.get(&address.clone()).unwrap();
-
-                    // Verify matches
-                    if !dde_matches_are_valid(seen_tx, druid_info, output) {
-                        return false;
+                        // Verify matches for both regular DDE and receipt-based payments
+                        if !dde_matches_are_valid(seen_tx, output)
+                            && !rb_payment_matches_are_valid(seen_tx, output)
+                        {
+                            return false;
+                        }
+                        let _ = seen.remove(&address.clone());
                     }
-
-                    let _ = seen.remove(&address.clone());
                 }
             }
         }
@@ -129,23 +127,68 @@ pub fn verify_dde_expectations(transactions: &Vec<Transaction>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `primary_druid_info`  - Primary druid info
-/// * `second_druid_info`   - Secondary druid info
-/// * `output`              - TxOut of the currently passed transaction
-fn dde_matches_are_valid(
-    primary_druid_info: &DDEValues,
-    second_druid_info: &DDEValues,
-    output: &TxOut,
-) -> bool {
-    let current_addr = output.script_public_key.as_ref().unwrap();
+/// * `primary_out` - Primary TxOut
+/// * `secondary_out` - Secondary TxOut
+fn dde_matches_are_valid(primary_out: &TxOut, secondary_out: &TxOut) -> bool {
+    let current_druid_info = secondary_out.druid_info.as_ref().unwrap();
+    let match_druid_info = primary_out.druid_info.as_ref().unwrap();
 
-    if primary_druid_info.druid != second_druid_info.druid
-        || primary_druid_info.participants != second_druid_info.participants
-        || primary_druid_info.expect_address != current_addr.clone()
-        || primary_druid_info.expect_value != output.value
-        || (primary_druid_info.expect_value_amount.is_none() && output.amount.0 != 0)
-        || (primary_druid_info.expect_value_amount.is_some()
-            && primary_druid_info.expect_value_amount.unwrap() != output.amount)
+    if match_druid_info.druid != current_druid_info.druid
+        || match_druid_info.participants != current_druid_info.participants
+        || &match_druid_info.expect_address != secondary_out.script_public_key.as_ref().unwrap()
+        || &current_druid_info.expect_address != primary_out.script_public_key.as_ref().unwrap()
+        || match_druid_info.expect_value != secondary_out.value
+        || (match_druid_info.expect_value_amount.is_none() && secondary_out.amount.0 != 0)
+        || (match_druid_info.expect_value_amount.is_some()
+            && match_druid_info.expect_value_amount.unwrap() != secondary_out.amount)
+    {
+        return false;
+    }
+
+    true
+}
+
+/// Performs specific validation on two matching receipt-based payment expectations
+///
+/// ### Arguments
+///
+/// * `primary_out`      - TxOut of the primary tx
+/// * `second_out`       - TxOut of the secondary tx
+fn rb_payment_matches_are_valid(primary_out: &TxOut, secondary_out: &TxOut) -> bool {
+    // Preliminary checks
+    if !rb_payments_are_prelim_valid(primary_out, secondary_out) {
+        return false;
+    }
+
+    // Sender/receiver checks
+    let (sender, receiver) = if primary_out.amount == TokenAmount(0) {
+        (secondary_out, primary_out)
+    } else {
+        (primary_out, secondary_out)
+    };
+
+    let sender_di = sender.druid_info.as_ref().unwrap();
+    let receiver_di = receiver.druid_info.as_ref().unwrap();
+
+    if receiver_di.expect_value_amount.is_none()
+        || sender.amount != receiver_di.expect_value_amount.unwrap()
+        || receiver.value.is_none()
+        || receiver.value.as_ref().unwrap().len() != 64
+    {
+        return false;
+    }
+
+    true
+}
+
+/// Performs prelim rb payment validation
+fn rb_payments_are_prelim_valid(primary_out: &TxOut, secondary_out: &TxOut) -> bool {
+    let current_druid_info = secondary_out.druid_info.as_ref().unwrap();
+    let match_druid_info = primary_out.druid_info.as_ref().unwrap();
+
+    // Prelim checks
+    if match_druid_info.druid != current_druid_info.druid
+        || (match_druid_info.expect_value.is_some() && match_druid_info.expect_value.is_some())
     {
         return false;
     }
@@ -303,7 +346,11 @@ fn match_on_multisig_to_pubkey(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::primitives::transaction_utils::{construct_address, construct_payment_tx_ins};
+    use crate::constants::RECEIPT_ACCEPT_VAL;
+    use crate::primitives::transaction_utils::{
+        construct_address, construct_payment_tx_ins, construct_rb_payments_send_tx_out,
+        construct_rb_receive_payment_tx, construct_tx_core,
+    };
 
     /// Util function to create p2pkh TxIns
     fn create_multisig_tx_ins(tx_values: Vec<TxConstructor>, m: usize) -> Vec<TxIn> {
@@ -343,6 +390,111 @@ mod tests {
         }
 
         tx_ins
+    }
+
+    /// Util function to create valid receipt-based payment tx's
+    fn create_rb_payment_txs() -> (Transaction, Transaction) {
+        // Arrange
+        //
+        let amount = TokenAmount(33);
+        let payment = TokenAmount(11);
+        let druid = "VALUE".to_owned();
+        let receiver_addr = "00000".to_owned();
+        let sender_address_excess = "11112".to_owned();
+        let sender_address = "11111".to_owned();
+
+        let asset_transfered = Asset::Data(RECEIPT_ACCEPT_VAL.as_bytes().to_vec());
+        let (_sender_pk, sender_sk) = sign::gen_keypair();
+
+        // Act
+        //
+        let send_tx = {
+            let tx_ins = {
+                // constructors with enough money for amount and excess, caller responsibility.
+                let tx_ins_constructor = vec![];
+                construct_payment_tx_ins(tx_ins_constructor)
+            };
+            let tx_outs = {
+                // Tx outs with the one at relevant address with the relevant amount
+                let excess_tx_out = TxOut::new_amount(sender_address_excess, amount - payment);
+                let druid_tx_out = construct_rb_payments_send_tx_out(
+                    payment,
+                    druid.clone(),
+                    sender_address.clone(),
+                    0,
+                    receiver_addr.clone(),
+                );
+                vec![druid_tx_out, excess_tx_out]
+            };
+
+            construct_tx_core(tx_ins, tx_outs)
+        };
+
+        let recv_tx = {
+            // create the sender that match the receiver.
+            construct_rb_receive_payment_tx(
+                sender_address,
+                receiver_addr,
+                None,
+                payment,
+                druid,
+                0,
+                sender_sk,
+            )
+        };
+
+        (send_tx, recv_tx)
+    }
+
+    #[test]
+    /// Checks that matching receipt-based payments are verified as such by the DDE verifier
+    fn should_pass_matching_rb_payment_valid() {
+        let (send_tx, recv_tx) = create_rb_payment_txs();
+        assert!(verify_dde_expectations(&vec![send_tx, recv_tx]));
+    }
+
+    #[test]
+    /// Checks that receipt-based payments with non-matching DRUIDs fail
+    fn should_fail_rb_payment_druid_mismatch() {
+        let (send_tx, recv_tx) = create_rb_payment_txs();
+
+        let druid_info = send_tx.outputs[0].druid_info.clone();
+        let mut nm_send_druid = send_tx.clone();
+
+        let nm_druid = druid_info.clone().map(|mut x| {
+            x.druid = "".to_string();
+            x
+        });
+
+        nm_send_druid.outputs[0].druid_info = nm_druid;
+
+        // Non-matching druid
+        assert_eq!(
+            verify_dde_expectations(&vec![nm_send_druid, recv_tx]),
+            false
+        );
+    }
+
+    #[test]
+    /// Checks that receipt-based payments with non-matching addresses fail
+    fn should_fail_rb_payment_addr_mismatch() {
+        let (send_tx, mut recv_tx) = create_rb_payment_txs();
+        recv_tx.outputs[0].script_public_key = Some("11145".to_string());
+
+        // Non-matching address expectation
+        assert_eq!(verify_dde_expectations(&vec![send_tx, recv_tx]), false);
+    }
+
+    #[test]
+    /// Checks that receipt-based payments with non-matching value expectations fail
+    fn should_fail_rb_payment_value_expect_mismatch() {
+        let (mut send_tx, recv_tx) = create_rb_payment_txs();
+
+        send_tx.outputs[0].amount = TokenAmount(0);
+        send_tx.outputs[1].amount = TokenAmount(33);
+
+        // Non-matching address expectation
+        assert_eq!(verify_dde_expectations(&vec![send_tx, recv_tx]), false);
     }
 
     #[test]
@@ -627,7 +779,6 @@ mod tests {
                 inputs: tx_ins,
                 outputs: ongoing_tx_outs,
                 version: 0,
-                druid_info: None,
             };
 
             let result = tx_is_valid(&tx, |v| Some(&tx_out).filter(|_| v == &tx_outpoint));

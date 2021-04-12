@@ -110,6 +110,7 @@ pub struct TxOut {
     pub value: Option<Asset>,
     pub amount: TokenAmount,
     pub locktime: u64,
+    pub druid_info: Option<DDEValues>,
     pub drs_block_hash: Option<String>,
     pub drs_tx_hash: Option<String>,
     pub script_public_key: Option<String>,
@@ -129,6 +130,7 @@ impl TxOut {
             amount: TokenAmount(0),
             drs_tx_hash: None,
             locktime: 0,
+            druid_info: None,
             drs_block_hash: None,
             script_public_key: None,
         }
@@ -142,6 +144,7 @@ impl TxOut {
             script_public_key: Some(to_address),
             drs_block_hash: None,
             drs_tx_hash: None,
+            druid_info: None,
         }
     }
 }
@@ -153,7 +156,6 @@ pub struct Transaction {
     pub inputs: Vec<TxIn>,
     pub outputs: Vec<TxOut>,
     pub version: usize,
-    pub druid_info: Option<DDEValues>,
 }
 
 impl Default for Transaction {
@@ -169,7 +171,6 @@ impl Transaction {
             inputs: Vec::new(),
             outputs: Vec::new(),
             version: 0,
-            druid_info: None,
         }
     }
 
