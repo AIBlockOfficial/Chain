@@ -347,9 +347,10 @@ fn match_on_multisig_to_pubkey(
 mod tests {
     use super::*;
     use crate::constants::RECEIPT_ACCEPT_VAL;
+    use crate::primitives::asset::AssetInTransit;
     use crate::primitives::transaction_utils::{
-        construct_address, construct_payment_tx_ins, construct_rb_payments_send_tx_out,
-        construct_rb_receive_payment_tx, construct_tx_core,
+        construct_address, construct_dde_tx, construct_payment_tx_ins,
+        construct_rb_payments_send_tx_out, construct_rb_receive_payment_tx, construct_tx_core,
     };
 
     /// Util function to create p2pkh TxIns
@@ -390,6 +391,52 @@ mod tests {
         }
 
         tx_ins
+    }
+
+    /// Util function to create valid DDE asset tx's
+    fn create_dde_txs() -> Vec<Transaction> {
+        let druid = "VALUE".to_owned();
+
+        // Alice
+        let amount = TokenAmount(10);
+        let alice_addr = "00000".to_owned();
+        let alice_asset_it = AssetInTransit {
+            amount,
+            asset: Asset::Token(amount),
+        };
+
+        // Bob
+        let asset = Asset::Data("453094573049875".as_bytes().to_vec());
+        let asset_amt = 1;
+        let bob_addr = "11111".to_owned();
+        let bob_asset_it = AssetInTransit {
+            amount: TokenAmount(asset_amt),
+            asset,
+        };
+
+        let alice_tx = construct_dde_tx(
+            vec![TxIn::new()],
+            alice_addr.clone(),
+            bob_addr.clone(),
+            alice_asset_it.clone(),
+            bob_asset_it.clone(),
+            None,
+            druid.clone(),
+            2,
+        );
+
+        let bob_tx = construct_dde_tx(
+            vec![TxIn::new()],
+            bob_addr,
+            alice_addr,
+            bob_asset_it,
+            alice_asset_it,
+            Some("".to_string()),
+            druid,
+            2,
+        );
+
+        vec![alice_tx, bob_tx]
     }
 
     /// Util function to create valid receipt-based payment tx's
@@ -444,6 +491,13 @@ mod tests {
         };
 
         (send_tx, recv_tx)
+    }
+
+    #[test]
+    /// Checks that matching DDE transactions are verified as such by DDE verifier
+    fn should_pass_matching_dde_tx_valid() {
+        let txs = create_dde_txs();
+        assert!(verify_dde_expectations(&txs));
     }
 
     #[test]

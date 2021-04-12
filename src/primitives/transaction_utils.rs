@@ -348,7 +348,7 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
 /// * `receive_asset`       - Asset to receive
 /// * `send_asset_drs_hash` - Hash of the block containing the DRS for the sent asset. Only applicable to data trades
 /// * `druid`               - DRUID value to match with the other party
-/// * `dparticipants`  - Number of DRUID values to match with
+/// * `participants`  - Number of DRUID values to match with
 pub fn construct_dde_tx(
     tx_ins: Vec<TxIn>,
     send_address: String,
@@ -357,7 +357,7 @@ pub fn construct_dde_tx(
     receive_asset: AssetInTransit,
     send_asset_drs_hash: Option<String>,
     druid: String,
-    dparticipants: usize,
+    participants: usize,
 ) -> Transaction {
     let mut tx = Transaction::new();
     let mut tx_out = TxOut::new();
@@ -368,7 +368,7 @@ pub fn construct_dde_tx(
     tx_out.drs_block_hash = send_asset_drs_hash;
     tx_out.druid_info = Some(DDEValues {
         druid,
-        participants: dparticipants,
+        participants: participants,
         expect_address: receive_address,
         expect_value: Some(receive_asset.asset),
         expect_value_amount: Some(receive_asset.amount),
