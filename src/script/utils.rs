@@ -58,6 +58,7 @@ pub fn tx_is_valid<'a>(
     let mut tx_in_amount = TokenAmount(0);
 
     for tx_in in &tx.inputs {
+        // Check tx is in utxo
         let tx_out_point = tx_in.previous_out.as_ref().unwrap().clone();
         let tx_out = is_in_utxo(&tx_out_point);
 
@@ -68,7 +69,7 @@ pub fn tx_is_valid<'a>(
             return false;
         };
 
-        // At this point TxOut will be valid
+        // At this point TxIn will be valid
         let tx_out_pk = tx_out.script_public_key.as_ref();
         let tx_out_hash = hex::encode(serialize(&tx_out_point).unwrap());
 
@@ -557,8 +558,16 @@ mod tests {
                 previous_out: Some(tx_outpoint.clone()),
             }];
             let ongoing_tx_outs = vec![TxOut::new()];
-            let tx =
-                Transaction::new_from_input(tx_ins, ongoing_tx_outs, 0, None, None, None, None);
+            let tx = Transaction {
+                inputs: tx_ins,
+                outputs: ongoing_tx_outs,
+                version: 0,
+                druid: None,
+                druid_participants: None,
+                expect_value: None,
+                expect_value_amount: None,
+                expect_address: None,
+            };
 
             let result = tx_is_valid(&tx, |v| Some(&tx_out).filter(|_| v == &tx_outpoint));
             actual_result.push(result);

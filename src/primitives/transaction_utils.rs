@@ -1,4 +1,4 @@
-use crate::constants::TX_PREPEND;
+use crate::constants::{RECEIPT_ACCEPT_VAL, TX_PREPEND};
 use crate::primitives::asset::{Asset, AssetInTransit, TokenAmount};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
@@ -7,7 +7,8 @@ use crate::sha3::Digest;
 use bincode::serialize;
 use bytes::Bytes;
 use sha3::Sha3_256;
-use sodiumoxide::crypto::sign::PublicKey;
+use sodiumoxide::crypto::sign;
+use sodiumoxide::crypto::sign::{PublicKey, SecretKey, Signature};
 use std::collections::BTreeMap;
 
 /// Builds an address from a public key
@@ -102,6 +103,15 @@ pub fn update_utxo_set(current_utxo: &mut BTreeMap<OutPoint, Transaction>) {
     });
 }
 
+/// Reconstructs a signature type from an input vector
+///
+/// ### Arguments
+///
+/// * `input`   - Input vector
+pub fn reconstruct_signature(input: Vec<u8>) -> Signature {
+    Signature::from_slice(&input).unwrap()
+}
+
 /// Constructs a coinbase transaction
 /// TODO: Adding block number to coinbase construction non-ideal. Consider moving to Compute
 /// construction or mining later
@@ -181,6 +191,9 @@ pub fn construct_create_tx(
 /// * `tx_ins`              - Address/es to pay from
 /// * `receiver_address`    - Address to send to
 /// * `drs_block_hash`      - Hash of the block containing the original DRS. Only for data trades
+/// * `drs_tx_hash`         - Hash of the transaction containing the original DRS. Only for data trades
+/// * `asset`               - Asset to send
+/// * `locktime`            - Block height below which the payment is restricted. "0" means no locktime
 /// * `amount`              - Number of tokens to send
 pub fn construct_payment_tx(
     tx_ins: Vec<TxIn>,
@@ -200,7 +213,7 @@ pub fn construct_payment_tx(
         drs_tx_hash,
     };
 
-    construct_payments_tx(tx_ins, vec![tx_out])
+    construct_tx_core(tx_ins, vec![tx_out])
 }
 
 /// Constructs a transaction to pay a receivers
@@ -215,13 +228,93 @@ pub fn construct_payment_tx(
 ///
 /// * `tx_ins`     - Address/es to pay from
 /// * `tx_outs`    - Address/es to send to
-pub fn construct_payments_tx(tx_ins: Vec<TxIn>, tx_outs: Vec<TxOut>) -> Transaction {
+pub fn construct_tx_core(tx_ins: Vec<TxIn>, tx_outs: Vec<TxOut>) -> Transaction {
     Transaction {
         outputs: tx_outs,
         inputs: tx_ins,
         version: 0,
         ..Default::default()
     }
+}
+
+/// Constructs the "send" half of a receipt-based payment
+/// transaction
+///
+/// ### Arguments
+///
+/// * `tx_ins`      - Address/es to pay from
+/// * `tx_outs`     - Address/es to pay to
+/// * `druid`       - DRUID of the transaction
+/// * `own_address` - Own address to receive receipt to
+pub fn construct_rb_payments_send_tx(
+    tx_ins: Vec<TxIn>,
+    tx_outs: Vec<TxOut>,
+    druid: String,
+    own_address: String,
+) -> Transaction {
+    let mut tx = construct_tx_core(tx_ins, tx_outs);
+    tx.druid = Some(druid);
+    tx.druid_participants = Some(2);
+    tx.expect_address = Some(own_address);
+
+    tx
+}
+
+/// Constructs the "receive" half of a receipt-based payment
+/// transaction
+///
+/// ### Arguments
+///
+/// * `sender_address`      - Address of sender
+/// * `own_address`         - Address of this receiver
+/// * `asset`               - Asset expected
+/// * `amount`              - Number of tokens expected
+/// * `druid`               - The matching DRUID value
+/// * `locktime`            - Block height below which the payment receipt is restricted. "0" means no locktime
+/// * `sk`                  - Secret key to sign the receipt-value with
+pub fn construct_rb_receive_payment_tx(
+    sender_address: String,
+    own_address: String,
+    asset: Asset,
+    amount: TokenAmount,
+    druid: String,
+    locktime: u64,
+    sk: SecretKey,
+) -> Transaction {
+    let signed_receipt = sign::sign_detached(RECEIPT_ACCEPT_VAL.as_bytes(), &sk);
+    let signed_receipt_asset = Asset::Data(signed_receipt.0.to_vec());
+
+    let tx_out = TxOut {
+        value: Some(signed_receipt_asset),
+        amount: TokenAmount(0),
+        locktime,
+        script_public_key: Some(sender_address),
+        drs_block_hash: None,
+        drs_tx_hash: None,
+    };
+    let mut tx = construct_rb_payments_tx_core(vec![], vec![tx_out], druid);
+    tx.expect_value = Some(asset);
+    tx.expect_value_amount = Some(amount);
+    tx.expect_address = Some(own_address);
+    tx
+}
+
+/// Constructs the core receipt-based transaction
+///
+/// ### Arguments
+///
+/// * `tx_ins`  - TxIns for the transaction
+/// * `tx_outs` - TxOuts for the transaction
+/// * `druid`   - Receipt-based payment DRUID
+fn construct_rb_payments_tx_core(
+    tx_ins: Vec<TxIn>,
+    tx_outs: Vec<TxOut>,
+    druid: String,
+) -> Transaction {
+    let mut tx = construct_tx_core(tx_ins, tx_outs);
+    tx.druid = Some(druid);
+    tx.druid_participants = Some(2);
+    tx
 }
 
 /// Constructs a set of TxIns for a payment
@@ -412,6 +505,17 @@ mod tests {
     }
 
     #[test]
+    // Creates a valid receipt signature
+    fn should_construct_a_valid_receipt_signature() {
+        let (_, sk) = sign::gen_keypair();
+        let signed_receipt = sign::sign_detached(RECEIPT_ACCEPT_VAL.as_bytes(), &sk);
+        let sig_vec = signed_receipt.0.to_vec();
+
+        let recon = reconstruct_signature(sig_vec);
+        assert_eq!(recon, signed_receipt);
+    }
+
+    #[test]
     // Creates a valid DDE transaction
     fn should_construct_a_valid_dde_tx() {
         let (_pk, sk) = sign::gen_keypair();
@@ -466,5 +570,57 @@ mod tests {
         );
         assert_eq!(dde.outputs[0].clone().amount, first_asset_t.amount);
         assert_eq!(dde.druid_participants, Some(druid_participants));
+    }
+
+    #[test]
+    // Creates a valid receipt based tx pair
+    fn should_construct_a_valid_receipt_tx_pair() {
+        // Arrange
+        //
+        let amount = TokenAmount(33);
+        let druid = "VALUE".to_owned();
+        let receiver_addr = "00000".to_owned();
+        let sender_address_excess = "11112".to_owned();
+        let sender_address = "11111".to_owned();
+
+        let asset_transfered = Asset::Data(RECEIPT_ACCEPT_VAL.as_bytes().to_vec());
+        let (_sender_pk, sender_sk) = sign::gen_keypair();
+
+        // Act
+        //
+        let send_tx = {
+            let tx_ins = {
+                // constructors with enough money for amount and excess, caller responsibility.
+                let tx_ins_constructor = vec![];
+                construct_payment_tx_ins(tx_ins_constructor)
+            };
+            let tx_outs = {
+                // Tx outs with the one at relevant address with the relevant amount
+                let excess_tx_out = TxOut::new_amount(sender_address_excess, TokenAmount(22));
+                let druid_tx_out = TxOut::new_amount(receiver_addr.clone(), amount);
+                vec![druid_tx_out, excess_tx_out]
+            };
+
+            construct_rb_payments_send_tx(tx_ins, tx_outs, druid.clone(), sender_address.clone())
+        };
+
+        let recv_tx = {
+            // create the sender that match the receiver.
+            construct_rb_receive_payment_tx(
+                sender_address,
+                receiver_addr,
+                asset_transfered,
+                TokenAmount(33),
+                druid,
+                0,
+                sender_sk,
+            )
+        };
+
+        // Assert
+        assert_eq!(send_tx.druid, recv_tx.druid);
+        assert_eq!(send_tx.druid_participants, recv_tx.druid_participants);
+        assert_eq!(send_tx.druid_participants, Some(2));
+        assert_eq!(Some(send_tx.outputs[0].amount), recv_tx.expect_value_amount);
     }
 }

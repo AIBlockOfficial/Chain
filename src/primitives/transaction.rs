@@ -128,6 +128,7 @@ pub struct Transaction {
     pub druid_participants: Option<usize>,
     pub expect_value: Option<Asset>,
     pub expect_value_amount: Option<TokenAmount>,
+    pub expect_address: Option<String>,
 }
 
 impl Default for Transaction {
@@ -147,36 +148,7 @@ impl Transaction {
             druid_participants: None,
             expect_value: None,
             expect_value_amount: None,
-        }
-    }
-
-    /// Creates a new Transaction instance from inputs
-    ///
-    /// ### Arguments
-    ///
-    /// * `inputs`              - Transaction inputs
-    /// * `outputs`             - Transaction outputs
-    /// * `version`             - Network version
-    /// * `druid`               - DRUID value for a dual double entry
-    /// * `expect_value`        - Value expected in return for this payment (only in dual double)
-    /// * `expect_value_amount` - Amount of value expected in return for this payment (only in dual double)
-    pub fn new_from_input(
-        inputs: Vec<TxIn>,
-        outputs: Vec<TxOut>,
-        version: usize,
-        druid: Option<String>,
-        druid_participants: Option<usize>,
-        expect_value: Option<Asset>,
-        expect_value_amount: Option<TokenAmount>,
-    ) -> Transaction {
-        Transaction {
-            inputs,
-            outputs,
-            version,
-            druid,
-            druid_participants,
-            expect_value,
-            expect_value_amount,
+            expect_address: None,
         }
     }
 
