@@ -252,11 +252,13 @@ pub fn construct_rb_payments_send_tx(
     druid: String,
     own_address: String,
 ) -> Transaction {
-    let mut tx = construct_tx_core(tx_ins, tx_outs);
-    tx.druid = Some(druid);
-    tx.druid_participants = Some(2);
-    tx.expect_address = Some(own_address);
+    let mut tx = construct_rb_payments_tx_core(tx_ins, tx_outs, druid);
+    let mut info = tx.druid_info.unwrap();
 
+    info.druid_participants = 2;
+    info.expect_address = own_address;
+
+    tx.druid_info = Some(info);
     tx
 }
 
@@ -293,9 +295,13 @@ pub fn construct_rb_receive_payment_tx(
         drs_tx_hash: None,
     };
     let mut tx = construct_rb_payments_tx_core(vec![], vec![tx_out], druid);
-    tx.expect_value = Some(asset);
-    tx.expect_value_amount = Some(amount);
-    tx.expect_address = Some(own_address);
+    tx.druid_info = Some(DDEValues {
+        druid_participants: 2,
+        expect_address: own_address,
+        expect_value: Some(asset),
+        expect_value_amount: Some(amount),
+    });
+
     tx
 }
 
@@ -312,8 +318,10 @@ fn construct_rb_payments_tx_core(
     druid: String,
 ) -> Transaction {
     let mut tx = construct_tx_core(tx_ins, tx_outs);
+
     tx.druid = Some(druid);
-    tx.druid_participants = Some(2);
+    tx.druid_info = Some(DDEValues::new());
+
     tx
 }
 
@@ -346,7 +354,8 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
 /// ### Arguments
 ///
 /// * `tx_ins`              - Addresses to pay from
-/// * `address`             - Address to send the asset to
+/// * `send_address`        - Address to send the asset to
+/// * `receive_address`     - Address to receive corresponding value from
 /// * `send_asset`          - Asset to be sent as payment
 /// * `receive_asset`       - Asset to receive
 /// * `send_asset_drs_hash` - Hash of the block containing the DRS for the sent asset. Only applicable to data trades
@@ -354,7 +363,8 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
 /// * `druid_participants`  - Number of DRUID values to match with
 pub fn construct_dde_tx(
     tx_ins: Vec<TxIn>,
-    address: String,
+    send_address: String,
+    receive_address: String,
     send_asset: AssetInTransit,
     receive_asset: AssetInTransit,
     send_asset_drs_hash: Option<String>,
@@ -366,16 +376,20 @@ pub fn construct_dde_tx(
 
     tx_out.value = Some(send_asset.asset);
     tx_out.amount = send_asset.amount;
-    tx_out.script_public_key = Some(address);
+    tx_out.script_public_key = Some(send_address);
     tx_out.drs_block_hash = send_asset_drs_hash;
 
     tx.outputs = vec![tx_out];
     tx.inputs = tx_ins;
     tx.version = 0;
     tx.druid = Some(druid);
-    tx.druid_participants = Some(druid_participants);
-    tx.expect_value = Some(receive_asset.asset);
-    tx.expect_value_amount = Some(receive_asset.amount);
+
+    tx.druid_info = Some(DDEValues {
+        druid_participants,
+        expect_address: receive_address,
+        expect_value: Some(receive_asset.asset),
+        expect_value_amount: Some(receive_asset.amount),
+    });
 
     tx
 }
@@ -556,6 +570,7 @@ mod tests {
         let dde = construct_dde_tx(
             tx_ins,
             hex::encode(vec![0, 0, 0, 0]),
+            hex::encode(vec![1, 1, 1, 1]),
             first_asset_t.clone(),
             second_asset_t,
             Some(drs_block_hash),
@@ -569,7 +584,10 @@ mod tests {
             Some(first_asset_t.clone().asset)
         );
         assert_eq!(dde.outputs[0].clone().amount, first_asset_t.amount);
-        assert_eq!(dde.druid_participants, Some(druid_participants));
+        assert_eq!(
+            dde.druid_info.unwrap().druid_participants,
+            druid_participants
+        );
     }
 
     #[test]
@@ -619,8 +637,14 @@ mod tests {
 
         // Assert
         assert_eq!(send_tx.druid, recv_tx.druid);
-        assert_eq!(send_tx.druid_participants, recv_tx.druid_participants);
-        assert_eq!(send_tx.druid_participants, Some(2));
-        assert_eq!(Some(send_tx.outputs[0].amount), recv_tx.expect_value_amount);
+        assert_eq!(
+            send_tx.druid_info.clone().unwrap().druid_participants,
+            recv_tx.druid_info.clone().unwrap().druid_participants
+        );
+        assert_eq!(send_tx.druid_info.unwrap().druid_participants, 2);
+        assert_eq!(
+            Some(send_tx.outputs[0].amount),
+            recv_tx.druid_info.unwrap().expect_value_amount
+        );
     }
 }

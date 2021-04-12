@@ -563,10 +563,7 @@ mod tests {
                 outputs: ongoing_tx_outs,
                 version: 0,
                 druid: None,
-                druid_participants: None,
-                expect_value: None,
-                expect_value_amount: None,
-                expect_address: None,
+                druid_info: None,
             };
 
             let result = tx_is_valid(&tx, |v| Some(&tx_out).filter(|_| v == &tx_outpoint));

@@ -9,6 +9,33 @@ use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::is_valid_amount;
 
+/// A structure to hold DDE-specific content in a transaction
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct DDEValues {
+    pub druid_participants: usize,
+    pub expect_value: Option<Asset>,
+    pub expect_value_amount: Option<TokenAmount>,
+    pub expect_address: String,
+}
+
+impl Default for DDEValues {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl DDEValues {
+    /// Creates a new DDEValues instance
+    pub fn new() -> DDEValues {
+        DDEValues {
+            druid_participants: 0,
+            expect_value: None,
+            expect_value_amount: None,
+            expect_address: "".to_string(),
+        }
+    }
+}
+
 /// A user-friendly construction struct for a TxIn
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TxConstructor {
@@ -125,10 +152,7 @@ pub struct Transaction {
     pub outputs: Vec<TxOut>,
     pub version: usize,
     pub druid: Option<String>,
-    pub druid_participants: Option<usize>,
-    pub expect_value: Option<Asset>,
-    pub expect_value_amount: Option<TokenAmount>,
-    pub expect_address: Option<String>,
+    pub druid_info: Option<DDEValues>,
 }
 
 impl Default for Transaction {
@@ -145,10 +169,7 @@ impl Transaction {
             outputs: Vec::new(),
             version: 0,
             druid: None,
-            druid_participants: None,
-            expect_value: None,
-            expect_value_amount: None,
-            expect_address: None,
+            druid_info: None,
         }
     }
 
