@@ -12,10 +12,11 @@ use crate::utils::is_valid_amount;
 /// A structure to hold DDE-specific content in a transaction
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct DDEValues {
-    pub druid_participants: usize,
-    pub expect_value: Option<Asset>,
-    pub expect_value_amount: Option<TokenAmount>,
-    pub expect_address: String,
+    pub druid: String,
+    pub participants: usize,
+    pub expect_value: Option<Asset>, // The value expected by another party for this tx
+    pub expect_value_amount: Option<TokenAmount>, // The amount of the asset expected by another party for this tx
+    pub expect_address: String, // The address the other party is expected to pay to
 }
 
 impl Default for DDEValues {
@@ -28,7 +29,8 @@ impl DDEValues {
     /// Creates a new DDEValues instance
     pub fn new() -> DDEValues {
         DDEValues {
-            druid_participants: 0,
+            druid: "".to_string(),
+            participants: 0,
             expect_value: None,
             expect_value_amount: None,
             expect_address: "".to_string(),
@@ -151,7 +153,6 @@ pub struct Transaction {
     pub inputs: Vec<TxIn>,
     pub outputs: Vec<TxOut>,
     pub version: usize,
-    pub druid: Option<String>,
     pub druid_info: Option<DDEValues>,
 }
 
@@ -168,7 +169,6 @@ impl Transaction {
             inputs: Vec::new(),
             outputs: Vec::new(),
             version: 0,
-            druid: None,
             druid_info: None,
         }
     }

@@ -255,7 +255,7 @@ pub fn construct_rb_payments_send_tx(
     let mut tx = construct_rb_payments_tx_core(tx_ins, tx_outs, druid);
     let mut info = tx.druid_info.unwrap();
 
-    info.druid_participants = 2;
+    info.participants = 2;
     info.expect_address = own_address;
 
     tx.druid_info = Some(info);
@@ -294,9 +294,10 @@ pub fn construct_rb_receive_payment_tx(
         drs_block_hash: None,
         drs_tx_hash: None,
     };
-    let mut tx = construct_rb_payments_tx_core(vec![], vec![tx_out], druid);
+    let mut tx = construct_tx_core(vec![], vec![tx_out]);
     tx.druid_info = Some(DDEValues {
-        druid_participants: 2,
+        druid,
+        participants: 2,
         expect_address: own_address,
         expect_value: Some(asset),
         expect_value_amount: Some(amount),
@@ -319,8 +320,10 @@ fn construct_rb_payments_tx_core(
 ) -> Transaction {
     let mut tx = construct_tx_core(tx_ins, tx_outs);
 
-    tx.druid = Some(druid);
-    tx.druid_info = Some(DDEValues::new());
+    tx.druid_info = Some(DDEValues {
+        druid,
+        ..Default::default()
+    });
 
     tx
 }
@@ -360,7 +363,7 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
 /// * `receive_asset`       - Asset to receive
 /// * `send_asset_drs_hash` - Hash of the block containing the DRS for the sent asset. Only applicable to data trades
 /// * `druid`               - DRUID value to match with the other party
-/// * `druid_participants`  - Number of DRUID values to match with
+/// * `dparticipants`  - Number of DRUID values to match with
 pub fn construct_dde_tx(
     tx_ins: Vec<TxIn>,
     send_address: String,
@@ -369,7 +372,7 @@ pub fn construct_dde_tx(
     receive_asset: AssetInTransit,
     send_asset_drs_hash: Option<String>,
     druid: String,
-    druid_participants: usize,
+    dparticipants: usize,
 ) -> Transaction {
     let mut tx = Transaction::new();
     let mut tx_out = TxOut::new();
@@ -382,10 +385,10 @@ pub fn construct_dde_tx(
     tx.outputs = vec![tx_out];
     tx.inputs = tx_ins;
     tx.version = 0;
-    tx.druid = Some(druid);
 
     tx.druid_info = Some(DDEValues {
-        druid_participants,
+        druid,
+        participants: dparticipants,
         expect_address: receive_address,
         expect_value: Some(receive_asset.asset),
         expect_value_amount: Some(receive_asset.amount),
@@ -410,7 +413,7 @@ mod tests {
 
         let tx = construct_create_tx(drs.clone(), receiver_address.clone(), amount);
 
-        assert_eq!(tx.druid, None);
+        assert_eq!(tx.druid_info, None);
         assert_eq!(tx.outputs.len(), 1);
         assert_eq!(tx.outputs[0].amount, amount);
         assert_eq!(tx.outputs[0].drs_block_hash, None);
@@ -549,7 +552,7 @@ mod tests {
 
         // DDE params
         let druid = hex::encode(vec![1, 2, 3, 4, 5]);
-        let druid_participants = 2;
+        let participants = 2;
 
         let first_token_amount = TokenAmount(1000000);
         let second_token_amount = TokenAmount(0);
@@ -575,19 +578,16 @@ mod tests {
             second_asset_t,
             Some(drs_block_hash),
             druid.clone(),
-            druid_participants,
+            participants,
         );
 
-        assert_eq!(dde.druid, Some(druid));
+        assert_eq!(dde.druid_info.clone().unwrap().druid, druid);
         assert_eq!(
             dde.outputs[0].clone().value,
             Some(first_asset_t.clone().asset)
         );
         assert_eq!(dde.outputs[0].clone().amount, first_asset_t.amount);
-        assert_eq!(
-            dde.druid_info.unwrap().druid_participants,
-            druid_participants
-        );
+        assert_eq!(dde.druid_info.unwrap().participants, participants);
     }
 
     #[test]
@@ -636,12 +636,15 @@ mod tests {
         };
 
         // Assert
-        assert_eq!(send_tx.druid, recv_tx.druid);
         assert_eq!(
-            send_tx.druid_info.clone().unwrap().druid_participants,
-            recv_tx.druid_info.clone().unwrap().druid_participants
+            send_tx.druid_info.clone().unwrap().druid,
+            recv_tx.druid_info.clone().unwrap().druid
         );
-        assert_eq!(send_tx.druid_info.unwrap().druid_participants, 2);
+        assert_eq!(
+            send_tx.druid_info.clone().unwrap().participants,
+            recv_tx.druid_info.clone().unwrap().participants
+        );
+        assert_eq!(send_tx.druid_info.unwrap().participants, 2);
         assert_eq!(
             Some(send_tx.outputs[0].amount),
             recv_tx.druid_info.unwrap().expect_value_amount

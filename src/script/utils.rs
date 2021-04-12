@@ -88,6 +88,71 @@ pub fn tx_is_valid<'a>(
     tx_outs_are_valid(&tx.outputs, tx_in_amount)
 }
 
+/// Verifies that all DDE transaction expectations are met for a set
+///
+/// ### Arguments
+///
+/// * `transactions`    - Transactions to verify
+pub fn verify_dde_expectations(transactions: &Vec<Transaction>) -> bool {
+    let mut seen: BTreeMap<String, &DDEValues> = BTreeMap::new();
+
+    for tx in transactions {
+        // Non-DRUIDs return an immediate fail
+        if tx.druid_info.is_none() {
+            return false;
+        }
+
+        for output in &tx.outputs {
+            if let Some(address) = &output.script_public_key {
+                let druid_info = tx.druid_info.as_ref().unwrap();
+
+                if !seen.contains_key(&address.clone()) {
+                    seen.insert(address.clone(), druid_info);
+                } else {
+                    let seen_tx = seen.get(&address.clone()).unwrap();
+
+                    // Verify matches
+                    if !dde_matches_are_valid(seen_tx, druid_info, output) {
+                        return false;
+                    }
+
+                    let _ = seen.remove(&address.clone());
+                }
+            }
+        }
+    }
+
+    seen.is_empty()
+}
+
+/// Performs all validation requirements on two matching DDE expectactions
+///
+/// ### Arguments
+///
+/// * `primary_druid_info`  - Primary druid info
+/// * `second_druid_info`   - Secondary druid info
+/// * `output`              - TxOut of the currently passed transaction
+fn dde_matches_are_valid(
+    primary_druid_info: &DDEValues,
+    second_druid_info: &DDEValues,
+    output: &TxOut,
+) -> bool {
+    let current_addr = output.script_public_key.as_ref().unwrap();
+
+    if primary_druid_info.druid != second_druid_info.druid
+        || primary_druid_info.participants != second_druid_info.participants
+        || primary_druid_info.expect_address != current_addr.clone()
+        || primary_druid_info.expect_value != output.value
+        || (primary_druid_info.expect_value_amount.is_none() && output.amount.0 != 0)
+        || (primary_druid_info.expect_value_amount.is_some()
+            && primary_druid_info.expect_value_amount.unwrap() != output.amount)
+    {
+        return false;
+    }
+
+    true
+}
+
 /// Verifies that the outgoing TxOuts are valid. Returns false if a single
 /// transaction doesn't verify
 ///
@@ -562,7 +627,6 @@ mod tests {
                 inputs: tx_ins,
                 outputs: ongoing_tx_outs,
                 version: 0,
-                druid: None,
                 druid_info: None,
             };
 
