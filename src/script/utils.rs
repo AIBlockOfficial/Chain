@@ -93,7 +93,7 @@ pub fn tx_is_valid<'a>(
 /// ### Arguments
 ///
 /// * `transactions`    - Transactions to verify
-pub fn dde_expectations_are_met(transactions: &[Transaction]) -> bool {
+pub fn druid_expectations_are_met(transactions: &[Transaction]) -> bool {
     let mut seen: BTreeMap<String, &TxOut> = BTreeMap::new();
 
     for tx in transactions {
@@ -498,7 +498,7 @@ mod tests {
     /// Checks that matching DDE transactions are verified as such by DDE verifier
     fn should_pass_matching_dde_tx_valid() {
         let txs = create_dde_txs();
-        assert!(dde_expectations_are_met(&txs));
+        assert!(druid_expectations_are_met(&txs));
     }
 
     #[test]
@@ -517,14 +517,14 @@ mod tests {
 
         change_tx.outputs[0].druid_info = nm_druid;
 
-        assert_eq!(dde_expectations_are_met(&vec![orig_tx, change_tx]), false);
+        assert_eq!(druid_expectations_are_met(&vec![orig_tx, change_tx]), false);
     }
 
     #[test]
     /// Checks that matching receipt-based payments are verified as such by the DDE verifier
     fn should_pass_matching_rb_payment_valid() {
         let (send_tx, recv_tx) = create_rb_payment_txs();
-        assert!(dde_expectations_are_met(&vec![send_tx, recv_tx]));
+        assert!(druid_expectations_are_met(&vec![send_tx, recv_tx]));
     }
 
     #[test]
@@ -544,7 +544,7 @@ mod tests {
 
         // Non-matching druid
         assert_eq!(
-            dde_expectations_are_met(&vec![nm_send_druid, recv_tx]),
+            druid_expectations_are_met(&vec![nm_send_druid, recv_tx]),
             false
         );
     }
@@ -556,7 +556,7 @@ mod tests {
         recv_tx.outputs[0].script_public_key = Some("11145".to_string());
 
         // Non-matching address expectation
-        assert_eq!(dde_expectations_are_met(&vec![send_tx, recv_tx]), false);
+        assert_eq!(druid_expectations_are_met(&vec![send_tx, recv_tx]), false);
     }
 
     #[test]
@@ -568,7 +568,7 @@ mod tests {
         send_tx.outputs[1].amount = TokenAmount(33);
 
         // Non-matching address expectation
-        assert_eq!(dde_expectations_are_met(&vec![send_tx, recv_tx]), false);
+        assert_eq!(druid_expectations_are_met(&vec![send_tx, recv_tx]), false);
     }
 
     #[test]
