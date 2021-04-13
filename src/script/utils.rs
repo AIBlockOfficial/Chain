@@ -502,6 +502,25 @@ mod tests {
     }
 
     #[test]
+    /// Checks that DDE transactions with non-matching expects fail
+    fn should_fail_dde_tx_value_expect_mismatch() {
+        let mut txs = create_dde_txs();
+        let mut change_tx = txs.pop().unwrap();
+        let orig_tx = txs[0].clone();
+
+        let druid_info = change_tx.outputs[0].druid_info.clone();
+
+        let nm_druid = druid_info.clone().map(|mut x| {
+            x.expect_address = "60764505679457".to_string();
+            x
+        });
+
+        change_tx.outputs[0].druid_info = nm_druid;
+
+        assert_eq!(dde_expectations_are_met(&vec![orig_tx, change_tx]), false);
+    }
+
+    #[test]
     /// Checks that matching receipt-based payments are verified as such by the DDE verifier
     fn should_pass_matching_rb_payment_valid() {
         let (send_tx, recv_tx) = create_rb_payment_txs();
