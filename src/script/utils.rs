@@ -82,7 +82,10 @@ pub fn tx_is_valid<'a>(
             return false;
         }
 
-        tx_in_amount += tx_out.amount;
+        tx_in_amount += match tx_out.value {
+            Asset::Token(v) => v,
+            Asset::Data(_) => return false,
+        };
     }
 
     tx_outs_are_valid(&tx.outputs, tx_in_amount)
@@ -101,11 +104,11 @@ pub fn druid_expectations_are_met(transactions: &[Transaction]) -> bool {
             // Check for a DRUID output
             if output.druid_info.is_some() {
                 if let Some(address) = &output.script_public_key {
-                    if !seen.contains_key(&address.clone()) {
+                    if !seen.contains_key(address) {
                         let match_addr = output.druid_info.as_ref().unwrap().expect_address.clone();
                         seen.insert(match_addr, output);
                     } else {
-                        let seen_tx = seen.get(&address.clone()).unwrap();
+                        let seen_tx = seen.get(address).unwrap();
 
                         // Verify matches for both regular DDE and receipt-based payments
                         if !dde_matches_are_valid(seen_tx, output)
@@ -113,7 +116,7 @@ pub fn druid_expectations_are_met(transactions: &[Transaction]) -> bool {
                         {
                             return false;
                         }
-                        let _ = seen.remove(&address.clone());
+                        let _ = seen.remove(address);
                     }
                 }
             }
@@ -352,10 +355,10 @@ fn match_on_multisig_to_pubkey(
 mod tests {
     use super::*;
     use crate::constants::RECEIPT_ACCEPT_VAL;
-    use crate::primitives::asset::AssetInTransit;
+    use crate::primitives::asset::Asset;
     use crate::primitives::transaction_utils::{
         construct_address, construct_dde_tx, construct_payment_tx_ins,
-        construct_rb_payments_send_tx_out, construct_rb_receive_payment_tx, construct_tx_core,
+        construct_rb_payments_send_tx, construct_rb_receive_payment_tx, construct_tx_core,
     };
 
     /// Util function to create p2pkh TxIns
@@ -420,21 +423,21 @@ mod tests {
         };
 
         let alice_tx = construct_dde_tx(
+            druid.clone(),
             vec![TxIn::new()],
+            2,
+            None,
             (alice_addr.clone(), bob_addr.clone()),
             (alice_asset_it.clone(), bob_asset_it.clone()),
-            None,
-            druid.clone(),
-            2,
         );
 
         let bob_tx = construct_dde_tx(
+            druid,
             vec![TxIn::new()],
+            2,
+            Some("".to_string()),
             (bob_addr, alice_addr),
             (bob_asset_it, alice_asset_it),
-            Some("".to_string()),
-            druid,
-            2,
         );
 
         vec![alice_tx, bob_tx]

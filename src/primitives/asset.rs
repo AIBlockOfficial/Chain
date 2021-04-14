@@ -75,29 +75,45 @@ impl iter::Sum for TokenAmount {
     }
 }
 
-/// A placeholder Asset struct
+/// Data asset struct
+#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq)]
+pub struct DataAsset {
+    pub data: Vec<u8>,
+    pub amount: usize,
+}
+
+/// Asset struct
 #[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq)]
 pub enum Asset {
     Token(TokenAmount),
-    Data(Vec<u8>),
+    Data(DataAsset),
+    Receipt(String),
+}
+
+impl Default for Asset {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Asset {
+    pub fn new() -> Asset {
+        Asset::Token(TokenAmount(0))
+    }
+
     pub fn len(&self) -> usize {
         match self {
             Asset::Token(_) => size_of::<u64>(),
-            Asset::Data(v) => v.len(),
+            Asset::Data(d) => d.data.len(),
+            Asset::Receipt(s) => s.len(),
         }
     }
 
     pub fn is_empty(&self) -> bool {
-        self.len() == 0
+        match self {
+            Asset::Token(_) => false,
+            Asset::Data(d) => d.data.is_empty(),
+            Asset::Receipt(s) => s.is_empty(),
+        }
     }
-}
-
-/// A structure for an asset to send, along with its quantity
-#[derive(Debug, Clone)]
-pub struct AssetInTransit {
-    pub asset: Asset,
-    pub amount: TokenAmount,
 }

@@ -4,39 +4,13 @@ use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use sodiumoxide::crypto::sign::ed25519::{PublicKey, Signature};
 
-use crate::primitives::asset::{Asset, TokenAmount};
+use crate::primitives::{
+    asset::{Asset, TokenAmount},
+    druid::{DdeValues, DruidExpectation},
+};
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::is_valid_amount;
-
-/// A structure to hold DDE-specific content in a transaction
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct DDEValues {
-    pub druid: String,
-    pub participants: usize,
-    pub expect_value: Option<Asset>, // The value expected by another party for this tx
-    pub expect_value_amount: Option<TokenAmount>, // The amount of the asset expected by another party for this tx
-    pub expect_address: String, // The address the other party is expected to pay to
-}
-
-impl Default for DDEValues {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl DDEValues {
-    /// Creates a new DDEValues instance
-    pub fn new() -> DDEValues {
-        DDEValues {
-            druid: "".to_string(),
-            participants: 0,
-            expect_value: None,
-            expect_value_amount: None,
-            expect_address: "".to_string(),
-        }
-    }
-}
 
 /// A user-friendly construction struct for a TxIn
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -107,10 +81,8 @@ impl TxIn {
 /// potential DRS if this is a data asset transaction
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct TxOut {
-    pub value: Option<Asset>,
-    pub amount: TokenAmount,
+    pub value: Asset,
     pub locktime: u64,
-    pub druid_info: Option<DDEValues>,
     pub drs_block_hash: Option<String>,
     pub drs_tx_hash: Option<String>,
     pub script_public_key: Option<String>,
@@ -125,26 +97,14 @@ impl Default for TxOut {
 impl TxOut {
     /// Creates a new TxOut instance
     pub fn new() -> TxOut {
-        TxOut {
-            value: None,
-            amount: TokenAmount(0),
-            drs_tx_hash: None,
-            locktime: 0,
-            druid_info: None,
-            drs_block_hash: None,
-            script_public_key: None,
-        }
+        Default::default()
     }
 
     pub fn new_amount(to_address: String, amount: TokenAmount) -> TxOut {
         TxOut {
-            value: Some(Asset::Token(amount)),
-            amount,
-            locktime: 0,
+            value: Asset::Token(amount),
             script_public_key: Some(to_address),
-            drs_block_hash: None,
-            drs_tx_hash: None,
-            druid_info: None,
+            ..Default::default()
         }
     }
 }
@@ -156,6 +116,7 @@ pub struct Transaction {
     pub inputs: Vec<TxIn>,
     pub outputs: Vec<TxOut>,
     pub version: usize,
+    pub druid_info: Option<DdeValues>,
 }
 
 impl Default for Transaction {
@@ -171,6 +132,7 @@ impl Transaction {
             inputs: Vec::new(),
             outputs: Vec::new(),
             version: 0,
+            druid_info: Some(DdeValues::default()),
         }
     }
 
@@ -180,23 +142,18 @@ impl Transaction {
         let mut total_value = TokenAmount(0);
 
         for txout in &mut self.outputs {
-            if txout.value.is_some() {
-                // we're safe to unwrap here
-                let this_value = txout.value.clone().unwrap();
+            if let Asset::Token(token_val) = txout.value {
+                if !is_valid_amount(&token_val) {
+                    panic!("TxOut value {value} out of range", value = token_val);
+                }
 
-                if let Asset::Token(token_val) = this_value {
-                    if !is_valid_amount(&token_val) {
-                        panic!("TxOut value {value} out of range", value = token_val);
-                    }
+                total_value.0 += token_val.0;
 
-                    total_value.0 += token_val.0;
-
-                    if !is_valid_amount(&total_value) {
-                        panic!(
-                            "Total TxOut value of {value} out of range",
-                            value = total_value
-                        );
-                    }
+                if !is_valid_amount(&total_value) {
+                    panic!(
+                        "Total TxOut value of {value} out of range",
+                        value = total_value
+                    );
                 }
             }
         }
