@@ -79,7 +79,7 @@ impl TxIn {
 /// An output of a transaction. It contains the public key that the next input
 /// must be able to sign with to claim it. It also contains the block hash for the
 /// potential DRS if this is a data asset transaction
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct TxOut {
     pub value: Asset,
     pub locktime: u64,
@@ -88,16 +88,16 @@ pub struct TxOut {
     pub script_public_key: Option<String>,
 }
 
-impl Default for TxOut {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl TxOut {
     /// Creates a new TxOut instance
     pub fn new() -> TxOut {
-        Default::default()
+        TxOut {
+            value: Asset::Token(TokenAmount(0)),
+            drs_block_hash: None,
+            drs_tx_hash: None,
+            locktime: 0,
+            script_public_key: None,
+        }
     }
 
     pub fn new_amount(to_address: String, amount: TokenAmount) -> TxOut {
@@ -111,18 +111,12 @@ impl TxOut {
 
 /// The basic transaction that is broadcasted on the network and contained in
 /// blocks. A transaction can contain multiple inputs and outputs.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Transaction {
     pub inputs: Vec<TxIn>,
     pub outputs: Vec<TxOut>,
     pub version: usize,
     pub druid_info: Option<DdeValues>,
-}
-
-impl Default for Transaction {
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 impl Transaction {
@@ -132,7 +126,7 @@ impl Transaction {
             inputs: Vec::new(),
             outputs: Vec::new(),
             version: 0,
-            druid_info: Some(DdeValues::default()),
+            druid_info: None,
         }
     }
 

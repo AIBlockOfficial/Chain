@@ -79,7 +79,7 @@ impl iter::Sum for TokenAmount {
 #[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq)]
 pub struct DataAsset {
     pub data: Vec<u8>,
-    pub amount: usize,
+    pub amount: u64,
 }
 
 /// Asset struct
@@ -87,7 +87,7 @@ pub struct DataAsset {
 pub enum Asset {
     Token(TokenAmount),
     Data(DataAsset),
-    Receipt(String),
+    Receipt(u64),
 }
 
 impl Default for Asset {
@@ -105,15 +105,14 @@ impl Asset {
         match self {
             Asset::Token(_) => size_of::<u64>(),
             Asset::Data(d) => d.data.len(),
-            Asset::Receipt(s) => s.len(),
+            Asset::Receipt(_) => size_of::<u64>(),
         }
     }
 
     pub fn is_empty(&self) -> bool {
         match self {
-            Asset::Token(_) => false,
             Asset::Data(d) => d.data.is_empty(),
-            Asset::Receipt(s) => s.is_empty(),
+            _ => false,
         }
     }
 }
