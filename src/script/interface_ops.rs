@@ -3,10 +3,10 @@
 use crate::constants::TOTAL_TOKENS;
 use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::transaction::*;
-use crate::primitives::transaction_utils::construct_address;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use crate::sha3::Digest;
+use crate::utils::transaction_utils::construct_address;
 
 use bincode::serialize;
 use bytes::Bytes;

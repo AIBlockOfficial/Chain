@@ -3,11 +3,11 @@ use crate::constants::TOTAL_TOKENS;
 use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::druid::DruidExpectation;
 use crate::primitives::transaction::*;
-use crate::primitives::transaction_utils::construct_address;
 use crate::script::interface_ops;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use crate::sha3::Digest;
+use crate::utils::transaction_utils::construct_address;
 
 use bincode::serialize;
 use bytes::Bytes;
@@ -250,7 +250,7 @@ mod tests {
     use crate::constants::RECEIPT_ACCEPT_VAL;
     use crate::primitives::asset::{Asset, DataAsset};
     use crate::primitives::druid::DdeValues;
-    use crate::primitives::transaction_utils::*;
+    use crate::utils::transaction_utils::*;
 
     /// Util function to create p2pkh TxIns
     fn create_multisig_tx_ins(tx_values: Vec<TxConstructor>, m: usize) -> Vec<TxIn> {

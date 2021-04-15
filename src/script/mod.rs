@@ -1,7 +1,6 @@
 #![allow(unused)]
 pub mod interface_ops;
 pub mod lang;
-pub mod utils;
 
 use serde::{Deserialize, Serialize};
 use sodiumoxide::crypto::sign::ed25519::{PublicKey, Signature};

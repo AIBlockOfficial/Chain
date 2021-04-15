@@ -35,9 +35,9 @@ pub fn druid_expectations_are_met(druid: String, transactions: &[Transaction]) -
     }
 
     // Check expectations
-    for exp in &expects.clone() {
-        if in_outs.contains(exp) {
-            expects.remove(exp);
+    for hash in in_outs {
+        if expects.contains(&hash) {
+            expects.remove(&hash);
         }
     }
 
@@ -86,7 +86,7 @@ mod tests {
     use crate::primitives::asset::{Asset, DataAsset, TokenAmount};
     use crate::primitives::druid::{DdeValues, DruidExpectation};
     use crate::primitives::transaction::*;
-    use crate::primitives::transaction_utils::*;
+    use crate::utils::transaction_utils::*;
 
     /// Util function to create valid DDE asset tx's
     fn create_dde_txs() -> Vec<Transaction> {

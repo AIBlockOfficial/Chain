@@ -308,7 +308,7 @@ pub fn construct_rb_payments_send_tx(
     let out = TxOut {
         value: Asset::Token(amount),
         locktime,
-        script_public_key: Some(receiver_address.clone()),
+        script_public_key: Some(receiver_address),
         drs_block_hash: None,
         drs_tx_hash: None,
     };
@@ -347,7 +347,7 @@ pub fn construct_rb_receive_payment_tx(
     let out = TxOut {
         value: Asset::Receipt(1),
         locktime,
-        script_public_key: Some(sender_address.clone()),
+        script_public_key: Some(sender_address),
         drs_block_hash: None, // this will need to change
         drs_tx_hash: None,    // this will need to change
     };
