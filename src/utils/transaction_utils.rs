@@ -532,7 +532,7 @@ mod tests {
         let druid = hex::encode(vec![1, 2, 3, 4, 5]);
         let participants = 2;
         let expects = vec![DruidExpectation {
-            from: from_addr.clone(),
+            from: from_addr,
             to: to_asset,
             asset: data.clone(),
         }];
@@ -580,7 +580,7 @@ mod tests {
             let mut tx = construct_rb_payments_send_tx(
                 tx_ins,
                 bob_addr.clone(),
-                payment.clone(),
+                payment,
                 0,
                 druid.clone(),
                 vec![expectation],
@@ -599,7 +599,7 @@ mod tests {
             };
             let expectation = DruidExpectation {
                 from: from_addr,
-                to: bob_addr.clone(),
+                to: bob_addr,
                 asset: Asset::Token(payment),
             };
 
