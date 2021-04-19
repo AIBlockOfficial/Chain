@@ -76,7 +76,7 @@ impl iter::Sum for TokenAmount {
 }
 
 /// Data asset struct
-#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub struct DataAsset {
     pub data: Vec<u8>,
     pub amount: u64,
@@ -87,7 +87,7 @@ pub struct DataAsset {
 /// * `Token`   - An asset struct representation of the ZNT token
 /// * `Data`    - A data asset
 /// * `Receipt` - A receipt for a payment. The value indicates the number of receipt assets
-#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Asset {
     Token(TokenAmount),
     Data(DataAsset),

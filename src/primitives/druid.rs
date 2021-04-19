@@ -2,7 +2,7 @@ use crate::primitives::asset::Asset;
 use serde::{Deserialize, Serialize};
 
 /// The expectation to be met in a specific DRUID transaction
-#[derive(Default, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Ord, Eq, PartialEq, Serialize, Deserialize, PartialOrd)]
 pub struct DruidExpectation {
     pub from: String,
     pub to: String,

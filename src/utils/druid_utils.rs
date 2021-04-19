@@ -1,83 +1,50 @@
-use crate::constants::XXHASH_SEED;
 use crate::primitives::asset::Asset;
+use crate::primitives::druid::DruidExpectation;
 use crate::primitives::transaction::Transaction;
+use crate::sha3::Digest;
 use bincode::serialize;
+use sha3::Sha3_256;
 use std::collections::BTreeSet;
-use xxhash_rust::xxh64::xxh64;
+use std::iter::Extend;
 
 /// Verifies that all DDE transaction expectations are met for DRUID-matching transactions
 ///
 /// ### Arguments
 ///
+/// * `druid`           - DRUID to match all transactions on
 /// * `transactions`    - Transactions to verify
 pub fn druid_expectations_are_met(druid: String, transactions: &[Transaction]) -> bool {
     let mut expects = BTreeSet::new();
-    let mut in_outs = BTreeSet::new();
+    let mut tx_source = BTreeSet::new();
 
-    // Fill expectations
     for tx in transactions {
         if let Some(druid_info) = &tx.druid_info {
+            let ins = hex::encode(Sha3_256::digest(&serialize(&tx.inputs).unwrap()).to_vec());
+
             // Ensure match with passed DRUID
             if druid_info.druid == druid {
-                for expect in druid_info.expectations.clone() {
-                    let expect_hash =
-                        construct_expectation_hash(expect.from, expect.to, expect.asset);
+                expects.extend(druid_info.expectations.iter());
 
-                    expects.insert(expect_hash);
+                for out in &tx.outputs {
+                    if let Some(pk) = &out.script_public_key {
+                        tx_source.insert((ins.clone(), pk, &out.value));
+                    }
                 }
-
-                // Input-output set
-                update_set_on_in_out(&mut in_outs, tx);
-            } else {
-                return false;
             }
         }
     }
 
-    // Check expectations
-    for hash in in_outs {
-        if expects.contains(&hash) {
-            expects.remove(&hash);
-        }
-    }
-
-    expects.is_empty()
+    expects.iter().all(|e| expectation_met(e, &tx_source))
 }
 
-/// Constructs a hash from an expectation to match
+/// Predicate for expected transaction presence in the transaction set
 ///
 /// ### Arguments
 ///
-/// * `from`    - From address hash
-/// * `to`      - To address
-/// * `asset`   - Asset to send
-fn construct_expectation_hash(from: String, to: String, asset: Asset) -> String {
-    let out_value = vec![to, hex::encode(&serialize(&asset).unwrap())];
-    let out_hash = hex::encode(serialize(&out_value).unwrap());
-
-    format!(
-        "{:x}",
-        xxh64(&serialize(&vec![from, out_hash]).unwrap(), XXHASH_SEED)
-    )
-}
-
-/// Updates the input-output set for DRUID expectations
-///
-/// ### Arguments
-///
-/// * `in_out`  - Input-output set to update
-/// * `tx`      - Current transaction
-fn update_set_on_in_out(in_outs: &mut BTreeSet<String>, tx: &Transaction) {
-    let input_hash = hex::encode(serialize(&tx.inputs).unwrap());
-
-    for out in &tx.outputs {
-        if let Some(to_addr) = out.script_public_key.clone() {
-            let final_hash =
-                construct_expectation_hash(input_hash.clone(), to_addr, out.value.clone());
-
-            in_outs.insert(final_hash);
-        }
-    }
+/// * `e`           - The expectation to check on
+/// * `tx_source`   - The source transaction source to match against
+fn expectation_met(e: &DruidExpectation, tx_source: &BTreeSet<(String, &String, &Asset)>) -> bool {
+    tx_source.get(&(e.from.clone(), &e.to, &e.asset)).is_some()
 }
 
 #[cfg(test)]
@@ -91,7 +58,8 @@ mod tests {
     /// Util function to create valid DDE asset tx's
     fn create_dde_txs() -> Vec<Transaction> {
         let druid = "VALUE".to_owned();
-        let from_addr = hex::encode(serialize(&vec![TxIn::new()]).unwrap());
+        let tx_input = construct_payment_tx_ins(vec![]);
+        let from_addr = hex::encode(Sha3_256::digest(&serialize(&tx_input).unwrap()).to_vec());
 
         // Alice
         let amount = TokenAmount(10);
@@ -135,13 +103,13 @@ mod tests {
         // Txs
         let alice_tx = construct_dde_tx(
             druid.clone(),
-            vec![TxIn::new()],
+            tx_input.clone(),
             vec![token_tx_out],
             2,
             expects.clone(),
         );
 
-        let bob_tx = construct_dde_tx(druid, vec![TxIn::new()], vec![data_tx_out], 2, expects);
+        let bob_tx = construct_dde_tx(druid, tx_input, vec![data_tx_out], 2, expects);
 
         vec![alice_tx, bob_tx]
     }
@@ -155,7 +123,7 @@ mod tests {
         let druid = "VALUE".to_owned();
 
         let tx_input = construct_payment_tx_ins(vec![]);
-        let from_addr = hex::encode(serialize(&tx_input).unwrap());
+        let from_addr = hex::encode(Sha3_256::digest(&serialize(&tx_input).unwrap()).to_vec());
 
         let alice_addr = "1111".to_owned();
         let bob_addr = "00000".to_owned();
@@ -171,14 +139,19 @@ mod tests {
             };
             let excess_tx_out = TxOut::new_amount(sender_address_excess, amount - payment);
 
+            let expectation = DruidExpectation {
+                from: from_addr.clone(),
+                to: alice_addr.clone(),
+                asset: Asset::Receipt(1),
+            };
+
             let mut tx = construct_rb_payments_send_tx(
                 tx_ins,
                 bob_addr.clone(),
-                from_addr.clone(),
-                alice_addr.clone(),
                 payment.clone(),
                 0,
                 druid.clone(),
+                vec![expectation],
             );
 
             tx.outputs.push(excess_tx_out);
@@ -192,10 +165,14 @@ mod tests {
                 let tx_ins_constructor = vec![];
                 construct_payment_tx_ins(tx_ins_constructor)
             };
+            let expectation = DruidExpectation {
+                from: from_addr,
+                to: bob_addr.clone(),
+                asset: Asset::Token(payment),
+            };
+
             // create the sender that match the receiver.
-            construct_rb_receive_payment_tx(
-                tx_ins, alice_addr, from_addr, bob_addr, payment, 0, druid,
-            )
+            construct_rb_receive_payment_tx(tx_ins, alice_addr, 0, druid, vec![expectation])
         };
 
         (send_tx, recv_tx)
