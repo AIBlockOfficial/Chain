@@ -83,6 +83,10 @@ pub struct DataAsset {
 }
 
 /// Asset struct
+///
+/// * `Token`   - An asset struct representation of the ZNT token
+/// * `Data`    - A data asset
+/// * `Receipt` - A receipt for a payment. The value indicates the number of receipt assets
 #[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq)]
 pub enum Asset {
     Token(TokenAmount),
@@ -92,18 +96,14 @@ pub enum Asset {
 
 impl Default for Asset {
     fn default() -> Self {
-        Self::new()
+        Self::Token(Default::default())
     }
 }
 
 impl Asset {
-    pub fn new() -> Asset {
-        Asset::Token(TokenAmount(0))
-    }
-
     pub fn len(&self) -> usize {
         match self {
-            Asset::Token(_) => size_of::<u64>(),
+            Asset::Token(_) => size_of::<TokenAmount>(),
             Asset::Data(d) => d.data.len(),
             Asset::Receipt(_) => size_of::<u64>(),
         }
@@ -113,6 +113,13 @@ impl Asset {
         match self {
             Asset::Data(d) => d.data.is_empty(),
             _ => false,
+        }
+    }
+
+    pub fn token_amount(&self) -> TokenAmount {
+        match self {
+            Asset::Token(v) => *v,
+            _ => TokenAmount(0),
         }
     }
 }

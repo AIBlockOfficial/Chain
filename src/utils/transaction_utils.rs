@@ -8,7 +8,7 @@ use crate::sha3::Digest;
 use bincode::serialize;
 use bytes::Bytes;
 use sha3::Sha3_256;
-use sodiumoxide::crypto::sign::{PublicKey, Signature};
+use sodiumoxide::crypto::sign::PublicKey;
 use std::collections::BTreeMap;
 
 /// Builds an address from a public key
@@ -101,15 +101,6 @@ pub fn update_utxo_set(current_utxo: &mut BTreeMap<OutPoint, Transaction>) {
     value_set.iter().for_each(move |t_hash| {
         current_utxo.remove(t_hash);
     });
-}
-
-/// Reconstructs a signature type from an input vector
-///
-/// ### Arguments
-///
-/// * `input`   - Input vector
-pub fn reconstruct_signature(input: Vec<u8>) -> Signature {
-    Signature::from_slice(&input).unwrap()
 }
 
 /// Constructs a coinbase transaction
@@ -265,24 +256,16 @@ pub fn construct_tx_core(tx_ins: Vec<TxIn>, tx_outs: Vec<TxOut>) -> Transaction 
 /// * `out`             - The TxOut for this send
 /// * `druid`           - DRUID to match on
 pub fn construct_rb_tx_core(
-    from_address: String,
-    to_address: String,
-    asset: Asset,
     tx_ins: Vec<TxIn>,
-    out: TxOut,
+    tx_outs: Vec<TxOut>,
     druid: String,
+    druid_expectation: DruidExpectation,
 ) -> Transaction {
-    let expectations = vec![DruidExpectation {
-        from: from_address,
-        to: to_address,
-        asset,
-    }];
-
-    let mut tx = construct_tx_core(tx_ins, vec![out]);
+    let mut tx = construct_tx_core(tx_ins, tx_outs);
     tx.druid_info = Some(DdeValues {
         druid,
         participants: 2,
-        expectations,
+        expectations: vec![druid_expectation],
     });
 
     tx
@@ -313,14 +296,13 @@ pub fn construct_rb_payments_send_tx(
         drs_tx_hash: None,
     };
 
-    construct_rb_tx_core(
-        receiver_send_addr,
-        own_address,
-        Asset::Receipt(1),
-        tx_ins,
-        out,
-        druid,
-    )
+    let expectation = DruidExpectation {
+        from: receiver_send_addr,
+        to: own_address,
+        asset: Asset::Receipt(1),
+    };
+
+    construct_rb_tx_core(tx_ins, vec![out], druid, expectation)
 }
 
 /// Constructs the "receive" half of a receipt-based payment
@@ -352,14 +334,13 @@ pub fn construct_rb_receive_payment_tx(
         drs_tx_hash: None,    // this will need to change
     };
 
-    construct_rb_tx_core(
-        sender_send_addr,
-        own_address,
-        Asset::Token(amount),
-        tx_ins,
-        out,
-        druid,
-    )
+    let expectation = DruidExpectation {
+        from: sender_send_addr,
+        to: own_address,
+        asset: Asset::Token(amount),
+    };
+
+    construct_rb_tx_core(tx_ins, vec![out], druid, expectation)
 }
 
 /// Constructs a set of TxIns for a payment
@@ -401,7 +382,6 @@ pub fn construct_dde_tx(
     tx_ins: Vec<TxIn>,
     tx_outs: Vec<TxOut>,
     participants: usize,
-    _send_asset_drs_hash: Option<String>,
     expectations: Vec<DruidExpectation>,
 ) -> Transaction {
     let mut tx = construct_tx_core(tx_ins, tx_outs);
@@ -468,12 +448,9 @@ mod tests {
             0,
         );
 
+        assert_eq!(Asset::Token(token_amount), payment_tx.outputs[0].value);
         assert_eq!(
-            Asset::Token(token_amount),
-            payment_tx.outputs[0].clone().value
-        );
-        assert_eq!(
-            payment_tx.outputs[0].clone().script_public_key,
+            payment_tx.outputs[0].script_public_key,
             Some(hex::encode(vec![0, 0, 0, 0]))
         );
     }
@@ -514,14 +491,12 @@ mod tests {
             pub_keys: vec![pk],
         };
         let tx_ins_2 = construct_payment_tx_ins(vec![tx_2]);
-        let payment_tx_2 = construct_payment_tx(
-            tx_ins_2,
+        let tx_outs = vec![TxOut::new_amount(
             hex::encode(vec![0, 0, 0, 0]),
-            None,
-            None,
-            Asset::Token(token_amount),
-            0,
-        );
+            token_amount,
+        )];
+        let payment_tx_2 = construct_tx_core(tx_ins_2, tx_outs);
+
         let tx_2_hash = construct_tx_hash(&payment_tx_2);
         let tx_2_out_p = OutPoint::new(tx_2_hash, 0);
 
@@ -543,7 +518,6 @@ mod tests {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
         let t_hash = hex::encode(vec![0, 0, 0]);
-        let drs_block_hash = hex::encode(vec![1, 2, 3, 4, 5, 6]);
         let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
 
         let to_asset = "2222".to_owned();
@@ -553,7 +527,7 @@ mod tests {
         });
 
         let tx_const = TxConstructor {
-            t_hash: hex::encode(t_hash.clone()),
+            t_hash: hex::encode(&t_hash),
             prev_n: 0,
             signatures: vec![signature],
             pub_keys: vec![pk],
@@ -562,7 +536,6 @@ mod tests {
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
         let tx_outs = vec![TxOut {
             value: data.clone(),
-            drs_block_hash: Some(drs_block_hash.clone()),
             drs_tx_hash: Some(t_hash),
             script_public_key: Some(to_asset.clone()),
             ..Default::default()
@@ -580,14 +553,7 @@ mod tests {
         }];
 
         // Actual DDE
-        let dde = construct_dde_tx(
-            druid.clone(),
-            tx_ins,
-            tx_outs,
-            participants,
-            Some(drs_block_hash),
-            expects,
-        );
+        let dde = construct_dde_tx(druid.clone(), tx_ins, tx_outs, participants, expects);
 
         assert_eq!(dde.druid_info.clone().unwrap().druid, druid);
         assert_eq!(dde.outputs[0].clone().value, data);
@@ -643,19 +609,30 @@ mod tests {
             };
             // create the sender that match the receiver.
             construct_rb_receive_payment_tx(
-                tx_ins, alice_addr, from_addr, bob_addr, payment, 0, druid,
+                tx_ins,
+                alice_addr,
+                from_addr,
+                bob_addr,
+                payment,
+                0,
+                druid.clone(),
             )
         };
 
         // Assert
         assert_eq!(
-            send_tx.druid_info.clone().unwrap().druid,
-            recv_tx.druid_info.clone().unwrap().druid
+            send_tx
+                .druid_info
+                .as_ref()
+                .map(|v| (&v.druid, v.participants)),
+            Some((&druid, 2))
         );
         assert_eq!(
-            send_tx.druid_info.clone().unwrap().participants,
-            recv_tx.druid_info.clone().unwrap().participants
+            recv_tx
+                .druid_info
+                .as_ref()
+                .map(|v| (&v.druid, v.participants)),
+            Some((&druid, 2))
         );
-        assert_eq!(send_tx.druid_info.unwrap().participants, 2);
     }
 }

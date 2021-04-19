@@ -25,11 +25,7 @@ pub struct DdeValues {
 
 impl DdeValues {
     /// Creates a new DdeValues instance
-    pub fn new() -> DdeValues {
-        DdeValues {
-            druid: String::default(),
-            participants: 0,
-            expectations: Vec::new(),
-        }
+    pub fn new() -> Self {
+        Default::default()
     }
 }

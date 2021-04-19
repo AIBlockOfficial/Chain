@@ -91,13 +91,7 @@ pub struct TxOut {
 impl TxOut {
     /// Creates a new TxOut instance
     pub fn new() -> TxOut {
-        TxOut {
-            value: Asset::Token(TokenAmount(0)),
-            drs_block_hash: None,
-            drs_tx_hash: None,
-            locktime: 0,
-            script_public_key: None,
-        }
+        Default::default()
     }
 
     pub fn new_amount(to_address: String, amount: TokenAmount) -> TxOut {
@@ -111,12 +105,18 @@ impl TxOut {
 
 /// The basic transaction that is broadcasted on the network and contained in
 /// blocks. A transaction can contain multiple inputs and outputs.
-#[derive(Default, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Transaction {
     pub inputs: Vec<TxIn>,
     pub outputs: Vec<TxOut>,
     pub version: usize,
     pub druid_info: Option<DdeValues>,
+}
+
+impl Default for Transaction {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Transaction {
@@ -128,31 +128,6 @@ impl Transaction {
             version: 0,
             druid_info: None,
         }
-    }
-
-    /// Gets the total value of all outputs and checks that it is within the
-    /// possible amounts set by chain system
-    pub fn get_output_value(&mut self) -> TokenAmount {
-        let mut total_value = TokenAmount(0);
-
-        for txout in &mut self.outputs {
-            if let Asset::Token(token_val) = txout.value {
-                if !is_valid_amount(&token_val) {
-                    panic!("TxOut value {value} out of range", value = token_val);
-                }
-
-                total_value.0 += token_val.0;
-
-                if !is_valid_amount(&total_value) {
-                    panic!(
-                        "Total TxOut value of {value} out of range",
-                        value = total_value
-                    );
-                }
-            }
-        }
-
-        total_value
     }
 
     /// Get the total transaction size in bytes

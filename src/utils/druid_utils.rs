@@ -138,18 +138,10 @@ mod tests {
             vec![TxIn::new()],
             vec![token_tx_out],
             2,
-            None,
             expects.clone(),
         );
 
-        let bob_tx = construct_dde_tx(
-            druid,
-            vec![TxIn::new()],
-            vec![data_tx_out],
-            2,
-            Some("".to_string()),
-            expects,
-        );
+        let bob_tx = construct_dde_tx(druid, vec![TxIn::new()], vec![data_tx_out], 2, expects);
 
         vec![alice_tx, bob_tx]
     }

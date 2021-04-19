@@ -83,10 +83,7 @@ pub fn tx_is_valid<'a>(
             return false;
         }
 
-        tx_in_amount += match tx_out.value {
-            Asset::Token(v) => v,
-            _ => return false,
-        };
+        tx_in_amount += tx_out.value.token_amount();
     }
 
     tx_outs_are_valid(&tx.outputs, tx_in_amount)
@@ -102,10 +99,7 @@ pub fn tx_is_valid<'a>(
 /// * `tx_outs` - TxOuts to verify
 /// * `amount_spent` - Total amount spendable from TxIns
 pub fn tx_outs_are_valid(tx_outs: &[TxOut], amount_spent: TokenAmount) -> bool {
-    let tx_out_amount = tx_outs.iter().fold(TokenAmount(0), |acc, i| match i.value {
-        Asset::Token(a) => acc + a,
-        _ => acc,
-    });
+    let tx_out_amount: TokenAmount = tx_outs.iter().map(|a| a.value.token_amount()).sum();
 
     tx_out_amount <= TokenAmount(TOTAL_TOKENS) && tx_out_amount == amount_spent
 }
