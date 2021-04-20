@@ -1,12 +1,13 @@
 #![allow(unused)]
 use crate::constants::TOTAL_TOKENS;
 use crate::primitives::asset::{Asset, TokenAmount};
+use crate::primitives::druid::DruidExpectation;
 use crate::primitives::transaction::*;
-use crate::primitives::transaction_utils::construct_address;
 use crate::script::interface_ops;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use crate::sha3::Digest;
+use crate::utils::transaction_utils::construct_address;
 
 use bincode::serialize;
 use bytes::Bytes;
@@ -82,21 +83,23 @@ pub fn tx_is_valid<'a>(
             return false;
         }
 
-        tx_in_amount += tx_out.amount;
+        tx_in_amount += tx_out.value.token_amount();
     }
 
     tx_outs_are_valid(&tx.outputs, tx_in_amount)
 }
 
 /// Verifies that the outgoing TxOuts are valid. Returns false if a single
-/// transaction doesn't verify
+/// transaction doesn't verify.
+///
+/// TODO: Abstract to data assets
 ///
 /// ### Arguments
 ///
 /// * `tx_outs` - TxOuts to verify
 /// * `amount_spent` - Total amount spendable from TxIns
 pub fn tx_outs_are_valid(tx_outs: &[TxOut], amount_spent: TokenAmount) -> bool {
-    let tx_out_amount = tx_outs.iter().fold(TokenAmount(0), |acc, i| acc + i.amount);
+    let tx_out_amount: TokenAmount = tx_outs.iter().map(|a| a.value.token_amount()).sum();
 
     tx_out_amount <= TokenAmount(TOTAL_TOKENS) && tx_out_amount == amount_spent
 }
@@ -238,7 +241,10 @@ fn match_on_multisig_to_pubkey(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::primitives::transaction_utils::{construct_address, construct_payment_tx_ins};
+    use crate::constants::RECEIPT_ACCEPT_VAL;
+    use crate::primitives::asset::{Asset, DataAsset};
+    use crate::primitives::druid::DdeValues;
+    use crate::utils::transaction_utils::*;
 
     /// Util function to create p2pkh TxIns
     fn create_multisig_tx_ins(tx_values: Vec<TxConstructor>, m: usize) -> Vec<TxIn> {
@@ -561,12 +567,7 @@ mod tests {
             let tx = Transaction {
                 inputs: tx_ins,
                 outputs: ongoing_tx_outs,
-                version: 0,
-                druid: None,
-                druid_participants: None,
-                expect_value: None,
-                expect_value_amount: None,
-                expect_address: None,
+                ..Default::default()
             };
 
             let result = tx_is_valid(&tx, |v| Some(&tx_out).filter(|_| v == &tx_outpoint));

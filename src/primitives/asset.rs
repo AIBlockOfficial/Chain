@@ -1,6 +1,6 @@
 use crate::utils::format_for_display;
 use serde::{Deserialize, Serialize};
-use std::{fmt, iter, ops};
+use std::{fmt, iter, mem::size_of, ops};
 
 /// A structure representing the amount of tokens in an instance
 #[derive(Deserialize, Serialize, Default, Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
@@ -75,16 +75,51 @@ impl iter::Sum for TokenAmount {
     }
 }
 
-/// A placeholder Asset struct
-#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq)]
-pub enum Asset {
-    Token(TokenAmount),
-    Data(Vec<u8>),
+/// Data asset struct
+#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Ord, PartialOrd)]
+pub struct DataAsset {
+    pub data: Vec<u8>,
+    pub amount: u64,
 }
 
-/// A structure for an asset to send, along with its quantity
-#[derive(Debug, Clone)]
-pub struct AssetInTransit {
-    pub asset: Asset,
-    pub amount: TokenAmount,
+/// Asset struct
+///
+/// * `Token`   - An asset struct representation of the ZNT token
+/// * `Data`    - A data asset
+/// * `Receipt` - A receipt for a payment. The value indicates the number of receipt assets
+#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Ord, PartialOrd)]
+pub enum Asset {
+    Token(TokenAmount),
+    Data(DataAsset),
+    Receipt(u64),
+}
+
+impl Default for Asset {
+    fn default() -> Self {
+        Self::Token(Default::default())
+    }
+}
+
+impl Asset {
+    pub fn len(&self) -> usize {
+        match self {
+            Asset::Token(_) => size_of::<TokenAmount>(),
+            Asset::Data(d) => d.data.len(),
+            Asset::Receipt(_) => size_of::<u64>(),
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Asset::Data(d) => d.data.is_empty(),
+            _ => false,
+        }
+    }
+
+    pub fn token_amount(&self) -> TokenAmount {
+        match self {
+            Asset::Token(v) => *v,
+            _ => TokenAmount(0),
+        }
+    }
 }

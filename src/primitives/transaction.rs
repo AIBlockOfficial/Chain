@@ -4,7 +4,10 @@ use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use sodiumoxide::crypto::sign::ed25519::{PublicKey, Signature};
 
-use crate::primitives::asset::{Asset, TokenAmount};
+use crate::primitives::{
+    asset::{Asset, TokenAmount},
+    druid::{DdeValues, DruidExpectation},
+};
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::is_valid_amount;
@@ -76,43 +79,26 @@ impl TxIn {
 /// An output of a transaction. It contains the public key that the next input
 /// must be able to sign with to claim it. It also contains the block hash for the
 /// potential DRS if this is a data asset transaction
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct TxOut {
-    pub value: Option<Asset>,
-    pub amount: TokenAmount,
+    pub value: Asset,
     pub locktime: u64,
     pub drs_block_hash: Option<String>,
     pub drs_tx_hash: Option<String>,
     pub script_public_key: Option<String>,
 }
 
-impl Default for TxOut {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl TxOut {
     /// Creates a new TxOut instance
     pub fn new() -> TxOut {
-        TxOut {
-            value: None,
-            amount: TokenAmount(0),
-            drs_tx_hash: None,
-            locktime: 0,
-            drs_block_hash: None,
-            script_public_key: None,
-        }
+        Default::default()
     }
 
     pub fn new_amount(to_address: String, amount: TokenAmount) -> TxOut {
         TxOut {
-            value: Some(Asset::Token(amount)),
-            amount,
-            locktime: 0,
+            value: Asset::Token(amount),
             script_public_key: Some(to_address),
-            drs_block_hash: None,
-            drs_tx_hash: None,
+            ..Default::default()
         }
     }
 }
@@ -124,11 +110,7 @@ pub struct Transaction {
     pub inputs: Vec<TxIn>,
     pub outputs: Vec<TxOut>,
     pub version: usize,
-    pub druid: Option<String>,
-    pub druid_participants: Option<usize>,
-    pub expect_value: Option<Asset>,
-    pub expect_value_amount: Option<TokenAmount>,
-    pub expect_address: Option<String>,
+    pub druid_info: Option<DdeValues>,
 }
 
 impl Default for Transaction {
@@ -144,42 +126,8 @@ impl Transaction {
             inputs: Vec::new(),
             outputs: Vec::new(),
             version: 0,
-            druid: None,
-            druid_participants: None,
-            expect_value: None,
-            expect_value_amount: None,
-            expect_address: None,
+            druid_info: None,
         }
-    }
-
-    /// Gets the total value of all outputs and checks that it is within the
-    /// possible amounts set by chain system
-    pub fn get_output_value(&mut self) -> TokenAmount {
-        let mut total_value = TokenAmount(0);
-
-        for txout in &mut self.outputs {
-            if txout.value.is_some() {
-                // we're safe to unwrap here
-                let this_value = txout.value.clone().unwrap();
-
-                if let Asset::Token(token_val) = this_value {
-                    if !is_valid_amount(&token_val) {
-                        panic!("TxOut value {value} out of range", value = token_val);
-                    }
-
-                    total_value.0 += token_val.0;
-
-                    if !is_valid_amount(&total_value) {
-                        panic!(
-                            "Total TxOut value of {value} out of range",
-                            value = total_value
-                        );
-                    }
-                }
-            }
-        }
-
-        total_value
     }
 
     /// Get the total transaction size in bytes

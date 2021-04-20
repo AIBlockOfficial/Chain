@@ -9,6 +9,9 @@ pub const D_DISPLAY_PLACES: f64 = 25200.0;
 // Number of possible tokens in existence (10 billion)
 pub const TOTAL_TOKENS: u64 = D_DISPLAY_PLACES_U64 * 10000000000;
 
+// Seed for xxHash operations
+pub const XXHASH_SEED: u64 = 34059834059;
+
 /*------- ASSET CONSTANTS -------*/
 
 // The value to sign/verify for receipt-based payments
