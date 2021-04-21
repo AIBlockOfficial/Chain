@@ -132,7 +132,7 @@ impl Transaction {
 
     /// Checks whether a token has no previous reference in the blockchain
     fn has_no_history(&self) -> bool {
-        self.inputs.len() == 1 && self.inputs[0].previous_out == None && self.outputs.is_empty()
+        self.inputs.len() == 1 && self.inputs[0].previous_out == None && !self.outputs.is_empty()
     }
 
     /// Get the total transaction size in bytes
