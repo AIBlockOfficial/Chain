@@ -130,24 +130,32 @@ impl Transaction {
         }
     }
 
-    /// Checks whether a token has no previous reference in the blockchain
-    fn has_no_history(&self) -> bool {
-        self.inputs.len() == 1 && self.inputs[0].previous_out == None && !self.outputs.is_empty()
-    }
-
     /// Get the total transaction size in bytes
     pub fn get_total_size(&self) -> usize {
         let data = Bytes::from(serialize(&self).unwrap());
         data.len()
     }
 
+    /// Gets the create asset assigned to this transaction, if it exists
+    fn get_create_asset(&self) -> Option<&Asset> {
+        let is_create = self.inputs.len() == 1
+            && self.inputs[0].previous_out == None
+            && self.outputs.len() == 1;
+
+        is_create.then(|| &self.outputs[0].value)
+    }
+
     /// Returns whether current transaction is a coinbase tx
     pub fn is_coinbase(&self) -> bool {
-        self.has_no_history() && matches!(self.outputs[0].value, Asset::Token(_))
+        self.get_create_asset()
+            .map(|a| a.is_token())
+            .unwrap_or_default()
     }
 
     /// Returns whether current transaction creates a new asset
     pub fn is_create_tx(&self) -> bool {
-        self.has_no_history() && !matches!(self.outputs[0].value, Asset::Token(_))
+        self.get_create_asset()
+            .map(|a| !a.is_token())
+            .unwrap_or_default()
     }
 }

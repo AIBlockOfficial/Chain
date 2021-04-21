@@ -149,10 +149,12 @@ pub fn construct_tx_hash(tx: &Transaction) -> String {
 ///
 /// ### Arguments
 ///
+/// * `block_num`   - Block number
 /// * `asset`       - Asset to create
 /// * `public_key`  - Public key to sign with
 /// * `secret_key`  - Corresponding private key
 fn construct_create_tx_in(
+    block_num: u64,
     asset: &Asset,
     public_key: PublicKey,
     secret_key: &SecretKey,
@@ -162,7 +164,7 @@ fn construct_create_tx_in(
 
     vec![TxIn {
         previous_out: None,
-        script_signature: Script::new_create_asset(0, asset_hash, signature, public_key),
+        script_signature: Script::new_create_asset(block_num, asset_hash, signature, public_key),
     }]
 }
 
@@ -170,11 +172,13 @@ fn construct_create_tx_in(
 ///
 /// ### Arguments
 ///
+/// * `block_num`           - Block number
 /// * `drs`                 - Digital rights signature for the new asset
 /// * `public_key`          - Public key for the output address
 /// * `secret_key`          - Corresponding secret key for signing data
 /// * `amount`              - Amount of the asset to generate
 pub fn construct_create_tx(
+    block_num: u64,
     drs: Vec<u8>,
     public_key: PublicKey,
     secret_key: &SecretKey,
@@ -184,7 +188,7 @@ pub fn construct_create_tx(
     let asset = Asset::Data(DataAsset { data: drs, amount });
     let receiver_address = construct_address(&public_key);
 
-    tx.inputs = construct_create_tx_in(&asset, public_key, secret_key);
+    tx.inputs = construct_create_tx_in(block_num, &asset, public_key, secret_key);
 
     let tx_out = TxOut {
         value: asset,
@@ -203,10 +207,12 @@ pub fn construct_create_tx(
 ///
 /// ### Arguments
 ///
+/// * `block_num`           - Block number
 /// * `public_key`          - Public key for the output address
 /// * `secret_key`          - Corresponding secret key for signing data
 /// * `amount`              - Amount of receipt assets to create
 pub fn construct_receipt_create_tx(
+    block_num: u64,
     public_key: PublicKey,
     secret_key: &SecretKey,
     amount: u64,
@@ -215,7 +221,7 @@ pub fn construct_receipt_create_tx(
     let asset = Asset::Receipt(amount);
     let receiver_address = construct_address(&public_key);
 
-    tx.inputs = construct_create_tx_in(&asset, public_key, secret_key);
+    tx.inputs = construct_create_tx_in(block_num, &asset, public_key, secret_key);
 
     let tx_out = TxOut {
         value: asset,
@@ -430,7 +436,7 @@ mod tests {
         let amount = 1;
         let drs = vec![0, 8, 30, 20, 1];
 
-        let tx = construct_create_tx(drs.clone(), pk, &sk, amount);
+        let tx = construct_create_tx(0, drs.clone(), pk, &sk, amount);
 
         assert!(tx.is_create_tx());
         assert_eq!(tx.outputs.len(), 1);

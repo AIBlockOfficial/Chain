@@ -182,7 +182,7 @@ mod tests {
     /// Checks that matching DDE transactions are verified as such by DDE verifier
     fn should_pass_matching_dde_tx_valid() {
         let txs = create_dde_txs();
-        assert!(druid_expectations_are_met(&"VALUE".to_owned(), &txs));
+        assert!(druid_expectations_are_met(&"VALUE", &txs));
     }
 
     #[test]
@@ -205,7 +205,7 @@ mod tests {
         change_tx.druid_info = Some(nm_druid_info);
 
         assert_eq!(
-            druid_expectations_are_met(&"VALUE".to_owned(), &vec![orig_tx, change_tx]),
+            druid_expectations_are_met(&"VALUE", &vec![orig_tx, change_tx]),
             false
         );
     }
@@ -215,7 +215,7 @@ mod tests {
     fn should_pass_matching_rb_payment_valid() {
         let (send_tx, recv_tx) = create_rb_payment_txs();
         assert!(druid_expectations_are_met(
-            &"VALUE".to_owned(),
+            &"VALUE",
             &vec![send_tx, recv_tx]
         ));
     }
@@ -231,7 +231,7 @@ mod tests {
 
         // Non-matching druid
         assert_eq!(
-            druid_expectations_are_met(&"VALUE".to_owned(), &vec![send_tx, recv_tx]),
+            druid_expectations_are_met(&"VALUE", &vec![send_tx, recv_tx]),
             false
         );
     }
@@ -244,7 +244,7 @@ mod tests {
 
         // Non-matching address expectation
         assert_eq!(
-            druid_expectations_are_met(&"VALUE".to_owned(), &vec![send_tx, recv_tx]),
+            druid_expectations_are_met(&"VALUE", &vec![send_tx, recv_tx]),
             false
         );
     }
@@ -257,7 +257,7 @@ mod tests {
 
         // Non-matching address expectation
         assert_eq!(
-            druid_expectations_are_met(&"VALUE".to_owned(), &vec![send_tx, recv_tx]),
+            druid_expectations_are_met(&"VALUE", &vec![send_tx, recv_tx]),
             false
         );
     }
