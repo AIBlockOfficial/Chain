@@ -160,10 +160,10 @@ fn construct_create_tx_in(
     let asset_hash = hex::encode(Sha3_256::digest(&serialize(&asset).unwrap()));
     let signature = sign::sign_detached(asset_hash.as_bytes(), &secret_key);
 
-    let mut tx_in = TxIn::new();
-    tx_in.script_signature = Script::new_create_asset(asset_hash, signature, public_key);
-
-    vec![tx_in]
+    vec![TxIn {
+        previous_out: None,
+        script_signature: Script::new_create_asset(asset_hash, signature, public_key),
+    }]
 }
 
 /// Constructs a transaction for the creation of a new smart data asset
