@@ -432,6 +432,7 @@ mod tests {
 
         let tx = construct_create_tx(drs.clone(), pk, &sk, amount);
 
+        assert!(tx.is_create_tx());
         assert_eq!(tx.outputs.len(), 1);
         assert_eq!(tx.druid_info, None);
         assert_eq!(tx.outputs[0].drs_block_hash, None);

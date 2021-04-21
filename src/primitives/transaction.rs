@@ -140,4 +140,9 @@ impl Transaction {
     pub fn is_coinbase(&self) -> bool {
         self.inputs.len() == 1 && self.inputs[0].previous_out == None
     }
+
+    /// Returns whether current transaction creates a new asset
+    pub fn is_create_tx(&self) -> bool {
+        self.inputs.len() == 1 && !matches!(self.outputs[0].value, Asset::Token(_))
+    }
 }
