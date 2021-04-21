@@ -165,6 +165,9 @@ pub enum OpCodes {
     OP_NOP9 = 0xb8,
     OP_NOP10 = 0xb9,
 
+    // data
+    OP_CREATE = 0xc0,
+
     OP_INVALIDOPCODE = 0xff,
 }
 

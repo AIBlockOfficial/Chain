@@ -174,18 +174,24 @@ pub fn construct_create_tx(drs: Vec<u8>, receiver_address: String, amount: u64) 
 ///
 /// ### Arguments
 ///
+/// * `b_num`               - Block number for "coinbase" script
 /// * `receiver_address`    - Address to receive the receipt assets
 /// * `amount`              - Amount of receipt assets to create
-pub fn construct_receipt_create_tx(receiver_address: String, amount: u64) -> Transaction {
+pub fn construct_receipt_create_tx(
+    b_num: u64,
+    receiver_address: String,
+    amount: u64,
+) -> Transaction {
     let mut tx = Transaction::new();
+
+    let mut tx_in = TxIn::new();
+    tx_in.script_signature = Script::new_for_coinbase(b_num);
+
     let tx_out = TxOut {
         value: Asset::Receipt(amount),
         script_public_key: Some(receiver_address),
         ..Default::default()
     };
-
-    // Provide an empty TxIn
-    tx.inputs.push(TxIn::new());
 
     tx.outputs = vec![tx_out];
     tx.version = 0;

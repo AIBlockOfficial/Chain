@@ -40,6 +40,29 @@ impl Script {
         }
     }
 
+    /// Constructs a new script for an asset creation
+    ///
+    /// ### Arguments
+    ///
+    /// * `asset_hash`  - The hash of the asset
+    /// * `signature`   - The signature of the asset contents
+    /// * `pub_key`     - The public key used in creating the signed content
+    pub fn new_create_asset(
+        asset_hash: String,
+        signature: Signature,
+        pub_key: PublicKey,
+    ) -> Script {
+        let mut new_script = Script::new();
+
+        new_script.stack.push(StackEntry::Op(OpCodes::OP_CREATE));
+        new_script.stack.push(StackEntry::Bytes(asset_hash));
+        new_script.stack.push(StackEntry::Signature(signature));
+        new_script.stack.push(StackEntry::PubKey(pub_key));
+        new_script.stack.push(StackEntry::Op(OpCodes::OP_CHECKSIG));
+
+        new_script
+    }
+
     /// Constructs a pay to public key hash script
     ///
     /// TODO: Function will need to take network version
