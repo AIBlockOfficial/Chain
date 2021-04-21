@@ -44,10 +44,12 @@ impl Script {
     ///
     /// ### Arguments
     ///
-    /// * `asset_hash`  - The hash of the asset
-    /// * `signature`   - The signature of the asset contents
-    /// * `pub_key`     - The public key used in creating the signed content
+    /// * `block_number`    - The block time
+    /// * `asset_hash`      - The hash of the asset
+    /// * `signature`       - The signature of the asset contents
+    /// * `pub_key`         - The public key used in creating the signed content
     pub fn new_create_asset(
+        block_number: u64,
         asset_hash: String,
         signature: Signature,
         pub_key: PublicKey,
@@ -55,6 +57,9 @@ impl Script {
         let mut new_script = Script::new();
 
         new_script.stack.push(StackEntry::Op(OpCodes::OP_CREATE));
+        new_script
+            .stack
+            .push(StackEntry::Num(block_number as usize));
         new_script.stack.push(StackEntry::Bytes(asset_hash));
         new_script.stack.push(StackEntry::Signature(signature));
         new_script.stack.push(StackEntry::PubKey(pub_key));

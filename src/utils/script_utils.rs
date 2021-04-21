@@ -141,12 +141,14 @@ pub fn tx_has_valid_create_script(script: &Script, asset_hash: &str) -> bool {
 
     if let (
         Some(StackEntry::Op(OpCodes::OP_CREATE)),
+        Some(StackEntry::Num(_)),
         Some(StackEntry::Bytes(b)),
         Some(StackEntry::Signature(_)),
         Some(StackEntry::PubKey(_)),
         Some(StackEntry::Op(OpCodes::OP_CHECKSIG)),
         None,
     ) = (
+        it.next(),
         it.next(),
         it.next(),
         it.next(),
@@ -328,7 +330,7 @@ mod tests {
         let (pk, sk) = sign::gen_keypair();
         let signature = sign::sign_detached(asset_hash.as_bytes(), &sk);
 
-        let script = Script::new_create_asset(asset_hash.clone(), signature, pk);
+        let script = Script::new_create_asset(0, asset_hash.clone(), signature, pk);
         assert!(tx_has_valid_create_script(&script, &asset_hash));
     }
 

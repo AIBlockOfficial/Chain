@@ -162,7 +162,7 @@ fn construct_create_tx_in(
 
     vec![TxIn {
         previous_out: None,
-        script_signature: Script::new_create_asset(asset_hash, signature, public_key),
+        script_signature: Script::new_create_asset(0, asset_hash, signature, public_key),
     }]
 }
 
