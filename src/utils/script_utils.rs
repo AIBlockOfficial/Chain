@@ -395,7 +395,7 @@ mod tests {
         };
 
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
-        let tx_out_pk = construct_address(pk);
+        let tx_out_pk = construct_address(&pk);
 
         assert!(tx_has_valid_p2pkh_sig(
             &tx_ins[0].script_signature,
@@ -426,7 +426,7 @@ mod tests {
         };
 
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
-        let tx_out_pk = construct_address(pk);
+        let tx_out_pk = construct_address(&pk);
 
         assert_eq!(
             tx_has_valid_p2pkh_sig(&tx_ins[0].script_signature, &hash_to_sign, &tx_out_pk),
@@ -464,7 +464,7 @@ mod tests {
             tx_ins.push(new_tx_in);
         }
 
-        let tx_out_pk = construct_address(pk);
+        let tx_out_pk = construct_address(&pk);
 
         assert_eq!(
             tx_has_valid_p2pkh_sig(&tx_ins[0].script_signature, &hash_to_sign, &tx_out_pk),
@@ -506,7 +506,7 @@ mod tests {
             tx_ins.push(new_tx_in);
         }
 
-        let tx_out_pk = construct_address(pk);
+        let tx_out_pk = construct_address(&pk);
 
         assert_eq!(
             tx_has_valid_p2pkh_sig(&tx_ins[0].script_signature, &hash_to_sign, &tx_out_pk),
@@ -569,7 +569,7 @@ mod tests {
         let (pk, sk) = sign::gen_keypair();
         let tx_hash = hex::encode(vec![0, 0, 0]);
         let tx_outpoint = OutPoint::new(tx_hash, 0);
-        let script_public_key = construct_address(pk);
+        let script_public_key = construct_address(&pk);
         let tx_out = TxOut {
             script_public_key: Some(script_public_key.clone()),
             ..TxOut::default()

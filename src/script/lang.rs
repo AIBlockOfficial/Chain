@@ -75,7 +75,7 @@ impl Script {
     pub fn pay2pkh(check_data: String, signature: Signature, pub_key: PublicKey) -> Script {
         let mut new_script = Script::new();
         let pub_key_stack_entry = StackEntry::PubKey(pub_key);
-        let new_key = construct_address(pub_key);
+        let new_key = construct_address(&pub_key);
 
         new_script.stack.push(StackEntry::Bytes(check_data));
         new_script.stack.push(StackEntry::Signature(signature));

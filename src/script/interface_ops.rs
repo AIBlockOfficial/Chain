@@ -42,7 +42,7 @@ pub fn op_hash256(current_stack: &mut Vec<StackEntry>) -> bool {
         _ => return false,
     };
 
-    let new_entry = construct_address(pub_key);
+    let new_entry = construct_address(&pub_key);
     current_stack.push(StackEntry::PubKeyHash(new_entry));
     true
 }
