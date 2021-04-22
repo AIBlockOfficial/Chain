@@ -36,6 +36,7 @@ pub fn get_inputs_previous_out_point<'a>(
     utxo_entries: impl Iterator<Item = &'a Transaction>,
 ) -> impl Iterator<Item = &'a OutPoint> {
     utxo_entries
+        .filter(|tx| !tx.is_create_tx())
         .flat_map(|val| val.inputs.iter())
         .map(|input| input.previous_out.as_ref().unwrap())
 }
