@@ -136,8 +136,26 @@ impl Transaction {
         data.len()
     }
 
+    /// Gets the create asset assigned to this transaction, if it exists
+    fn get_create_asset(&self) -> Option<&Asset> {
+        let is_create = self.inputs.len() == 1
+            && self.inputs[0].previous_out == None
+            && self.outputs.len() == 1;
+
+        is_create.then(|| &self.outputs[0].value)
+    }
+
     /// Returns whether current transaction is a coinbase tx
     pub fn is_coinbase(&self) -> bool {
-        self.inputs.len() == 1 && self.inputs[0].previous_out == None
+        self.get_create_asset()
+            .map(|a| a.is_token())
+            .unwrap_or_default()
+    }
+
+    /// Returns whether current transaction creates a new asset
+    pub fn is_create_tx(&self) -> bool {
+        self.get_create_asset()
+            .map(|a| !a.is_token())
+            .unwrap_or_default()
     }
 }

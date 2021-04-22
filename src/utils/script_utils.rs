@@ -130,6 +130,42 @@ fn tx_has_valid_multsig_validation(script: &Script) -> bool {
     test_for_return
 }
 
+/// Checks whether a create transaction has a valid input script
+///
+/// ### Arguments
+///
+/// * `script`      - Script to validate
+/// * `asset_hash`  - Hash of the asset to be created
+pub fn tx_has_valid_create_script(script: &Script, asset_hash: &str) -> bool {
+    let mut it = script.stack.iter();
+
+    if let (
+        Some(StackEntry::Op(OpCodes::OP_CREATE)),
+        Some(StackEntry::Num(_)),
+        Some(StackEntry::Bytes(b)),
+        Some(StackEntry::Signature(_)),
+        Some(StackEntry::PubKey(_)),
+        Some(StackEntry::Op(OpCodes::OP_CHECKSIG)),
+        None,
+    ) = (
+        it.next(),
+        it.next(),
+        it.next(),
+        it.next(),
+        it.next(),
+        it.next(),
+        it.next(),
+    ) {
+        if b == asset_hash && interpret_script(script) {
+            return true;
+        }
+    }
+
+    trace!("Invalid script for create: {:?}", script.stack,);
+
+    false
+}
+
 /// Checks whether a transaction to spend tokens in P2PKH has a valid signature
 ///
 /// ### Arguments
@@ -287,6 +323,18 @@ mod tests {
     }
 
     #[test]
+    /// Checks that a correct create script is validated as such
+    fn should_pass_create_script_valid() {
+        let asset = Asset::Receipt(1);
+        let asset_hash = hex::encode(Sha3_256::digest(&serialize(&asset).unwrap()));
+        let (pk, sk) = sign::gen_keypair();
+        let signature = sign::sign_detached(asset_hash.as_bytes(), &sk);
+
+        let script = Script::new_create_asset(0, asset_hash.clone(), signature, pk);
+        assert!(tx_has_valid_create_script(&script, &asset_hash));
+    }
+
+    #[test]
     /// Checks that correct member multisig scripts are validated as such
     fn should_pass_member_multisig_valid() {
         let (pk, sk) = sign::gen_keypair();
@@ -349,7 +397,7 @@ mod tests {
         };
 
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
-        let tx_out_pk = construct_address(pk);
+        let tx_out_pk = construct_address(&pk);
 
         assert!(tx_has_valid_p2pkh_sig(
             &tx_ins[0].script_signature,
@@ -380,7 +428,7 @@ mod tests {
         };
 
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
-        let tx_out_pk = construct_address(pk);
+        let tx_out_pk = construct_address(&pk);
 
         assert_eq!(
             tx_has_valid_p2pkh_sig(&tx_ins[0].script_signature, &hash_to_sign, &tx_out_pk),
@@ -418,7 +466,7 @@ mod tests {
             tx_ins.push(new_tx_in);
         }
 
-        let tx_out_pk = construct_address(pk);
+        let tx_out_pk = construct_address(&pk);
 
         assert_eq!(
             tx_has_valid_p2pkh_sig(&tx_ins[0].script_signature, &hash_to_sign, &tx_out_pk),
@@ -460,7 +508,7 @@ mod tests {
             tx_ins.push(new_tx_in);
         }
 
-        let tx_out_pk = construct_address(pk);
+        let tx_out_pk = construct_address(&pk);
 
         assert_eq!(
             tx_has_valid_p2pkh_sig(&tx_ins[0].script_signature, &hash_to_sign, &tx_out_pk),
@@ -523,7 +571,7 @@ mod tests {
         let (pk, sk) = sign::gen_keypair();
         let tx_hash = hex::encode(vec![0, 0, 0]);
         let tx_outpoint = OutPoint::new(tx_hash, 0);
-        let script_public_key = construct_address(pk);
+        let script_public_key = construct_address(&pk);
         let tx_out = TxOut {
             script_public_key: Some(script_public_key.clone()),
             ..TxOut::default()

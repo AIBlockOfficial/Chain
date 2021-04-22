@@ -109,6 +109,10 @@ impl Asset {
         }
     }
 
+    pub fn is_token(&self) -> bool {
+        matches!(self, Asset::Token(_))
+    }
+
     pub fn is_empty(&self) -> bool {
         match self {
             Asset::Data(d) => d.data.is_empty(),

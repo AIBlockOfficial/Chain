@@ -13,7 +13,10 @@ use std::iter::Extend;
 ///
 /// * `druid`           - DRUID to match all transactions on
 /// * `transactions`    - Transactions to verify
-pub fn druid_expectations_are_met(druid: String, transactions: &[Transaction]) -> bool {
+pub fn druid_expectations_are_met<'a>(
+    druid: &str,
+    transactions: impl Iterator<Item = &'a Transaction>,
+) -> bool {
     let mut expects = BTreeSet::new();
     let mut tx_source = BTreeSet::new();
 
@@ -182,7 +185,7 @@ mod tests {
     /// Checks that matching DDE transactions are verified as such by DDE verifier
     fn should_pass_matching_dde_tx_valid() {
         let txs = create_dde_txs();
-        assert!(druid_expectations_are_met("VALUE".to_owned(), &txs));
+        assert!(druid_expectations_are_met(&"VALUE", txs.iter()));
     }
 
     #[test]
@@ -205,7 +208,7 @@ mod tests {
         change_tx.druid_info = Some(nm_druid_info);
 
         assert_eq!(
-            druid_expectations_are_met("VALUE".to_owned(), &vec![orig_tx, change_tx]),
+            druid_expectations_are_met(&"VALUE", vec![orig_tx, change_tx].iter()),
             false
         );
     }
@@ -215,8 +218,8 @@ mod tests {
     fn should_pass_matching_rb_payment_valid() {
         let (send_tx, recv_tx) = create_rb_payment_txs();
         assert!(druid_expectations_are_met(
-            "VALUE".to_owned(),
-            &vec![send_tx, recv_tx]
+            &"VALUE",
+            vec![send_tx, recv_tx].iter()
         ));
     }
 
@@ -231,7 +234,7 @@ mod tests {
 
         // Non-matching druid
         assert_eq!(
-            druid_expectations_are_met("VALUE".to_owned(), &vec![send_tx, recv_tx]),
+            druid_expectations_are_met(&"VALUE", vec![send_tx, recv_tx].iter()),
             false
         );
     }
@@ -244,7 +247,7 @@ mod tests {
 
         // Non-matching address expectation
         assert_eq!(
-            druid_expectations_are_met("VALUE".to_owned(), &vec![send_tx, recv_tx]),
+            druid_expectations_are_met(&"VALUE", vec![send_tx, recv_tx].iter()),
             false
         );
     }
@@ -257,7 +260,7 @@ mod tests {
 
         // Non-matching address expectation
         assert_eq!(
-            druid_expectations_are_met("VALUE".to_owned(), &vec![send_tx, recv_tx]),
+            druid_expectations_are_met(&"VALUE", vec![send_tx, recv_tx].iter()),
             false
         );
     }

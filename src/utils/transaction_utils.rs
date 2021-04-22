@@ -8,7 +8,7 @@ use crate::sha3::Digest;
 use bincode::serialize;
 use bytes::Bytes;
 use sha3::Sha3_256;
-use sodiumoxide::crypto::sign::PublicKey;
+use sodiumoxide::crypto::sign::{self, PublicKey, SecretKey};
 use std::collections::BTreeMap;
 
 /// Builds an address from a public key
@@ -16,8 +16,8 @@ use std::collections::BTreeMap;
 /// ### Arguments
 ///
 /// * `pub_key` - A public key to build an address from
-pub fn construct_address(pub_key: PublicKey) -> String {
-    let first_pubkey_bytes = serialize(&pub_key).unwrap();
+pub fn construct_address(pub_key: &PublicKey) -> String {
+    let first_pubkey_bytes = serialize(pub_key).unwrap();
     let mut first_hash = Sha3_256::digest(&first_pubkey_bytes).to_vec();
 
     // TODO: Add RIPEMD
@@ -36,6 +36,7 @@ pub fn get_inputs_previous_out_point<'a>(
     utxo_entries: impl Iterator<Item = &'a Transaction>,
 ) -> impl Iterator<Item = &'a OutPoint> {
     utxo_entries
+        .filter(|tx| !tx.is_create_tx())
         .flat_map(|val| val.inputs.iter())
         .map(|input| input.previous_out.as_ref().unwrap())
 }
@@ -145,23 +146,56 @@ pub fn construct_tx_hash(tx: &Transaction) -> String {
     hash
 }
 
+/// Construct a valid TxIn for a new create asset transaction
+///
+/// ### Arguments
+///
+/// * `block_num`   - Block number
+/// * `asset`       - Asset to create
+/// * `public_key`  - Public key to sign with
+/// * `secret_key`  - Corresponding private key
+fn construct_create_tx_in(
+    block_num: u64,
+    asset: &Asset,
+    public_key: PublicKey,
+    secret_key: &SecretKey,
+) -> Vec<TxIn> {
+    let asset_hash = hex::encode(Sha3_256::digest(&serialize(&asset).unwrap()));
+    let signature = sign::sign_detached(asset_hash.as_bytes(), &secret_key);
+
+    vec![TxIn {
+        previous_out: None,
+        script_signature: Script::new_create_asset(block_num, asset_hash, signature, public_key),
+    }]
+}
+
 /// Constructs a transaction for the creation of a new smart data asset
 ///
 /// ### Arguments
 ///
+/// * `block_num`           - Block number
 /// * `drs`                 - Digital rights signature for the new asset
-/// * `receiver_address`    - Address to receive the newly created asset
+/// * `public_key`          - Public key for the output address
+/// * `secret_key`          - Corresponding secret key for signing data
 /// * `amount`              - Amount of the asset to generate
-pub fn construct_create_tx(drs: Vec<u8>, receiver_address: String, amount: u64) -> Transaction {
+pub fn construct_create_tx(
+    block_num: u64,
+    drs: Vec<u8>,
+    public_key: PublicKey,
+    secret_key: &SecretKey,
+    amount: u64,
+) -> Transaction {
     let mut tx = Transaction::new();
+    let asset = Asset::Data(DataAsset { data: drs, amount });
+    let receiver_address = construct_address(&public_key);
+
+    tx.inputs = construct_create_tx_in(block_num, &asset, public_key, secret_key);
+
     let tx_out = TxOut {
-        value: Asset::Data(DataAsset { data: drs, amount }),
+        value: asset,
         script_public_key: Some(receiver_address),
         ..Default::default()
     };
-
-    // Provide an empty TxIn
-    tx.inputs.push(TxIn::new());
 
     tx.outputs = vec![tx_out];
     tx.version = 0;
@@ -174,18 +208,27 @@ pub fn construct_create_tx(drs: Vec<u8>, receiver_address: String, amount: u64) 
 ///
 /// ### Arguments
 ///
-/// * `receiver_address`    - Address to receive the receipt assets
+/// * `block_num`           - Block number
+/// * `public_key`          - Public key for the output address
+/// * `secret_key`          - Corresponding secret key for signing data
 /// * `amount`              - Amount of receipt assets to create
-pub fn construct_receipt_create_tx(receiver_address: String, amount: u64) -> Transaction {
+pub fn construct_receipt_create_tx(
+    block_num: u64,
+    public_key: PublicKey,
+    secret_key: &SecretKey,
+    amount: u64,
+) -> Transaction {
     let mut tx = Transaction::new();
+    let asset = Asset::Receipt(amount);
+    let receiver_address = construct_address(&public_key);
+
+    tx.inputs = construct_create_tx_in(block_num, &asset, public_key, secret_key);
+
     let tx_out = TxOut {
-        value: Asset::Receipt(amount),
+        value: asset,
         script_public_key: Some(receiver_address),
         ..Default::default()
     };
-
-    // Provide an empty TxIn
-    tx.inputs.push(TxIn::new());
 
     tx.outputs = vec![tx_out];
     tx.version = 0;
@@ -389,12 +432,14 @@ mod tests {
     #[test]
     // Creates a valid creation transaction
     fn should_construct_a_valid_create_tx() {
-        let receiver_address = hex::encode(vec![1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        let (pk, sk) = sign::gen_keypair();
+        let receiver_address = construct_address(&pk);
         let amount = 1;
         let drs = vec![0, 8, 30, 20, 1];
 
-        let tx = construct_create_tx(drs.clone(), receiver_address.clone(), amount);
+        let tx = construct_create_tx(0, drs.clone(), pk, &sk, amount);
 
+        assert!(tx.is_create_tx());
         assert_eq!(tx.outputs.len(), 1);
         assert_eq!(tx.druid_info, None);
         assert_eq!(tx.outputs[0].drs_block_hash, None);
