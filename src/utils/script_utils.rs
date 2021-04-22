@@ -135,9 +135,10 @@ fn tx_has_valid_multsig_validation(script: &Script) -> bool {
 /// ### Arguments
 ///
 /// * `script`      - Script to validate
-/// * `asset_hash`  - Hash of the asset to be created
-pub fn tx_has_valid_create_script(script: &Script, asset_hash: &str) -> bool {
+/// * `asset`       - Asset to be created
+pub fn tx_has_valid_create_script(script: &Script, asset: &Asset) -> bool {
     let mut it = script.stack.iter();
+    let asset_hash = hex::encode(Sha3_256::digest(&serialize(asset).unwrap()));
 
     if let (
         Some(StackEntry::Op(OpCodes::OP_CREATE)),
@@ -156,7 +157,7 @@ pub fn tx_has_valid_create_script(script: &Script, asset_hash: &str) -> bool {
         it.next(),
         it.next(),
     ) {
-        if b == asset_hash && interpret_script(script) {
+        if b == &asset_hash && interpret_script(script) {
             return true;
         }
     }
@@ -330,8 +331,8 @@ mod tests {
         let (pk, sk) = sign::gen_keypair();
         let signature = sign::sign_detached(asset_hash.as_bytes(), &sk);
 
-        let script = Script::new_create_asset(0, asset_hash.clone(), signature, pk);
-        assert!(tx_has_valid_create_script(&script, &asset_hash));
+        let script = Script::new_create_asset(0, asset_hash, signature, pk);
+        assert!(tx_has_valid_create_script(&script, &asset));
     }
 
     #[test]
