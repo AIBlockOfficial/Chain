@@ -9,9 +9,6 @@ pub const D_DISPLAY_PLACES: f64 = 25200.0;
 // Number of possible tokens in existence (10 billion)
 pub const TOTAL_TOKENS: u64 = D_DISPLAY_PLACES_U64 * 10000000000;
 
-// Seed for xxHash operations
-pub const XXHASH_SEED: u64 = 34059834059;
-
 /*------- ASSET CONSTANTS -------*/
 
 // The value to sign/verify for receipt-based payments
@@ -44,21 +41,9 @@ pub const MAX_STACK_SIZE: u16 = 1000;
 pub const LOCKTIME_THRESHOLD: u32 = 500000000; // Tue Nov 5 00:53:20 1985 UTC
 
 // Maximum value that an opcode can be
-pub const MAX_OPCODE: u8 = OpCodes::OP_NOP10 as u8;
+pub const MAX_OPCODE: u8 = OpCodes::MAX_OPCODE as u8;
 
 /*------- STORAGE CONSTANTS -------*/
 
 /// The constant prepending character for a transaction
-pub const TX_PREPEND: char = 'g';
-
-/// Path to chain DB
-pub const DB_PATH: &str = "/Users/byron/code/zenotta/naom/src/db/db";
-
-/// Path to test net DB
-pub const DB_PATH_TEST: &str = "test";
-
-/// Path to live net DB
-pub const DB_PATH_LIVE: &str = "live";
-
-/// Path to wallet DB
-pub const WALLET_PATH: &str = "/Users/byron/code/zenotta/naom/src/wallet/wallet";
+pub const TX_PREPEND: u8 = b'g';

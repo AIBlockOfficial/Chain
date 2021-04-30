@@ -53,3 +53,4 @@ lint:clippy:
   script:
     - rustup component add clippy
     - cargo clippy --all-targets -- -D warnings
+    - cargo clippy --all-targets  --features="build_bin" -- -D warnings

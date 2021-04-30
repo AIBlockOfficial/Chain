@@ -140,7 +140,7 @@ pub fn construct_tx_hash(tx: &Transaction) -> String {
     let tx_raw_h = Sha3_256::digest(&tx_bytes).to_vec();
     let mut hash = hex::encode(tx_raw_h);
 
-    hash.insert(0, TX_PREPEND);
+    hash.insert(0, TX_PREPEND as char);
     hash.truncate(32);
 
     hash
