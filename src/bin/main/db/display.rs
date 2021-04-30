@@ -1,6 +1,5 @@
 use bincode::deserialize;
 use colored::*;
-use naom::constants::{DB_PATH, DB_PATH_TEST};
 use rocksdb::{Options, DB};
 
 use naom::primitives::asset::Asset;
@@ -8,9 +7,12 @@ use naom::primitives::block::Block;
 use naom::primitives::transaction::Transaction;
 
 /// Lists all assets in the blockchain and outputs them to stdout
-pub fn list_assets() {
-    let save_path = format!("{}/{}", DB_PATH, DB_PATH_TEST);
-    let db = DB::open_default(save_path.clone()).unwrap();
+///
+/// ### Arguments
+///
+/// * `db_path` - Full path to the database
+pub fn list_assets(db_path: String) {
+    let db = DB::open_default(db_path.clone()).unwrap();
 
     let mut iter = db.raw_iterator();
     iter.seek_to_first();
@@ -51,17 +53,24 @@ pub fn list_assets() {
 
                 println!("{} {}", "TRANSACTION".cyan(), i.to_string().cyan());
                 println!("{}: {}", "Version".cyan(), tx.version);
-                println!("{}: {:?}", "DRUID".cyan(), tx.druid);
+                println!(
+                    "{}: {:?}",
+                    "DRUID".cyan(),
+                    tx.druid_info.as_ref().map(|i| &i.druid)
+                );
                 println!(
                     "{}: {:?}",
                     "DRUID Participants".cyan(),
-                    tx.druid_participants
+                    tx.druid_info.as_ref().map(|i| &i.participants)
                 );
-                println!("{}: {:?}", "Expected Trade Asset".cyan(), tx.expect_value);
                 println!(
                     "{}: {:?}",
-                    "Expected Trade Amount".cyan(),
-                    tx.expect_value_amount
+                    "Expected Trade Asset".cyan(),
+                    tx.druid_info
+                        .iter()
+                        .flat_map(|i| i.expectations.iter())
+                        .map(|e| &e.asset)
+                        .collect::<Vec<_>>()
                 );
                 println!();
                 println!("//------//");
@@ -76,16 +85,10 @@ pub fn list_assets() {
                 println!();
                 println!("{}", "OUTPUTS:".cyan());
                 for output in &tx.outputs {
-                    let asset = match &output.value {
-                        Some(Asset::Token(v)) => v.to_string(),
-                        Some(Asset::Data(v)) => String::from_utf8_lossy(&v).to_string(),
-                        None => "None".to_string(),
-                    };
-
-                    let asset_type = match &output.value {
-                        Some(Asset::Token(_)) => "Token",
-                        Some(Asset::Data(_)) => "Data",
-                        None => "None",
+                    let (asset_type, asset) = match &output.value {
+                        Asset::Token(v) => ("Token", v.to_string()),
+                        Asset::Data(v) => ("Data", String::from_utf8_lossy(&v.data).to_string()),
+                        Asset::Receipt(v) => ("Receipt", v.to_string()),
                     };
 
                     let drs_root_hash = match &output.drs_block_hash {
@@ -100,7 +103,6 @@ pub fn list_assets() {
 
                     println!("{}: {:?}", "Asset Type".green(), asset_type);
                     println!("{}: {:?}", "Asset".green(), asset);
-                    println!("{}: {:?}", "Amount".green(), output.amount);
                     println!("{}: {:?}", "DRS Root Hash".green(), drs_root_hash);
                     println!("{}: {:?}", "Script with PubKey".green(), script_pub_key);
                     println!();
@@ -115,5 +117,5 @@ pub fn list_assets() {
     println!("END OF BLOCKCHAIN");
     println!();
 
-    let _ = DB::destroy(&Options::default(), save_path);
+    let _ = DB::destroy(&Options::default(), db_path);
 }
