@@ -1,5 +1,9 @@
 use crate::script::OpCodes;
 
+/*------- NETWORK CONSTANTS --------*/
+pub const NETWORK_VERSION: u32 = 1;
+pub const NETWORK_VERSION_SERIALIZED: &[u8] = b"1";
+
 /*------- VALUE HANDLING CONSTANTS --------*/
 
 // Number of decimal places to divide to in display
