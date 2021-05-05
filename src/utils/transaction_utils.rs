@@ -114,20 +114,14 @@ pub fn update_utxo_set(current_utxo: &mut BTreeMap<OutPoint, Transaction>) {
 /// * `amount`      - Amount of tokens allowed in coinbase
 /// * `address`     - Address to send the coinbase amount to
 pub fn construct_coinbase_tx(b_num: u64, amount: TokenAmount, address: String) -> Transaction {
-    let mut tx = Transaction::new();
-    let mut tx_in = TxIn::new();
-    tx_in.script_signature = Script::new_for_coinbase(b_num);
-
+    let tx_in = TxIn::new_from_script(Script::new_for_coinbase(b_num));
     let tx_out = TxOut {
         value: Asset::Token(amount),
         script_public_key: Some(address),
         ..Default::default()
     };
 
-    tx.inputs.push(tx_in);
-    tx.outputs.push(tx_out);
-
-    tx
+    construct_tx_core(vec![tx_in], vec![tx_out])
 }
 
 /// Constructs a search-valid hash for a transaction to be added to the blockchain
@@ -185,22 +179,17 @@ pub fn construct_create_tx(
     secret_key: &SecretKey,
     amount: u64,
 ) -> Transaction {
-    let mut tx = Transaction::new();
     let asset = Asset::Data(DataAsset { data: drs, amount });
     let receiver_address = construct_address(&public_key);
 
-    tx.inputs = construct_create_tx_in(block_num, &asset, public_key, secret_key);
-
+    let tx_ins = construct_create_tx_in(block_num, &asset, public_key, secret_key);
     let tx_out = TxOut {
         value: asset,
         script_public_key: Some(receiver_address),
         ..Default::default()
     };
 
-    tx.outputs = vec![tx_out];
-    tx.version = 0;
-
-    tx
+    construct_tx_core(tx_ins, vec![tx_out])
 }
 
 /// Constructs a receipt data asset for use in accepting payments
@@ -218,22 +207,17 @@ pub fn construct_receipt_create_tx(
     secret_key: &SecretKey,
     amount: u64,
 ) -> Transaction {
-    let mut tx = Transaction::new();
     let asset = Asset::Receipt(amount);
     let receiver_address = construct_address(&public_key);
 
-    tx.inputs = construct_create_tx_in(block_num, &asset, public_key, secret_key);
-
+    let tx_ins = construct_create_tx_in(block_num, &asset, public_key, secret_key);
     let tx_out = TxOut {
         value: asset,
         script_public_key: Some(receiver_address),
         ..Default::default()
     };
 
-    tx.outputs = vec![tx_out];
-    tx.version = 0;
-
-    tx
+    construct_tx_core(tx_ins, vec![tx_out])
 }
 
 /// Constructs a transaction to pay a receiver

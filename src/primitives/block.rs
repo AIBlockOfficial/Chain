@@ -1,5 +1,5 @@
 #![allow(unused)]
-use crate::constants::MAX_BLOCK_SIZE;
+use crate::constants::{MAX_BLOCK_SIZE, NETWORK_VERSION};
 use crate::primitives::asset::Asset;
 use crate::primitives::transaction::{Transaction, TxIn, TxOut};
 use crate::sha3::Digest;
@@ -39,7 +39,7 @@ impl BlockHeader {
     /// Creates a new BlockHeader
     pub fn new() -> BlockHeader {
         BlockHeader {
-            version: 0,
+            version: NETWORK_VERSION,
             previous_hash: None,
             merkle_root_hash: String::default(),
             seed_value: Vec::new(),

@@ -1,9 +1,5 @@
 #![allow(unused)]
-use bincode::serialize;
-use bytes::Bytes;
-use serde::{Deserialize, Serialize};
-use sodiumoxide::crypto::sign::ed25519::{PublicKey, Signature};
-
+use crate::constants::NETWORK_VERSION;
 use crate::primitives::{
     asset::{Asset, TokenAmount},
     druid::{DdeValues, DruidExpectation},
@@ -11,6 +7,10 @@ use crate::primitives::{
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::is_valid_amount;
+use bincode::serialize;
+use bytes::Bytes;
+use serde::{Deserialize, Serialize};
+use sodiumoxide::crypto::sign::ed25519::{PublicKey, Signature};
 
 /// A user-friendly construction struct for a TxIn
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -56,6 +56,18 @@ impl TxIn {
         let mut script_sig = Script::new();
         script_sig.stack.push(StackEntry::Op(OpCodes::OP_0));
 
+        TxIn {
+            previous_out: None,
+            script_signature: script_sig,
+        }
+    }
+
+    /// Creates a new TxIn instance from provided script and no previous_out
+    ///
+    /// ### Arguments
+    ///
+    /// * `script_sig`      - Script signature of the previous outpoint
+    pub fn new_from_script(script_sig: Script) -> TxIn {
         TxIn {
             previous_out: None,
             script_signature: script_sig,
@@ -125,7 +137,7 @@ impl Transaction {
         Transaction {
             inputs: Vec::new(),
             outputs: Vec::new(),
-            version: 0,
+            version: NETWORK_VERSION as usize,
             druid_info: None,
         }
     }
