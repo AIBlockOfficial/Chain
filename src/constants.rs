@@ -1,6 +1,8 @@
 use crate::script::OpCodes;
 
 /*------- NETWORK CONSTANTS --------*/
+
+/// Current network version: Always bump immediately after a version is deployed.
 pub const NETWORK_VERSION: u32 = 1;
 pub const NETWORK_VERSION_SERIALIZED: &[u8] = b"1";
 
