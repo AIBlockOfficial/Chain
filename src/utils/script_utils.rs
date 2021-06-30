@@ -371,10 +371,9 @@ mod tests {
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
 
-        assert_eq!(
-            member_multisig_is_valid(tx_ins[0].clone().script_signature),
-            false
-        );
+        assert!(!member_multisig_is_valid(
+            tx_ins[0].clone().script_signature
+        ));
     }
 
     #[test]
@@ -431,10 +430,11 @@ mod tests {
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
         let tx_out_pk = construct_address(&pk);
 
-        assert_eq!(
-            tx_has_valid_p2pkh_sig(&tx_ins[0].script_signature, &hash_to_sign, &tx_out_pk),
-            false
-        );
+        assert!(!tx_has_valid_p2pkh_sig(
+            &tx_ins[0].script_signature,
+            &hash_to_sign,
+            &tx_out_pk
+        ));
     }
 
     #[test]
@@ -469,10 +469,11 @@ mod tests {
 
         let tx_out_pk = construct_address(&pk);
 
-        assert_eq!(
-            tx_has_valid_p2pkh_sig(&tx_ins[0].script_signature, &hash_to_sign, &tx_out_pk),
-            false
-        );
+        assert!(!tx_has_valid_p2pkh_sig(
+            &tx_ins[0].script_signature,
+            &hash_to_sign,
+            &tx_out_pk
+        ));
     }
 
     #[test]
@@ -511,10 +512,11 @@ mod tests {
 
         let tx_out_pk = construct_address(&pk);
 
-        assert_eq!(
-            tx_has_valid_p2pkh_sig(&tx_ins[0].script_signature, &hash_to_sign, &tx_out_pk),
-            false
-        );
+        assert!(!tx_has_valid_p2pkh_sig(
+            &tx_ins[0].script_signature,
+            &hash_to_sign,
+            &tx_out_pk
+        ));
     }
 
     #[test]
@@ -649,10 +651,7 @@ mod tests {
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
 
-        assert_eq!(
-            interpret_script(&(tx_ins[0].clone().script_signature)),
-            false
-        );
+        assert!(!interpret_script(&(tx_ins[0].clone().script_signature)));
     }
 
     #[test]
