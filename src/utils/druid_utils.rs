@@ -207,10 +207,10 @@ mod tests {
         };
         change_tx.druid_info = Some(nm_druid_info);
 
-        assert_eq!(
-            druid_expectations_are_met(&"VALUE", vec![orig_tx, change_tx].iter()),
-            false
-        );
+        assert!(!druid_expectations_are_met(
+            &"VALUE",
+            vec![orig_tx, change_tx].iter()
+        ));
     }
 
     #[test]
@@ -233,10 +233,10 @@ mod tests {
         recv_tx.druid_info = Some(druid_info);
 
         // Non-matching druid
-        assert_eq!(
-            druid_expectations_are_met(&"VALUE", vec![send_tx, recv_tx].iter()),
-            false
-        );
+        assert!(!druid_expectations_are_met(
+            &"VALUE",
+            vec![send_tx, recv_tx].iter()
+        ));
     }
 
     #[test]
@@ -246,10 +246,10 @@ mod tests {
         recv_tx.outputs[0].script_public_key = Some("11145".to_string());
 
         // Non-matching address expectation
-        assert_eq!(
-            druid_expectations_are_met(&"VALUE", vec![send_tx, recv_tx].iter()),
-            false
-        );
+        assert!(!druid_expectations_are_met(
+            &"VALUE",
+            vec![send_tx, recv_tx].iter()
+        ));
     }
 
     #[test]
@@ -259,9 +259,9 @@ mod tests {
         send_tx.outputs[0].value = Asset::Token(TokenAmount(10));
 
         // Non-matching address expectation
-        assert_eq!(
-            druid_expectations_are_met(&"VALUE", vec![send_tx, recv_tx].iter()),
-            false
-        );
+        assert!(!druid_expectations_are_met(
+            &"VALUE",
+            vec![send_tx, recv_tx].iter()
+        ));
     }
 }
