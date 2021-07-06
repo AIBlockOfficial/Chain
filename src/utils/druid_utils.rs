@@ -140,7 +140,7 @@ mod tests {
                 // constructors with enough money for amount and excess, caller responsibility.
                 construct_payment_tx_ins(vec![])
             };
-            let excess_tx_out = TxOut::new_amount(sender_address_excess, amount - payment);
+            let excess_tx_out = TxOut::new_token_amount(sender_address_excess, amount - payment);
 
             let expectation = DruidExpectation {
                 from: from_addr.clone(),
@@ -150,6 +150,7 @@ mod tests {
 
             let mut tx = construct_rb_payments_send_tx(
                 tx_ins,
+                Vec::new(),
                 bob_addr.clone(),
                 payment,
                 0,
@@ -175,7 +176,14 @@ mod tests {
             };
 
             // create the sender that match the receiver.
-            construct_rb_receive_payment_tx(tx_ins, alice_addr, 0, druid, vec![expectation])
+            construct_rb_receive_payment_tx(
+                tx_ins,
+                Vec::new(),
+                alice_addr,
+                0,
+                druid,
+                vec![expectation],
+            )
         };
 
         (send_tx, recv_tx)
@@ -256,7 +264,7 @@ mod tests {
     /// Checks that receipt-based payments with non-matching value expectations fail
     fn should_fail_rb_payment_value_expect_mismatch() {
         let (mut send_tx, recv_tx) = create_rb_payment_txs();
-        send_tx.outputs[0].value = Asset::Token(TokenAmount(10));
+        send_tx.outputs[0].value = Asset::token_u64(10);
 
         // Non-matching address expectation
         assert!(!druid_expectations_are_met(

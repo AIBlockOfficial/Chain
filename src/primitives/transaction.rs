@@ -106,11 +106,28 @@ impl TxOut {
         Default::default()
     }
 
-    pub fn new_amount(to_address: String, amount: TokenAmount) -> TxOut {
+    pub fn new_token_amount(to_address: String, amount: TokenAmount) -> TxOut {
         TxOut {
             value: Asset::Token(amount),
             script_public_key: Some(to_address),
             ..Default::default()
+        }
+    }
+
+    pub fn new_receipt_amount(to_address: String, amount: u64) -> TxOut {
+        TxOut {
+            value: Asset::Receipt(amount),
+            script_public_key: Some(to_address),
+            ..Default::default()
+        }
+    }
+
+    //TODO: Add handling for `Data' asset variant
+    pub fn new_asset(to_address: String, asset: Asset) -> TxOut {
+        match asset {
+            Asset::Token(amount) => TxOut::new_token_amount(to_address, amount),
+            Asset::Receipt(amount) => TxOut::new_receipt_amount(to_address, amount),
+            _ => panic!("Cannot create TxOut for asset of type {:?}", asset),
         }
     }
 }
