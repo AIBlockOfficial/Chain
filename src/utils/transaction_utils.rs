@@ -308,6 +308,7 @@ pub fn construct_rb_tx_core(
 /// * `locktime`            - Block height to lock the current transaction to
 pub fn construct_rb_payments_send_tx(
     tx_ins: Vec<TxIn>,
+    mut tx_outs: Vec<TxOut>,
     receiver_address: String,
     amount: TokenAmount,
     locktime: u64,
@@ -321,8 +322,8 @@ pub fn construct_rb_payments_send_tx(
         drs_block_hash: None,
         drs_tx_hash: None,
     };
-
-    construct_rb_tx_core(tx_ins, vec![out], druid, expectation)
+    tx_outs.push(out);
+    construct_rb_tx_core(tx_ins, tx_outs, druid, expectation)
 }
 
 /// Constructs the "receive" half of a receipt-based payment
@@ -339,6 +340,7 @@ pub fn construct_rb_payments_send_tx(
 /// * `druid`               - The matching DRUID value
 pub fn construct_rb_receive_payment_tx(
     tx_ins: Vec<TxIn>,
+    mut tx_outs: Vec<TxOut>,
     sender_address: String,
     locktime: u64,
     druid: String,
@@ -351,8 +353,8 @@ pub fn construct_rb_receive_payment_tx(
         drs_block_hash: None, // this will need to change
         drs_tx_hash: None,    // this will need to change
     };
-
-    construct_rb_tx_core(tx_ins, vec![out], druid, expectation)
+    tx_outs.push(out);
+    construct_rb_tx_core(tx_ins, tx_outs, druid, expectation)
 }
 
 /// Constructs a set of TxIns for a payment
@@ -505,7 +507,7 @@ mod tests {
             pub_keys: vec![pk],
         };
         let tx_ins_2 = construct_payment_tx_ins(vec![tx_2]);
-        let tx_outs = vec![TxOut::new_amount(
+        let tx_outs = vec![TxOut::new_token_amount(
             hex::encode(vec![0, 0, 0, 0]),
             token_amount,
         )];
@@ -598,7 +600,7 @@ mod tests {
                 // constructors with enough money for amount and excess, caller responsibility.
                 construct_payment_tx_ins(vec![])
             };
-            let excess_tx_out = TxOut::new_amount(sender_address_excess, amount - payment);
+            let excess_tx_out = TxOut::new_token_amount(sender_address_excess, amount - payment);
 
             let expectation = DruidExpectation {
                 from: from_addr.clone(),
@@ -608,6 +610,7 @@ mod tests {
 
             let mut tx = construct_rb_payments_send_tx(
                 tx_ins,
+                Vec::new(),
                 bob_addr.clone(),
                 payment,
                 0,
@@ -633,7 +636,14 @@ mod tests {
             };
 
             // create the sender that match the receiver.
-            construct_rb_receive_payment_tx(tx_ins, alice_addr, 0, druid.clone(), vec![expectation])
+            construct_rb_receive_payment_tx(
+                tx_ins,
+                Vec::new(),
+                alice_addr,
+                0,
+                druid.clone(),
+                vec![expectation],
+            )
         };
 
         // Assert

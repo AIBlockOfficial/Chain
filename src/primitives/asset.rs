@@ -87,7 +87,7 @@ pub struct DataAsset {
 /// * `Token`   - An asset struct representation of the ZNT token
 /// * `Data`    - A data asset
 /// * `Receipt` - A receipt for a payment. The value indicates the number of receipt assets
-#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Deserialize, Serialize, Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Asset {
     Token(TokenAmount),
     Data(DataAsset),
@@ -96,7 +96,7 @@ pub enum Asset {
 
 impl Default for Asset {
     fn default() -> Self {
-        Self::Token(Default::default())
+        Asset::Token(Default::default())
     }
 }
 
@@ -109,8 +109,104 @@ impl Asset {
         }
     }
 
+    pub fn token_u64(amount: u64) -> Self {
+        Asset::Token(TokenAmount(amount))
+    }
+
+    /// Add an asset of the same variant to `self` asset.
+    /// TODO: Add handling for `Data` asset variant. Will return false when `Data` asset is presented.
+    ///
+    /// ### Arguments
+    ///
+    ///* `rhs`          - The right-hand-side (RHS) asset to add to `self`
+    pub fn add_assign(&mut self, rhs: &Self) -> bool {
+        match (&self, &rhs) {
+            (Asset::Token(lhs_tokens), Asset::Token(rhs_tokens)) => {
+                *self = Asset::Token(*lhs_tokens + *rhs_tokens);
+                true
+            }
+            (Asset::Receipt(lhs_receipts), Asset::Receipt(rhs_receipts)) => {
+                *self = Asset::Receipt(*lhs_receipts + *rhs_receipts);
+                true
+            }
+            _ => false,
+        }
+    }
+
+    /// Determine if `self` asset is greater or equal to another asset of the same variant.
+    /// TODO: Add handling for `Data` asset variant. Will return None if `Data` asset is presented.
+    ///
+    /// ### Arguments
+    ///
+    ///* `rhs`                  - Reference to right-hand-side (RHS) `Asset`
+    pub fn is_greater_or_equal_to(&self, rhs: &Asset) -> Option<bool> {
+        match (&self, &rhs) {
+            (Asset::Token(lhs_token_amount), Asset::Token(rhs_token_amount)) => {
+                Some(lhs_token_amount >= rhs_token_amount)
+            }
+            (Asset::Receipt(lhs_receipt_amount), Asset::Receipt(rhs_receipt_amount)) => {
+                Some(lhs_receipt_amount >= rhs_receipt_amount)
+            }
+            _ => None,
+        }
+    }
+
+    /// Determine if `self` asset is greater than another asset of the same variant.
+    /// If `self` asset is greater, return the excess.
+    /// TODO: Add handling for `Data` asset variant. Will return None if `Data` asset is presented.
+    ///
+    /// ### Arguments
+    ///
+    ///* `rhs`                  - Reference to right-hand-side (RHS) `Asset`
+    pub fn get_excess(&self, rhs: &Asset) -> Option<Asset> {
+        match (&self, &rhs) {
+            (Asset::Token(lhs_tokens), Asset::Token(rhs_tokens)) => {
+                if lhs_tokens > rhs_tokens {
+                    Some(Asset::Token(*lhs_tokens - *rhs_tokens))
+                } else {
+                    None
+                }
+            }
+            (Asset::Receipt(lhs_receipts), Asset::Receipt(rhs_receipts)) => {
+                if lhs_receipts > rhs_receipts {
+                    Some(Asset::Receipt(*lhs_receipts - *rhs_receipts))
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        }
+    }
+
+    /// Determine if the asset in question is of the same variant as `self`
+    ///
+    /// ### Arguments
+    ///
+    ///* `other`  - Reference to other `Asset` to test against
+    pub fn is_same_type_as(&self, other: &Asset) -> bool {
+        std::mem::discriminant(self) == std::mem::discriminant(other)
+    }
+
+    /// Creates a default asset of a given variant.
+    /// TODO: Add handling for `Data` asset variant
+    ///
+    /// ### Arguments
+    ///
+    ///* `asset_type`          - Default asset variant type
+    pub fn default_of_type(asset_type: &Self) -> Self {
+        match asset_type {
+            Self::Token(_) => Self::Token(Default::default()),
+            Self::Receipt(_) => Self::Receipt(Default::default()),
+            _ => panic!("Cannot create default of asset type: {:?}", asset_type),
+        }
+    }
+
     pub fn is_token(&self) -> bool {
         matches!(self, Asset::Token(_))
+    }
+
+    pub fn is_receipt(&self) -> bool {
+        matches!(self, Asset::Receipt(_))
     }
 
     pub fn is_empty(&self) -> bool {
@@ -124,6 +220,13 @@ impl Asset {
         match self {
             Asset::Token(v) => *v,
             _ => TokenAmount(0),
+        }
+    }
+
+    pub fn receipt_amount(&self) -> u64 {
+        match self {
+            Asset::Receipt(v) => *v,
+            _ => 0,
         }
     }
 }
