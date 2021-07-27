@@ -1,6 +1,6 @@
 #![allow(unused)]
 use crate::script::{OpCodes, StackEntry};
-use crate::sha3::Digest;
+use sha3::Digest;
 use crate::utils::transaction_utils::construct_address;
 use bincode::serialize;
 use bytes::Bytes;

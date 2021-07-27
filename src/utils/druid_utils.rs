@@ -1,7 +1,7 @@
 use crate::primitives::asset::Asset;
 use crate::primitives::druid::DruidExpectation;
 use crate::primitives::transaction::Transaction;
-use crate::sha3::Digest;
+use sha3::Digest;
 use bincode::serialize;
 use sha3::Sha3_256;
 use std::collections::BTreeSet;

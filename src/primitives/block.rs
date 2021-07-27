@@ -2,7 +2,7 @@
 use crate::constants::{MAX_BLOCK_SIZE, NETWORK_VERSION};
 use crate::primitives::asset::Asset;
 use crate::primitives::transaction::{Transaction, TxIn, TxOut};
-use crate::sha3::Digest;
+use sha3::Digest;
 
 use bincode::{deserialize, serialize};
 use bytes::Bytes;

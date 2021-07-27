@@ -3,7 +3,7 @@ use crate::primitives::asset::{Asset, DataAsset, TokenAmount};
 use crate::primitives::druid::{DdeValues, DruidExpectation};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
-use crate::sha3::Digest;
+use sha3::Digest;
 
 use bincode::serialize;
 use bytes::Bytes;

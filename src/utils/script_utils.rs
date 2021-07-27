@@ -6,7 +6,7 @@ use crate::primitives::transaction::*;
 use crate::script::interface_ops;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
-use crate::sha3::Digest;
+use sha3::Digest;
 use crate::utils::transaction_utils::construct_address;
 
 use bincode::serialize;
