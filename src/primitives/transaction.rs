@@ -1,5 +1,6 @@
 #![allow(unused)]
 use crate::constants::NETWORK_VERSION;
+use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use crate::primitives::{
     asset::{Asset, TokenAmount},
     druid::{DdeValues, DruidExpectation},
@@ -10,7 +11,6 @@ use crate::utils::is_valid_amount;
 use bincode::serialize;
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
-use sodiumoxide::crypto::sign::ed25519::{PublicKey, Signature};
 
 /// A user-friendly construction struct for a TxIn
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

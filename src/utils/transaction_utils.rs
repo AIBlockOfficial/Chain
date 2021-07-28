@@ -5,10 +5,10 @@ use crate::primitives::transaction::*;
 use crate::script::lang::Script;
 use sha3::Digest;
 
+use crate::crypto::sign_ed25519::{self as sign, PublicKey, SecretKey};
 use bincode::serialize;
 use bytes::Bytes;
 use sha3::Sha3_256;
-use sodiumoxide::crypto::sign::{self, PublicKey, SecretKey};
 use std::collections::BTreeMap;
 
 /// Builds an address from a public key
@@ -413,7 +413,7 @@ pub fn construct_dde_tx(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sodiumoxide::crypto::sign;
+    use crate::crypto::sign_ed25519 as sign;
 
     #[test]
     // Creates a valid creation transaction

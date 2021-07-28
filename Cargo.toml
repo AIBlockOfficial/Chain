@@ -17,8 +17,8 @@ rand = "0.8.3"
 ring = "0.16.20"
 rocksdb = { version = "0.15.0", optional = true }
 serde = { version = "1.0.115", features = ["derive"] }
+serde-big-array = { version = "0.3.2", features = ["const-generics"] }
 sha3 = "0.9.1"
-sodiumoxide = "0.2.6"
 time = "0.2.25"
 tracing = "0.1.19"
 
