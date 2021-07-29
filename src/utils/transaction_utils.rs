@@ -17,7 +17,13 @@ use std::collections::BTreeMap;
 ///
 /// * `pub_key` - A public key to build an address from
 pub fn construct_address(pub_key: &PublicKey) -> String {
-    let first_pubkey_bytes = serialize(pub_key).unwrap();
+    let first_pubkey_bytes = {
+        // We used sodiumoxide serialization before with a 64 bit length prefix.
+        // Make clear what we are using as this was not intended.
+        let mut v = vec![32, 0, 0, 0, 0, 0, 0, 0];
+        v.extend_from_slice(pub_key.as_ref());
+        v
+    };
     let mut first_hash = Sha3_256::digest(&first_pubkey_bytes).to_vec();
 
     // TODO: Add RIPEMD

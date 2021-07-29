@@ -7,7 +7,6 @@ pub mod sign_ed25519 {
     pub use ring::signature::UnparsedPublicKey;
     pub use ring::signature::{ED25519, ED25519_PUBLIC_KEY_LEN};
     use serde::{Deserialize, Serialize};
-    use serde_big_array::BigArray;
     use std::convert::TryInto;
 
     pub type PublicKeyBase = <SecretKey as KeyPair>::PublicKey;
@@ -19,8 +18,13 @@ pub mod sign_ed25519 {
     pub const ED25519_SIGNATURE_LEN: usize = SIGNATURE_LEN;
 
     /// Signature data
+    /// We used sodiumoxide serialization before (treated it as slice with 64 bit length prefix).
     #[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq, Serialize, Deserialize)]
-    pub struct Signature(#[serde(with = "BigArray")] [u8; ED25519_SIGNATURE_LEN]);
+    pub struct Signature(
+        #[serde(serialize_with = "<[_]>::serialize")]
+        #[serde(deserialize_with = "deserialize_slice")]
+        [u8; ED25519_SIGNATURE_LEN],
+    );
 
     impl Signature {
         pub fn from_slice(slice: &[u8]) -> Option<Self> {
@@ -35,8 +39,13 @@ pub mod sign_ed25519 {
     }
 
     /// Public key data
+    /// We used sodiumoxide serialization before (treated it as slice with 64 bit length prefix).
     #[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq, Serialize, Deserialize)]
-    pub struct PublicKey(#[serde(with = "BigArray")] [u8; ED25519_PUBLIC_KEY_LEN]);
+    pub struct PublicKey(
+        #[serde(serialize_with = "<[_]>::serialize")]
+        #[serde(deserialize_with = "deserialize_slice")]
+        [u8; ED25519_PUBLIC_KEY_LEN],
+    );
 
     impl PublicKey {
         pub fn from_slice(slice: &[u8]) -> Option<Self> {
@@ -51,6 +60,8 @@ pub mod sign_ed25519 {
     }
 
     /// PKCS8 encoded secret key pair
+    /// We used sodiumoxide serialization before (treated it as slice with 64 bit length prefix).
+    /// Slice and vector are serialized the same.
     #[derive(Clone, Debug, PartialOrd, Ord, PartialEq, Eq, Serialize, Deserialize)]
     pub struct SecretKey(Vec<u8>);
 
@@ -101,5 +112,14 @@ pub mod sign_ed25519 {
         let public = PublicKey(secret.public_key().as_ref().try_into().unwrap());
         let secret = SecretKey::from_slice(pkcs8.as_ref()).unwrap();
         (public, secret)
+    }
+
+    fn deserialize_slice<'de, D: serde::Deserializer<'de>, const N: usize>(
+        deserializer: D,
+    ) -> Result<[u8; N], D::Error> {
+        let value: &[u8] = serde::Deserialize::deserialize(deserializer)?;
+        value
+            .try_into()
+            .map_err(|e| serde::de::Error::custom(format!("Invalid array: {:?}", e)))
     }
 }
