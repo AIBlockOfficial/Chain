@@ -5,15 +5,15 @@ use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
-use crate::sha3::Digest;
 use crate::utils::transaction_utils::construct_address;
+use sha3::Digest;
 
+use crate::crypto::sign_ed25519 as sign;
+use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
 use sha3::Sha3_256;
-use sodiumoxide::crypto::sign;
-use sodiumoxide::crypto::sign::ed25519::{PublicKey, Signature};
 use std::collections::BTreeMap;
 use tracing::{debug, error, info, trace};
 

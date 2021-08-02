@@ -2,13 +2,13 @@
 use crate::constants::{MAX_BLOCK_SIZE, NETWORK_VERSION};
 use crate::primitives::asset::Asset;
 use crate::primitives::transaction::{Transaction, TxIn, TxOut};
-use crate::sha3::Digest;
+use sha3::Digest;
 
+use crate::crypto::sign_ed25519::PublicKey;
 use bincode::{deserialize, serialize};
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use sha3::Sha3_256;
-use sodiumoxide::crypto::sign::ed25519::PublicKey;
 use std::convert::TryInto;
 
 use rand::distributions::Alphanumeric;

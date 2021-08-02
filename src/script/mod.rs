@@ -2,8 +2,8 @@
 pub mod interface_ops;
 pub mod lang;
 
+use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use serde::{Deserialize, Serialize};
-use sodiumoxide::crypto::sign::ed25519::{PublicKey, Signature};
 use std::fmt;
 
 /// Stack entry enum which embodies the range of possible

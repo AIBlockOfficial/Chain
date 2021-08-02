@@ -1,13 +1,13 @@
 #![allow(unused)]
+use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use crate::script::{OpCodes, StackEntry};
-use crate::sha3::Digest;
 use crate::utils::transaction_utils::construct_address;
 use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
 use serde::{Deserialize, Serialize};
+use sha3::Digest;
 use sha3::Sha3_256;
-use sodiumoxide::crypto::sign::{sign_detached, PublicKey, Signature};
 use tracing::{error, warn};
 
 /// Scripts are defined as a sequence of stack entries

@@ -3,12 +3,12 @@ use crate::primitives::asset::{Asset, DataAsset, TokenAmount};
 use crate::primitives::druid::{DdeValues, DruidExpectation};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
-use crate::sha3::Digest;
+use sha3::Digest;
 
+use crate::crypto::sign_ed25519::{self as sign, PublicKey, SecretKey};
 use bincode::serialize;
 use bytes::Bytes;
 use sha3::Sha3_256;
-use sodiumoxide::crypto::sign::{self, PublicKey, SecretKey};
 use std::collections::BTreeMap;
 
 /// Builds an address from a public key
@@ -17,7 +17,13 @@ use std::collections::BTreeMap;
 ///
 /// * `pub_key` - A public key to build an address from
 pub fn construct_address(pub_key: &PublicKey) -> String {
-    let first_pubkey_bytes = serialize(pub_key).unwrap();
+    let first_pubkey_bytes = {
+        // We used sodiumoxide serialization before with a 64 bit length prefix.
+        // Make clear what we are using as this was not intended.
+        let mut v = vec![32, 0, 0, 0, 0, 0, 0, 0];
+        v.extend_from_slice(pub_key.as_ref());
+        v
+    };
     let mut first_hash = Sha3_256::digest(&first_pubkey_bytes).to_vec();
 
     // TODO: Add RIPEMD
@@ -413,7 +419,7 @@ pub fn construct_dde_tx(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sodiumoxide::crypto::sign;
+    use crate::crypto::sign_ed25519 as sign;
 
     #[test]
     // Creates a valid creation transaction
