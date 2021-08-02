@@ -211,6 +211,45 @@ pub mod secretbox_chacha20_poly1305 {
     }
 }
 
+pub mod pbkdf2 {
+    use super::{deserialize_slice, generate_random};
+    use ring::pbkdf2::{derive, PBKDF2_HMAC_SHA256};
+    use serde::{Deserialize, Serialize};
+    use std::convert::TryInto;
+    use std::num::NonZeroU32;
+
+    pub const SALT_LEN: usize = 256 / 8;
+    pub const OPSLIMIT_INTERACTIVE: u32 = 100_000;
+
+    #[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq, Serialize, Deserialize)]
+    pub struct Salt(
+        #[serde(serialize_with = "<[_]>::serialize")]
+        #[serde(deserialize_with = "deserialize_slice")]
+        [u8; SALT_LEN],
+    );
+
+    impl Salt {
+        pub fn from_slice(slice: &[u8]) -> Option<Self> {
+            Some(Self(slice.try_into().ok()?))
+        }
+    }
+
+    impl AsRef<[u8]> for Salt {
+        fn as_ref(&self) -> &[u8] {
+            self.0.as_ref()
+        }
+    }
+
+    pub fn derive_key(key: &mut [u8], passwd: &[u8], salt: &Salt, iterations: u32) {
+        let iterations = NonZeroU32::new(iterations).unwrap();
+        derive(PBKDF2_HMAC_SHA256, iterations, salt.as_ref(), passwd, key);
+    }
+
+    pub fn gen_salt() -> Salt {
+        Salt(generate_random())
+    }
+}
+
 fn deserialize_slice<'de, D: serde::Deserializer<'de>, const N: usize>(
     deserializer: D,
 ) -> Result<[u8; N], D::Error> {
