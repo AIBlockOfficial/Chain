@@ -122,7 +122,7 @@ pub fn gen_random_hash() -> String {
         .take(32)
         .map(char::from)
         .collect();
-    hex::encode(Sha3_256::digest(&rand_2.as_bytes()).to_vec())
+    hex::encode(Sha3_256::digest(rand_2.as_bytes()).to_vec())
 }
 
 /// Builds a merkle tree of the passed transactions
@@ -203,7 +203,7 @@ mod tests {
         ];
 
         let (mtree, store) = build_merkle_tree(&transactions).await.unwrap();
-        let check_entry = Sha3_256::digest(&transactions[0].as_bytes());
+        let check_entry = Sha3_256::digest(transactions[0].as_bytes());
         let proof = mtree
             .prove(0, &from_slice(&check_entry), &store)
             .await

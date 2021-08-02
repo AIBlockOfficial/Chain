@@ -76,7 +76,7 @@ pub fn tx_is_valid<'a>(
 
         if let Some(pk) = tx_out_pk {
             // Check will need to include other signature types here
-            if !tx_has_valid_p2pkh_sig(&tx_in.script_signature, &tx_out_hash, &pk) {
+            if !tx_has_valid_p2pkh_sig(&tx_in.script_signature, &tx_out_hash, pk) {
                 return false;
             }
         } else {
@@ -119,7 +119,7 @@ fn tx_has_valid_multsig_validation(script: &Script) -> bool {
                     test_for_return &= interface_ops::op_multisig(&mut current_stack);
                 }
                 _ => {
-                    test_for_return &= interface_ops::op_else_ref(&stack_entry, &mut current_stack);
+                    test_for_return &= interface_ops::op_else_ref(stack_entry, &mut current_stack);
                 }
             }
         } else {
@@ -236,7 +236,7 @@ fn interpret_script(script: &Script) -> bool {
                     test_for_return &= interface_ops::op_checksig(&mut current_stack);
                 }
                 _ => {
-                    test_for_return &= interface_ops::op_else_ref(&stack_entry, &mut current_stack);
+                    test_for_return &= interface_ops::op_else_ref(stack_entry, &mut current_stack);
                 }
             }
         } else {
@@ -387,7 +387,7 @@ mod tests {
         };
 
         let hash_to_sign = hex::encode(serialize(&outpoint).unwrap());
-        let signature = sign::sign_detached(&hash_to_sign.as_bytes(), &sk);
+        let signature = sign::sign_detached(hash_to_sign.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
             t_hash,
@@ -418,7 +418,7 @@ mod tests {
         };
 
         let hash_to_sign = hex::encode(serialize(&outpoint).unwrap());
-        let signature = sign::sign_detached(&hash_to_sign.as_bytes(), &sk);
+        let signature = sign::sign_detached(hash_to_sign.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
             t_hash,
@@ -448,7 +448,7 @@ mod tests {
         };
 
         let hash_to_sign = hex::encode(serialize(&outpoint).unwrap());
-        let signature = sign::sign_detached(&hash_to_sign.as_bytes(), &sk);
+        let signature = sign::sign_detached(hash_to_sign.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
             t_hash,
@@ -487,7 +487,7 @@ mod tests {
         };
 
         let hash_to_sign = hex::encode(serialize(&outpoint).unwrap());
-        let signature = sign::sign_detached(&hash_to_sign.as_bytes(), &sk);
+        let signature = sign::sign_detached(hash_to_sign.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
             t_hash,
@@ -581,7 +581,7 @@ mod tests {
         };
 
         let valid_bytes = hex::encode(serialize(&tx_outpoint).unwrap());
-        let valid_sig = sign::sign_detached(&valid_bytes.as_bytes(), &sk);
+        let valid_sig = sign::sign_detached(valid_bytes.as_bytes(), &sk);
 
         // Test cases:
         let inputs = vec![
