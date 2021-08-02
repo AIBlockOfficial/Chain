@@ -155,7 +155,7 @@ fn construct_create_tx_in(
     secret_key: &SecretKey,
 ) -> Vec<TxIn> {
     let asset_hash = hex::encode(Sha3_256::digest(&serialize(&asset).unwrap()));
-    let signature = sign::sign_detached(asset_hash.as_bytes(), &secret_key);
+    let signature = sign::sign_detached(asset_hash.as_bytes(), secret_key);
 
     vec![TxIn {
         previous_out: None,
