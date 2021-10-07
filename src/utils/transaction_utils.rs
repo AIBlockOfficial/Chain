@@ -372,19 +372,28 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
     let mut tx_ins = Vec::new();
 
     for entry in tx_values {
-        let mut new_tx_in = TxIn::new();
-        let outpoint = entry.previous_out;
+        let signable_hash = construct_tx_in_signable_hash(&entry.previous_out);
 
-        new_tx_in.previous_out = Some(outpoint.clone());
-        let signable_hash = hex::encode(serialize(&outpoint).unwrap());
-
-        new_tx_in.script_signature =
+        let previous_out = Some(entry.previous_out);
+        let script_signature =
             Script::pay2pkh(signable_hash, entry.signatures[0], entry.pub_keys[0]);
 
-        tx_ins.push(new_tx_in);
+        tx_ins.push(TxIn {
+            previous_out,
+            script_signature,
+        });
     }
 
     tx_ins
+}
+
+/// Constructs signable hash for a TxIn
+///
+/// ### Arguments
+///
+/// * `previous_out`   - Previous transaction used as input
+pub fn construct_tx_in_signable_hash(previous_out: &OutPoint) -> String {
+    hex::encode(serialize(&previous_out).unwrap())
 }
 
 /// Constructs a dual double entry tx

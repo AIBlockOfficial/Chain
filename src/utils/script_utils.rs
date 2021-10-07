@@ -6,7 +6,7 @@ use crate::primitives::transaction::*;
 use crate::script::interface_ops;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
-use crate::utils::transaction_utils::construct_address;
+use crate::utils::transaction_utils::{construct_address, construct_tx_in_signable_hash};
 use sha3::Digest;
 
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, Signature};
@@ -71,7 +71,7 @@ pub fn tx_is_valid<'a>(
 
         // At this point TxIn will be valid
         let tx_out_pk = tx_out.script_public_key.as_ref();
-        let tx_out_hash = hex::encode(serialize(&tx_out_point).unwrap());
+        let tx_out_hash = construct_tx_in_signable_hash(&tx_out_point);
 
         if let Some(pk) = tx_out_pk {
             // Check will need to include other signature types here
@@ -383,7 +383,7 @@ mod tests {
             n: 0,
         };
 
-        let hash_to_sign = hex::encode(serialize(&outpoint).unwrap());
+        let hash_to_sign = construct_tx_in_signable_hash(&outpoint);
         let signature = sign::sign_detached(hash_to_sign.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
@@ -412,7 +412,7 @@ mod tests {
             n: 0,
         };
 
-        let hash_to_sign = hex::encode(serialize(&outpoint).unwrap());
+        let hash_to_sign = construct_tx_in_signable_hash(&outpoint);
         let signature = sign::sign_detached(hash_to_sign.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
@@ -440,7 +440,7 @@ mod tests {
             n: 0,
         };
 
-        let hash_to_sign = hex::encode(serialize(&outpoint).unwrap());
+        let hash_to_sign = construct_tx_in_signable_hash(&outpoint);
         let signature = sign::sign_detached(hash_to_sign.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
@@ -477,7 +477,7 @@ mod tests {
             n: 0,
         };
 
-        let hash_to_sign = hex::encode(serialize(&outpoint).unwrap());
+        let hash_to_sign = construct_tx_in_signable_hash(&outpoint);
         let signature = sign::sign_detached(hash_to_sign.as_bytes(), &sk);
 
         let tx_const = TxConstructor {
@@ -523,7 +523,7 @@ mod tests {
         let third_sig = sign::sign_detached(check_data.as_bytes(), &third_sk);
 
         let tx_const = TxConstructor {
-            previous_out: OutPoint::new(hex::encode(vec![0, 0, 0]), 0),
+            previous_out: OutPoint::new(check_data, 0),
             signatures: vec![first_sig, second_sig, third_sig],
             pub_keys: vec![first_pk, second_pk, third_pk],
         };
@@ -569,7 +569,7 @@ mod tests {
             ..TxOut::default()
         };
 
-        let valid_bytes = hex::encode(serialize(&tx_outpoint).unwrap());
+        let valid_bytes = construct_tx_in_signable_hash(&tx_outpoint);
         let valid_sig = sign::sign_detached(valid_bytes.as_bytes(), &sk);
 
         // Test cases:
