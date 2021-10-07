@@ -373,7 +373,7 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
 
     for entry in tx_values {
         let mut new_tx_in = TxIn::new();
-        let outpoint = OutPoint::new(entry.t_hash, entry.prev_n);
+        let outpoint = entry.previous_out;
 
         new_tx_in.previous_out = Some(outpoint.clone());
         let signable_hash = hex::encode(serialize(&outpoint).unwrap());
@@ -453,8 +453,7 @@ mod tests {
         let drs_tx_hash = hex::encode(vec![1, 2, 3, 4, 5, 6]);
 
         let tx_const = TxConstructor {
-            t_hash: hex::encode(t_hash),
-            prev_n: 0,
+            previous_out: OutPoint::new(hex::encode(t_hash), 0),
             signatures: vec![signature],
             pub_keys: vec![pk],
         };
@@ -486,8 +485,7 @@ mod tests {
         let signed = sign::sign_detached(t_hash_1.as_bytes(), &sk);
 
         let tx_1 = TxConstructor {
-            t_hash: "".to_string(),
-            prev_n: 0,
+            previous_out: OutPoint::new("".to_string(), 0),
             signatures: vec![signed],
             pub_keys: vec![pk],
         };
@@ -507,8 +505,7 @@ mod tests {
 
         // Second tx referencing first
         let tx_2 = TxConstructor {
-            t_hash: tx_1_hash,
-            prev_n: 0,
+            previous_out: OutPoint::new(tx_1_hash, 0),
             signatures: vec![signed],
             pub_keys: vec![pk],
         };
@@ -549,8 +546,7 @@ mod tests {
         });
 
         let tx_const = TxConstructor {
-            t_hash: hex::encode(&t_hash),
-            prev_n: 0,
+            previous_out: OutPoint::new(hex::encode(&t_hash), 0),
             signatures: vec![signature],
             pub_keys: vec![pk],
         };
