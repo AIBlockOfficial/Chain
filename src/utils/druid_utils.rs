@@ -1,9 +1,7 @@
 use crate::primitives::asset::Asset;
 use crate::primitives::druid::DruidExpectation;
 use crate::primitives::transaction::Transaction;
-use bincode::serialize;
-use sha3::Digest;
-use sha3::Sha3_256;
+use crate::utils::transaction_utils::construct_tx_ins_address;
 use std::collections::BTreeSet;
 use std::iter::Extend;
 
@@ -22,7 +20,7 @@ pub fn druid_expectations_are_met<'a>(
 
     for tx in transactions {
         if let Some(druid_info) = &tx.druid_info {
-            let ins = hex::encode(Sha3_256::digest(&serialize(&tx.inputs).unwrap()).to_vec());
+            let ins = construct_tx_ins_address(&tx.inputs);
 
             // Ensure match with passed DRUID
             if druid_info.druid == druid {
@@ -62,7 +60,7 @@ mod tests {
     fn create_dde_txs() -> Vec<Transaction> {
         let druid = "VALUE".to_owned();
         let tx_input = construct_payment_tx_ins(vec![]);
-        let from_addr = hex::encode(Sha3_256::digest(&serialize(&tx_input).unwrap()).to_vec());
+        let from_addr = construct_tx_ins_address(&tx_input);
 
         // Alice
         let amount = TokenAmount(10);
@@ -126,7 +124,7 @@ mod tests {
         let druid = "VALUE".to_owned();
 
         let tx_input = construct_payment_tx_ins(vec![]);
-        let from_addr = hex::encode(Sha3_256::digest(&serialize(&tx_input).unwrap()).to_vec());
+        let from_addr = construct_tx_ins_address(&tx_input);
 
         let alice_addr = "1111".to_owned();
         let bob_addr = "00000".to_owned();

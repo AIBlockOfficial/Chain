@@ -33,6 +33,33 @@ pub fn construct_address(pub_key: &PublicKey) -> String {
     hex::encode(first_hash)
 }
 
+/// Constructs signable hash for a TxIn
+///
+/// ### Arguments
+///
+/// * `previous_out`   - Previous transaction used as input
+pub fn construct_tx_in_signable_hash(previous_out: &OutPoint) -> String {
+    hex::encode(serialize(&previous_out).unwrap())
+}
+
+/// Constructs signable asset hash for a TxIn
+///
+/// ### Arguments
+///
+/// * `asset`   - Asset to sign
+pub fn construct_tx_in_signable_asset_hash(asset: &Asset) -> String {
+    hex::encode(Sha3_256::digest(&serialize(asset).unwrap()))
+}
+
+/// Constructs address a TxIn collection
+///
+/// ### Arguments
+///
+/// * `tx_ins`   - TxIn collection
+pub fn construct_tx_ins_address(tx_ins: &[TxIn]) -> String {
+    hex::encode(Sha3_256::digest(&serialize(tx_ins).unwrap()))
+}
+
 /// Get all the hash to remove from UTXO set for the utxo_entries
 ///
 /// ### Arguments
@@ -387,24 +414,6 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
     tx_ins
 }
 
-/// Constructs signable hash for a TxIn
-///
-/// ### Arguments
-///
-/// * `previous_out`   - Previous transaction used as input
-pub fn construct_tx_in_signable_hash(previous_out: &OutPoint) -> String {
-    hex::encode(serialize(&previous_out).unwrap())
-}
-
-/// Constructs signable asset hash for a TxIn
-///
-/// ### Arguments
-///
-/// * `asset`   - Asset to sign
-pub fn construct_tx_in_signable_asset_hash(asset: &Asset) -> String {
-    hex::encode(Sha3_256::digest(&serialize(asset).unwrap()))
-}
-
 /// Constructs a dual double entry tx
 ///
 /// ### Arguments
@@ -606,7 +615,7 @@ mod tests {
         let druid = "VALUE".to_owned();
 
         let tx_input = construct_payment_tx_ins(vec![]);
-        let from_addr = hex::encode(Sha3_256::digest(&serialize(&tx_input).unwrap()).to_vec());
+        let from_addr = construct_tx_ins_address(&tx_input);
 
         let alice_addr = "1111".to_owned();
         let bob_addr = "00000".to_owned();
