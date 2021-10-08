@@ -160,7 +160,7 @@ fn construct_create_tx_in(
     public_key: PublicKey,
     secret_key: &SecretKey,
 ) -> Vec<TxIn> {
-    let asset_hash = hex::encode(Sha3_256::digest(&serialize(&asset).unwrap()));
+    let asset_hash = construct_tx_in_signable_asset_hash(asset);
     let signature = sign::sign_detached(asset_hash.as_bytes(), secret_key);
 
     vec![TxIn {
@@ -394,6 +394,15 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
 /// * `previous_out`   - Previous transaction used as input
 pub fn construct_tx_in_signable_hash(previous_out: &OutPoint) -> String {
     hex::encode(serialize(&previous_out).unwrap())
+}
+
+/// Constructs signable asset hash for a TxIn
+///
+/// ### Arguments
+///
+/// * `asset`   - Asset to sign
+pub fn construct_tx_in_signable_asset_hash(asset: &Asset) -> String {
+    hex::encode(Sha3_256::digest(&serialize(asset).unwrap()))
 }
 
 /// Constructs a dual double entry tx

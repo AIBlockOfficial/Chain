@@ -6,7 +6,9 @@ use crate::primitives::transaction::*;
 use crate::script::interface_ops;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
-use crate::utils::transaction_utils::{construct_address, construct_tx_in_signable_hash};
+use crate::utils::transaction_utils::{
+    construct_address, construct_tx_in_signable_asset_hash, construct_tx_in_signable_hash,
+};
 use sha3::Digest;
 
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, Signature};
@@ -137,7 +139,7 @@ fn tx_has_valid_multsig_validation(script: &Script) -> bool {
 /// * `asset`       - Asset to be created
 pub fn tx_has_valid_create_script(script: &Script, asset: &Asset) -> bool {
     let mut it = script.stack.iter();
-    let asset_hash = hex::encode(Sha3_256::digest(&serialize(asset).unwrap()));
+    let asset_hash = construct_tx_in_signable_asset_hash(asset);
 
     if let (
         Some(StackEntry::Op(OpCodes::OP_CREATE)),
@@ -327,7 +329,7 @@ mod tests {
     /// Checks that a correct create script is validated as such
     fn should_pass_create_script_valid() {
         let asset = Asset::Receipt(1);
-        let asset_hash = hex::encode(Sha3_256::digest(&serialize(&asset).unwrap()));
+        let asset_hash = construct_tx_in_signable_asset_hash(&asset);
         let (pk, sk) = sign::gen_keypair();
         let signature = sign::sign_detached(asset_hash.as_bytes(), &sk);
 
