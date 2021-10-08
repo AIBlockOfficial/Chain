@@ -15,8 +15,7 @@ use serde::{Deserialize, Serialize};
 /// A user-friendly construction struct for a TxIn
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TxConstructor {
-    pub t_hash: String,
-    pub prev_n: i32,
+    pub previous_out: OutPoint,
     pub signatures: Vec<Signature>,
     pub pub_keys: Vec<PublicKey>,
 }
@@ -78,7 +77,7 @@ impl TxIn {
     ///
     /// ### Arguments
     ///
-    /// * `previous_out`    - Outpoint of the previous transaction
+    /// * `previous_out`    - OutPoint of the previous transaction
     /// * `script_sig`      - Script signature of the previous outpoint
     pub fn new_from_input(previous_out: OutPoint, script_sig: Script) -> TxIn {
         TxIn {

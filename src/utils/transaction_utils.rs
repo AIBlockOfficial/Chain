@@ -33,6 +33,33 @@ pub fn construct_address(pub_key: &PublicKey) -> String {
     hex::encode(first_hash)
 }
 
+/// Constructs signable hash for a TxIn
+///
+/// ### Arguments
+///
+/// * `previous_out`   - Previous transaction used as input
+pub fn construct_tx_in_signable_hash(previous_out: &OutPoint) -> String {
+    hex::encode(serialize(&previous_out).unwrap())
+}
+
+/// Constructs signable asset hash for a TxIn
+///
+/// ### Arguments
+///
+/// * `asset`   - Asset to sign
+pub fn construct_tx_in_signable_asset_hash(asset: &Asset) -> String {
+    hex::encode(Sha3_256::digest(&serialize(asset).unwrap()))
+}
+
+/// Constructs address a TxIn collection
+///
+/// ### Arguments
+///
+/// * `tx_ins`   - TxIn collection
+pub fn construct_tx_ins_address(tx_ins: &[TxIn]) -> String {
+    hex::encode(Sha3_256::digest(&serialize(tx_ins).unwrap()))
+}
+
 /// Get all the hash to remove from UTXO set for the utxo_entries
 ///
 /// ### Arguments
@@ -160,7 +187,7 @@ fn construct_create_tx_in(
     public_key: PublicKey,
     secret_key: &SecretKey,
 ) -> Vec<TxIn> {
-    let asset_hash = hex::encode(Sha3_256::digest(&serialize(&asset).unwrap()));
+    let asset_hash = construct_tx_in_signable_asset_hash(asset);
     let signature = sign::sign_detached(asset_hash.as_bytes(), secret_key);
 
     vec![TxIn {
@@ -372,16 +399,16 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
     let mut tx_ins = Vec::new();
 
     for entry in tx_values {
-        let mut new_tx_in = TxIn::new();
-        let outpoint = OutPoint::new(entry.t_hash, entry.prev_n);
+        let signable_hash = construct_tx_in_signable_hash(&entry.previous_out);
 
-        new_tx_in.previous_out = Some(outpoint.clone());
-        let signable_hash = hex::encode(serialize(&outpoint).unwrap());
-
-        new_tx_in.script_signature =
+        let previous_out = Some(entry.previous_out);
+        let script_signature =
             Script::pay2pkh(signable_hash, entry.signatures[0], entry.pub_keys[0]);
 
-        tx_ins.push(new_tx_in);
+        tx_ins.push(TxIn {
+            previous_out,
+            script_signature,
+        });
     }
 
     tx_ins
@@ -453,8 +480,7 @@ mod tests {
         let drs_tx_hash = hex::encode(vec![1, 2, 3, 4, 5, 6]);
 
         let tx_const = TxConstructor {
-            t_hash: hex::encode(t_hash),
-            prev_n: 0,
+            previous_out: OutPoint::new(hex::encode(t_hash), 0),
             signatures: vec![signature],
             pub_keys: vec![pk],
         };
@@ -486,8 +512,7 @@ mod tests {
         let signed = sign::sign_detached(t_hash_1.as_bytes(), &sk);
 
         let tx_1 = TxConstructor {
-            t_hash: "".to_string(),
-            prev_n: 0,
+            previous_out: OutPoint::new("".to_string(), 0),
             signatures: vec![signed],
             pub_keys: vec![pk],
         };
@@ -507,8 +532,7 @@ mod tests {
 
         // Second tx referencing first
         let tx_2 = TxConstructor {
-            t_hash: tx_1_hash,
-            prev_n: 0,
+            previous_out: OutPoint::new(tx_1_hash, 0),
             signatures: vec![signed],
             pub_keys: vec![pk],
         };
@@ -549,8 +573,7 @@ mod tests {
         });
 
         let tx_const = TxConstructor {
-            t_hash: hex::encode(&t_hash),
-            prev_n: 0,
+            previous_out: OutPoint::new(hex::encode(&t_hash), 0),
             signatures: vec![signature],
             pub_keys: vec![pk],
         };
@@ -592,7 +615,7 @@ mod tests {
         let druid = "VALUE".to_owned();
 
         let tx_input = construct_payment_tx_ins(vec![]);
-        let from_addr = hex::encode(Sha3_256::digest(&serialize(&tx_input).unwrap()).to_vec());
+        let from_addr = construct_tx_ins_address(&tx_input);
 
         let alice_addr = "1111".to_owned();
         let bob_addr = "00000".to_owned();
