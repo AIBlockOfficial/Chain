@@ -1,4 +1,4 @@
-use crate::constants::{NETWORK_VERSION_V0, TX_PREPEND};
+use crate::constants::{NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TX_PREPEND};
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, SecretKey};
 use crate::primitives::asset::{Asset, DataAsset, TokenAmount};
 use crate::primitives::druid::{DdeValues, DruidExpectation};
@@ -18,6 +18,7 @@ use std::collections::BTreeMap;
 pub fn construct_address_for(pub_key: &PublicKey, address_version: Option<u64>) -> String {
     match address_version {
         Some(NETWORK_VERSION_V0) => construct_address_v0(pub_key),
+        Some(NETWORK_VERSION_TEMP) => construct_address_temp(pub_key),
         _ => construct_address(pub_key),
     }
 }
@@ -32,7 +33,7 @@ pub fn construct_address(pub_key: &PublicKey) -> String {
     hex::encode(&pub_key_hash)
 }
 
-/// Builds an old address from a public key
+/// Builds an old (network version 0) address from a public key
 ///
 /// ### Arguments
 ///
@@ -50,6 +51,41 @@ fn construct_address_v0(pub_key: &PublicKey) -> String {
     first_hash.truncate(16);
 
     hex::encode(first_hash)
+}
+
+/// Builds an address from a public key using the
+/// temporary address scheme present on the wallet
+///
+/// TODO: Depreciate after addresses retire
+///
+/// ### Arguments
+///
+/// * `pub_key` - A public key to build an address from
+pub fn construct_address_temp(pub_key: &PublicKey) -> String {
+    let base64_encoding = base64::encode(pub_key.as_ref());
+    let hex_decoded = decode_base64_as_hex(&base64_encoding);
+    let pub_key_hash = Sha3_256::digest(&hex_decoded);
+    hex::encode(pub_key_hash)
+}
+
+/// Decodes a base64 encoded string as hex, invalid character pairs are decoded up to the
+/// first character. If the decoding up to the first character fails, a default value of 0
+/// is used.
+///
+/// TODO: Depreciate after addresses retire
+///
+/// ### Arguments
+///
+/// * `s`   - Base64 encoded string
+pub fn decode_base64_as_hex(s: &str) -> Vec<u8> {
+    (0..s.len())
+        .step_by(2)
+        .map(|i| {
+            u8::from_str_radix(&s[i..i + 2], 16)
+                .or_else(|_| u8::from_str_radix(&s[i..i + 1], 16))
+                .unwrap_or_default()
+        })
+        .collect()
 }
 
 /// Constructs signable hash for a TxIn
@@ -504,6 +540,12 @@ mod tests {
         test_construct_a_valid_payment_tx_common(Some(NETWORK_VERSION_V0));
     }
 
+    #[test]
+    // Creates a valid payment transaction
+    fn test_construct_a_valid_payment_tx_temp() {
+        test_construct_a_valid_payment_tx_common(Some(NETWORK_VERSION_TEMP));
+    }
+
     fn test_construct_a_valid_payment_tx_common(address_version: Option<u64>) {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
@@ -547,6 +589,12 @@ mod tests {
     // Creates a valid UTXO set
     fn test_construct_valid_utxo_set_v0() {
         test_construct_valid_utxo_set_common(Some(NETWORK_VERSION_V0));
+    }
+
+    #[test]
+    // Creates a valid UTXO set
+    fn test_construct_valid_utxo_set_temp() {
+        test_construct_valid_utxo_set_common(Some(NETWORK_VERSION_TEMP));
     }
 
     fn test_construct_valid_utxo_set_common(address_version: Option<u64>) {
@@ -614,6 +662,12 @@ mod tests {
     // Creates a valid DDE transaction
     fn test_construct_a_valid_dde_tx_v0() {
         test_construct_a_valid_dde_tx_common(Some(NETWORK_VERSION_V0));
+    }
+
+    #[test]
+    // Creates a valid DDE transaction
+    fn test_construct_a_valid_dde_tx_temp() {
+        test_construct_a_valid_dde_tx_common(Some(NETWORK_VERSION_TEMP));
     }
 
     fn test_construct_a_valid_dde_tx_common(address_version: Option<u64>) {
@@ -750,15 +804,21 @@ mod tests {
     }
 
     #[test]
-    // Test valid address construction
+    // Test valid address construction; should correlate with test on wallet
     fn test_construct_valid_addresses() {
         test_construct_valid_addresses_common(None);
     }
 
     #[test]
-    // Test valid address construction
+    // Test valid address construction; should correlate with test on wallet
     fn test_construct_valid_addresses_v0() {
         test_construct_valid_addresses_common(Some(NETWORK_VERSION_V0));
+    }
+
+    #[test]
+    // Test valid address construction; should correlate with test on wallet
+    fn test_construct_valid_addresses_temp() {
+        test_construct_valid_addresses_common(Some(NETWORK_VERSION_TEMP));
     }
 
     fn test_construct_valid_addresses_common(address_version: Option<u64>) {
@@ -787,11 +847,19 @@ mod tests {
         // Assert
         //
         let expected_pub_addresses = match address_version {
+            // Old Address structure
             Some(NETWORK_VERSION_V0) => vec![
                 "13bd3351b78beb2d0dadf2058dcc926c",
                 "abc7c0448465c4507faf2ee588728824",
                 "6ae52e3870884ab66ec49d3bb359c0bf",
             ],
+            // Temporary address structure present on wallet
+            Some(NETWORK_VERSION_TEMP) => vec![
+                "6c6b6e8e9df8c63d22d9eb687b9671dd1ce5d89f195bb2316e1b1444848cd2b3",
+                "8ac2fdcb0688abb2727d63ed230665b275a1d3a28373baa92a9afa5afd610e9f",
+                "0becdaaf6a855f04961208ee992651c11df0be91c08629dfc079d05d2915ec22",
+            ],
+            // Current address structure
             _ => vec![
                 "5423e6bd848e0ce5cd794e55235c23138d8833633cd2d7de7f4a10935178457b",
                 "77516e2d91606250e625546f86702510d2e893e4a27edfc932fdba03c955cc1b",

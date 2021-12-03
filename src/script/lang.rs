@@ -1,5 +1,5 @@
 #![allow(unused)]
-use crate::constants::NETWORK_VERSION_V0;
+use crate::constants::{NETWORK_VERSION_TEMP, NETWORK_VERSION_V0};
 use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::transaction_utils::{construct_address, construct_address_for};
@@ -90,6 +90,7 @@ impl Script {
 
         let op_hash_256 = match address_version {
             Some(NETWORK_VERSION_V0) => OpCodes::OP_HASH256_V0,
+            Some(NETWORK_VERSION_TEMP) => OpCodes::OP_HASH256_TEMP,
             _ => OpCodes::OP_HASH256,
         };
 
