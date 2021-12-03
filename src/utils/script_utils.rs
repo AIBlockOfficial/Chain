@@ -1,5 +1,5 @@
 #![allow(unused)]
-use crate::constants::TOTAL_TOKENS;
+use crate::constants::{NETWORK_VERSION_V0, TOTAL_TOKENS};
 use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::druid::DruidExpectation;
 use crate::primitives::transaction::*;
@@ -183,7 +183,7 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
         Some(StackEntry::Signature(_)),
         Some(StackEntry::PubKey(_)),
         Some(StackEntry::Op(OpCodes::OP_DUP)),
-        Some(StackEntry::Op(OpCodes::OP_HASH256)),
+        Some(StackEntry::Op(OpCodes::OP_HASH256 | OpCodes::OP_HASH256_V0)),
         Some(StackEntry::PubKeyHash(h)),
         Some(StackEntry::Op(OpCodes::OP_EQUALVERIFY)),
         Some(StackEntry::Op(OpCodes::OP_CHECKSIG)),
@@ -228,7 +228,11 @@ fn interpret_script(script: &Script) -> bool {
                     test_for_return &= interface_ops::op_dup(&mut current_stack);
                 }
                 StackEntry::Op(OpCodes::OP_HASH256) => {
-                    test_for_return &= interface_ops::op_hash256(&mut current_stack);
+                    test_for_return &= interface_ops::op_hash256(&mut current_stack, None);
+                }
+                StackEntry::Op(OpCodes::OP_HASH256_V0) => {
+                    test_for_return &=
+                        interface_ops::op_hash256(&mut current_stack, Some(NETWORK_VERSION_V0));
                 }
                 StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
                     test_for_return &= interface_ops::op_equalverify(&mut current_stack);
@@ -327,7 +331,7 @@ mod tests {
 
     #[test]
     /// Checks that a correct create script is validated as such
-    fn should_pass_create_script_valid() {
+    fn test_pass_create_script_valid() {
         let asset = Asset::Receipt(1);
         let asset_hash = construct_tx_in_signable_asset_hash(&asset);
         let (pk, sk) = sign::gen_keypair();
@@ -339,7 +343,17 @@ mod tests {
 
     #[test]
     /// Checks that correct member multisig scripts are validated as such
-    fn should_pass_member_multisig_valid() {
+    fn test_pass_member_multisig_valid() {
+        test_pass_member_multisig_valid_common(None);
+    }
+
+    #[test]
+    /// Checks that correct member multisig scripts are validated as such
+    fn test_pass_member_multisig_valid_v0() {
+        test_pass_member_multisig_valid_common(Some(NETWORK_VERSION_V0));
+    }
+
+    fn test_pass_member_multisig_valid_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
         let t_hash = hex::encode(vec![0, 0, 0]);
         let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
@@ -348,6 +362,7 @@ mod tests {
             previous_out: OutPoint::new(t_hash, 0),
             signatures: vec![signature],
             pub_keys: vec![pk],
+            address_version,
         };
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
@@ -357,7 +372,17 @@ mod tests {
 
     #[test]
     /// Checks that incorrect member multisig scripts are validated as such
-    fn should_fail_member_multisig_invalid() {
+    fn test_fail_member_multisig_invalid() {
+        test_fail_member_multisig_invalid_common(None);
+    }
+
+    #[test]
+    /// Checks that incorrect member multisig scripts are validated as such
+    fn test_fail_member_multisig_invalid_v0() {
+        test_fail_member_multisig_invalid_common(Some(NETWORK_VERSION_V0));
+    }
+
+    fn test_fail_member_multisig_invalid_common(address_version: Option<u64>) {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
         let t_hash = hex::encode(vec![0, 0, 0]);
@@ -367,6 +392,7 @@ mod tests {
             previous_out: OutPoint::new(t_hash, 0),
             signatures: vec![signature],
             pub_keys: vec![pk],
+            address_version,
         };
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
@@ -378,7 +404,17 @@ mod tests {
 
     #[test]
     /// Checks that correct p2pkh transaction signatures are validated as such
-    fn should_pass_p2pkh_sig_valid() {
+    fn test_pass_p2pkh_sig_valid() {
+        test_pass_p2pkh_sig_valid_common(None);
+    }
+
+    #[test]
+    /// Checks that correct p2pkh transaction signatures are validated as such
+    fn test_pass_p2pkh_sig_valid_v0() {
+        test_pass_p2pkh_sig_valid_common(Some(NETWORK_VERSION_V0));
+    }
+
+    fn test_pass_p2pkh_sig_valid_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
         let outpoint = OutPoint {
             t_hash: hex::encode(vec![0, 0, 0]),
@@ -392,10 +428,11 @@ mod tests {
             previous_out: outpoint,
             signatures: vec![signature],
             pub_keys: vec![pk],
+            address_version,
         };
 
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
-        let tx_out_pk = construct_address(&pk);
+        let tx_out_pk = construct_address_for(&pk, address_version);
 
         assert!(tx_has_valid_p2pkh_sig(
             &tx_ins[0].script_signature,
@@ -406,7 +443,17 @@ mod tests {
 
     #[test]
     /// Checks that invalid p2pkh transaction signatures are validated as such
-    fn should_fail_p2pkh_sig_invalid() {
+    fn test_fail_p2pkh_sig_invalid() {
+        test_fail_p2pkh_sig_invalid_common(None);
+    }
+
+    #[test]
+    /// Checks that invalid p2pkh transaction signatures are validated as such
+    fn test_fail_p2pkh_sig_invalid_v0() {
+        test_fail_p2pkh_sig_invalid_common(Some(NETWORK_VERSION_V0));
+    }
+
+    fn test_fail_p2pkh_sig_invalid_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
         let (second_pk, _s) = sign::gen_keypair();
         let outpoint = OutPoint {
@@ -421,6 +468,7 @@ mod tests {
             previous_out: outpoint,
             signatures: vec![signature],
             pub_keys: vec![second_pk],
+            address_version,
         };
 
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
@@ -435,7 +483,17 @@ mod tests {
 
     #[test]
     /// Checks that invalid p2pkh transaction signatures are validated as such
-    fn should_fail_p2pkh_sig_script_empty() {
+    fn test_fail_p2pkh_sig_script_empty() {
+        test_fail_p2pkh_sig_script_empty_common(None);
+    }
+
+    #[test]
+    /// Checks that invalid p2pkh transaction signatures are validated as such
+    fn test_fail_p2pkh_sig_script_empty_v0() {
+        test_fail_p2pkh_sig_script_empty_common(Some(NETWORK_VERSION_V0));
+    }
+
+    fn test_fail_p2pkh_sig_script_empty_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
         let outpoint = OutPoint {
             t_hash: hex::encode(vec![0, 0, 0]),
@@ -449,6 +507,7 @@ mod tests {
             previous_out: outpoint,
             signatures: vec![signature],
             pub_keys: vec![pk],
+            address_version,
         };
 
         let mut tx_ins = Vec::new();
@@ -472,7 +531,17 @@ mod tests {
 
     #[test]
     /// Checks that invalid p2pkh transaction signatures are validated as such
-    fn should_fail_p2pkh_sig_script_invalid_struct() {
+    fn test_fail_p2pkh_sig_script_invalid_struct() {
+        test_fail_p2pkh_sig_script_invalid_struct_common(None);
+    }
+
+    #[test]
+    /// Checks that invalid p2pkh transaction signatures are validated as such
+    fn test_fail_p2pkh_sig_script_invalid_struct_v0() {
+        test_fail_p2pkh_sig_script_invalid_struct_common(Some(NETWORK_VERSION_V0));
+    }
+
+    fn test_fail_p2pkh_sig_script_invalid_struct_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
         let outpoint = OutPoint {
             t_hash: hex::encode(vec![0, 0, 0]),
@@ -486,6 +555,7 @@ mod tests {
             previous_out: outpoint,
             signatures: vec![signature],
             pub_keys: vec![pk],
+            address_version,
         };
 
         let mut tx_ins = Vec::new();
@@ -513,7 +583,17 @@ mod tests {
 
     #[test]
     /// Checks that correct multisig validation signatures are validated as such
-    fn should_pass_multisig_validation_valid() {
+    fn test_pass_multisig_validation_valid() {
+        test_pass_multisig_validation_valid_common(None);
+    }
+
+    #[test]
+    /// Checks that correct multisig validation signatures are validated as such
+    fn test_pass_multisig_validation_valid_v0() {
+        test_pass_multisig_validation_valid_common(Some(NETWORK_VERSION_V0));
+    }
+
+    fn test_pass_multisig_validation_valid_common(address_version: Option<u64>) {
         let (first_pk, first_sk) = sign::gen_keypair();
         let (second_pk, second_sk) = sign::gen_keypair();
         let (third_pk, third_sk) = sign::gen_keypair();
@@ -528,6 +608,7 @@ mod tests {
             previous_out: OutPoint::new(check_data, 0),
             signatures: vec![first_sig, second_sig, third_sig],
             pub_keys: vec![first_pk, second_pk, third_pk],
+            address_version,
         };
 
         let tx_ins = create_multisig_tx_ins(vec![tx_const], m);
@@ -537,7 +618,7 @@ mod tests {
 
     #[test]
     /// Ensures that enough pubkey-sigs are provided to complete the multisig
-    fn should_pass_sig_pub_keypairs_for_multisig_valid() {
+    fn test_pass_sig_pub_keypairs_for_multisig_valid() {
         let (first_pk, first_sk) = sign::gen_keypair();
         let (second_pk, second_sk) = sign::gen_keypair();
         let (third_pk, third_sk) = sign::gen_keypair();
@@ -559,13 +640,23 @@ mod tests {
     #[test]
     /// Validate tx_is_valid for multiple TxIn configurations
     fn test_tx_is_valid() {
+        test_tx_is_valid_common(None, OpCodes::OP_HASH256);
+    }
+
+    #[test]
+    /// Validate tx_is_valid for multiple TxIn configurations
+    fn test_tx_is_valid_v0() {
+        test_tx_is_valid_common(Some(NETWORK_VERSION_V0), OpCodes::OP_HASH256_V0);
+    }
+
+    fn test_tx_is_valid_common(address_version: Option<u64>, op_hash256: OpCodes) {
         //
         // Arrange
         //
         let (pk, sk) = sign::gen_keypair();
         let tx_hash = hex::encode(vec![0, 0, 0]);
         let tx_outpoint = OutPoint::new(tx_hash, 0);
-        let script_public_key = construct_address(&pk);
+        let script_public_key = construct_address_for(&pk, address_version);
         let tx_out = TxOut {
             script_public_key: Some(script_public_key.clone()),
             ..TxOut::default()
@@ -583,7 +674,7 @@ mod tests {
                     StackEntry::Signature(valid_sig),
                     StackEntry::PubKey(pk),
                     StackEntry::Op(OpCodes::OP_DUP),
-                    StackEntry::Op(OpCodes::OP_HASH256),
+                    StackEntry::Op(op_hash256),
                     StackEntry::PubKeyHash(script_public_key),
                     StackEntry::Op(OpCodes::OP_EQUALVERIFY),
                     StackEntry::Op(OpCodes::OP_CHECKSIG),
@@ -627,7 +718,17 @@ mod tests {
 
     #[test]
     /// Checks that incorrect member interpret scripts are validated as such
-    fn should_fail_interpret_valid() {
+    fn test_fail_interpret_valid() {
+        test_fail_interpret_valid_common(None);
+    }
+
+    #[test]
+    /// Checks that incorrect member interpret scripts are validated as such
+    fn test_fail_interpret_valid_v0() {
+        test_fail_interpret_valid_common(Some(NETWORK_VERSION_V0));
+    }
+
+    fn test_fail_interpret_valid_common(address_version: Option<u64>) {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
         let t_hash = hex::encode(vec![0, 0, 0]);
@@ -637,6 +738,7 @@ mod tests {
             previous_out: OutPoint::new(t_hash, 0),
             signatures: vec![signature],
             pub_keys: vec![pk],
+            address_version,
         };
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
@@ -646,7 +748,17 @@ mod tests {
 
     #[test]
     /// Checks that interpret scripts are validated as such
-    fn should_pass_interpret_valid() {
+    fn test_pass_interpret_valid() {
+        test_pass_interpret_valid_common(None);
+    }
+
+    #[test]
+    /// Checks that interpret scripts are validated as such
+    fn test_pass_interpret_valid_v0() {
+        test_pass_interpret_valid_common(Some(NETWORK_VERSION_V0));
+    }
+
+    fn test_pass_interpret_valid_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
         let t_hash = hex::encode(vec![0, 0, 0]);
         let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
@@ -655,6 +767,7 @@ mod tests {
             previous_out: OutPoint::new(t_hash, 0),
             signatures: vec![signature],
             pub_keys: vec![pk],
+            address_version,
         };
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);

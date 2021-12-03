@@ -5,7 +5,7 @@ use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
-use crate::utils::transaction_utils::construct_address;
+use crate::utils::transaction_utils::{construct_address, construct_address_for};
 use sha3::Digest;
 
 use crate::crypto::sign_ed25519 as sign;
@@ -34,7 +34,7 @@ pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
-pub fn op_hash256(current_stack: &mut Vec<StackEntry>) -> bool {
+pub fn op_hash256(current_stack: &mut Vec<StackEntry>, address_version: Option<u64>) -> bool {
     trace!("256 bit hashing last stack entry");
     let last_entry = current_stack.pop().unwrap();
     let pub_key = match last_entry {
@@ -42,7 +42,7 @@ pub fn op_hash256(current_stack: &mut Vec<StackEntry>) -> bool {
         _ => return false,
     };
 
-    let new_entry = construct_address(&pub_key);
+    let new_entry = construct_address_for(&pub_key, address_version);
     current_stack.push(StackEntry::PubKeyHash(new_entry));
     true
 }

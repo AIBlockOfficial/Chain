@@ -1,15 +1,26 @@
-use crate::constants::TX_PREPEND;
+use crate::constants::{NETWORK_VERSION_V0, TX_PREPEND};
+use crate::crypto::sign_ed25519::{self as sign, PublicKey, SecretKey};
 use crate::primitives::asset::{Asset, DataAsset, TokenAmount};
 use crate::primitives::druid::{DdeValues, DruidExpectation};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
-use sha3::Digest;
-
-use crate::crypto::sign_ed25519::{self as sign, PublicKey, SecretKey};
 use bincode::serialize;
 use bytes::Bytes;
+use sha3::Digest;
 use sha3::Sha3_256;
 use std::collections::BTreeMap;
+
+/// Builds an address from a public key and a specified network version
+///
+/// ### Arguments
+///
+/// * `pub_key` - A public key to build an address from
+pub fn construct_address_for(pub_key: &PublicKey, address_version: Option<u64>) -> String {
+    match address_version {
+        Some(NETWORK_VERSION_V0) => construct_address_v0(pub_key),
+        _ => construct_address(pub_key),
+    }
+}
 
 /// Builds an address from a public key
 ///
@@ -17,6 +28,16 @@ use std::collections::BTreeMap;
 ///
 /// * `pub_key` - A public key to build an address from
 pub fn construct_address(pub_key: &PublicKey) -> String {
+    let pub_key_hash = Sha3_256::digest(pub_key.as_ref());
+    hex::encode(&pub_key_hash)
+}
+
+/// Builds an old address from a public key
+///
+/// ### Arguments
+///
+/// * `pub_key` - A public key to build an address from
+fn construct_address_v0(pub_key: &PublicKey) -> String {
     let first_pubkey_bytes = {
         // We used sodiumoxide serialization before with a 64 bit length prefix.
         // Make clear what we are using as this was not intended.
@@ -25,8 +46,6 @@ pub fn construct_address(pub_key: &PublicKey) -> String {
         v
     };
     let mut first_hash = Sha3_256::digest(&first_pubkey_bytes).to_vec();
-
-    // TODO: Add RIPEMD
 
     first_hash.truncate(16);
 
@@ -402,8 +421,12 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
         let signable_hash = construct_tx_in_signable_hash(&entry.previous_out);
 
         let previous_out = Some(entry.previous_out);
-        let script_signature =
-            Script::pay2pkh(signable_hash, entry.signatures[0], entry.pub_keys[0]);
+        let script_signature = Script::pay2pkh(
+            signable_hash,
+            entry.signatures[0],
+            entry.pub_keys[0],
+            entry.address_version,
+        );
 
         tx_ins.push(TxIn {
             previous_out,
@@ -450,7 +473,7 @@ mod tests {
 
     #[test]
     // Creates a valid creation transaction
-    fn should_construct_a_valid_create_tx() {
+    fn test_construct_a_valid_create_tx() {
         let (pk, sk) = sign::gen_keypair();
         let receiver_address = construct_address(&pk);
         let amount = 1;
@@ -471,7 +494,17 @@ mod tests {
 
     #[test]
     // Creates a valid payment transaction
-    fn should_construct_a_valid_payment_tx() {
+    fn test_construct_a_valid_payment_tx() {
+        test_construct_a_valid_payment_tx_common(None);
+    }
+
+    #[test]
+    // Creates a valid payment transaction
+    fn test_construct_a_valid_payment_tx_v0() {
+        test_construct_a_valid_payment_tx_common(Some(NETWORK_VERSION_V0));
+    }
+
+    fn test_construct_a_valid_payment_tx_common(address_version: Option<u64>) {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
         let t_hash = vec![0, 0, 0];
@@ -483,6 +516,7 @@ mod tests {
             previous_out: OutPoint::new(hex::encode(t_hash), 0),
             signatures: vec![signature],
             pub_keys: vec![pk],
+            address_version,
         };
 
         let token_amount = TokenAmount(400000);
@@ -505,7 +539,17 @@ mod tests {
 
     #[test]
     // Creates a valid UTXO set
-    fn should_construct_valid_utxo_set() {
+    fn test_construct_valid_utxo_set() {
+        test_construct_valid_utxo_set_common(None);
+    }
+
+    #[test]
+    // Creates a valid UTXO set
+    fn test_construct_valid_utxo_set_v0() {
+        test_construct_valid_utxo_set_common(Some(NETWORK_VERSION_V0));
+    }
+
+    fn test_construct_valid_utxo_set_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
 
         let t_hash_1 = hex::encode(vec![0, 0, 0]);
@@ -515,6 +559,7 @@ mod tests {
             previous_out: OutPoint::new("".to_string(), 0),
             signatures: vec![signed],
             pub_keys: vec![pk],
+            address_version,
         };
 
         let token_amount = TokenAmount(400000);
@@ -535,6 +580,7 @@ mod tests {
             previous_out: OutPoint::new(tx_1_hash, 0),
             signatures: vec![signed],
             pub_keys: vec![pk],
+            address_version,
         };
         let tx_ins_2 = construct_payment_tx_ins(vec![tx_2]);
         let tx_outs = vec![TxOut::new_token_amount(
@@ -560,7 +606,17 @@ mod tests {
 
     #[test]
     // Creates a valid DDE transaction
-    fn should_construct_a_valid_dde_tx() {
+    fn test_construct_a_valid_dde_tx() {
+        test_construct_a_valid_dde_tx_common(None);
+    }
+
+    #[test]
+    // Creates a valid DDE transaction
+    fn test_construct_a_valid_dde_tx_v0() {
+        test_construct_a_valid_dde_tx_common(Some(NETWORK_VERSION_V0));
+    }
+
+    fn test_construct_a_valid_dde_tx_common(address_version: Option<u64>) {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
         let t_hash = hex::encode(vec![0, 0, 0]);
@@ -576,6 +632,7 @@ mod tests {
             previous_out: OutPoint::new(hex::encode(&t_hash), 0),
             signatures: vec![signature],
             pub_keys: vec![pk],
+            address_version,
         };
 
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
@@ -607,7 +664,7 @@ mod tests {
 
     #[test]
     // Creates a valid receipt based tx pair
-    fn should_construct_a_valid_receipt_tx_pair() {
+    fn test_construct_a_valid_receipt_tx_pair() {
         // Arrange
         //
         let amount = TokenAmount(33);
@@ -690,5 +747,57 @@ mod tests {
                 .map(|v| (&v.druid, v.participants)),
             Some((&druid, 2))
         );
+    }
+
+    #[test]
+    // Test valid address construction
+    fn test_construct_valid_addresses() {
+        test_construct_valid_addresses_common(None);
+    }
+
+    #[test]
+    // Test valid address construction
+    fn test_construct_valid_addresses_v0() {
+        test_construct_valid_addresses_common(Some(NETWORK_VERSION_V0));
+    }
+
+    fn test_construct_valid_addresses_common(address_version: Option<u64>) {
+        //
+        // Arrange
+        //
+        let pub_keys = vec![
+            "5371832122a8e804fa3520ec6861c3fa554a7f6fb617e6f0768452090207e07c",
+            "6e86cc1fc5efbe64c2690efbb966b9fe1957facc497dce311981c68dac88e08c",
+            "8b835e00c57ebff6637ec32276f2c6c0df71129c8f0860131a78a4692a0b59dc",
+        ]
+        .iter()
+        .map(|v| hex::decode(v).unwrap())
+        .map(|v| PublicKey::from_slice(&v).unwrap())
+        .collect::<Vec<PublicKey>>();
+
+        //
+        // Act
+        //
+        let actual_pub_addresses: Vec<String> = pub_keys
+            .iter()
+            .map(|pub_key| construct_address_for(pub_key, address_version))
+            .collect();
+
+        //
+        // Assert
+        //
+        let expected_pub_addresses = match address_version {
+            Some(NETWORK_VERSION_V0) => vec![
+                "13bd3351b78beb2d0dadf2058dcc926c",
+                "abc7c0448465c4507faf2ee588728824",
+                "6ae52e3870884ab66ec49d3bb359c0bf",
+            ],
+            _ => vec![
+                "5423e6bd848e0ce5cd794e55235c23138d8833633cd2d7de7f4a10935178457b",
+                "77516e2d91606250e625546f86702510d2e893e4a27edfc932fdba03c955cc1b",
+                "4cfd64a6692021fc417368a866d33d94e1c806747f61ac85e0b3935e7d5ed925",
+            ],
+        };
+        assert_eq!(actual_pub_addresses, expected_pub_addresses);
     }
 }
