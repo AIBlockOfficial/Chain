@@ -1,7 +1,8 @@
 #![allow(unused)]
+use crate::constants::NETWORK_VERSION_V0;
 use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use crate::script::{OpCodes, StackEntry};
-use crate::utils::transaction_utils::construct_address;
+use crate::utils::transaction_utils::{construct_address, construct_address_for};
 use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
@@ -77,16 +78,26 @@ impl Script {
     /// * `check_data`  - Check data to provide signature
     /// * `signature`   - Signature of check data
     /// * `pub_key`     - Public key of the payer
-    pub fn pay2pkh(check_data: String, signature: Signature, pub_key: PublicKey) -> Script {
+    pub fn pay2pkh(
+        check_data: String,
+        signature: Signature,
+        pub_key: PublicKey,
+        address_version: Option<u64>,
+    ) -> Script {
         let mut new_script = Script::new();
         let pub_key_stack_entry = StackEntry::PubKey(pub_key);
-        let new_key = construct_address(&pub_key);
+        let new_key = construct_address_for(&pub_key, address_version);
+
+        let op_hash_256 = match address_version {
+            Some(NETWORK_VERSION_V0) => OpCodes::OP_HASH256_V0,
+            _ => OpCodes::OP_HASH256,
+        };
 
         new_script.stack.push(StackEntry::Bytes(check_data));
         new_script.stack.push(StackEntry::Signature(signature));
         new_script.stack.push(pub_key_stack_entry);
         new_script.stack.push(StackEntry::Op(OpCodes::OP_DUP));
-        new_script.stack.push(StackEntry::Op(OpCodes::OP_HASH256));
+        new_script.stack.push(StackEntry::Op(op_hash_256));
         new_script.stack.push(StackEntry::PubKeyHash(new_key));
         new_script
             .stack

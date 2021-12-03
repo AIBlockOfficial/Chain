@@ -168,6 +168,9 @@ pub enum OpCodes {
     // data
     OP_CREATE = 0xc0,
 
+    // support for old (32 byte) address structures
+    OP_HASH256_V0 = 0xc1,
+
     OP_INVALIDOPCODE = 0xff,
 }
 
