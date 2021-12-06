@@ -1,5 +1,5 @@
 #![allow(unused)]
-use crate::constants::{NETWORK_VERSION_V0, TOTAL_TOKENS};
+use crate::constants::{NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TOTAL_TOKENS};
 use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::druid::DruidExpectation;
 use crate::primitives::transaction::*;
@@ -183,7 +183,9 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
         Some(StackEntry::Signature(_)),
         Some(StackEntry::PubKey(_)),
         Some(StackEntry::Op(OpCodes::OP_DUP)),
-        Some(StackEntry::Op(OpCodes::OP_HASH256 | OpCodes::OP_HASH256_V0)),
+        Some(StackEntry::Op(
+            OpCodes::OP_HASH256 | OpCodes::OP_HASH256_V0 | OpCodes::OP_HASH256_TEMP,
+        )),
         Some(StackEntry::PubKeyHash(h)),
         Some(StackEntry::Op(OpCodes::OP_EQUALVERIFY)),
         Some(StackEntry::Op(OpCodes::OP_CHECKSIG)),
@@ -233,6 +235,10 @@ fn interpret_script(script: &Script) -> bool {
                 StackEntry::Op(OpCodes::OP_HASH256_V0) => {
                     test_for_return &=
                         interface_ops::op_hash256(&mut current_stack, Some(NETWORK_VERSION_V0));
+                }
+                StackEntry::Op(OpCodes::OP_HASH256_TEMP) => {
+                    test_for_return &=
+                        interface_ops::op_hash256(&mut current_stack, Some(NETWORK_VERSION_TEMP));
                 }
                 StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
                     test_for_return &= interface_ops::op_equalverify(&mut current_stack);
@@ -353,6 +359,12 @@ mod tests {
         test_pass_member_multisig_valid_common(Some(NETWORK_VERSION_V0));
     }
 
+    #[test]
+    /// Checks that correct member multisig scripts are validated as such
+    fn test_pass_member_multisig_valid_temp() {
+        test_pass_member_multisig_valid_common(Some(NETWORK_VERSION_TEMP));
+    }
+
     fn test_pass_member_multisig_valid_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
         let t_hash = hex::encode(vec![0, 0, 0]);
@@ -380,6 +392,12 @@ mod tests {
     /// Checks that incorrect member multisig scripts are validated as such
     fn test_fail_member_multisig_invalid_v0() {
         test_fail_member_multisig_invalid_common(Some(NETWORK_VERSION_V0));
+    }
+
+    #[test]
+    /// Checks that incorrect member multisig scripts are validated as such
+    fn test_fail_member_multisig_invalid_temp() {
+        test_fail_member_multisig_invalid_common(Some(NETWORK_VERSION_TEMP));
     }
 
     fn test_fail_member_multisig_invalid_common(address_version: Option<u64>) {
@@ -412,6 +430,12 @@ mod tests {
     /// Checks that correct p2pkh transaction signatures are validated as such
     fn test_pass_p2pkh_sig_valid_v0() {
         test_pass_p2pkh_sig_valid_common(Some(NETWORK_VERSION_V0));
+    }
+
+    #[test]
+    /// Checks that correct p2pkh transaction signatures are validated as such
+    fn test_pass_p2pkh_sig_valid_temp() {
+        test_pass_p2pkh_sig_valid_common(Some(NETWORK_VERSION_TEMP));
     }
 
     fn test_pass_p2pkh_sig_valid_common(address_version: Option<u64>) {
@@ -493,6 +517,12 @@ mod tests {
         test_fail_p2pkh_sig_script_empty_common(Some(NETWORK_VERSION_V0));
     }
 
+    #[test]
+    /// Checks that invalid p2pkh transaction signatures are validated as such
+    fn test_fail_p2pkh_sig_script_empty_temp() {
+        test_fail_p2pkh_sig_script_empty_common(Some(NETWORK_VERSION_V0));
+    }
+
     fn test_fail_p2pkh_sig_script_empty_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
         let outpoint = OutPoint {
@@ -539,6 +569,12 @@ mod tests {
     /// Checks that invalid p2pkh transaction signatures are validated as such
     fn test_fail_p2pkh_sig_script_invalid_struct_v0() {
         test_fail_p2pkh_sig_script_invalid_struct_common(Some(NETWORK_VERSION_V0));
+    }
+
+    #[test]
+    /// Checks that invalid p2pkh transaction signatures are validated as such
+    fn test_fail_p2pkh_sig_script_invalid_struct_temp() {
+        test_fail_p2pkh_sig_script_invalid_struct_common(Some(NETWORK_VERSION_TEMP));
     }
 
     fn test_fail_p2pkh_sig_script_invalid_struct_common(address_version: Option<u64>) {
@@ -591,6 +627,12 @@ mod tests {
     /// Checks that correct multisig validation signatures are validated as such
     fn test_pass_multisig_validation_valid_v0() {
         test_pass_multisig_validation_valid_common(Some(NETWORK_VERSION_V0));
+    }
+
+    #[test]
+    /// Checks that correct multisig validation signatures are validated as such
+    fn test_pass_multisig_validation_valid_temp() {
+        test_pass_multisig_validation_valid_common(Some(NETWORK_VERSION_TEMP));
     }
 
     fn test_pass_multisig_validation_valid_common(address_version: Option<u64>) {
@@ -647,6 +689,12 @@ mod tests {
     /// Validate tx_is_valid for multiple TxIn configurations
     fn test_tx_is_valid_v0() {
         test_tx_is_valid_common(Some(NETWORK_VERSION_V0), OpCodes::OP_HASH256_V0);
+    }
+
+    #[test]
+    /// Validate tx_is_valid for multiple TxIn configurations
+    fn test_tx_is_valid_temp() {
+        test_tx_is_valid_common(Some(NETWORK_VERSION_TEMP), OpCodes::OP_HASH256_TEMP);
     }
 
     fn test_tx_is_valid_common(address_version: Option<u64>, op_hash256: OpCodes) {
@@ -728,6 +776,12 @@ mod tests {
         test_fail_interpret_valid_common(Some(NETWORK_VERSION_V0));
     }
 
+    #[test]
+    /// Checks that incorrect member interpret scripts are validated as such
+    fn test_fail_interpret_valid_temp() {
+        test_fail_interpret_valid_common(Some(NETWORK_VERSION_TEMP));
+    }
+
     fn test_fail_interpret_valid_common(address_version: Option<u64>) {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
@@ -756,6 +810,12 @@ mod tests {
     /// Checks that interpret scripts are validated as such
     fn test_pass_interpret_valid_v0() {
         test_pass_interpret_valid_common(Some(NETWORK_VERSION_V0));
+    }
+
+    #[test]
+    /// Checks that interpret scripts are validated as such
+    fn test_pass_interpret_valid_temp() {
+        test_pass_interpret_valid_common(Some(NETWORK_VERSION_TEMP));
     }
 
     fn test_pass_interpret_valid_common(address_version: Option<u64>) {

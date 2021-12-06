@@ -58,3 +58,7 @@ pub const TX_PREPEND: u8 = b'g';
 
 // Network version 0
 pub const NETWORK_VERSION_V0: u64 = 0;
+
+// Network version to support temporary address structure on wallet
+// TODO: Depreciate after addresses retire
+pub const NETWORK_VERSION_TEMP: u64 = 99999;
