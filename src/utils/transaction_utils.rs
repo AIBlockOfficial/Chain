@@ -94,10 +94,13 @@ pub fn decode_base64_as_hex(s: &str) -> Vec<u8> {
 ///
 /// * `previous_out`   - Previous transaction used as input
 pub fn construct_tx_in_signable_hash(previous_out: &OutPoint) -> String {
-    hex::encode(serialize(&previous_out).unwrap())
+    let tx_in_signable_string = format!("{}-{}", previous_out.n, previous_out.t_hash);
+    hex::encode(Sha3_256::digest(tx_in_signable_string.as_bytes()))
 }
 
 /// Constructs signable asset hash for a TxIn
+///
+/// TODO: Decide custom string formatting similar to `construct_tx_in_signable_hash`
 ///
 /// ### Arguments
 ///
@@ -107,6 +110,8 @@ pub fn construct_tx_in_signable_asset_hash(asset: &Asset) -> String {
 }
 
 /// Constructs address a TxIn collection
+///
+/// TODO: Decide custom string formatting similar to `construct_tx_in_signable_hash`
 ///
 /// ### Arguments
 ///
