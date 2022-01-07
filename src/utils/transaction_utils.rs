@@ -4,6 +4,7 @@ use crate::primitives::asset::{Asset, DataAsset, TokenAmount};
 use crate::primitives::druid::{DdeValues, DruidExpectation};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
+use crate::script::StackEntry;
 use bincode::serialize;
 use bytes::Bytes;
 use sha3::Digest;
@@ -88,36 +89,103 @@ pub fn decode_base64_as_hex(s: &str) -> Vec<u8> {
         .collect()
 }
 
+/// Constructs signable string for OutPoint
+///
+///
+/// ### Arguments
+///
+/// * `out_point`   - OutPoint value
+pub fn get_out_point_signable_string(out_point: Option<&OutPoint>) -> String {
+    match out_point {
+        Some(out_point) => format!("{}-{}", out_point.n, out_point.t_hash),
+        None => "null".to_string(),
+    }
+}
+
 /// Constructs signable hash for a TxIn
 ///
 /// ### Arguments
 ///
 /// * `previous_out`   - Previous transaction used as input
 pub fn construct_tx_in_signable_hash(previous_out: &OutPoint) -> String {
-    let tx_in_signable_string = format!("{}-{}", previous_out.n, previous_out.t_hash);
-    hex::encode(Sha3_256::digest(tx_in_signable_string.as_bytes()))
+    hex::encode(Sha3_256::digest(
+        get_out_point_signable_string(Some(&previous_out)).as_bytes(),
+    ))
+}
+
+pub fn get_asset_signable_string(asset: &Asset) -> String {
+    match asset {
+        Asset::Token(token_amount) => format!("Token:{}", token_amount.0),
+        Asset::Data(data_asset) => format!(
+            "Data:{}-{}",
+            hex::encode(&data_asset.data),
+            data_asset.amount
+        ),
+        Asset::Receipt(receipt_amount) => format!("Receipt:{}", receipt_amount),
+    }
 }
 
 /// Constructs signable asset hash for a TxIn
-///
-/// TODO: Decide custom string formatting similar to `construct_tx_in_signable_hash`
 ///
 /// ### Arguments
 ///
 /// * `asset`   - Asset to sign
 pub fn construct_tx_in_signable_asset_hash(asset: &Asset) -> String {
-    hex::encode(Sha3_256::digest(&serialize(asset).unwrap()))
+    hex::encode(Sha3_256::digest(
+        get_asset_signable_string(asset).as_bytes(),
+    ))
+}
+
+/// Constructs signable string for Script stack
+///
+///
+/// ### Arguments
+///
+/// * `stack`   - StackEntry vector
+pub fn get_script_signable_string(stack: &Vec<StackEntry>) -> String {
+    stack
+        .iter()
+        .map(|entry| match entry {
+            StackEntry::Op(op) => format!("Op:{}", op),
+            StackEntry::Signature(signature) => {
+                format!("Signature:{}", hex::encode(signature.as_ref()))
+            }
+            StackEntry::PubKey(pub_key) => format!("PubKey:{}", hex::encode(pub_key.as_ref())),
+            StackEntry::PubKeyHash(pub_key_hash) => format!("PubKeyHash:{}", pub_key_hash),
+            StackEntry::Num(num) => format!("Num:{}", num),
+            StackEntry::Bytes(bytes) => format!("Bytes:{}", bytes),
+        })
+        .collect::<Vec<String>>()
+        .join("-")
+}
+
+/// Constructs signable string for TxIn
+///
+///
+/// ### Arguments
+///
+/// * `tx_in`   - TxIn value
+pub fn get_tx_in_address_signable_string(tx_in: &TxIn) -> String {
+    format!(
+        "{}-{}",
+        get_out_point_signable_string(tx_in.previous_out.as_ref()),
+        get_script_signable_string(&tx_in.script_signature.stack)
+    )
 }
 
 /// Constructs address a TxIn collection
 ///
-/// TODO: Decide custom string formatting similar to `construct_tx_in_signable_hash`
 ///
 /// ### Arguments
 ///
 /// * `tx_ins`   - TxIn collection
 pub fn construct_tx_ins_address(tx_ins: &[TxIn]) -> String {
-    hex::encode(Sha3_256::digest(&serialize(tx_ins).unwrap()))
+    let signable_tx_ins = tx_ins
+        .iter()
+        .map(|tx_in| get_tx_in_address_signable_string(tx_in))
+        .collect::<Vec<String>>()
+        .join("-");
+    hex::encode(Sha3_256::digest(signable_tx_ins.as_bytes()))
 }
 
 /// Get all the hash to remove from UTXO set for the utxo_entries
@@ -510,7 +578,7 @@ pub fn construct_dde_tx(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::crypto::sign_ed25519 as sign;
+    use crate::crypto::sign_ed25519::{self as sign, Signature};
 
     #[test]
     // Creates a valid creation transaction
@@ -872,5 +940,150 @@ mod tests {
             ],
         };
         assert_eq!(actual_pub_addresses, expected_pub_addresses);
+    }
+
+    #[test]
+    // Test TxIn signable hash construction; should correlate with test on wallet
+    fn test_construct_valid_tx_in_signable_hash() {
+        test_construct_valid_tx_in_signable_hash_common();
+    }
+
+    fn test_construct_valid_tx_in_signable_hash_common() {
+        //
+        // Arrange
+        //
+        let out_points = vec![
+            OutPoint::new("000000".to_owned(), 0),
+            OutPoint::new("000001".to_owned(), 0),
+            OutPoint::new("000002".to_owned(), 0),
+        ];
+
+        //
+        // Act
+        //
+        let actual: Vec<String> = out_points
+            .into_iter()
+            .map(|a| construct_tx_in_signable_hash(&a))
+            .collect();
+
+        let expected: Vec<String> = [
+            "927b3411743452e5e0d73e9e40a4fa3c842b3d00dabde7f9af7e44661ce02c88",
+            "754dc248d1c847e8a10c6f8ded6ccad96381551ebb162583aea2a86b9bb78dfa",
+            "5585c6f74d5c55f1ab457c31671822ba28c78c397cce1e11680b9f3852f96edb",
+        ]
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
+
+        //
+        // Assert
+        //
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    // Test TxIn signable asset hash construction; should correlate with test on wallet
+    fn test_construct_valid_tx_in_signable_asset_hash() {
+        test_construct_valid_tx_in_signable_asset_hash_common();
+    }
+
+    fn test_construct_valid_tx_in_signable_asset_hash_common() {
+        //
+        // Arrange
+        //
+        let assets = vec![
+            Asset::token_u64(1),
+            Asset::Receipt(1),
+            Asset::Data(DataAsset {
+                data: vec![1, 2, 3],
+                amount: 1,
+            }),
+        ];
+
+        //
+        // Act
+        //
+        let actual: Vec<String> = assets
+            .into_iter()
+            .map(|a| construct_tx_in_signable_asset_hash(&a))
+            .collect();
+
+        let expected: Vec<String> = [
+            "a5b2f5e8dcf824aee45b81294ff8049b680285b976cc6c8fa45eb070acfc5974",
+            "ce86f26f7f44f92630031f83e8d2f26c58e88eae40583c8760082edc7407991f",
+            "ab72cb41f1f18edfb9c5161029c9695de4d5eed1d323be18ddedfb66a2b32282",
+        ]
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
+
+        //
+        // Assert
+        //
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    // Test valid TxIn address construction; should correlate with test on wallet
+    fn test_construct_valid_tx_ins_address() {
+        test_construct_valid_tx_ins_address_common();
+    }
+
+    fn test_construct_valid_tx_ins_address_common() {
+        //
+        // Arrange
+        //
+        let pub_keys = vec![
+            "5e6d463ec66d7999769fa4de56f690dfb62e685b97032f5926b0cb6c93ba83c6",
+            "58272ba93c1e79df280d4c417de47dbf6a7e330ba52793d7baa8e00ae5c34e59",
+            "efa9dcba0f3282b3ed4a6aa1ccdb169d6685a30d7b2af7a2171a5682f3112359",
+        ]
+        .iter()
+        .map(|v| hex::decode(v).unwrap())
+        .map(|v| PublicKey::from_slice(&v).unwrap())
+        .collect::<Vec<PublicKey>>();
+
+        let signable_data: Vec<String> = vec![
+            "927b3411743452e5e0d73e9e40a4fa3c842b3d00dabde7f9af7e44661ce02c88",
+            "754dc248d1c847e8a10c6f8ded6ccad96381551ebb162583aea2a86b9bb78dfa",
+            "5585c6f74d5c55f1ab457c31671822ba28c78c397cce1e11680b9f3852f96edb",
+        ]
+        .into_iter()
+        .map(|v| v.to_owned())
+        .collect();
+
+        let signatures: Vec<Signature> = vec![
+            "660e4698d817d409feb209699b15935048c8b3c4ac86a23f25b05aa32fb8b87e7cd029b83220d31a0b2717bd63b47a320a7728355d7fae43a665d6e27743e20d", 
+            "fd107c9446cdcbd8fbb0d6b88c73067c9bd15de03fff677b0129acf1bd2d14a5ab8a63c7eb6fe8c5acc4b44b033744760847194a15b006368d178c85243d0605", 
+            "e1a436bbfcb3e411be1ce6088cdb4c39d7e79f8fe427943e74307e43864fd0f6ef26123f1439b92c075edd031d17feb4dd265c6fcc2e5ed571df48a03c396100",
+        ]
+        .iter()
+        .map(|v| hex::decode(v).unwrap())
+        .map(|v| Signature::from_slice(&v).unwrap())
+        .collect::<Vec<Signature>>();
+
+        let previous_out_points: Vec<OutPoint> = vec![
+            OutPoint::new("000000".to_owned(), 0),
+            OutPoint::new("000001".to_owned(), 0),
+            OutPoint::new("000002".to_owned(), 0),
+        ];
+
+        //
+        // Act
+        //
+        let mut tx_ins: Vec<TxIn> = Vec::new();
+        for n in 0..pub_keys.len() {
+            let script =
+                Script::pay2pkh(signable_data[n].clone(), signatures[n], pub_keys[n], None);
+            tx_ins.push(TxIn::new_from_input(previous_out_points[n].clone(), script));
+        }
+        let actual = construct_tx_ins_address(&tx_ins);
+        let expected =
+            "a7b09a0ffc38e41318eb67c781279d4168f6e203810741284c2426b86ed28e3a".to_owned();
+
+        //
+        // Assert
+        //
+        assert_eq!(actual, expected);
     }
 }
