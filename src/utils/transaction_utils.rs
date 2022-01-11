@@ -109,7 +109,7 @@ pub fn get_out_point_signable_string(out_point: Option<&OutPoint>) -> String {
 /// * `previous_out`   - Previous transaction used as input
 pub fn construct_tx_in_signable_hash(previous_out: &OutPoint) -> String {
     hex::encode(Sha3_256::digest(
-        get_out_point_signable_string(Some(&previous_out)).as_bytes(),
+        get_out_point_signable_string(Some(previous_out)).as_bytes(),
     ))
 }
 
@@ -142,7 +142,7 @@ pub fn construct_tx_in_signable_asset_hash(asset: &Asset) -> String {
 /// ### Arguments
 ///
 /// * `stack`   - StackEntry vector
-pub fn get_script_signable_string(stack: &Vec<StackEntry>) -> String {
+pub fn get_script_signable_string(stack: &[StackEntry]) -> String {
     stack
         .iter()
         .map(|entry| match entry {
@@ -182,7 +182,7 @@ pub fn get_tx_in_address_signable_string(tx_in: &TxIn) -> String {
 pub fn construct_tx_ins_address(tx_ins: &[TxIn]) -> String {
     let signable_tx_ins = tx_ins
         .iter()
-        .map(|tx_in| get_tx_in_address_signable_string(tx_in))
+        .map(get_tx_in_address_signable_string)
         .collect::<Vec<String>>()
         .join("-");
     hex::encode(Sha3_256::digest(signable_tx_ins.as_bytes()))
