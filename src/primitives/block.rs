@@ -1,14 +1,12 @@
 #![allow(unused)]
 use crate::constants::{MAX_BLOCK_SIZE, NETWORK_VERSION};
+use crate::crypto::sha3_256::{self, Sha3_256};
+use crate::crypto::sign_ed25519::PublicKey;
 use crate::primitives::asset::Asset;
 use crate::primitives::transaction::{Transaction, TxIn, TxOut};
-use sha3::Digest;
-
-use crate::crypto::sign_ed25519::PublicKey;
 use bincode::{deserialize, serialize};
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
-use sha3::Sha3_256;
 use std::convert::TryInto;
 
 use rand::distributions::Alphanumeric;
@@ -22,11 +20,10 @@ use merkle_log::{MemoryStore, MerkleLog, Store};
 pub struct BlockHeader {
     pub version: u32,
     pub bits: usize,
-    pub nonce: Vec<u8>,
     pub b_num: u64,
     pub seed_value: Vec<u8>, // for commercial
     pub previous_hash: Option<String>,
-    pub merkle_root_hash: String,
+    pub txs_merkle_root_and_hash: (String, String),
 }
 
 impl Default for BlockHeader {
@@ -41,11 +38,10 @@ impl BlockHeader {
         BlockHeader {
             version: NETWORK_VERSION,
             previous_hash: None,
-            merkle_root_hash: String::default(),
+            txs_merkle_root_and_hash: Default::default(),
             seed_value: Vec::new(),
             bits: 0,
             b_num: 0,
-            nonce: Vec::new(),
         }
     }
 
@@ -90,14 +86,11 @@ impl Block {
     }
 
     /// Get the merkle root for the current set of transactions
-    pub async fn set_merkle_root(&mut self) {
-        let merkle_result = build_merkle_tree(&self.transactions).await;
+    pub async fn set_txs_merkle_root_and_hash(&mut self) {
+        let merkle_root = build_hex_merkle_root(&self.transactions).await;
+        let txs_hash = build_hex_txs_hash(&self.transactions);
 
-        self.header.merkle_root_hash = if let Some((merkle_tree, _)) = merkle_result {
-            hex::encode(merkle_tree.root())
-        } else {
-            "".to_string()
-        }
+        self.header.txs_merkle_root_and_hash = (merkle_root, txs_hash);
     }
 }
 
@@ -122,7 +115,29 @@ pub fn gen_random_hash() -> String {
         .take(32)
         .map(char::from)
         .collect();
-    hex::encode(Sha3_256::digest(rand_2.as_bytes()).to_vec())
+    hex::encode(sha3_256::digest(rand_2.as_bytes()).to_vec())
+}
+
+/// Builds hex encoded sha3 hash of the passed transactions
+///
+/// ### Arguments
+///
+/// * `transactions`    - Transactions to construct a merkle tree for
+pub fn build_hex_txs_hash(transactions: &[String]) -> String {
+    hex::encode(sha3_256::digest_all(
+        transactions.iter().map(|s| s.as_bytes()),
+    ))
+}
+
+/// Builds hex encoded merkle root of the passed transactions
+///
+/// ### Arguments
+///
+/// * `transactions`    - Transactions to construct a merkle tree for
+pub async fn build_hex_merkle_root(transactions: &[String]) -> String {
+    let merkle_result = build_merkle_tree(transactions).await;
+    let merkle_root = merkle_result.map(|(t, _)| hex::encode(t.root()));
+    merkle_root.unwrap_or_default()
 }
 
 /// Builds a merkle tree of the passed transactions
@@ -155,15 +170,20 @@ pub async fn build_merkle_tree(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sha3::Sha3_256;
 
     #[actix_rt::test]
     /// Ensures that the merkle root is set to a valid empty string when no tx's are present
     async fn should_construct_merkle_root_with_no_tx() {
         let mut block = Block::new();
-        block.set_merkle_root().await;
+        block.set_txs_merkle_root_and_hash().await;
 
-        assert_eq!(block.header.merkle_root_hash, "".to_string());
+        assert_eq!(
+            block.header.txs_merkle_root_and_hash,
+            (
+                String::new(),
+                "a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a".to_owned()
+            )
+        );
     }
 
     #[actix_rt::test]
@@ -181,10 +201,13 @@ mod tests {
             "e0acad209b680e61c3ef4624d9a61b32a5e7e3f0691a8f8d41fd50b1c946e338".to_string(),
         ];
 
-        block.set_merkle_root().await;
+        block.set_txs_merkle_root_and_hash().await;
         assert_eq!(
-            block.header.merkle_root_hash,
-            "49adba4740eb78c38318bbe2951a3c49e8a5bda6b892870bdcbe0713cf1e0af2"
+            block.header.txs_merkle_root_and_hash,
+            (
+                "49adba4740eb78c38318bbe2951a3c49e8a5bda6b892870bdcbe0713cf1e0af2".to_owned(),
+                "84dba905dd2e1a97988905bc628c11415ab8567056dc32f0a2d17629c608bf4e".to_owned()
+            )
         );
     }
 
@@ -203,7 +226,7 @@ mod tests {
         ];
 
         let (mtree, store) = build_merkle_tree(&transactions).await.unwrap();
-        let check_entry = Sha3_256::digest(transactions[0].as_bytes());
+        let check_entry = sha3_256::digest(transactions[0].as_bytes());
         let proof = mtree
             .prove(0, &from_slice(&check_entry), &store)
             .await

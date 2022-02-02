@@ -1,5 +1,6 @@
 #![allow(unused)]
 use crate::constants::{NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TOTAL_TOKENS};
+use crate::crypto::sha3_256;
 use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::druid::DruidExpectation;
 use crate::primitives::transaction::*;
@@ -9,13 +10,11 @@ use crate::script::{OpCodes, StackEntry};
 use crate::utils::transaction_utils::{
     construct_address, construct_tx_in_signable_asset_hash, construct_tx_in_signable_hash,
 };
-use sha3::Digest;
 
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, Signature};
 use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
-use sha3::Sha3_256;
 use std::collections::BTreeMap;
 use tracing::{debug, error, info, trace};
 
