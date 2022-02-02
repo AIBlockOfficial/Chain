@@ -20,6 +20,7 @@ use merkle_log::{MemoryStore, MerkleLog, Store};
 pub struct BlockHeader {
     pub version: u32,
     pub bits: usize,
+    pub nonce_and_mining_tx_hash: (Vec<u8>, String),
     pub b_num: u64,
     pub seed_value: Vec<u8>, // for commercial
     pub previous_hash: Option<String>,
@@ -37,11 +38,12 @@ impl BlockHeader {
     pub fn new() -> BlockHeader {
         BlockHeader {
             version: NETWORK_VERSION,
+            bits: 0,
+            nonce_and_mining_tx_hash: Default::default(),
+            b_num: 0,
+            seed_value: Vec::new(),
             previous_hash: None,
             txs_merkle_root_and_hash: Default::default(),
-            seed_value: Vec::new(),
-            bits: 0,
-            b_num: 0,
         }
     }
 
