@@ -1,4 +1,5 @@
 use crate::constants::{NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TX_PREPEND};
+use crate::crypto::sha3_256;
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, SecretKey};
 use crate::primitives::asset::{Asset, DataAsset, TokenAmount};
 use crate::primitives::druid::{DdeValues, DruidExpectation};
@@ -7,8 +8,6 @@ use crate::script::lang::Script;
 use crate::script::StackEntry;
 use bincode::serialize;
 use bytes::Bytes;
-use sha3::Digest;
-use sha3::Sha3_256;
 use std::collections::BTreeMap;
 
 /// Builds an address from a public key and a specified network version
@@ -30,7 +29,7 @@ pub fn construct_address_for(pub_key: &PublicKey, address_version: Option<u64>) 
 ///
 /// * `pub_key` - A public key to build an address from
 pub fn construct_address(pub_key: &PublicKey) -> String {
-    let pub_key_hash = Sha3_256::digest(pub_key.as_ref());
+    let pub_key_hash = sha3_256::digest(pub_key.as_ref());
     hex::encode(&pub_key_hash)
 }
 
@@ -47,7 +46,7 @@ fn construct_address_v0(pub_key: &PublicKey) -> String {
         v.extend_from_slice(pub_key.as_ref());
         v
     };
-    let mut first_hash = Sha3_256::digest(&first_pubkey_bytes).to_vec();
+    let mut first_hash = sha3_256::digest(&first_pubkey_bytes).to_vec();
 
     first_hash.truncate(16);
 
@@ -65,7 +64,7 @@ fn construct_address_v0(pub_key: &PublicKey) -> String {
 pub fn construct_address_temp(pub_key: &PublicKey) -> String {
     let base64_encoding = base64::encode(pub_key.as_ref());
     let hex_decoded = decode_base64_as_hex(&base64_encoding);
-    let pub_key_hash = Sha3_256::digest(&hex_decoded);
+    let pub_key_hash = sha3_256::digest(&hex_decoded);
     hex::encode(pub_key_hash)
 }
 
@@ -105,7 +104,7 @@ pub fn get_out_point_signable_string(out_point: &OutPoint) -> String {
 ///
 /// * `previous_out`   - Previous transaction used as input
 pub fn construct_tx_in_signable_hash(previous_out: &OutPoint) -> String {
-    hex::encode(Sha3_256::digest(
+    hex::encode(sha3_256::digest(
         get_out_point_signable_string(previous_out).as_bytes(),
     ))
 }
@@ -133,7 +132,7 @@ pub fn get_asset_signable_string(asset: &Asset) -> String {
 ///
 /// * `asset`   - Asset to sign
 pub fn construct_tx_in_signable_asset_hash(asset: &Asset) -> String {
-    hex::encode(Sha3_256::digest(
+    hex::encode(sha3_256::digest(
         get_asset_signable_string(asset).as_bytes(),
     ))
 }
@@ -197,7 +196,7 @@ pub fn construct_tx_ins_address(tx_ins: &[TxIn]) -> String {
         .map(get_tx_in_address_signable_string)
         .collect::<Vec<String>>()
         .join("-");
-    hex::encode(Sha3_256::digest(signable_tx_ins.as_bytes()))
+    hex::encode(sha3_256::digest(signable_tx_ins.as_bytes()))
 }
 
 /// Get all the hash to remove from UTXO set for the utxo_entries
@@ -304,7 +303,7 @@ pub fn construct_coinbase_tx(b_num: u64, amount: TokenAmount, address: String) -
 /// * `tx`  - Transaction to hash
 pub fn construct_tx_hash(tx: &Transaction) -> String {
     let tx_bytes = Bytes::from(serialize(tx).unwrap());
-    let tx_raw_h = Sha3_256::digest(&tx_bytes).to_vec();
+    let tx_raw_h = sha3_256::digest(&tx_bytes).to_vec();
     let mut hash = hex::encode(tx_raw_h);
 
     hash.insert(0, TX_PREPEND as char);

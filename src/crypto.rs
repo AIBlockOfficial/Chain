@@ -250,6 +250,22 @@ pub mod pbkdf2 {
     }
 }
 
+pub mod sha3_256 {
+    pub use sha3::digest::Output;
+    pub use sha3::Digest;
+    pub use sha3::Sha3_256;
+
+    pub fn digest(data: &[u8]) -> Output<Sha3_256> {
+        Sha3_256::digest(data)
+    }
+
+    pub fn digest_all<'a>(data: impl Iterator<Item = &'a [u8]>) -> Output<Sha3_256> {
+        let mut hasher = Sha3_256::new();
+        data.for_each(|v| hasher.update(v));
+        hasher.finalize()
+    }
+}
+
 fn deserialize_slice<'de, D: serde::Deserializer<'de>, const N: usize>(
     deserializer: D,
 ) -> Result<[u8; N], D::Error> {
