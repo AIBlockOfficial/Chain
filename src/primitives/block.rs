@@ -126,9 +126,8 @@ pub fn gen_random_hash() -> String {
 ///
 /// * `transactions`    - Transactions to construct a merkle tree for
 pub fn build_hex_txs_hash(transactions: &[String]) -> String {
-    hex::encode(sha3_256::digest_all(
-        transactions.iter().map(|s| s.as_bytes()),
-    ))
+    let txs = serialize(transactions).unwrap();
+    hex::encode(&sha3_256::digest(&txs))
 }
 
 /// Builds hex encoded merkle root of the passed transactions
@@ -183,7 +182,7 @@ mod tests {
             block.header.txs_merkle_root_and_hash,
             (
                 String::new(),
-                "a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a".to_owned()
+                "48dda5bbe9171a6656206ec56c595c5834b6cf38c5fe71bcb44fe43833aee9df".to_owned()
             )
         );
     }
@@ -208,7 +207,7 @@ mod tests {
             block.header.txs_merkle_root_and_hash,
             (
                 "49adba4740eb78c38318bbe2951a3c49e8a5bda6b892870bdcbe0713cf1e0af2".to_owned(),
-                "84dba905dd2e1a97988905bc628c11415ab8567056dc32f0a2d17629c608bf4e".to_owned()
+                "2bf86b48530112f14cbc516f2f7085cdc886a88b475d52e9eaa8cef526479e0f".to_owned()
             )
         );
     }
