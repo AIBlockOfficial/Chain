@@ -122,7 +122,7 @@ pub fn get_asset_signable_string(asset: &Asset) -> String {
             hex::encode(&data_asset.data),
             data_asset.amount
         ),
-        Asset::Receipt(receipt_amount) => format!("Receipt:{}", receipt_amount),
+        Asset::Receipt(receipt) => format!("Receipt:{}", receipt.amount),
     }
 }
 
@@ -378,8 +378,10 @@ pub fn construct_receipt_create_tx(
     public_key: PublicKey,
     secret_key: &SecretKey,
     amount: u64,
+    drs_tx_hash_spec: DrsTxHashSpec,
 ) -> Transaction {
-    let asset = Asset::Receipt(amount);
+    let drs_tx_hash = drs_tx_hash_spec.get_drs_tx_hash();
+    let asset = Asset::receipt(amount, drs_tx_hash);
     let receiver_address = construct_address(&public_key);
 
     let tx_ins = construct_create_tx_in(block_num, &asset, public_key, secret_key);
@@ -402,14 +404,12 @@ pub fn construct_receipt_create_tx(
 /// * `tx_ins`              - Address/es to pay from
 /// * `receiver_address`    - Address to send to
 /// * `drs_block_hash`      - Hash of the block containing the original DRS. Only for data trades
-/// * `drs_tx_hash`         - Hash of the transaction containing the original DRS. Only for data trades
 /// * `asset`               - Asset to send
 /// * `locktime`            - Block height below which the payment is restricted. "0" means no locktime
 pub fn construct_payment_tx(
     tx_ins: Vec<TxIn>,
     receiver_address: String,
     drs_block_hash: Option<String>,
-    drs_tx_hash: Option<String>,
     asset: Asset,
     locktime: u64,
 ) -> Transaction {
@@ -418,7 +418,6 @@ pub fn construct_payment_tx(
         locktime,
         script_public_key: Some(receiver_address),
         drs_block_hash,
-        drs_tx_hash,
     };
 
     construct_tx_core(tx_ins, vec![tx_out])
@@ -492,7 +491,6 @@ pub fn construct_rb_payments_send_tx(
         locktime,
         script_public_key: Some(receiver_address),
         drs_block_hash: None,
-        drs_tx_hash: None,
     };
     tx_outs.push(out);
     construct_rb_tx_core(tx_ins, tx_outs, druid, expectation)
@@ -517,13 +515,13 @@ pub fn construct_rb_receive_payment_tx(
     locktime: u64,
     druid: String,
     expectation: Vec<DruidExpectation>,
+    drs_tx_hash: Option<String>,
 ) -> Transaction {
     let out = TxOut {
-        value: Asset::Receipt(1),
+        value: Asset::receipt(1, drs_tx_hash),
         locktime,
         script_public_key: Some(sender_address),
         drs_block_hash: None, // this will need to change
-        drs_tx_hash: None,    // this will need to change
     };
     tx_outs.push(out);
     construct_rb_tx_core(tx_ins, tx_outs, druid, expectation)
@@ -636,7 +634,6 @@ mod tests {
         let t_hash = vec![0, 0, 0];
         let signature = sign::sign_detached(&t_hash, &sk);
         let drs_block_hash = hex::encode(vec![1, 2, 3, 4, 5, 6]);
-        let drs_tx_hash = hex::encode(vec![1, 2, 3, 4, 5, 6]);
 
         let tx_const = TxConstructor {
             previous_out: OutPoint::new(hex::encode(t_hash), 0),
@@ -651,7 +648,6 @@ mod tests {
             tx_ins,
             hex::encode(vec![0, 0, 0, 0]),
             Some(drs_block_hash),
-            Some(drs_tx_hash),
             Asset::Token(token_amount),
             0,
         );
@@ -699,7 +695,6 @@ mod tests {
         let payment_tx_1 = construct_payment_tx(
             tx_ins_1,
             hex::encode(vec![0, 0, 0, 0]),
-            None,
             None,
             Asset::Token(token_amount),
             0,
@@ -776,7 +771,6 @@ mod tests {
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
         let tx_outs = vec![TxOut {
             value: data.clone(),
-            drs_tx_hash: Some(t_hash),
             script_public_key: Some(to_asset.clone()),
             ..Default::default()
         }];
@@ -829,7 +823,7 @@ mod tests {
             let expectation = DruidExpectation {
                 from: from_addr.clone(),
                 to: alice_addr.clone(),
-                asset: Asset::Receipt(1),
+                asset: Asset::receipt(1, Some("drs_tx_hash".to_owned())),
             };
 
             let mut tx = construct_rb_payments_send_tx(
@@ -867,6 +861,7 @@ mod tests {
                 0,
                 druid.clone(),
                 vec![expectation],
+                Some("drs_tx_hash".to_owned()),
             )
         };
 
@@ -993,7 +988,7 @@ mod tests {
         //
         let assets = vec![
             Asset::token_u64(1),
-            Asset::Receipt(1),
+            Asset::receipt(1, None),
             Asset::Data(DataAsset {
                 data: vec![1, 2, 3],
                 amount: 1,

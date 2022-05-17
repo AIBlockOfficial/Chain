@@ -1,5 +1,9 @@
 use crate::script::OpCodes;
 
+/*------- TRANSACTION CONSTANTS -------*/
+
+pub const RECEIPT_DEFAULT_DRS_TX_HASH: &str = "default_drs_tx_hash";
+
 /*------- NETWORK CONSTANTS --------*/
 
 /// Current network version: Always bump immediately after a version is deployed.
