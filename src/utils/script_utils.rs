@@ -124,7 +124,7 @@ pub fn tx_outs_are_valid(tx_outs: &[TxOut], tx_ins_spent: AssetValues) -> bool {
 
         // Addresses must have valid length
         if let Some(addr) = &tx_out.script_public_key {
-            if !address_has_valid_length(&addr) {
+            if !address_has_valid_length(addr) {
                 trace!("Address has invalid length");
                 return false;
             }

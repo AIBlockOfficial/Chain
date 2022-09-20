@@ -1,7 +1,7 @@
 use crate::constants::{NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TX_PREPEND};
 use crate::crypto::sha3_256;
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, SecretKey};
-use crate::primitives::asset::{Asset, DataAsset, TokenAmount};
+use crate::primitives::asset::{Asset, DataAsset, ReceiptAsset, TokenAmount};
 use crate::primitives::druid::{DdeValues, DruidExpectation};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
@@ -516,11 +516,10 @@ pub fn construct_rb_receive_payment_tx(
     locktime: u64,
     druid: String,
     expectation: Vec<DruidExpectation>,
-    drs_tx_hash: Option<String>,
-    metadata: Option<String>,
+    our_receipt: ReceiptAsset,
 ) -> Transaction {
     let out = TxOut {
-        value: Asset::receipt(1, drs_tx_hash, metadata),
+        value: Asset::Receipt(our_receipt),
         locktime,
         script_public_key: Some(sender_address),
         drs_block_hash: None, // this will need to change
@@ -917,8 +916,7 @@ mod tests {
                 0,
                 druid.clone(),
                 vec![expectation],
-                Some("drs_tx_hash".to_owned()),
-                None,
+                ReceiptAsset::new(1, Some("drs_tx_hash".to_owned()), None),
             )
         };
 
