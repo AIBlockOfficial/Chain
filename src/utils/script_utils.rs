@@ -174,7 +174,7 @@ pub fn tx_has_valid_create_script(script: &Script, asset: &Asset) -> bool {
     let asset_hash = construct_tx_in_signable_asset_hash(asset);
 
     if let Asset::Receipt(r) = asset {
-        if !receipt_has_size_constraint(r) {
+        if !receipt_has_valid_size(r) {
             trace!("Receipt metadata is too large");
             return false;
         }
@@ -329,7 +329,7 @@ fn match_on_multisig_to_pubkey(
 /// ### Arguments
 ///
 /// * `receipt` - Receipt to check
-fn receipt_has_size_constraint(receipt: &ReceiptAsset) -> bool {
+fn receipt_has_valid_size(receipt: &ReceiptAsset) -> bool {
     if let Some(metadata) = &receipt.metadata {
         return metadata.len() <= MAX_METADATA_BYTES;
     }
