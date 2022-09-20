@@ -590,6 +590,8 @@ pub fn construct_dde_tx(
 mod tests {
     use super::*;
     use crate::crypto::sign_ed25519::{self as sign, Signature};
+    use crate::primitives::asset::{AssetValues, ReceiptAsset};
+    use crate::utils::script_utils::tx_outs_are_valid;
 
     #[test]
     // Creates a valid creation transaction
@@ -648,7 +650,7 @@ mod tests {
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
         let payment_tx = construct_payment_tx(
             tx_ins,
-            hex::encode(vec![0, 0, 0, 0]),
+            hex::encode(vec![0; 32]),
             Some(drs_block_hash),
             Asset::Token(token_amount),
             0,
@@ -657,8 +659,60 @@ mod tests {
         assert_eq!(Asset::Token(token_amount), payment_tx.outputs[0].value);
         assert_eq!(
             payment_tx.outputs[0].script_public_key,
-            Some(hex::encode(vec![0, 0, 0, 0]))
+            Some(hex::encode(vec![0; 64]))
         );
+    }
+
+    #[test]
+    /// Checks the validity of the metadata on-spend for receipts
+    fn test_receipt_onspend_metadata() {
+        let (_pk, sk) = sign::gen_keypair();
+        let (pk, _sk) = sign::gen_keypair();
+        let t_hash = vec![0, 0, 0];
+        let signature = sign::sign_detached(&t_hash, &sk);
+        let drs_block_hash = hex::encode(vec![1, 2, 3, 4, 5, 6]);
+
+        let tx_const = TxConstructor {
+            previous_out: OutPoint::new(hex::encode(t_hash), 0),
+            signatures: vec![signature],
+            pub_keys: vec![pk],
+            address_version: Some(2),
+        };
+
+        let drs_tx_hash = "receipt_tx_hash".to_string();
+        let receipt_asset_valid = ReceiptAsset::new(1000, Some(drs_tx_hash.clone()), None);
+        let receipt_asset_invalid =
+            ReceiptAsset::new(1000, Some(drs_tx_hash.clone()), Some("".to_string()));
+
+        let tx_ins = construct_payment_tx_ins(vec![tx_const]);
+        let payment_tx_valid = construct_payment_tx(
+            tx_ins.clone(),
+            hex::encode(vec![0; 32]),
+            Some(drs_block_hash.clone()),
+            Asset::Receipt(receipt_asset_valid),
+            0,
+        );
+
+        let payment_tx_invalid = construct_payment_tx(
+            tx_ins,
+            hex::encode(vec![0; 32]),
+            Some(drs_block_hash),
+            Asset::Receipt(receipt_asset_invalid),
+            0,
+        );
+
+        let mut btree = BTreeMap::new();
+        btree.insert(drs_tx_hash, 1000);
+        let tx_ins_spent = AssetValues::new(TokenAmount(0), btree);
+
+        assert!(tx_outs_are_valid(
+            &payment_tx_valid.outputs,
+            tx_ins_spent.clone()
+        ));
+        assert!(!tx_outs_are_valid(
+            &payment_tx_invalid.outputs,
+            tx_ins_spent
+        ));
     }
 
     #[test]
@@ -696,7 +750,7 @@ mod tests {
         let tx_ins_1 = construct_payment_tx_ins(vec![tx_1]);
         let payment_tx_1 = construct_payment_tx(
             tx_ins_1,
-            hex::encode(vec![0, 0, 0, 0]),
+            hex::encode(vec![0; 32]),
             None,
             Asset::Token(token_amount),
             0,
@@ -713,7 +767,7 @@ mod tests {
         };
         let tx_ins_2 = construct_payment_tx_ins(vec![tx_2]);
         let tx_outs = vec![TxOut::new_token_amount(
-            hex::encode(vec![0, 0, 0, 0]),
+            hex::encode(vec![0; 32]),
             token_amount,
         )];
         let payment_tx_2 = construct_tx_core(tx_ins_2, tx_outs);

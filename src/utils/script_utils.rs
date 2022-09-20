@@ -112,9 +112,26 @@ pub fn tx_is_valid<'a>(
 /// * `tx_ins_spent` - Total amount spendable from `TxIn`s
 pub fn tx_outs_are_valid(tx_outs: &[TxOut], tx_ins_spent: AssetValues) -> bool {
     let mut tx_outs_spent: AssetValues = Default::default();
-    tx_outs
-        .iter()
-        .for_each(|tx_out| tx_outs_spent.update_add(&tx_out.value));
+
+    for tx_out in tx_outs {
+        // Metadata for receipt on-spends must be empty
+        if let Asset::Receipt(r) = tx_out.value.clone() {
+            if r.metadata.is_some() {
+                trace!("Metadata for receipt on-spends must be empty");
+                return false;
+            }
+        }
+
+        // Addresses must have valid length
+        if let Some(addr) = &tx_out.script_public_key {
+            if !address_has_valid_length(&addr) {
+                trace!("Address has invalid length");
+                return false;
+            }
+        }
+
+        tx_outs_spent.update_add(&tx_out.value);
+    }
 
     // Ensure that the `TxIn`s correlate with the `TxOut`s
     tx_outs_spent.is_equal(&tx_ins_spent)
@@ -158,6 +175,7 @@ pub fn tx_has_valid_create_script(script: &Script, asset: &Asset) -> bool {
 
     if let Asset::Receipt(r) = asset {
         if !receipt_has_size_constraint(r) {
+            trace!("Receipt metadata is too large");
             return false;
         }
     }
@@ -185,7 +203,6 @@ pub fn tx_has_valid_create_script(script: &Script, asset: &Asset) -> bool {
     }
 
     trace!("Invalid script for create: {:?}", script.stack,);
-
     false
 }
 
@@ -320,6 +337,15 @@ fn receipt_has_size_constraint(receipt: &ReceiptAsset) -> bool {
     true
 }
 
+/// Checks that an address has a valid length
+///
+/// ### Arguments
+///
+/// * `address` - Address to check
+fn address_has_valid_length(address: &str) -> bool {
+    address.len() == 34 || address.len() == 64
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -385,14 +411,25 @@ mod tests {
     #[test]
     /// Checks that metadata is validated correctly if too large
     fn test_fail_create_receipt_script_invalid() {
-        let metadata = String::from_utf8_lossy(vec![0; MAX_METADATA_BYTES + 1]).to_string();
+        let metadata = String::from_utf8_lossy(&[0; MAX_METADATA_BYTES + 1]).to_string();
         let asset = Asset::receipt(1, None, Some(metadata));
         let asset_hash = construct_tx_in_signable_asset_hash(&asset);
         let (pk, sk) = sign::gen_keypair();
         let signature = sign::sign_detached(asset_hash.as_bytes(), &sk);
 
         let script = Script::new_create_asset(0, asset_hash, signature, pk);
-        assert_ne!(tx_has_valid_create_script(&script, &asset), true);
+        assert!(!tx_has_valid_create_script(&script, &asset));
+    }
+
+    #[test]
+    /// Checks whether addresses are validated correctly
+    fn test_validate_addresses_correctly() {
+        let (pk, _) = sign::gen_keypair();
+        let address = construct_address(&pk);
+
+        assert!(address_has_valid_length(&address));
+        assert!(address_has_valid_length(&hex::encode([0; 32])));
+        assert!(!address_has_valid_length(&hex::encode([0; 64])));
     }
 
     #[test]
