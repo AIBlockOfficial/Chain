@@ -379,9 +379,10 @@ pub fn construct_receipt_create_tx(
     secret_key: &SecretKey,
     amount: u64,
     drs_tx_hash_spec: DrsTxHashSpec,
+    metadata: Option<String>,
 ) -> Transaction {
     let drs_tx_hash = drs_tx_hash_spec.get_drs_tx_hash();
-    let asset = Asset::receipt(amount, drs_tx_hash);
+    let asset = Asset::receipt(amount, drs_tx_hash, metadata);
     let receiver_address = construct_address(&public_key);
 
     let tx_ins = construct_create_tx_in(block_num, &asset, public_key, secret_key);
@@ -516,9 +517,10 @@ pub fn construct_rb_receive_payment_tx(
     druid: String,
     expectation: Vec<DruidExpectation>,
     drs_tx_hash: Option<String>,
+    metadata: Option<String>,
 ) -> Transaction {
     let out = TxOut {
-        value: Asset::receipt(1, drs_tx_hash),
+        value: Asset::receipt(1, drs_tx_hash, metadata),
         locktime,
         script_public_key: Some(sender_address),
         drs_block_hash: None, // this will need to change
@@ -823,7 +825,7 @@ mod tests {
             let expectation = DruidExpectation {
                 from: from_addr.clone(),
                 to: alice_addr.clone(),
-                asset: Asset::receipt(1, Some("drs_tx_hash".to_owned())),
+                asset: Asset::receipt(1, Some("drs_tx_hash".to_owned()), None),
             };
 
             let mut tx = construct_rb_payments_send_tx(
@@ -862,6 +864,7 @@ mod tests {
                 druid.clone(),
                 vec![expectation],
                 Some("drs_tx_hash".to_owned()),
+                None,
             )
         };
 
@@ -988,7 +991,7 @@ mod tests {
         //
         let assets = vec![
             Asset::token_u64(1),
-            Asset::receipt(1, None),
+            Asset::receipt(1, None, None),
             Asset::Data(DataAsset {
                 data: vec![1, 2, 3],
                 amount: 1,

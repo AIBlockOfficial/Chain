@@ -143,7 +143,7 @@ mod tests {
             let expectation = DruidExpectation {
                 from: from_addr.clone(),
                 to: alice_addr.clone(),
-                asset: Asset::receipt(1, Some("drs_tx_hash".to_owned())),
+                asset: Asset::receipt(1, Some("drs_tx_hash".to_owned()), None),
             };
 
             let mut tx = construct_rb_payments_send_tx(
@@ -182,6 +182,7 @@ mod tests {
                 druid,
                 vec![expectation],
                 Some("drs_tx_hash".to_owned()), // All receipt-assets must contain a DRS
+                None,
             )
         };
 
@@ -276,7 +277,7 @@ mod tests {
     /// Checks that receipt-based payments with non-matching DRS expectations fail
     fn should_fail_rb_payment_drs_expect_mismatch() {
         let (send_tx, mut recv_tx) = create_rb_payment_txs();
-        recv_tx.outputs[0].value = Asset::receipt(1, Some("invalid_drs_tx_hash".to_string()));
+        recv_tx.outputs[0].value = Asset::receipt(1, Some("invalid_drs_tx_hash".to_string()), None);
 
         // Non-matching address expectation
         assert!(!druid_expectations_are_met(

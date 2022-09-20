@@ -1,8 +1,10 @@
 #![allow(unused)]
-use crate::constants::{NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TOTAL_TOKENS};
+use crate::constants::{
+    MAX_METADATA_BYTES, NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TOTAL_TOKENS,
+};
 use crate::crypto::sha3_256;
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, Signature};
-use crate::primitives::asset::{Asset, AssetValues, TokenAmount};
+use crate::primitives::asset::{Asset, AssetValues, ReceiptAsset, TokenAmount};
 use crate::primitives::druid::DruidExpectation;
 use crate::primitives::transaction::*;
 use crate::script::interface_ops;
@@ -154,6 +156,12 @@ pub fn tx_has_valid_create_script(script: &Script, asset: &Asset) -> bool {
     let mut it = script.stack.iter();
     let asset_hash = construct_tx_in_signable_asset_hash(asset);
 
+    if let Asset::Receipt(r) = asset {
+        if !receipt_has_size_constraint(r) {
+            return false;
+        }
+    }
+
     if let (
         Some(StackEntry::Op(OpCodes::OP_CREATE)),
         Some(StackEntry::Num(_)),
@@ -299,6 +307,19 @@ fn match_on_multisig_to_pubkey(
     counter >= m
 }
 
+/// Checks that a receipt's metadata conforms to the network size constraint
+///
+/// ### Arguments
+///
+/// * `receipt` - Receipt to check
+fn receipt_has_size_constraint(receipt: &ReceiptAsset) -> bool {
+    if let Some(metadata) = &receipt.metadata {
+        return metadata.len() <= MAX_METADATA_BYTES;
+    }
+
+    true
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -352,13 +373,26 @@ mod tests {
     #[test]
     /// Checks that a correct create script is validated as such
     fn test_pass_create_script_valid() {
-        let asset = Asset::receipt(1, None);
+        let asset = Asset::receipt(1, None, None);
         let asset_hash = construct_tx_in_signable_asset_hash(&asset);
         let (pk, sk) = sign::gen_keypair();
         let signature = sign::sign_detached(asset_hash.as_bytes(), &sk);
 
         let script = Script::new_create_asset(0, asset_hash, signature, pk);
         assert!(tx_has_valid_create_script(&script, &asset));
+    }
+
+    #[test]
+    /// Checks that metadata is validated correctly if too large
+    fn test_fail_create_receipt_script_invalid() {
+        let metadata = String::from_utf8_lossy(vec![0; MAX_METADATA_BYTES + 1]).to_string();
+        let asset = Asset::receipt(1, None, Some(metadata));
+        let asset_hash = construct_tx_in_signable_asset_hash(&asset);
+        let (pk, sk) = sign::gen_keypair();
+        let signature = sign::sign_detached(asset_hash.as_bytes(), &sk);
+
+        let script = Script::new_create_asset(0, asset_hash, signature, pk);
+        assert_ne!(tx_has_valid_create_script(&script, &asset), true);
     }
 
     #[test]
@@ -786,7 +820,11 @@ mod tests {
     /// 1. Inputs contain two `TxIn`s for `Token`s of amounts `3` and `2`
     /// 2. Outputs contain `TxOut`s for `Token`s of amounts `3` and `2`
     fn test_tx_drs_tokens_only_success() {
-        test_tx_drs_common(&[(3, None), (2, None)], &[(3, None), (2, None)], true);
+        test_tx_drs_common(
+            &[(3, None, None), (2, None, None)],
+            &[(3, None), (2, None)],
+            true,
+        );
     }
 
     #[test]
@@ -799,7 +837,11 @@ mod tests {
     /// 2. Outputs contain `TxOut`s for `Token`s of amounts `3` and `3`
     /// 3. `TxIn` `Token`s amount does not match `TxOut` `Token`s amount
     fn test_tx_drs_tokens_only_failure_amount_mismatch() {
-        test_tx_drs_common(&[(3, None), (2, None)], &[(3, None), (3, None)], false);
+        test_tx_drs_common(
+            &[(3, None, None), (2, None, None)],
+            &[(3, None), (3, None)],
+            false,
+        );
     }
 
     #[test]
@@ -813,7 +855,10 @@ mod tests {
     /// 3. `TxIn` DRS matches `TxOut` DRS for `Receipt`s; Amount of `Receipt`s spent does not match    
     fn test_tx_drs_receipts_only_failure_amount_mismatch() {
         test_tx_drs_common(
-            &[(3, Some("drs_tx_hash_1")), (2, Some("drs_tx_hash_2"))],
+            &[
+                (3, Some("drs_tx_hash_1"), None),
+                (2, Some("drs_tx_hash_2"), None),
+            ],
             &[(3, Some("drs_tx_hash_1")), (3, Some("drs_tx_hash_2"))],
             false,
         );
@@ -830,7 +875,10 @@ mod tests {
     /// 3. `TxIn` DRS does not match `TxOut` DRS for `Receipt`s; Amount of `Receipt`s spent matches     
     fn test_tx_drs_receipts_only_failure_drs_mismatch() {
         test_tx_drs_common(
-            &[(3, Some("drs_tx_hash_1")), (2, Some("drs_tx_hash_2"))],
+            &[
+                (3, Some("drs_tx_hash_1"), None),
+                (2, Some("drs_tx_hash_2"), None),
+            ],
             &[(3, Some("drs_tx_hash_1")), (2, Some("invalid_drs_tx_hash"))],
             false,
         );
@@ -847,7 +895,7 @@ mod tests {
     /// 3. `TxIn` DRS matches `TxOut` DRS for `Receipt`s; Amount of `Receipt`s and `Token`s spent matches      
     fn test_tx_drs_receipts_and_tokens_success() {
         test_tx_drs_common(
-            &[(3, Some("drs_tx_hash")), (2, None)],
+            &[(3, Some("drs_tx_hash"), None), (2, None, None)],
             &[(3, Some("drs_tx_hash")), (2, None)],
             true,
         );
@@ -864,7 +912,7 @@ mod tests {
     /// 3. `TxIn` DRS matches `TxOut` DRS for `Receipt`s; Amount of `Receipt`s spent does not match      
     fn test_tx_drs_receipts_and_tokens_failure_amount_mismatch() {
         test_tx_drs_common(
-            &[(3, Some("drs_tx_hash")), (2, None)],
+            &[(3, Some("drs_tx_hash"), None), (2, None, None)],
             &[(2, Some("drs_tx_hash")), (2, None)],
             false,
         );
@@ -878,10 +926,19 @@ mod tests {
     ///
     /// 1. Inputs contain two `TxIn`s for `Receipt`s of amount `3` and `Token`s of amount `2`
     /// 2. Outputs contain `TxOut`s for `Receipt`s of amount `1` and Tokens of amount `1`
-    /// 3. `TxIn` DRS does not match `TxOut` DRS for `Receipt`s; Amount of `Receipt`s and `Token`s spent does not match                   
+    /// 3. `TxIn` DRS does not match `TxOut` DRS for `Receipt`s; Amount of `Receipt`s and `Token`s spent does not match;
+    /// Metadata does not match                
     fn test_tx_drs_receipts_and_tokens_failure_amount_and_drs_mismatch() {
+        let test_metadata: Option<String> = Some(
+            "{\"name\":\"test\",\"description\":\"test\",\"image\":\"test\",\"url\":\"test\"}"
+                .to_string(),
+        );
+
         test_tx_drs_common(
-            &[(3, Some("drs_tx_hash")), (2, None)],
+            &[
+                (3, Some("drs_tx_hash"), test_metadata.clone()),
+                (2, None, test_metadata),
+            ],
             &[(1, Some("invalid_drs_tx_hash")), (1, None)],
             false,
         );
@@ -890,7 +947,7 @@ mod tests {
     /// Test transaction validation with multiple different DRS
     /// configurations for `TxIn` and `TxOut` values
     fn test_tx_drs_common(
-        inputs: &[(u64, Option<&str>)],
+        inputs: &[(u64, Option<&str>, Option<String>)],
         outputs: &[(u64, Option<&str>)],
         expected_result: bool,
     ) {

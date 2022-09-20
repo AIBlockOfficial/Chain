@@ -81,13 +81,15 @@ impl iter::Sum for TokenAmount {
 pub struct ReceiptAsset {
     pub amount: u64,
     pub drs_tx_hash: Option<String>,
+    pub metadata: Option<String>,
 }
 
 impl ReceiptAsset {
-    pub fn new(amount: u64, drs_tx_hash: Option<String>) -> Self {
+    pub fn new(amount: u64, drs_tx_hash: Option<String>, metadata: Option<String>) -> Self {
         Self {
             amount,
             drs_tx_hash,
+            metadata,
         }
     }
 }
@@ -150,8 +152,8 @@ impl Asset {
         Asset::Token(TokenAmount(amount))
     }
 
-    pub fn receipt(amount: u64, drs_tx_hash: Option<String>) -> Self {
-        Asset::Receipt(ReceiptAsset::new(amount, drs_tx_hash))
+    pub fn receipt(amount: u64, drs_tx_hash: Option<String>, metadata: Option<String>) -> Self {
+        Asset::Receipt(ReceiptAsset::new(amount, drs_tx_hash, metadata))
     }
 
     /// Add an asset of the same variant to `self` asset.
@@ -226,6 +228,7 @@ impl Asset {
                     Some(Asset::receipt(
                         lhs_receipts.amount - rhs_receipts.amount,
                         lhs_receipts.drs_tx_hash.clone(),
+                        lhs_receipts.metadata.clone(),
                     ))
                 } else {
                     None
@@ -253,9 +256,11 @@ impl Asset {
     pub fn default_of_type(asset_type: &Self) -> Self {
         match asset_type {
             Self::Token(_) => Self::Token(Default::default()),
-            Self::Receipt(receipt) => {
-                Self::receipt(Default::default(), receipt.drs_tx_hash.clone())
-            }
+            Self::Receipt(receipt) => Self::receipt(
+                Default::default(),
+                receipt.drs_tx_hash.clone(),
+                receipt.metadata.clone(),
+            ),
             _ => panic!("Cannot create default of asset type: {:?}", asset_type),
         }
     }
