@@ -658,7 +658,7 @@ mod tests {
         assert_eq!(Asset::Token(token_amount), payment_tx.outputs[0].value);
         assert_eq!(
             payment_tx.outputs[0].script_public_key,
-            Some(hex::encode(vec![0; 64]))
+            Some(hex::encode(vec![0; 32]))
         );
     }
 

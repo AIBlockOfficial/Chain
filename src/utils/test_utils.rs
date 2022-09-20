@@ -39,8 +39,7 @@ pub fn generate_tx_with_ins_and_outs_assets(
         let tx_previous_out = OutPoint::new("tx_hash".to_owned(), tx.inputs.len() as i32);
         let tx_in_previous_out = match drs_tx_hash {
             Some(drs) => {
-                let metadata = md.as_ref().unwrap().to_string();
-                let receipt = Asset::receipt(*input_amount, Some(drs.to_string()), Some(metadata));
+                let receipt = Asset::receipt(*input_amount, Some(drs.to_string()), md.clone());
                 TxOut::new_asset(spk.clone(), receipt)
             }
             None => TxOut::new_token_amount(spk.clone(), TokenAmount(*input_amount)),

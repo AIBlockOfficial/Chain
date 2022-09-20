@@ -343,7 +343,7 @@ fn receipt_has_valid_size(receipt: &ReceiptAsset) -> bool {
 ///
 /// * `address` - Address to check
 fn address_has_valid_length(address: &str) -> bool {
-    address.len() == 34 || address.len() == 64
+    address.len() == 32 || address.len() == 64
 }
 
 #[cfg(test)]
@@ -827,6 +827,7 @@ mod tests {
                 },
                 previous_out: Some(tx_outpoint.clone()),
             }];
+
             let tx = Transaction {
                 inputs: tx_ins,
                 outputs: ongoing_tx_outs.clone(),
