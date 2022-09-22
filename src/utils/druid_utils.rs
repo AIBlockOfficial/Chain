@@ -51,7 +51,7 @@ fn expectation_met(e: &DruidExpectation, tx_source: &BTreeSet<(String, &String, 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::primitives::asset::{Asset, DataAsset, ReceiptAsset, TokenAmount};
+    use crate::primitives::asset::{Asset, DataAsset, TokenAmount};
     use crate::primitives::druid::{DdeValues, DruidExpectation};
     use crate::primitives::transaction::*;
     use crate::utils::transaction_utils::*;

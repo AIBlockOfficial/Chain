@@ -680,23 +680,13 @@ mod tests {
 
         let drs_tx_hash = "receipt_tx_hash".to_string();
         let receipt_asset_valid = ReceiptAsset::new(1000, Some(drs_tx_hash.clone()), None);
-        let receipt_asset_invalid =
-            ReceiptAsset::new(1000, Some(drs_tx_hash.clone()), Some("".to_string()));
 
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
         let payment_tx_valid = construct_payment_tx(
-            tx_ins.clone(),
-            hex::encode(vec![0; 32]),
-            Some(drs_block_hash.clone()),
-            Asset::Receipt(receipt_asset_valid),
-            0,
-        );
-
-        let payment_tx_invalid = construct_payment_tx(
             tx_ins,
             hex::encode(vec![0; 32]),
             Some(drs_block_hash),
-            Asset::Receipt(receipt_asset_invalid),
+            Asset::Receipt(receipt_asset_valid),
             0,
         );
 
@@ -704,14 +694,7 @@ mod tests {
         btree.insert(drs_tx_hash, 1000);
         let tx_ins_spent = AssetValues::new(TokenAmount(0), btree);
 
-        assert!(tx_outs_are_valid(
-            &payment_tx_valid.outputs,
-            tx_ins_spent.clone()
-        ));
-        assert!(!tx_outs_are_valid(
-            &payment_tx_invalid.outputs,
-            tx_ins_spent
-        ));
+        assert!(tx_outs_are_valid(&payment_tx_valid.outputs, tx_ins_spent));
     }
 
     #[test]
