@@ -58,15 +58,13 @@ pub fn tx_is_valid<'a>(
     is_in_utxo: impl Fn(&OutPoint) -> Option<&'a TxOut> + 'a,
 ) -> bool {
     let mut tx_ins_spent: AssetValues = Default::default();
-
     // TODO: Add support for `Data` asset variant
     // `Receipt` assets MUST have an a DRS value associated with them when they are getting on-spent
-    if tx
-        .outputs
-        .iter()
-        .any(|out| (out.value.is_receipt() && out.value.get_drs_tx_hash().is_none()))
-    {
-        error!("CANNOT ON-SPEND WITHOUT DRS TX HASH SPECIFICATION");
+    if tx.outputs.iter().any(|out| {
+        (out.value.is_receipt()
+            && (out.value.get_drs_tx_hash().is_none() || out.value.get_metadata().is_some()))
+    }) {
+        error!("ON-SPENDING NEEDS EMPTY METADATA AND NON-EMPTY DRS SPECIFICATION");
         return false;
     }
 
@@ -114,14 +112,6 @@ pub fn tx_outs_are_valid(tx_outs: &[TxOut], tx_ins_spent: AssetValues) -> bool {
     let mut tx_outs_spent: AssetValues = Default::default();
 
     for tx_out in tx_outs {
-        // Metadata for receipt on-spends must be empty
-        if let Asset::Receipt(r) = tx_out.value.clone() {
-            if r.metadata.is_some() {
-                trace!("Metadata for receipt on-spends must be empty");
-                return false;
-            }
-        }
-
         // Addresses must have valid length
         if let Some(addr) = &tx_out.script_public_key {
             if !address_has_valid_length(addr) {

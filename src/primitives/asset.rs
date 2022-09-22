@@ -140,6 +140,14 @@ impl Asset {
         }
     }
 
+    pub fn get_metadata(&self) -> Option<&String> {
+        match self {
+            Asset::Token(_) => None,
+            Asset::Data(_) => None,
+            Asset::Receipt(receipt) => receipt.metadata.as_ref(),
+        }
+    }
+
     pub fn len(&self) -> usize {
         match self {
             Asset::Token(_) => size_of::<TokenAmount>(),

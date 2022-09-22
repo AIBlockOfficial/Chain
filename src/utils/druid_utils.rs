@@ -181,7 +181,7 @@ mod tests {
                 0,
                 druid,
                 vec![expectation],
-                ReceiptAsset::new(1, Some("drs_tx_hash".to_owned()), None),
+                Some("drs_tx_hash".to_owned()),
             )
         };
 
