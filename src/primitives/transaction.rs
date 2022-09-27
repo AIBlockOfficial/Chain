@@ -29,7 +29,7 @@ impl DrsTxHashSpec {
 }
 
 /// A user-friendly construction struct for a TxIn
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TxConstructor {
     pub previous_out: OutPoint,
     pub signatures: Vec<Signature>,

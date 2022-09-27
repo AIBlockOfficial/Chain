@@ -26,8 +26,8 @@ use std::collections::BTreeMap;
 /// When a `None` value is presented alongside an input amount, the asset is assumed
 /// to be of type `Token`.
 pub fn generate_tx_with_ins_and_outs_assets(
-    input_assets: &[(u64, Option<&str>)], /* Input amount, drs_tx_hash */
-    output_assets: &[(u64, Option<&str>)], /* Input amount, drs_tx_hash */
+    input_assets: &[(u64, Option<&str>, Option<String>)], /* Input amount, drs_tx_hash, metadata */
+    output_assets: &[(u64, Option<&str>)],                /* Input amount, drs_tx_hash */
 ) -> (BTreeMap<OutPoint, TxOut>, Transaction) {
     let (pk, sk) = sign::gen_keypair();
     let spk = construct_address(&pk);
@@ -35,11 +35,11 @@ pub fn generate_tx_with_ins_and_outs_assets(
     let mut utxo_set: BTreeMap<OutPoint, TxOut> = BTreeMap::new();
 
     // Generate inputs
-    for (input_amount, drs_tx_hash) in input_assets {
+    for (input_amount, drs_tx_hash, md) in input_assets {
         let tx_previous_out = OutPoint::new("tx_hash".to_owned(), tx.inputs.len() as i32);
         let tx_in_previous_out = match drs_tx_hash {
             Some(drs) => {
-                let receipt = Asset::receipt(*input_amount, Some(drs.to_string()));
+                let receipt = Asset::receipt(*input_amount, Some(drs.to_string()), md.clone());
                 TxOut::new_asset(spk.clone(), receipt)
             }
             None => TxOut::new_token_amount(spk.clone(), TokenAmount(*input_amount)),
@@ -58,7 +58,7 @@ pub fn generate_tx_with_ins_and_outs_assets(
     for (output_amount, drs_tx_hash) in output_assets {
         let tx_out = match drs_tx_hash {
             Some(drs) => {
-                let receipt = Asset::receipt(*output_amount, Some(drs.to_string()));
+                let receipt = Asset::receipt(*output_amount, Some(drs.to_string()), None);
                 TxOut::new_asset(spk.clone(), receipt)
             }
             None => TxOut::new_token_amount(spk.clone(), TokenAmount(*output_amount)),
