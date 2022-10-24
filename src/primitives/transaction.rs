@@ -1,8 +1,8 @@
 #![allow(unused)]
-use crate::constants::NETWORK_VERSION;
+use crate::constants::{NETWORK_VERSION, RECEIPT_DEFAULT_DRS_TX_HASH};
 use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use crate::primitives::{
-    asset::{Asset, TokenAmount},
+    asset::{Asset, ReceiptAsset, TokenAmount},
     druid::{DdeValues, DruidExpectation},
 };
 use crate::script::lang::Script;
@@ -12,8 +12,24 @@ use bincode::serialize;
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum DrsTxHashSpec {
+    Create,
+    Default,
+    //TODO: Eventually custom?
+}
+
+impl DrsTxHashSpec {
+    pub fn get_drs_tx_hash(&self) -> Option<String> {
+        match self {
+            DrsTxHashSpec::Create => None, /* Unique DRS transaction hash will be assigned */
+            DrsTxHashSpec::Default => Some(RECEIPT_DEFAULT_DRS_TX_HASH.to_string()),
+        }
+    }
+}
+
 /// A user-friendly construction struct for a TxIn
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TxConstructor {
     pub previous_out: OutPoint,
     pub signatures: Vec<Signature>,
@@ -96,7 +112,6 @@ pub struct TxOut {
     pub value: Asset,
     pub locktime: u64,
     pub drs_block_hash: Option<String>,
-    pub drs_tx_hash: Option<String>,
     pub script_public_key: Option<String>,
 }
 
@@ -114,9 +129,12 @@ impl TxOut {
         }
     }
 
-    pub fn new_receipt_amount(to_address: String, amount: u64) -> TxOut {
+    /// Creates a new TxOut instance for a `Receipt` asset
+    ///
+    /// **NOTE:** Only create transactions may have `Receipt` assets that have a `None` `drs_tx_hash`
+    pub fn new_receipt_amount(to_address: String, receipt: ReceiptAsset) -> TxOut {
         TxOut {
-            value: Asset::Receipt(amount),
+            value: Asset::Receipt(receipt),
             script_public_key: Some(to_address),
             ..Default::default()
         }
@@ -126,7 +144,7 @@ impl TxOut {
     pub fn new_asset(to_address: String, asset: Asset) -> TxOut {
         match asset {
             Asset::Token(amount) => TxOut::new_token_amount(to_address, amount),
-            Asset::Receipt(amount) => TxOut::new_receipt_amount(to_address, amount),
+            Asset::Receipt(receipt) => TxOut::new_receipt_amount(to_address, receipt),
             _ => panic!("Cannot create TxOut for asset of type {:?}", asset),
         }
     }

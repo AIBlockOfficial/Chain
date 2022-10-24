@@ -1,10 +1,15 @@
 use crate::script::OpCodes;
 
+/*------- TRANSACTION CONSTANTS -------*/
+
+pub const RECEIPT_DEFAULT_DRS_TX_HASH: &str = "default_drs_tx_hash";
+pub const MAX_METADATA_BYTES: usize = 800;
+
 /*------- NETWORK CONSTANTS --------*/
 
 /// Current network version: Always bump immediately after a version is deployed.
-pub const NETWORK_VERSION: u32 = 1;
-pub const NETWORK_VERSION_SERIALIZED: &[u8] = b"1";
+pub const NETWORK_VERSION: u32 = 2;
+pub const NETWORK_VERSION_SERIALIZED: &[u8] = b"2";
 
 /*------- VALUE HANDLING CONSTANTS --------*/
 

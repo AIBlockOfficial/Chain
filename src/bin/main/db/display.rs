@@ -37,7 +37,7 @@ pub fn list_assets(db_path: String) {
             println!(
                 "{}: {}",
                 "Merkle Root Hash".magenta(),
-                hex::encode(block.header.merkle_root_hash)
+                hex::encode(block.header.txs_merkle_root_and_hash)
             );
             println!("{}: {}", "Block Number".magenta(), block.header.b_num);
             println!();

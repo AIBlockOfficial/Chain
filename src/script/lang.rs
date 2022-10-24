@@ -1,5 +1,6 @@
 #![allow(unused)]
 use crate::constants::{NETWORK_VERSION_TEMP, NETWORK_VERSION_V0};
+use crate::crypto::sha3_256;
 use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::transaction_utils::{construct_address, construct_address_for};
@@ -7,8 +8,6 @@ use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
 use serde::{Deserialize, Serialize};
-use sha3::Digest;
-use sha3::Sha3_256;
 use tracing::{error, warn};
 
 /// Scripts are defined as a sequence of stack entries
