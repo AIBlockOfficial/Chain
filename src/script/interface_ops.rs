@@ -1,5 +1,7 @@
 #![allow(unused)]
 
+// hello
+
 use crate::constants::TOTAL_TOKENS;
 use crate::crypto::sha3_256;
 use crate::primitives::asset::{Asset, TokenAmount};
