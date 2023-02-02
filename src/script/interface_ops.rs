@@ -1,7 +1,5 @@
 #![allow(unused)]
 
-// hello
-
 use crate::constants::TOTAL_TOKENS;
 use crate::crypto::sha3_256;
 use crate::primitives::asset::{Asset, TokenAmount};
@@ -153,7 +151,7 @@ pub fn op_multisig(current_stack: &mut Vec<StackEntry>) -> bool {
 
     let m = match current_stack.pop().unwrap() {
         StackEntry::Num(m) => m,
-        _ => panic!("No n value of keys for multisig present"),
+        _ => panic!("No m value of keys for multisig present"),
     };
 
     // If there are more keys required than available
