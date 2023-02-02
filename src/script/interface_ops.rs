@@ -207,25 +207,25 @@ fn match_on_multisig_to_pubkey(
     counter >= m
 }
 
-/// Handles the execution for the default if the op code does not match using a reference. Returns a bool.
+/// Pushes a new entry to the current stack. Returns a bool.
 ///
 /// ### Arguments
 ///
 /// * `stack_entry`  - The current entry on the stack
 /// * `current_stack`  - mutable reference to the current stack
-pub fn op_else(stack_entry: StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
+pub fn push_stack_entry(stack_entry: StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("Adding constant to stack: {:?}", stack_entry);
     current_stack.push(stack_entry);
     true
 }
 
-/// Handles the execution for the default if the op code does not match. Returns a bool.
+/// Pushes a new entry to the current stack. Returns a bool.
 ///
 /// ### Arguments
 ///
 /// * `stack_entry`  - reference to the current entry on the stack
 /// * `current_stack`  - mutable reference to the current stack
-pub fn op_else_ref(stack_entry: &StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
+pub fn push_stack_entry_ref(stack_entry: &StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("Adding constant to stack: {:?}", stack_entry);
     current_stack.push(stack_entry.clone());
     true
