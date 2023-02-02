@@ -172,7 +172,7 @@ pub enum OpCodes {
     OP_HASH256_V0 = 0xc1,
 
     // support for temporary address scheme used on wallet
-    // TODO: Depreciate after addresses retire
+    // TODO: Deprecate after addresses retire
     OP_HASH256_TEMP = 0xc2,
 
     OP_INVALIDOPCODE = 0xff,
