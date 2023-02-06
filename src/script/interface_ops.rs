@@ -18,6 +18,23 @@ use tracing::{debug, error, info, trace};
 
 // --- Stack ops ---
 
+/// Handles the execution for the double drop opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_2drop(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_2DROP: dropping last two entries of the stack");
+    let len = current_stack.len();
+    if len < 2 {
+        error!("Not enough elements on the stack");
+        return false;
+    }
+    current_stack.pop();
+    current_stack.pop();
+    true
+}
+
 /// Handles the execution for the drop opcode. Returns a bool.
 ///
 /// ### Arguments
