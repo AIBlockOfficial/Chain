@@ -164,6 +164,22 @@ pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// Handles the execution of the OP_NIP opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_nip(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_NIP: removing the second-to-top item on the stack");
+    let len = current_stack.len();
+    if len < 2 {
+        error!("Not enough elements on the stack");
+        return false;
+    }
+    current_stack.remove(len - 2);
+    true
+}
+
 /// Handles the execution of the OP_OVER opcode. Returns a bool.
 ///
 /// ### Arguments

@@ -86,13 +86,13 @@ pub enum OpCodes {
     OP_DEPTH = 0x74,
     OP_DROP = 0x75,         // implemented
     OP_DUP = 0x76,          // implemented
-    OP_NIP = 0x77,
+    OP_NIP = 0x77,          // implemented
     OP_OVER = 0x78,         // implemented
     OP_PICK = 0x79,
     OP_ROLL = 0x7a,
     OP_ROT = 0x7b,          // implemented
     OP_SWAP = 0x7c,         // implemented
-    OP_TUCK = 0x7d,
+    OP_TUCK = 0x7d,         // implemented
 
     // splice ops
     OP_CAT = 0x7e,
