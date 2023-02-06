@@ -47,10 +47,10 @@ pub fn op_2dup(current_stack: &mut Vec<StackEntry>) -> bool {
         error!("Not enough elements in the stack");
         return false;
     }
-    let dup1 = current_stack[len - 2].clone();
-    let dup2 = current_stack[len - 1].clone();
-    current_stack.push(dup1);
-    current_stack.push(dup2);
+    let item1 = current_stack[len - 2].clone();
+    let item2 = current_stack[len - 1].clone();
+    current_stack.push(item1);
+    current_stack.push(item2);
     true
 }
 
@@ -66,12 +66,12 @@ pub fn op_3dup(current_stack: &mut Vec<StackEntry>) -> bool {
         error!("Not enough elements in the stack");
         return false;
     }
-    let dup1 = current_stack[len - 3].clone();
-    let dup2 = current_stack[len - 2].clone();
-    let dup3 = current_stack[len - 1].clone();
-    current_stack.push(dup1);
-    current_stack.push(dup2);
-    current_stack.push(dup3);
+    let item1 = current_stack[len - 3].clone();
+    let item2 = current_stack[len - 2].clone();
+    let item3 = current_stack[len - 1].clone();
+    current_stack.push(item1);
+    current_stack.push(item2);
+    current_stack.push(item3);
     true
 }
 
@@ -87,10 +87,32 @@ pub fn op_2over(current_stack: &mut Vec<StackEntry>) -> bool {
         error!("Not enough elements in the stack");
         return false;
     }
-    let dup1 = current_stack[len - 4].clone();
-    let dup2 = current_stack[len - 3].clone();
-    current_stack.push(dup1);
-    current_stack.push(dup2);
+    let item1 = current_stack[len - 4].clone();
+    let item2 = current_stack[len - 3].clone();
+    current_stack.push(item1);
+    current_stack.push(item2);
+    true
+}
+
+/// Handles the execution of the OP_2ROT opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_2rot(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_2ROT: moving the fifth and sixth items back to the top of the stack");
+    let len = current_stack.len();
+    if len < 6 {
+        error!("Not enough elements in the stack");
+        return false;
+    }
+    let item1 = current_stack[len - 6].clone();
+    let item2 = current_stack[len - 5].clone();
+    // removing items in reverse order to preserve indexing
+    current_stack.remove(len - 5);
+    current_stack.remove(len - 6);
+    current_stack.push(item1);
+    current_stack.push(item2);
     true
 }
 
