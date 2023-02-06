@@ -80,8 +80,8 @@ pub enum OpCodes {
     OP_2DUP = 0x6e,         // implemented
     OP_3DUP = 0x6f,         // implemented
     OP_2OVER = 0x70,        // implemented
-    OP_2ROT = 0x71,
-    OP_2SWAP = 0x72,
+    OP_2ROT = 0x71,         // implemented
+    OP_2SWAP = 0x72,        // implemented
     OP_IFDUP = 0x73,
     OP_DEPTH = 0x74,
     OP_DROP = 0x75,         // implemented

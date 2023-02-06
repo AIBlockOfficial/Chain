@@ -108,15 +108,30 @@ pub fn op_2rot(current_stack: &mut Vec<StackEntry>) -> bool {
     }
     let item1 = current_stack[len - 6].clone();
     let item2 = current_stack[len - 5].clone();
-    // removing items in reverse order to preserve indexing
-    current_stack.remove(len - 5);
-    current_stack.remove(len - 6);
+    current_stack.drain(len - 6..len - 4);
     current_stack.push(item1);
     current_stack.push(item2);
     true
 }
 
-/// Handles the execution for the drop opcode. Returns a bool.
+/// Handles the execution of the OP_2SWAP opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_2swap(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_2SWAP: swapping the top two pairs of items in the stack");
+    let len = current_stack.len();
+    if len < 4 {
+        error!("Not enough elements in the stack");
+        return false;
+    }
+    current_stack.swap(len - 4, len - 2);
+    current_stack.swap(len - 3, len - 1);
+    true
+}
+
+/// Handles the execution of the OP_DROP opcode. Returns a bool.
 ///
 /// ### Arguments
 ///
@@ -132,7 +147,7 @@ pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// Handles the execution for the duplicate opcode. Returns a bool.
+/// Handles the execution of the OP_DUP opcode. Returns a bool.
 ///
 /// ### Arguments
 ///
@@ -144,8 +159,8 @@ pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
         error!("Not enough elements in the stack");
         return false;
     }
-    let dup = current_stack[len - 1].clone();
-    current_stack.push(dup);
+    let item = current_stack[len - 1].clone();
+    current_stack.push(item);
     true
 }
 
