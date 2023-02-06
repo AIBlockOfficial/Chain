@@ -164,6 +164,23 @@ pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// Handles the execution of the OP_ROT opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_rot(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_ROT: moving the third item back to the top of the stack");
+    let len = current_stack.len();
+    if len < 3 {
+        error!("Not enough elements in the stack");
+        return false;
+    }
+    current_stack.swap(len - 3, len - 2);
+    current_stack.swap(len - 2, len - 1);
+    true
+}
+
 // --- Crypto ops ---
 
 /// Handles the execution for the hash256 opcode. Returns a bool.
