@@ -16,25 +16,30 @@ use hex::encode;
 use std::collections::BTreeMap;
 use tracing::{debug, error, info, trace};
 
-/// Handles the execution for the duplicate op_code. Returns a bool.
+/// Handles the execution for the duplicate opcode. Returns a bool.
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("Duplicating last entry in script stack");
-    let dup = current_stack[current_stack.len() - 1].clone();
+    trace!("OP_DUP: duplicating last entry of the stack");
+    let len = current_stack.len();
+    if len < 1 {
+        error!("Stack is empty");
+        return false;
+    }
+    let dup = current_stack[len - 1].clone();
     current_stack.push(dup);
     true
 }
 
-/// Handles the execution for the hash256 op_code. Returns a bool.
+/// Handles the execution for the hash256 opcode. Returns a bool.
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_hash256(current_stack: &mut Vec<StackEntry>, address_version: Option<u64>) -> bool {
-    trace!("256 bit hashing last stack entry");
+    trace!("OP_HASH256: creating address from public key and address version");
     let last_entry = current_stack.pop().unwrap();
     let pub_key = match last_entry {
         StackEntry::PubKey(v) => v,
@@ -213,7 +218,7 @@ fn match_on_multisig_to_pubkey(
 ///
 /// * `stack_entry`  - The current entry on the stack
 /// * `current_stack`  - mutable reference to the current stack
-pub fn push_stack_entry(stack_entry: StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
+pub fn push_entry_to_stack(stack_entry: StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("Adding constant to stack: {:?}", stack_entry);
     current_stack.push(stack_entry);
     true
@@ -225,7 +230,7 @@ pub fn push_stack_entry(stack_entry: StackEntry, current_stack: &mut Vec<StackEn
 ///
 /// * `stack_entry`  - reference to the current entry on the stack
 /// * `current_stack`  - mutable reference to the current stack
-pub fn push_stack_entry_ref(stack_entry: &StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
+pub fn push_entry_to_stack_ref(stack_entry: &StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("Adding constant to stack: {:?}", stack_entry);
     current_stack.push(stack_entry.clone());
     true
