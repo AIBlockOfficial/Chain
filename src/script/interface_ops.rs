@@ -164,6 +164,23 @@ pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// Handles the execution of the OP_OVER opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_over(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_OVER: copying the second-to-top item to the top of the stack");
+    let len = current_stack.len();
+    if len < 2 {
+        error!("Not enough elements on the stack");
+        return false;
+    }
+    let item = current_stack[len - 2].clone();
+    current_stack.push(item);
+    true
+}
+
 /// Handles the execution of the OP_ROT opcode. Returns a bool.
 ///
 /// ### Arguments
