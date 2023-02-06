@@ -34,7 +34,7 @@ pub fn member_multisig_is_valid(script: Script) -> bool {
                     test_for_return &= interface_ops::op_checkmultisigmem(&mut current_stack);
                 }
                 _ => {
-                    interface_ops::push_stack_entry(stack_entry, &mut current_stack);
+                    interface_ops::push_entry_to_stack(stack_entry, &mut current_stack);
                 }
             }
         } else {
@@ -142,7 +142,7 @@ fn tx_has_valid_multsig_validation(script: &Script) -> bool {
                     test_for_return &= interface_ops::op_multisig(&mut current_stack);
                 }
                 _ => {
-                    test_for_return &= interface_ops::push_stack_entry_ref(stack_entry, &mut current_stack);
+                    test_for_return &= interface_ops::push_entry_to_stack_ref(stack_entry, &mut current_stack);
                 }
             }
         } else {
@@ -249,7 +249,7 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
 ///
 /// * `script`  - Script to unwrap and execute
 fn interpret_script(script: &Script) -> bool {
-    // TODO: check that script.stack.len() is less than a certain length (actual length to be decided)
+    // TODO: check that stack length is less than maximum length (to be decided)
     let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
     let mut test_for_return = true;
     for stack_entry in &script.stack {
@@ -276,7 +276,7 @@ fn interpret_script(script: &Script) -> bool {
                     test_for_return &= interface_ops::op_checksig(&mut current_stack);
                 }
                 _ => {
-                    test_for_return &= interface_ops::push_stack_entry_ref(stack_entry, &mut current_stack);
+                    test_for_return &= interface_ops::push_entry_to_stack_ref(stack_entry, &mut current_stack);
                 }
             }
         } else {
