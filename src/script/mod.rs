@@ -91,7 +91,7 @@ pub enum OpCodes {
     OP_PICK = 0x79,
     OP_ROLL = 0x7a,
     OP_ROT = 0x7b,          // implemented
-    OP_SWAP = 0x7c,
+    OP_SWAP = 0x7c,         // implemented
     OP_TUCK = 0x7d,
 
     // splice ops

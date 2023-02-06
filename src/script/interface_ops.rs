@@ -24,10 +24,10 @@ use tracing::{debug, error, info, trace};
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2drop(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2DROP: removing the top two stack items");
+    trace!("OP_2DROP: removing the top two items on the stack");
     let len = current_stack.len();
     if len < 2 {
-        error!("Not enough elements in the stack");
+        error!("Not enough elements on the stack");
         return false;
     }
     current_stack.pop();
@@ -41,10 +41,10 @@ pub fn op_2drop(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2DUP: duplicating the top two stack items");
+    trace!("OP_2DUP: duplicating the top two items on the stack");
     let len = current_stack.len();
     if len < 2 {
-        error!("Not enough elements in the stack");
+        error!("Not enough elements on the stack");
         return false;
     }
     let item1 = current_stack[len - 2].clone();
@@ -60,10 +60,10 @@ pub fn op_2dup(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_3dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_3DUP: duplicating the top three stack items");
+    trace!("OP_3DUP: duplicating the top three items on the stack");
     let len = current_stack.len();
     if len < 3 {
-        error!("Not enough elements in the stack");
+        error!("Not enough elements on the stack");
         return false;
     }
     let item1 = current_stack[len - 3].clone();
@@ -81,10 +81,10 @@ pub fn op_3dup(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2over(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2OVER: copying the pair of items two spaces back in the stack to the front");
+    trace!("OP_2OVER: copying the pair of items two spaces back to the top of the stack");
     let len = current_stack.len();
     if len < 4 {
-        error!("Not enough elements in the stack");
+        error!("Not enough elements on the stack");
         return false;
     }
     let item1 = current_stack[len - 4].clone();
@@ -103,7 +103,7 @@ pub fn op_2rot(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_2ROT: moving the fifth and sixth items back to the top of the stack");
     let len = current_stack.len();
     if len < 6 {
-        error!("Not enough elements in the stack");
+        error!("Not enough elements on the stack");
         return false;
     }
     let item1 = current_stack[len - 6].clone();
@@ -120,10 +120,10 @@ pub fn op_2rot(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2swap(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2SWAP: swapping the top two pairs of items in the stack");
+    trace!("OP_2SWAP: swapping the top two pairs of items on the stack");
     let len = current_stack.len();
     if len < 4 {
-        error!("Not enough elements in the stack");
+        error!("Not enough elements on the stack");
         return false;
     }
     current_stack.swap(len - 4, len - 2);
@@ -137,10 +137,10 @@ pub fn op_2swap(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_DROP: removing the top stack item");
+    trace!("OP_DROP: removing the top item on the stack");
     let len = current_stack.len();
     if len < 1 {
-        error!("Not enough elements in the stack");
+        error!("Not enough elements on the stack");
         return false;
     }
     current_stack.pop();
@@ -153,10 +153,10 @@ pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_DUP: duplicating the top stack item");
+    trace!("OP_DUP: duplicating the top item on the stack");
     let len = current_stack.len();
     if len < 1 {
-        error!("Not enough elements in the stack");
+        error!("Not enough elements on the stack");
         return false;
     }
     let item = current_stack[len - 1].clone();
@@ -173,10 +173,26 @@ pub fn op_rot(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_ROT: moving the third item back to the top of the stack");
     let len = current_stack.len();
     if len < 3 {
-        error!("Not enough elements in the stack");
+        error!("Not enough elements on the stack");
         return false;
     }
     current_stack.swap(len - 3, len - 2);
+    current_stack.swap(len - 2, len - 1);
+    true
+}
+
+/// Handles the execution of the OP_SWAP opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_swap(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_SWAP: swapping the top two items on the stack");
+    let len = current_stack.len();
+    if len < 2 {
+        error!("Not enough elements on the stack");
+        return false;
+    }
     current_stack.swap(len - 2, len - 1);
     true
 }
