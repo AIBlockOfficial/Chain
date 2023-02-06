@@ -214,6 +214,23 @@ pub fn op_swap(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// Handles the execution of the OP_TUCK opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_tuck(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_TUCK: copying the top item before the second-to-top item on the stack");
+    let len = current_stack.len();
+    if len < 2 {
+        error!("Not enough elements on the stack");
+        return false;
+    }
+    let item = current_stack[len - 1].clone();
+    current_stack.insert(len - 2, item);
+    true
+}
+
 // --- Crypto ops ---
 
 /// Handles the execution for the hash256 opcode. Returns a bool.
