@@ -16,6 +16,24 @@ use hex::encode;
 use std::collections::BTreeMap;
 use tracing::{debug, error, info, trace};
 
+// --- Stack ops ---
+
+/// Handles the execution for the drop opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_DROP: dropping last entry of the stack");
+    let len = current_stack.len();
+    if len < 1 {
+        error!("Stack is empty");
+        return false;
+    }
+    current_stack.pop();
+    true
+}
+
 /// Handles the execution for the duplicate opcode. Returns a bool.
 ///
 /// ### Arguments
@@ -28,8 +46,8 @@ pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
         error!("Stack is empty");
         return false;
     }
-    let dup = current_stack[len - 1].clone();
-    current_stack.push(dup);
+    let last_entry = current_stack[len - 1].clone();
+    current_stack.push(last_entry);
     true
 }
 
