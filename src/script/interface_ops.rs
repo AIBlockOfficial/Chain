@@ -18,16 +18,16 @@ use tracing::{debug, error, info, trace};
 
 // --- Stack ops ---
 
-/// Handles the execution for the double drop opcode. Returns a bool.
+/// Handles the execution of the OP_2DROP opcode. Returns a bool.
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2drop(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2DROP: dropping last two entries of the stack");
+    trace!("OP_2DROP: removing the top two stack items");
     let len = current_stack.len();
     if len < 2 {
-        error!("Not enough elements on the stack");
+        error!("Not enough elements in the stack");
         return false;
     }
     current_stack.pop();
@@ -35,16 +35,16 @@ pub fn op_2drop(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// Handles the execution for the double duplicate opcode. Returns a bool.
+/// Handles the execution of the OP_2DUP opcode. Returns a bool.
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2DUP: duplicating last two entries of the stack");
+    trace!("OP_2DUP: duplicating the top two stack items");
     let len = current_stack.len();
     if len < 2 {
-        error!("Not enough elements on the stack");
+        error!("Not enough elements in the stack");
         return false;
     }
     let dup1 = current_stack[len - 2].clone();
@@ -54,16 +54,16 @@ pub fn op_2dup(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// Handles the execution for the triple duplicate opcode. Returns a bool.
+/// Handles the execution of the OP_3DUP opcode. Returns a bool.
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_3dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_3DUP: duplicating last three entries of the stack");
+    trace!("OP_3DUP: duplicating the top three stack items");
     let len = current_stack.len();
     if len < 3 {
-        error!("Not enough elements on the stack");
+        error!("Not enough elements in the stack");
         return false;
     }
     let dup1 = current_stack[len - 3].clone();
@@ -75,16 +75,35 @@ pub fn op_3dup(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// Handles the execution of the OP_2OVER opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_2over(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_2OVER: copying the pair of items two spaces back in the stack to the front");
+    let len = current_stack.len();
+    if len < 4 {
+        error!("Not enough elements in the stack");
+        return false;
+    }
+    let dup1 = current_stack[len - 4].clone();
+    let dup2 = current_stack[len - 3].clone();
+    current_stack.push(dup1);
+    current_stack.push(dup2);
+    true
+}
+
 /// Handles the execution for the drop opcode. Returns a bool.
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_DROP: dropping last entry of the stack");
+    trace!("OP_DROP: removing the top stack item");
     let len = current_stack.len();
     if len < 1 {
-        error!("Stack is empty");
+        error!("Not enough elements in the stack");
         return false;
     }
     current_stack.pop();
@@ -97,16 +116,18 @@ pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_DUP: duplicating last entry of the stack");
+    trace!("OP_DUP: duplicating the top stack item");
     let len = current_stack.len();
     if len < 1 {
-        error!("Stack is empty");
+        error!("Not enough elements in the stack");
         return false;
     }
     let dup = current_stack[len - 1].clone();
     current_stack.push(dup);
     true
 }
+
+// --- Crypto ops ---
 
 /// Handles the execution for the hash256 opcode. Returns a bool.
 ///
