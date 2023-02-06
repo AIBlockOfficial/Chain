@@ -76,16 +76,16 @@ pub enum OpCodes {
     // stack ops
     OP_TOALTSTACK = 0x6b,
     OP_FROMALTSTACK = 0x6c,
-    OP_2DROP = 0x6d,
-    OP_2DUP = 0x6e,
-    OP_3DUP = 0x6f,
+    OP_2DROP = 0x6d,        // implemented
+    OP_2DUP = 0x6e,         // implemented
+    OP_3DUP = 0x6f,         // implemented
     OP_2OVER = 0x70,
     OP_2ROT = 0x71,
     OP_2SWAP = 0x72,
     OP_IFDUP = 0x73,
     OP_DEPTH = 0x74,
-    OP_DROP = 0x75,
-    OP_DUP = 0x76,
+    OP_DROP = 0x75,         // implemented
+    OP_DUP = 0x76,          // implemented
     OP_NIP = 0x77,
     OP_OVER = 0x78,
     OP_PICK = 0x79,

@@ -54,6 +54,27 @@ pub fn op_2dup(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// Handles the execution for the triple duplicate opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_3dup(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_3DUP: duplicating last three entries of the stack");
+    let len = current_stack.len();
+    if len < 3 {
+        error!("Not enough elements on the stack");
+        return false;
+    }
+    let dup1 = current_stack[len - 3].clone();
+    let dup2 = current_stack[len - 2].clone();
+    let dup3 = current_stack[len - 1].clone();
+    current_stack.push(dup1);
+    current_stack.push(dup2);
+    current_stack.push(dup3);
+    true
+}
+
 /// Handles the execution for the drop opcode. Returns a bool.
 ///
 /// ### Arguments
