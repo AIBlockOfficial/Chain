@@ -94,7 +94,7 @@ pub enum OpCodes {
     OP_NIP = 0x77,          // implemented
     OP_OVER = 0x78,         // implemented
     OP_PICK = 0x79,         // implemented
-    OP_ROLL = 0x7a,
+    OP_ROLL = 0x7a,         // implemented
     OP_ROT = 0x7b,          // implemented
     OP_SWAP = 0x7c,         // implemented
     OP_TUCK = 0x7d,         // implemented
