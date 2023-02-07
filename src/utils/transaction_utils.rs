@@ -144,14 +144,14 @@ pub fn construct_tx_in_signable_asset_hash(asset: &Asset) -> String {
 /// * `entry`   - StackEntry to obtain signable string for
 pub fn get_stack_entry_signable_string(entry: &StackEntry) -> String {
     match entry {
-        StackEntry::Op(op) => format!("Op:{}", op),
+        StackEntry::Op(op) => format!("Op:{op}"),
         StackEntry::Signature(signature) => {
             format!("Signature:{}", hex::encode(signature.as_ref()))
         }
         StackEntry::PubKey(pub_key) => format!("PubKey:{}", hex::encode(pub_key.as_ref())),
-        StackEntry::PubKeyHash(pub_key_hash) => format!("PubKeyHash:{}", pub_key_hash),
-        StackEntry::Num(num) => format!("Num:{}", num),
-        StackEntry::Bytes(bytes) => format!("Bytes:{}", bytes),
+        StackEntry::PubKeyHash(pub_key_hash) => format!("PubKeyHash:{pub_key_hash}"),
+        StackEntry::Num(num) => format!("Num:{num}"),
+        StackEntry::Bytes(bytes) => format!("Bytes:{bytes}"),
     }
 }
 
@@ -181,7 +181,7 @@ pub fn get_tx_in_address_signable_string(tx_in: &TxIn) -> String {
         None => "null".to_owned(),
     };
     let script_signable_string = get_script_signable_string(&tx_in.script_signature.stack);
-    format!("{}-{}", out_point_signable_string, script_signable_string)
+    format!("{out_point_signable_string}-{script_signable_string}")
 }
 
 /// Constructs address a TxIn collection
