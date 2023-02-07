@@ -27,9 +27,14 @@ impl StackEntry {
         )
     }
 
-    /// Checks whether this stack entry is an ops code
+    /// Checks whether this stack entry is an opcode
     pub fn is_an_op(&self) -> bool {
         matches!(self, StackEntry::Op(_))
+    }
+
+    /// Checks whether this stack entry is a numeric value
+    pub fn is_a_num(&self) -> bool {
+        matches!(self, StackEntry::Num(_))
     }
 }
 
@@ -88,7 +93,7 @@ pub enum OpCodes {
     OP_DUP = 0x76,          // implemented
     OP_NIP = 0x77,          // implemented
     OP_OVER = 0x78,         // implemented
-    OP_PICK = 0x79,
+    OP_PICK = 0x79,         // implemented
     OP_ROLL = 0x7a,
     OP_ROT = 0x7b,          // implemented
     OP_SWAP = 0x7c,         // implemented
