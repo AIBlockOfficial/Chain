@@ -127,7 +127,7 @@ pub fn gen_random_hash() -> String {
 /// * `transactions`    - Transactions to construct a merkle tree for
 pub fn build_hex_txs_hash(transactions: &[String]) -> String {
     let txs = serialize(transactions).unwrap();
-    hex::encode(&sha3_256::digest(&txs))
+    hex::encode(sha3_256::digest(&txs))
 }
 
 /// Builds hex encoded merkle root of the passed transactions

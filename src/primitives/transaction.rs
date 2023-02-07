@@ -186,7 +186,7 @@ impl Transaction {
     /// Gets the create asset assigned to this transaction, if it exists
     fn get_create_asset(&self) -> Option<&Asset> {
         let is_create = self.inputs.len() == 1
-            && self.inputs[0].previous_out == None
+            && self.inputs[0].previous_out.is_none()
             && self.outputs.len() == 1;
 
         is_create.then(|| &self.outputs[0].value)
