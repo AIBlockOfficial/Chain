@@ -25,8 +25,7 @@ use tracing::{debug, error, info, trace};
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2drop(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_2DROP: removing the top two items on the stack");
-    let len = current_stack.len();
-    if len < 2 {
+    if current_stack.len() < 2 {
         error!("Not enough elements on the stack");
         return false;
     }
@@ -138,8 +137,7 @@ pub fn op_2swap(current_stack: &mut Vec<StackEntry>) -> bool {
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_DROP: removing the top item on the stack");
-    let len = current_stack.len();
-    if len < 1 {
+    if current_stack.len() < 1 {
         error!("Not enough elements on the stack");
         return false;
     }
@@ -193,6 +191,32 @@ pub fn op_over(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let item = current_stack[len - 2].clone();
+    current_stack.push(item);
+    true
+}
+
+/// Handles the execution of the OP_PICK opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_PICK: copying the n-th item back to the top of the stack");
+    if current_stack.len() < 2 {
+        error!("Not enough elements on the stack");
+        return false;
+    }
+    let item = current_stack.pop().unwrap();
+    let n = match item {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let len = current_stack.len();
+    if n >= len {
+        error!("Not enough elements on the stack");
+        return false;
+    }
+    let item = current_stack[len - 1 - n].clone();
     current_stack.push(item);
     true
 }
