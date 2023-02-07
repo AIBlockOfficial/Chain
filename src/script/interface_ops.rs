@@ -130,6 +130,17 @@ pub fn op_2swap(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// Handles the execution of the OP_DEPTH opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_depth(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_DEPTH: adding the stack size to the top of the stack");
+    current_stack.push(StackEntry::Num(current_stack.len()));
+    true
+}
+
 /// Handles the execution of the OP_DROP opcode. Returns a bool.
 ///
 /// ### Arguments
