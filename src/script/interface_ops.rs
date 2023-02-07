@@ -221,6 +221,34 @@ pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// Handles the execution of the OP_ROLL opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_roll(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_ROLL: moving the n-th item back to the top of the stack");
+    if current_stack.len() < 2 {
+        error!("Not enough elements on the stack");
+        return false;
+    }
+    let item = current_stack.pop().unwrap();
+    let n = match item {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let len = current_stack.len();
+    if n >= len {
+        error!("Not enough elements on the stack");
+        return false;
+    }
+    let index = len - 1 - n;
+    let item = current_stack[index].clone();
+    current_stack.remove(index);
+    current_stack.push(item);
+    true
+}
+
 /// Handles the execution of the OP_ROT opcode. Returns a bool.
 ///
 /// ### Arguments
