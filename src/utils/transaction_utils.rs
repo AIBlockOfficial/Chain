@@ -30,7 +30,7 @@ pub fn construct_address_for(pub_key: &PublicKey, address_version: Option<u64>) 
 /// * `pub_key` - A public key to build an address from
 pub fn construct_address(pub_key: &PublicKey) -> String {
     let pub_key_hash = sha3_256::digest(pub_key.as_ref());
-    hex::encode(&pub_key_hash)
+    hex::encode(pub_key_hash)
 }
 
 /// Builds an old (network version 0) address from a public key
