@@ -81,23 +81,23 @@ pub enum OpCodes {
     // stack ops
     OP_TOALTSTACK = 0x6b,
     OP_FROMALTSTACK = 0x6c,
-    OP_2DROP = 0x6d,        // implemented
-    OP_2DUP = 0x6e,         // implemented
-    OP_3DUP = 0x6f,         // implemented
-    OP_2OVER = 0x70,        // implemented
-    OP_2ROT = 0x71,         // implemented
-    OP_2SWAP = 0x72,        // implemented
-    OP_IFDUP = 0x73,        // implemented
-    OP_DEPTH = 0x74,        // implemented
-    OP_DROP = 0x75,         // implemented
-    OP_DUP = 0x76,          // implemented
-    OP_NIP = 0x77,          // implemented
-    OP_OVER = 0x78,         // implemented
-    OP_PICK = 0x79,         // implemented
-    OP_ROLL = 0x7a,         // implemented
-    OP_ROT = 0x7b,          // implemented
-    OP_SWAP = 0x7c,         // implemented
-    OP_TUCK = 0x7d,         // implemented
+    OP_2DROP = 0x6d,        // implemented, tested
+    OP_2DUP = 0x6e,         // implemented, tested
+    OP_3DUP = 0x6f,         // implemented, tested
+    OP_2OVER = 0x70,        // implemented, tested
+    OP_2ROT = 0x71,         // implemented, tested
+    OP_2SWAP = 0x72,        // implemented, tested
+    OP_IFDUP = 0x73,        // implemented, tested
+    OP_DEPTH = 0x74,        // implemented, tested
+    OP_DROP = 0x75,         // implemented, tested
+    OP_DUP = 0x76,          // implemented, tested
+    OP_NIP = 0x77,          // implemented, tested
+    OP_OVER = 0x78,         // implemented, tested
+    OP_PICK = 0x79,         // implemented, tested
+    OP_ROLL = 0x7a,         // implemented, tested
+    OP_ROT = 0x7b,          // implemented, tested
+    OP_SWAP = 0x7c,         // implemented, tested
+    OP_TUCK = 0x7d,         // implemented, tested
 
     // splice ops
     OP_CAT = 0x7e,
