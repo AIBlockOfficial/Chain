@@ -118,7 +118,7 @@ pub fn op_3dup(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2over(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2OVER: copying the pair of items two spaces back to the top of the stack");
+    trace!("OP_2OVER: copying the third and fourth items back to the top of the stack");
     let len = current_stack.len();
     if len < 4 {
         error!("Not enough elements on the stack");
@@ -201,12 +201,11 @@ pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_DUP: duplicating the top item on the stack");
-    let len = current_stack.len();
-    if len < 1 {
+    if current_stack.is_empty() {
         error!("Not enough elements on the stack");
         return false;
     }
-    let item = current_stack[len - 1].clone();
+    let item = current_stack[current_stack.len() - 1].clone();
     current_stack.push(item);
     true
 }
@@ -218,12 +217,11 @@ pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_ifdup(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_IFDUP: duplicating the top item on the stack if it is not 0");
-    let len = current_stack.len();
-    if len < 1 {
+    if current_stack.is_empty() {
         error!("Not enough elements on the stack");
         return false;
     }
-    let item = current_stack[len - 1].clone();
+    let item = current_stack[current_stack.len() - 1].clone();
     if item != StackEntry::Num(0) {
         current_stack.push(item);
     }
