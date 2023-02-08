@@ -19,9 +19,9 @@ use tracing::{debug, error, info, trace};
 /*---- STACK OPS ----*/
 
 /// OP_TOALTSTACK: Moves the top item from the main stack to the top of the alt stack. Returns a bool.
-/// 
+///
 /// Example: OP_TOALTSTACK([x1, x2], [y1]) -> [x1], [y1, x2]
-/// 
+///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
@@ -40,7 +40,7 @@ pub fn op_toaltstack(
 }
 
 /// OP_FROMALTSTACK: Moves the top item from the alt stack to the top of the main stack. Returns a bool.
-/// 
+///
 /// Example: OP_FROMALTSTACK([x1], [y1, y2]) -> [x1, y2], [y1]
 ///
 /// ### Arguments
@@ -61,7 +61,7 @@ pub fn op_fromaltstack(
 }
 
 /// OP_2DROP: Removes the top two items from the stack. Returns a bool.
-/// 
+///
 /// Example: OP_2DROP([x1, x2, x3]) -> [x1]
 ///
 /// ### Arguments
@@ -79,9 +79,9 @@ pub fn op_2drop(current_stack: &mut Vec<StackEntry>) -> bool {
 }
 
 /// OP_2DUP: Duplicates the top two items on the stack. Returns a bool.
-/// 
+///
 /// Example: OP_2DUP([x1, x2, x3]) -> [x1, x2, x3, x2, x3]
-/// 
+///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
@@ -100,9 +100,9 @@ pub fn op_2dup(current_stack: &mut Vec<StackEntry>) -> bool {
 }
 
 /// OP_3DUP: Duplicates the top three items on the stack. Returns a bool.
-/// 
+///
 /// Example: OP_3DUP([x1, x2, x3]) -> [x1, x2, x3, x1, x2, x3]
-/// 
+///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
@@ -123,7 +123,7 @@ pub fn op_3dup(current_stack: &mut Vec<StackEntry>) -> bool {
 }
 
 /// OP_2OVER: Copies the second-to-top pair of items to the top of the stack. Returns a bool.
-/// 
+///
 /// Example: OP_2OVER([x1, x2, x3, x4]) -> [x1, x2, x3, x4, x1, x2]
 ///
 /// ### Arguments
@@ -144,7 +144,7 @@ pub fn op_2over(current_stack: &mut Vec<StackEntry>) -> bool {
 }
 
 /// OP_2ROT: Moves the third-to-top pair of items to the top of the stack. Returns a bool.
-/// 
+///
 /// Example: OP_2ROT([x1, x2, x3, x4, x5, x6]) -> [x3, x4, x5, x6, x1, x2]
 ///
 /// ### Arguments
@@ -166,7 +166,7 @@ pub fn op_2rot(current_stack: &mut Vec<StackEntry>) -> bool {
 }
 
 /// OP_2SWAP: Swaps the top two pairs of items on the stack. Returns a bool.
-/// 
+///
 /// Example: OP_2SWAP([x1, x2, x3, x4]) -> [x3, x4, x1, x2]
 ///
 /// ### Arguments
@@ -185,7 +185,7 @@ pub fn op_2swap(current_stack: &mut Vec<StackEntry>) -> bool {
 }
 
 /// OP_DEPTH: Adds the stack size to the top of the stack. Returns a bool.
-/// 
+///
 /// Example: OP_DEPTH([x1, x2, x3, x4]) -> [x1, x2, x3, x4, 4]
 ///
 /// ### Arguments
@@ -198,7 +198,7 @@ pub fn op_depth(current_stack: &mut Vec<StackEntry>) -> bool {
 }
 
 /// OP_DROP: Removes the top item from the stack. Returns a bool.
-/// 
+///
 /// Example: OP_DROP([x1, x2]) -> [x1]
 ///
 /// ### Arguments
@@ -215,7 +215,7 @@ pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
 }
 
 /// OP_DUP: Duplicates the top item on the stack. Returns a bool.
-/// 
+///
 /// Example: OP_DUP([x1, x2]) -> [x1, x2, x2]
 ///
 /// ### Arguments
@@ -233,7 +233,7 @@ pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
 }
 
 /// OP_IFDUP: Duplicates the top item on the stack if it is not ZERO. Returns a bool.
-/// 
+///
 /// Example: OP_DUP([x1, x2]) -> [x1, x2, x2] if x2 != 0
 ///          OP_DUP([x1, x2]) -> [x1, x2]     if x2 == 0
 ///
@@ -254,7 +254,7 @@ pub fn op_ifdup(current_stack: &mut Vec<StackEntry>) -> bool {
 }
 
 /// OP_NIP: Removes the second-to-top item from the stack. Returns a bool.
-/// 
+///
 /// Example: OP_NIP([x1, x2]) -> [x2]
 ///
 /// ### Arguments
@@ -272,7 +272,7 @@ pub fn op_nip(current_stack: &mut Vec<StackEntry>) -> bool {
 }
 
 /// OP_OVER: Copies the second-to-top item to the top of the stack. Returns a bool.
-/// 
+///
 /// Example: OP_OVER([x1, x2]) -> [x1, x2, x1]
 ///
 /// ### Arguments
@@ -290,9 +290,9 @@ pub fn op_over(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_PICK: Copies the nth-to-top item to the top of the stack, 
+/// OP_PICK: Copies the nth-to-top item to the top of the stack,
 ///          where n is the top item on the stack. Returns a bool.
-/// 
+///
 /// Example: OP_PICK([x1, x2, x3, x4, x5, 3]) -> [x1, x2, x3, x4, x5, x2]
 ///
 /// ### Arguments
@@ -319,9 +319,9 @@ pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_ROLL: Moves the nth-to-top item to the top of the stack, 
+/// OP_ROLL: Moves the nth-to-top item to the top of the stack,
 ///          where n is the top item on the stack. Returns a bool.
-/// 
+///
 /// Example: OP_ROLL([x1, x2, x3, x4, x5, 3]) -> [x1, x3, x4, x5, x2]
 ///
 /// ### Arguments
@@ -351,7 +351,7 @@ pub fn op_roll(current_stack: &mut Vec<StackEntry>) -> bool {
 }
 
 /// OP_ROT: Moves the third-to-top item to the top of the stack. Returns a bool.
-/// 
+///
 /// Example: OP_ROT([x1, x2, x3]) -> [x2, x3, x1]
 ///
 /// ### Arguments
@@ -370,7 +370,7 @@ pub fn op_rot(current_stack: &mut Vec<StackEntry>) -> bool {
 }
 
 /// OP_SWAP: Swaps the top two items on the stack. Returns a bool.
-/// 
+///
 /// Example: OP_SWAP([x1, x2]) -> [x2, x1]
 ///
 /// ### Arguments
@@ -388,7 +388,7 @@ pub fn op_swap(current_stack: &mut Vec<StackEntry>) -> bool {
 }
 
 /// OP_TUCK: Copies the top item before the second-to-top item on the stack. Returns a bool.
-/// 
+///
 /// Example: OP_TUCK([x1, x2]) -> [x2, x1, x2]
 ///
 /// ### Arguments

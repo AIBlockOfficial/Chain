@@ -76,4 +76,3 @@ pub const THREE: usize = 3;
 pub const FOUR: usize = 4;
 pub const FIVE: usize = 5;
 pub const SIX: usize = 6;
-
