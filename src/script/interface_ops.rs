@@ -29,7 +29,7 @@ pub fn op_toaltstack(
     current_alt_stack: &mut Vec<StackEntry>,
 ) -> bool {
     trace!("OP_TOALTSTACK: moving the top item on the stack to the top of the alt stack");
-    if current_stack.len() < 1 {
+    if current_stack.is_empty() {
         error!("Not enough elements on the stack");
         return false;
     }
@@ -48,7 +48,7 @@ pub fn op_fromaltstack(
     current_alt_stack: &mut Vec<StackEntry>,
 ) -> bool {
     trace!("OP_FROMALTSTACK: moving the top item on the alt stack to the top of the stack");
-    if current_alt_stack.len() < 1 {
+    if current_alt_stack.is_empty() {
         error!("Not enough elements on the alt stack");
         return false;
     }
@@ -186,7 +186,7 @@ pub fn op_depth(current_stack: &mut Vec<StackEntry>) -> bool {
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_DROP: removing the top item on the stack");
-    if current_stack.len() < 1 {
+    if current_stack.is_empty() {
         error!("Not enough elements on the stack");
         return false;
     }
