@@ -18,6 +18,22 @@ use tracing::{debug, error, info, trace};
 
 /*---- STACK OPS ----*/ 
 
+/// Handles the execution of the OP_TOALTSTACK opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+/// * `current_alt_stack`  - mutable reference to the current alt stack
+pub fn op_toaltstack(current_stack: &mut Vec<StackEntry>, current_alt_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_TOALTSTACK: moving the top item on the stack to the top of the alt stack");
+    if current_stack.len() < 1 {
+        error!("Not enough elements on the stack");
+        return false;
+    }
+    current_alt_stack.push(current_stack.pop().unwrap());
+    true
+}
+
 /// Handles the execution of the OP_2DROP opcode. Returns a bool.
 ///
 /// ### Arguments
