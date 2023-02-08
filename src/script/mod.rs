@@ -79,7 +79,7 @@ pub enum OpCodes {
     OP_RETURN = 0x6a,
 
     // stack ops
-    OP_TOALTSTACK = 0x6b,
+    OP_TOALTSTACK = 0x6b,   // implemented
     OP_FROMALTSTACK = 0x6c,
     OP_2DROP = 0x6d,        // implemented, tested
     OP_2DUP = 0x6e,         // implemented, tested
