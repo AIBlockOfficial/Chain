@@ -317,7 +317,6 @@ fn interpret_script(script: &Script) -> bool {
                 StackEntry::Op(OpCodes::OP_TUCK) => {
                     test_for_return &= interface_ops::op_tuck(&mut current_stack);
                 }
-
                 /*---- CRYPTO OPS ----*/
                 StackEntry::Op(OpCodes::OP_HASH256) => {
                     test_for_return &= interface_ops::op_hash256(&mut current_stack, None);

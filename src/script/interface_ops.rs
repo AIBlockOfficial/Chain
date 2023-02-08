@@ -1,6 +1,6 @@
 #![allow(unused)]
 
-use crate::constants::TOTAL_TOKENS;
+use crate::constants::*;
 use crate::crypto::sha3_256;
 use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::transaction::*;
@@ -18,8 +18,10 @@ use tracing::{debug, error, info, trace};
 
 /*---- STACK OPS ----*/
 
-/// Handles the execution of the OP_TOALTSTACK opcode. Returns a bool.
-///
+/// OP_TOALTSTACK: Moves the top item from the main stack to the top of the alt stack. Returns a bool.
+/// 
+/// Example: OP_TOALTSTACK([x1, x2], [y1]) -> [x1], [y1, x2]
+/// 
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
@@ -28,16 +30,18 @@ pub fn op_toaltstack(
     current_stack: &mut Vec<StackEntry>,
     current_alt_stack: &mut Vec<StackEntry>,
 ) -> bool {
-    trace!("OP_TOALTSTACK: moving the top item on the stack to the top of the alt stack");
+    trace!("OP_TOALTSTACK: Moves the top item from the main stack to the top of the alt stack");
     if current_stack.is_empty() {
-        error!("Not enough elements on the stack");
+        error!("OP_TOALTSTACK: Not enough elements on the stack");
         return false;
     }
     current_alt_stack.push(current_stack.pop().unwrap());
     true
 }
 
-/// Handles the execution of the OP_FROMALTSTACK opcode. Returns a bool.
+/// OP_FROMALTSTACK: Moves the top item from the alt stack to the top of the main stack. Returns a bool.
+/// 
+/// Example: OP_FROMALTSTACK([x1], [y1, y2]) -> [x1, y2], [y1]
 ///
 /// ### Arguments
 ///
@@ -47,24 +51,26 @@ pub fn op_fromaltstack(
     current_stack: &mut Vec<StackEntry>,
     current_alt_stack: &mut Vec<StackEntry>,
 ) -> bool {
-    trace!("OP_FROMALTSTACK: moving the top item on the alt stack to the top of the stack");
+    trace!("OP_FROMALTSTACK: Moves the top item from the alt stack to the top of the main stack");
     if current_alt_stack.is_empty() {
-        error!("Not enough elements on the alt stack");
+        error!("OP_FROMALTSTACK: Not enough elements on the alt stack");
         return false;
     }
     current_stack.push(current_alt_stack.pop().unwrap());
     true
 }
 
-/// Handles the execution of the OP_2DROP opcode. Returns a bool.
+/// OP_2DROP: Removes the top two items from the stack. Returns a bool.
+/// 
+/// Example: OP_2DROP([x1, x2, x3]) -> [x1]
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2drop(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2DROP: removing the top two items on the stack");
-    if current_stack.len() < 2 {
-        error!("Not enough elements on the stack");
+    trace!("OP_2DROP: Removes the top two items from the stack");
+    if current_stack.len() < TWO {
+        error!("OP_2DROP: Not enough elements on the stack");
         return false;
     }
     current_stack.pop();
@@ -72,204 +78,230 @@ pub fn op_2drop(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// Handles the execution of the OP_2DUP opcode. Returns a bool.
-///
+/// OP_2DUP: Duplicates the top two items on the stack. Returns a bool.
+/// 
+/// Example: OP_2DUP([x1, x2, x3]) -> [x1, x2, x3, x2, x3]
+/// 
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2DUP: duplicating the top two items on the stack");
+    trace!("OP_2DUP: Duplicates the top two items on the stack");
     let len = current_stack.len();
-    if len < 2 {
-        error!("Not enough elements on the stack");
+    if len < TWO {
+        error!("OP_2DUP: Not enough elements on the stack");
         return false;
     }
-    let item1 = current_stack[len - 2].clone();
-    let item2 = current_stack[len - 1].clone();
+    let item1 = current_stack[len - TWO].clone();
+    let item2 = current_stack[len - ONE].clone();
     current_stack.push(item1);
     current_stack.push(item2);
     true
 }
 
-/// Handles the execution of the OP_3DUP opcode. Returns a bool.
-///
+/// OP_3DUP: Duplicates the top three items on the stack. Returns a bool.
+/// 
+/// Example: OP_3DUP([x1, x2, x3]) -> [x1, x2, x3, x1, x2, x3]
+/// 
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_3dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_3DUP: duplicating the top three items on the stack");
+    trace!("OP_3DUP: Duplicates the top three items on the stack");
     let len = current_stack.len();
-    if len < 3 {
-        error!("Not enough elements on the stack");
+    if len < THREE {
+        error!("OP_3DUP: Not enough elements on the stack");
         return false;
     }
-    let item1 = current_stack[len - 3].clone();
-    let item2 = current_stack[len - 2].clone();
-    let item3 = current_stack[len - 1].clone();
+    let item1 = current_stack[len - THREE].clone();
+    let item2 = current_stack[len - TWO].clone();
+    let item3 = current_stack[len - ONE].clone();
     current_stack.push(item1);
     current_stack.push(item2);
     current_stack.push(item3);
     true
 }
 
-/// Handles the execution of the OP_2OVER opcode. Returns a bool.
+/// OP_2OVER: Copies the second-to-top pair of items to the top of the stack. Returns a bool.
+/// 
+/// Example: OP_2OVER([x1, x2, x3, x4]) -> [x1, x2, x3, x4, x1, x2]
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2over(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2OVER: copying the third and fourth items back to the top of the stack");
+    trace!("OP_2OVER: Copies the second-to-top pair of items to the top of the stack");
     let len = current_stack.len();
-    if len < 4 {
-        error!("Not enough elements on the stack");
+    if len < FOUR {
+        error!("OP_2OVER: Not enough elements on the stack");
         return false;
     }
-    let item1 = current_stack[len - 4].clone();
-    let item2 = current_stack[len - 3].clone();
+    let item1 = current_stack[len - FOUR].clone();
+    let item2 = current_stack[len - THREE].clone();
     current_stack.push(item1);
     current_stack.push(item2);
     true
 }
 
-/// Handles the execution of the OP_2ROT opcode. Returns a bool.
+/// OP_2ROT: Moves the third-to-top pair of items to the top of the stack. Returns a bool.
+/// 
+/// Example: OP_2ROT([x1, x2, x3, x4, x5, x6]) -> [x3, x4, x5, x6, x1, x2]
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2rot(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2ROT: moving the fifth and sixth items back to the top of the stack");
+    trace!("OP_2ROT: Moves the third-to-top pair of items to the top of the stack");
     let len = current_stack.len();
-    if len < 6 {
-        error!("Not enough elements on the stack");
+    if len < SIX {
+        error!("OP_2ROT: Not enough elements on the stack");
         return false;
     }
-    let item1 = current_stack[len - 6].clone();
-    let item2 = current_stack[len - 5].clone();
-    current_stack.drain(len - 6..len - 4);
+    let item1 = current_stack[len - SIX].clone();
+    let item2 = current_stack[len - FIVE].clone();
+    current_stack.drain(len - SIX..len - FOUR);
     current_stack.push(item1);
     current_stack.push(item2);
     true
 }
 
-/// Handles the execution of the OP_2SWAP opcode. Returns a bool.
+/// OP_2SWAP: Swaps the top two pairs of items on the stack. Returns a bool.
+/// 
+/// Example: OP_2SWAP([x1, x2, x3, x4]) -> [x3, x4, x1, x2]
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2swap(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2SWAP: swapping the top two pairs of items on the stack");
+    trace!("OP_2SWAP: Swaps the top two pairs of items on the stack");
     let len = current_stack.len();
-    if len < 4 {
-        error!("Not enough elements on the stack");
+    if len < FOUR {
+        error!("OP_2SWAP: Not enough elements on the stack");
         return false;
     }
-    current_stack.swap(len - 4, len - 2);
-    current_stack.swap(len - 3, len - 1);
+    current_stack.swap(len - FOUR, len - TWO);
+    current_stack.swap(len - THREE, len - ONE);
     true
 }
 
-/// Handles the execution of the OP_DEPTH opcode. Returns a bool.
+/// OP_DEPTH: Adds the stack size to the top of the stack. Returns a bool.
+/// 
+/// Example: OP_DEPTH([x1, x2, x3, x4]) -> [x1, x2, x3, x4, 4]
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_depth(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_DEPTH: adding the stack size to the top of the stack");
+    trace!("OP_DEPTH: Adds the stack size to the top of the stack");
     current_stack.push(StackEntry::Num(current_stack.len()));
     true
 }
 
-/// Handles the execution of the OP_DROP opcode. Returns a bool.
+/// OP_DROP: Removes the top item from the stack. Returns a bool.
+/// 
+/// Example: OP_DROP([x1, x2]) -> [x1]
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_DROP: removing the top item on the stack");
+    trace!("OP_DROP: Removes the top item from the stack");
     if current_stack.is_empty() {
-        error!("Not enough elements on the stack");
+        error!("OP_DROP: Not enough elements on the stack");
         return false;
     }
     current_stack.pop();
     true
 }
 
-/// Handles the execution of the OP_DUP opcode. Returns a bool.
+/// OP_DUP: Duplicates the top item on the stack. Returns a bool.
+/// 
+/// Example: OP_DUP([x1, x2]) -> [x1, x2, x2]
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_DUP: duplicating the top item on the stack");
+    trace!("OP_DUP: Duplicates the top item on the stack");
     if current_stack.is_empty() {
-        error!("Not enough elements on the stack");
+        error!("OP_DUP: Not enough elements on the stack");
         return false;
     }
-    let item = current_stack[current_stack.len() - 1].clone();
+    let item = current_stack[current_stack.len() - ONE].clone();
     current_stack.push(item);
     true
 }
 
-/// Handles the execution of the OP_IFDUP opcode. Returns a bool.
+/// OP_IFDUP: Duplicates the top item on the stack if it is not ZERO. Returns a bool.
+/// 
+/// Example: OP_DUP([x1, x2]) -> [x1, x2, x2] if x2 != 0
+///          OP_DUP([x1, x2]) -> [x1, x2]     if x2 == 0
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_ifdup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_IFDUP: duplicating the top item on the stack if it is not 0");
+    trace!("OP_IFDUP: Duplicates the top item on the stack if it is not ZERO");
     if current_stack.is_empty() {
-        error!("Not enough elements on the stack");
+        error!("OP_IFDUP: Not enough elements on the stack");
         return false;
     }
-    let item = current_stack[current_stack.len() - 1].clone();
-    if item != StackEntry::Num(0) {
+    let item = current_stack[current_stack.len() - ONE].clone();
+    if item != StackEntry::Num(ZERO) {
         current_stack.push(item);
     }
     true
 }
 
-/// Handles the execution of the OP_NIP opcode. Returns a bool.
+/// OP_NIP: Removes the second-to-top item from the stack. Returns a bool.
+/// 
+/// Example: OP_NIP([x1, x2]) -> [x2]
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_nip(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_NIP: removing the second-to-top item on the stack");
+    trace!("OP_NIP: Removes the second-to-top item from the stack");
     let len = current_stack.len();
-    if len < 2 {
-        error!("Not enough elements on the stack");
+    if len < TWO {
+        error!("OP_NIP: Not enough elements on the stack");
         return false;
     }
-    current_stack.remove(len - 2);
+    current_stack.remove(len - TWO);
     true
 }
 
-/// Handles the execution of the OP_OVER opcode. Returns a bool.
+/// OP_OVER: Copies the second-to-top item to the top of the stack. Returns a bool.
+/// 
+/// Example: OP_OVER([x1, x2]) -> [x1, x2, x1]
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_over(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_OVER: copying the second-to-top item to the top of the stack");
+    trace!("OP_OVER: Copies the second-to-top item to the top of the stack");
     let len = current_stack.len();
-    if len < 2 {
-        error!("Not enough elements on the stack");
+    if len < TWO {
+        error!("OP_OVER: Not enough elements on the stack");
         return false;
     }
-    let item = current_stack[len - 2].clone();
+    let item = current_stack[len - TWO].clone();
     current_stack.push(item);
     true
 }
 
-/// Handles the execution of the OP_PICK opcode. Returns a bool.
+/// OP_PICK: Copies the nth-to-top item to the top of the stack, 
+///          where n is the top item on the stack. Returns a bool.
+/// 
+/// Example: OP_PICK([x1, x2, x3, x4, x5, 3]) -> [x1, x2, x3, x4, x5, x2]
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_PICK: copying the n-th item back to the top of the stack");
-    if current_stack.len() < 2 {
-        error!("Not enough elements on the stack");
+    trace!("OP_PICK: Copies the nth-to-top item to the top of the stack");
+    if current_stack.len() < TWO {
+        error!("OP_PICK: Not enough elements on the stack");
         return false;
     }
     let item = current_stack.pop().unwrap();
@@ -279,23 +311,26 @@ pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
     };
     let len = current_stack.len();
     if n >= len {
-        error!("Not enough elements on the stack");
+        error!("OP_PICK: Not enough elements on the stack");
         return false;
     }
-    let item = current_stack[len - 1 - n].clone();
+    let item = current_stack[len - ONE - n].clone();
     current_stack.push(item);
     true
 }
 
-/// Handles the execution of the OP_ROLL opcode. Returns a bool.
+/// OP_ROLL: Moves the nth-to-top item to the top of the stack, 
+///          where n is the top item on the stack. Returns a bool.
+/// 
+/// Example: OP_ROLL([x1, x2, x3, x4, x5, 3]) -> [x1, x3, x4, x5, x2]
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_roll(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_ROLL: moving the n-th item back to the top of the stack");
-    if current_stack.len() < 2 {
-        error!("Not enough elements on the stack");
+    trace!("OP_ROLL: Moves the nth-to-top item to the top of the stack");
+    if current_stack.len() < TWO {
+        error!("OP_ROLL: Not enough elements on the stack");
         return false;
     }
     let item = current_stack.pop().unwrap();
@@ -305,63 +340,69 @@ pub fn op_roll(current_stack: &mut Vec<StackEntry>) -> bool {
     };
     let len = current_stack.len();
     if n >= len {
-        error!("Not enough elements on the stack");
+        error!("OP_ROLL: Not enough elements on the stack");
         return false;
     }
-    let index = len - 1 - n;
+    let index = len - ONE - n;
     let item = current_stack[index].clone();
     current_stack.remove(index);
     current_stack.push(item);
     true
 }
 
-/// Handles the execution of the OP_ROT opcode. Returns a bool.
+/// OP_ROT: Moves the third-to-top item to the top of the stack. Returns a bool.
+/// 
+/// Example: OP_ROT([x1, x2, x3]) -> [x2, x3, x1]
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_rot(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_ROT: moving the third item back to the top of the stack");
+    trace!("OP_ROT: Moves the third-to-top item to the top of the stack");
     let len = current_stack.len();
-    if len < 3 {
-        error!("Not enough elements on the stack");
+    if len < THREE {
+        error!("OP_ROT: Not enough elements on the stack");
         return false;
     }
-    current_stack.swap(len - 3, len - 2);
-    current_stack.swap(len - 2, len - 1);
+    current_stack.swap(len - THREE, len - TWO);
+    current_stack.swap(len - TWO, len - ONE);
     true
 }
 
-/// Handles the execution of the OP_SWAP opcode. Returns a bool.
+/// OP_SWAP: Swaps the top two items on the stack. Returns a bool.
+/// 
+/// Example: OP_SWAP([x1, x2]) -> [x2, x1]
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_swap(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_SWAP: swapping the top two items on the stack");
+    trace!("OP_SWAP: Swaps the top two items on the stack");
     let len = current_stack.len();
-    if len < 2 {
-        error!("Not enough elements on the stack");
+    if len < TWO {
+        error!("OP_SWAP: Not enough elements on the stack");
         return false;
     }
-    current_stack.swap(len - 2, len - 1);
+    current_stack.swap(len - TWO, len - ONE);
     true
 }
 
-/// Handles the execution of the OP_TUCK opcode. Returns a bool.
+/// OP_TUCK: Copies the top item before the second-to-top item on the stack. Returns a bool.
+/// 
+/// Example: OP_TUCK([x1, x2]) -> [x2, x1, x2]
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_tuck(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_TUCK: copying the top item before the second-to-top item on the stack");
+    trace!("OP_TUCK: Copies the top item before the second-to-top item on the stack");
     let len = current_stack.len();
-    if len < 2 {
-        error!("Not enough elements on the stack");
+    if len < TWO {
+        error!("OP_TUCK: Not enough elements on the stack");
         return false;
     }
-    let item = current_stack[len - 1].clone();
-    current_stack.insert(len - 2, item);
+    let item = current_stack[len - ONE].clone();
+    current_stack.insert(len - TWO, item);
     true
 }
 

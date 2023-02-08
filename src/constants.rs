@@ -67,3 +67,13 @@ pub const NETWORK_VERSION_V0: u64 = 0;
 // Network version to support temporary address structure on wallet
 // TODO: Depreciate after addresses retire
 pub const NETWORK_VERSION_TEMP: u64 = 99999;
+
+/*------- NUMBERS -------*/
+pub const ZERO: usize = 0;
+pub const ONE: usize = 1;
+pub const TWO: usize = 2;
+pub const THREE: usize = 3;
+pub const FOUR: usize = 4;
+pub const FIVE: usize = 5;
+pub const SIX: usize = 6;
+
