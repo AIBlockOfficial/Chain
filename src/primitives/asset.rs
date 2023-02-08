@@ -10,7 +10,7 @@ pub struct TokenAmount(pub u64);
 impl fmt::Display for TokenAmount {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let format_result = format_for_display(&self.0);
-        write!(f, "{}", format_result)
+        write!(f, "{format_result}")
     }
 }
 

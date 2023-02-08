@@ -192,6 +192,6 @@ impl OpCodes {
 // Allows for string casting
 impl fmt::Display for OpCodes {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
