@@ -142,7 +142,8 @@ fn tx_has_valid_multsig_validation(script: &Script) -> bool {
                     test_for_return &= interface_ops::op_multisig(&mut current_stack);
                 }
                 _ => {
-                    test_for_return &= interface_ops::push_entry_to_stack_ref(stack_entry, &mut current_stack);
+                    test_for_return &=
+                        interface_ops::push_entry_to_stack_ref(stack_entry, &mut current_stack);
                 }
             }
         } else {
@@ -276,7 +277,8 @@ fn interpret_script(script: &Script) -> bool {
                     test_for_return &= interface_ops::op_checksig(&mut current_stack);
                 }
                 _ => {
-                    test_for_return &= interface_ops::push_entry_to_stack_ref(stack_entry, &mut current_stack);
+                    test_for_return &=
+                        interface_ops::push_entry_to_stack_ref(stack_entry, &mut current_stack);
                 }
             }
         } else {

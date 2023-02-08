@@ -16,7 +16,7 @@ use hex::encode;
 use std::collections::BTreeMap;
 use tracing::{debug, error, info, trace};
 
-/*---- STACK OPS ----*/ 
+/*---- STACK OPS ----*/
 
 /// Handles the execution of the OP_TOALTSTACK opcode. Returns a bool.
 ///
@@ -24,7 +24,10 @@ use tracing::{debug, error, info, trace};
 ///
 /// * `current_stack`  - mutable reference to the current stack
 /// * `current_alt_stack`  - mutable reference to the current alt stack
-pub fn op_toaltstack(current_stack: &mut Vec<StackEntry>, current_alt_stack: &mut Vec<StackEntry>) -> bool {
+pub fn op_toaltstack(
+    current_stack: &mut Vec<StackEntry>,
+    current_alt_stack: &mut Vec<StackEntry>,
+) -> bool {
     trace!("OP_TOALTSTACK: moving the top item on the stack to the top of the alt stack");
     if current_stack.len() < 1 {
         error!("Not enough elements on the stack");
@@ -40,7 +43,10 @@ pub fn op_toaltstack(current_stack: &mut Vec<StackEntry>, current_alt_stack: &mu
 ///
 /// * `current_stack`  - mutable reference to the current stack
 /// * `current_alt_stack`  - mutable reference to the current alt stack
-pub fn op_fromaltstack(current_stack: &mut Vec<StackEntry>, current_alt_stack: &mut Vec<StackEntry>) -> bool {
+pub fn op_fromaltstack(
+    current_stack: &mut Vec<StackEntry>,
+    current_alt_stack: &mut Vec<StackEntry>,
+) -> bool {
     trace!("OP_FROMALTSTACK: moving the top item on the alt stack to the top of the stack");
     if current_alt_stack.len() < 1 {
         error!("Not enough elements on the alt stack");
@@ -361,7 +367,7 @@ pub fn op_tuck(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/*---- CRYPTO OPS ----*/ 
+/*---- CRYPTO OPS ----*/
 
 /// Handles the execution for the hash256 opcode. Returns a bool.
 ///
@@ -560,7 +566,10 @@ pub fn push_entry_to_stack(stack_entry: StackEntry, current_stack: &mut Vec<Stac
 ///
 /// * `stack_entry`  - reference to the current entry on the stack
 /// * `current_stack`  - mutable reference to the current stack
-pub fn push_entry_to_stack_ref(stack_entry: &StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
+pub fn push_entry_to_stack_ref(
+    stack_entry: &StackEntry,
+    current_stack: &mut Vec<StackEntry>,
+) -> bool {
     trace!("Adding constant to stack: {:?}", stack_entry);
     current_stack.push(stack_entry.clone());
     true
@@ -572,7 +581,7 @@ pub fn push_entry_to_stack_ref(stack_entry: &StackEntry, current_stack: &mut Vec
 mod tests {
     use super::*;
 
-    /*---- STACK OPS ----*/ 
+    /*---- STACK OPS ----*/
 
     #[test]
     /// Test OP_TOALTSTACK
@@ -596,8 +605,8 @@ mod tests {
         }
         v2.push(StackEntry::Num(6));
         op_toaltstack(&mut current_stack, &mut current_alt_stack);
-        assert_eq!(current_stack,v1);
-        assert_eq!(current_alt_stack,v2)
+        assert_eq!(current_stack, v1);
+        assert_eq!(current_alt_stack, v2)
     }
 
     #[test]
@@ -622,8 +631,8 @@ mod tests {
             v2.push(StackEntry::Num(i));
         }
         op_fromaltstack(&mut current_stack, &mut current_alt_stack);
-        assert_eq!(current_stack,v1);
-        assert_eq!(current_alt_stack,v2)
+        assert_eq!(current_stack, v1);
+        assert_eq!(current_alt_stack, v2)
     }
 
     #[test]
@@ -639,7 +648,7 @@ mod tests {
             v.push(StackEntry::Num(i));
         }
         op_2drop(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -657,7 +666,7 @@ mod tests {
         v.push(StackEntry::Num(5));
         v.push(StackEntry::Num(6));
         op_2dup(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -676,7 +685,7 @@ mod tests {
         v.push(StackEntry::Num(5));
         v.push(StackEntry::Num(6));
         op_3dup(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -694,7 +703,7 @@ mod tests {
         v.push(StackEntry::Num(3));
         v.push(StackEntry::Num(4));
         op_2over(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -712,7 +721,7 @@ mod tests {
         v.push(StackEntry::Num(1));
         v.push(StackEntry::Num(2));
         op_2rot(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -732,7 +741,7 @@ mod tests {
         v.push(StackEntry::Num(3));
         v.push(StackEntry::Num(4));
         op_2swap(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -749,7 +758,7 @@ mod tests {
         }
         v.push(StackEntry::Num(6));
         op_ifdup(&mut current_stack);
-        assert_eq!(current_stack,v);
+        assert_eq!(current_stack, v);
         /// op_ifdup([1,2,3,4,5,6,0]) -> [1,2,3,4,5,6,0]
         let mut current_stack: Vec<StackEntry> = Vec::new();
         for i in 1..=6 {
@@ -762,7 +771,7 @@ mod tests {
         }
         v.push(StackEntry::Num(0));
         op_ifdup(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -779,7 +788,7 @@ mod tests {
         }
         v.push(StackEntry::Num(6));
         op_depth(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -795,7 +804,7 @@ mod tests {
             v.push(StackEntry::Num(i));
         }
         op_drop(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -812,7 +821,7 @@ mod tests {
         }
         v.push(StackEntry::Num(6));
         op_dup(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -829,7 +838,7 @@ mod tests {
         }
         v.push(StackEntry::Num(6));
         op_nip(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -846,7 +855,7 @@ mod tests {
         }
         v.push(StackEntry::Num(5));
         op_over(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -864,7 +873,7 @@ mod tests {
         }
         v.push(StackEntry::Num(4));
         op_pick(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -884,7 +893,7 @@ mod tests {
         v.push(StackEntry::Num(6));
         v.push(StackEntry::Num(4));
         op_roll(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -903,7 +912,7 @@ mod tests {
         v.push(StackEntry::Num(6));
         v.push(StackEntry::Num(4));
         op_rot(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -921,7 +930,7 @@ mod tests {
         v.push(StackEntry::Num(6));
         v.push(StackEntry::Num(5));
         op_swap(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
 
     #[test]
@@ -940,7 +949,6 @@ mod tests {
         v.push(StackEntry::Num(5));
         v.push(StackEntry::Num(6));
         op_tuck(&mut current_stack);
-        assert_eq!(current_stack,v)
+        assert_eq!(current_stack, v)
     }
-
 }
