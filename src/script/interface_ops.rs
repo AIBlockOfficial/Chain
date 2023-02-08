@@ -575,6 +575,58 @@ mod tests {
     /*---- STACK OPS ----*/ 
 
     #[test]
+    /// Test OP_TOALTSTACK
+    fn test_toaltstack() {
+        /// op_toaltstack([1,2,3,4,5,6], [1,2,3,4,5,6]) -> [1,2,3,4,5], [1,2,3,4,5,6,6]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut current_alt_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_alt_stack.push(StackEntry::Num(i));
+        }
+        let mut v1: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v1.push(StackEntry::Num(i));
+        }
+        let mut v2: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v2.push(StackEntry::Num(i));
+        }
+        v2.push(StackEntry::Num(6));
+        op_toaltstack(&mut current_stack, &mut current_alt_stack);
+        assert_eq!(current_stack,v1);
+        assert_eq!(current_alt_stack,v2)
+    }
+
+    #[test]
+    /// Test OP_FROMALTSTACK
+    fn test_fromaltstack() {
+        /// op_fromaltstack([1,2,3,4,5,6], [1,2,3,4,5,6]) -> [1,2,3,4,5,6,6], [1,2,3,4,5]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut current_alt_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_alt_stack.push(StackEntry::Num(i));
+        }
+        let mut v1: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v1.push(StackEntry::Num(i));
+        }
+        v1.push(StackEntry::Num(6));
+        let mut v2: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v2.push(StackEntry::Num(i));
+        }
+        op_fromaltstack(&mut current_stack, &mut current_alt_stack);
+        assert_eq!(current_stack,v1);
+        assert_eq!(current_alt_stack,v2)
+    }
+
+    #[test]
     /// Test OP_2DROP
     fn test_2drop() {
         /// op_2drop([1,2,3,4,5,6]) -> [1,2,3,4]
