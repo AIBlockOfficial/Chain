@@ -34,6 +34,22 @@ pub fn op_toaltstack(current_stack: &mut Vec<StackEntry>, current_alt_stack: &mu
     true
 }
 
+/// Handles the execution of the OP_FROMALTSTACK opcode. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+/// * `current_alt_stack`  - mutable reference to the current alt stack
+pub fn op_fromaltstack(current_stack: &mut Vec<StackEntry>, current_alt_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_FROMALTSTACK: moving the top item on the alt stack to the top of the stack");
+    if current_alt_stack.len() < 1 {
+        error!("Not enough elements on the alt stack");
+        return false;
+    }
+    current_stack.push(current_alt_stack.pop().unwrap());
+    true
+}
+
 /// Handles the execution of the OP_2DROP opcode. Returns a bool.
 ///
 /// ### Arguments
