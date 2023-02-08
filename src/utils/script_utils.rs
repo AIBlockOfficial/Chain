@@ -1,6 +1,6 @@
 #![allow(unused)]
 use crate::constants::{
-    MAX_METADATA_BYTES, NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TOTAL_TOKENS, MAX_STACK_SIZE
+    MAX_METADATA_BYTES, MAX_STACK_SIZE, NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TOTAL_TOKENS,
 };
 use crate::crypto::sha3_256;
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, Signature};
@@ -259,10 +259,12 @@ fn interpret_script(script: &Script) -> bool {
             match stack_entry {
                 /*---- STACK OPS ----*/
                 StackEntry::Op(OpCodes::OP_TOALTSTACK) => {
-                    test_for_return &= interface_ops::op_toaltstack(&mut current_stack, &mut current_alt_stack);
+                    test_for_return &=
+                        interface_ops::op_toaltstack(&mut current_stack, &mut current_alt_stack);
                 }
                 StackEntry::Op(OpCodes::OP_FROMALTSTACK) => {
-                    test_for_return &= interface_ops::op_fromaltstack(&mut current_stack, &mut current_alt_stack);
+                    test_for_return &=
+                        interface_ops::op_fromaltstack(&mut current_stack, &mut current_alt_stack);
                 }
                 StackEntry::Op(OpCodes::OP_2DROP) => {
                     test_for_return &= interface_ops::op_2drop(&mut current_stack);
