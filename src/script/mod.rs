@@ -27,9 +27,14 @@ impl StackEntry {
         )
     }
 
-    /// Checks whether this stack entry is an ops code
+    /// Checks whether this stack entry is an opcode
     pub fn is_an_op(&self) -> bool {
         matches!(self, StackEntry::Op(_))
+    }
+
+    /// Checks whether this stack entry is a numeric value
+    pub fn is_a_num(&self) -> bool {
+        matches!(self, StackEntry::Num(_))
     }
 }
 
@@ -74,25 +79,25 @@ pub enum OpCodes {
     OP_RETURN = 0x6a,
 
     // stack ops
-    OP_TOALTSTACK = 0x6b,
-    OP_FROMALTSTACK = 0x6c,
-    OP_2DROP = 0x6d,
-    OP_2DUP = 0x6e,
-    OP_3DUP = 0x6f,
-    OP_2OVER = 0x70,
-    OP_2ROT = 0x71,
-    OP_2SWAP = 0x72,
-    OP_IFDUP = 0x73,
-    OP_DEPTH = 0x74,
-    OP_DROP = 0x75,
-    OP_DUP = 0x76,
-    OP_NIP = 0x77,
-    OP_OVER = 0x78,
-    OP_PICK = 0x79,
-    OP_ROLL = 0x7a,
-    OP_ROT = 0x7b,
-    OP_SWAP = 0x7c,
-    OP_TUCK = 0x7d,
+    OP_TOALTSTACK = 0x6b,   // implemented, tested, added to interpret_script
+    OP_FROMALTSTACK = 0x6c, // implemented, tested, added to interpret_script
+    OP_2DROP = 0x6d,        // implemented, tested, added to interpret_script
+    OP_2DUP = 0x6e,         // implemented, tested, added to interpret_script
+    OP_3DUP = 0x6f,         // implemented, tested, added to interpret_script
+    OP_2OVER = 0x70,        // implemented, tested, added to interpret_script
+    OP_2ROT = 0x71,         // implemented, tested, added to interpret_script
+    OP_2SWAP = 0x72,        // implemented, tested, added to interpret_script
+    OP_IFDUP = 0x73,        // implemented, tested, added to interpret_script
+    OP_DEPTH = 0x74,        // implemented, tested, added to interpret_script
+    OP_DROP = 0x75,         // implemented, tested, added to interpret_script
+    OP_DUP = 0x76,          // implemented, tested, added to interpret_script
+    OP_NIP = 0x77,          // implemented, tested, added to interpret_script
+    OP_OVER = 0x78,         // implemented, tested, added to interpret_script
+    OP_PICK = 0x79,         // implemented, tested, added to interpret_script
+    OP_ROLL = 0x7a,         // implemented, tested, added to interpret_script
+    OP_ROT = 0x7b,          // implemented, tested, added to interpret_script
+    OP_SWAP = 0x7c,         // implemented, tested, added to interpret_script
+    OP_TUCK = 0x7d,         // implemented, tested, added to interpret_script
 
     // splice ops
     OP_CAT = 0x7e,
@@ -172,7 +177,7 @@ pub enum OpCodes {
     OP_HASH256_V0 = 0xc1,
 
     // support for temporary address scheme used on wallet
-    // TODO: Depreciate after addresses retire
+    // TODO: Deprecate after addresses retire
     OP_HASH256_TEMP = 0xc2,
 
     OP_INVALIDOPCODE = 0xff,

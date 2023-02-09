@@ -1,6 +1,6 @@
 #![allow(unused)]
 use crate::constants::{
-    MAX_METADATA_BYTES, NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TOTAL_TOKENS,
+    MAX_METADATA_BYTES, MAX_STACK_SIZE, NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TOTAL_TOKENS,
 };
 use crate::crypto::sha3_256;
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, Signature};
@@ -34,7 +34,7 @@ pub fn member_multisig_is_valid(script: Script) -> bool {
                     test_for_return &= interface_ops::op_checkmultisigmem(&mut current_stack);
                 }
                 _ => {
-                    interface_ops::op_else(stack_entry, &mut current_stack);
+                    interface_ops::push_entry_to_stack(stack_entry, &mut current_stack);
                 }
             }
         } else {
@@ -142,7 +142,8 @@ fn tx_has_valid_multsig_validation(script: &Script) -> bool {
                     test_for_return &= interface_ops::op_multisig(&mut current_stack);
                 }
                 _ => {
-                    test_for_return &= interface_ops::op_else_ref(stack_entry, &mut current_stack);
+                    test_for_return &=
+                        interface_ops::push_entry_to_stack_ref(stack_entry, &mut current_stack);
                 }
             }
         } else {
@@ -249,14 +250,74 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
 ///
 /// * `script`  - Script to unwrap and execute
 fn interpret_script(script: &Script) -> bool {
-    let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
+    // TODO: add checks on constants
+    let mut current_stack: Vec<StackEntry> = Vec::with_capacity(MAX_STACK_SIZE as usize);
+    let mut current_alt_stack: Vec<StackEntry> = Vec::with_capacity(MAX_STACK_SIZE as usize);
     let mut test_for_return = true;
     for stack_entry in &script.stack {
         if test_for_return {
             match stack_entry {
+                /*---- STACK OPS ----*/
+                StackEntry::Op(OpCodes::OP_TOALTSTACK) => {
+                    test_for_return &=
+                        interface_ops::op_toaltstack(&mut current_stack, &mut current_alt_stack);
+                }
+                StackEntry::Op(OpCodes::OP_FROMALTSTACK) => {
+                    test_for_return &=
+                        interface_ops::op_fromaltstack(&mut current_stack, &mut current_alt_stack);
+                }
+                StackEntry::Op(OpCodes::OP_2DROP) => {
+                    test_for_return &= interface_ops::op_2drop(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_2DUP) => {
+                    test_for_return &= interface_ops::op_2dup(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_3DUP) => {
+                    test_for_return &= interface_ops::op_3dup(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_2OVER) => {
+                    test_for_return &= interface_ops::op_2over(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_2ROT) => {
+                    test_for_return &= interface_ops::op_2rot(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_2SWAP) => {
+                    test_for_return &= interface_ops::op_2swap(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_IFDUP) => {
+                    test_for_return &= interface_ops::op_ifdup(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_DEPTH) => {
+                    test_for_return &= interface_ops::op_depth(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_DROP) => {
+                    test_for_return &= interface_ops::op_drop(&mut current_stack);
+                }
                 StackEntry::Op(OpCodes::OP_DUP) => {
                     test_for_return &= interface_ops::op_dup(&mut current_stack);
                 }
+                StackEntry::Op(OpCodes::OP_NIP) => {
+                    test_for_return &= interface_ops::op_nip(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_OVER) => {
+                    test_for_return &= interface_ops::op_over(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_PICK) => {
+                    test_for_return &= interface_ops::op_pick(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_ROLL) => {
+                    test_for_return &= interface_ops::op_roll(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_ROT) => {
+                    test_for_return &= interface_ops::op_rot(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_SWAP) => {
+                    test_for_return &= interface_ops::op_swap(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_TUCK) => {
+                    test_for_return &= interface_ops::op_tuck(&mut current_stack);
+                }
+                /*---- CRYPTO OPS ----*/
                 StackEntry::Op(OpCodes::OP_HASH256) => {
                     test_for_return &= interface_ops::op_hash256(&mut current_stack, None);
                 }
@@ -275,7 +336,8 @@ fn interpret_script(script: &Script) -> bool {
                     test_for_return &= interface_ops::op_checksig(&mut current_stack);
                 }
                 _ => {
-                    test_for_return &= interface_ops::op_else_ref(stack_entry, &mut current_stack);
+                    test_for_return &=
+                        interface_ops::push_entry_to_stack_ref(stack_entry, &mut current_stack);
                 }
             }
         } else {
