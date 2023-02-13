@@ -117,13 +117,13 @@ pub enum OpCodes {
     OP_RESERVED2 = 0x8a,
 
     // numeric
-    OP_1ADD = 0x8b,                 // implemented, tested
-    OP_1SUB = 0x8c,                 // implemented, tested
-    OP_2MUL = 0x8d,                 // implemented, tested
-    OP_2DIV = 0x8e,                 // implemented, tested
-    OP_NEGATE = 0x8f,
-    OP_ABS = 0x90,
-    OP_NOT = 0x91,
+    OP_1ADD = 0x8b,                 // implemented, tested, added to interpret_script
+    OP_1SUB = 0x8c,                 // implemented, tested, added to interpret_script
+    OP_2MUL = 0x8d,                 // implemented, tested, currently disabled
+    OP_2DIV = 0x8e,                 // implemented, tested, currently disabled
+    OP_NEGATE = 0x8f,               // not implemented: we do not allow negative numbers on the stack
+    OP_ABS = 0x90,                  // not implemented: we do not allow negative numbers on the stack
+    OP_NOT = 0x91,                  // implemented, tested, added to interpret_script
     OP_0NOTEQUAL = 0x92,
     OP_ADD = 0x93,
     OP_SUB = 0x94,

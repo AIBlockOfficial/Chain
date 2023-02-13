@@ -492,6 +492,33 @@ pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// OP_NOT: Flips the top item on the stack. Returns a bool.
+///
+/// Example: OP_NOT([x1, n]) -> [x1, 1] if n == 0
+///          OP_NOT([x1, n]) -> [x1, 0] if n != 0
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_NOT: Flips the top item on the stack");
+    if current_stack.is_empty() {
+        error!("OP_NOT: Not enough elements on the stack");
+        return false;
+    }
+    let n = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    if n == 0 {
+        current_stack.push(StackEntry::Num(1));
+    }
+    else {
+        current_stack.push(StackEntry::Num(0));
+    }
+    true
+}
+
 /*---- CRYPTO OPS ----*/
 
 /// Handles the execution for the hash256 opcode. Returns a bool.
@@ -1156,6 +1183,36 @@ mod tests {
         }
         v.push(StackEntry::Num(2));
         op_2div(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_NOT
+    fn test_not() {
+        /// op_not([1,2,3,4,5,0]) -> [1,2,3,4,5,1]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(0));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(1));
+        op_not(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_not([1,2,3,4,5,6]) -> [1,2,3,4,5,0]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(0));
+        op_not(&mut current_stack);
         assert_eq!(current_stack, v)
     }
 }
