@@ -546,7 +546,7 @@ pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_ADD: Adds the top two items on the stack. Returns a bool.
+/// OP_ADD: Adds the top item to the second-to-top item on the stack. Returns a bool.
 ///
 /// Example: OP_ADD([x, n1, n2]) -> [x1, n1+n2]
 /// 
@@ -554,20 +554,45 @@ pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_ADD: Adds the top two items on the stack");
+    trace!("OP_ADD: Adds the top item to the second-to-top item on the stack");
     if current_stack.len() < TWO {
         error!("OP_ADD: Not enough elements on the stack");
         return false;
     }
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
-        _ => return false,
-    };
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(num) => num,
         _ => return false,
     };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
     current_stack.push(StackEntry::Num(n1 + n2));
+    true
+}
+
+/// OP_SUB: Subtracts the top item from the second-to-top item on the stack. Returns a bool.
+///
+/// Example: OP_SUB([x, n1, n2]) -> [x1, n1-n2]
+/// 
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_sub(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_SUB: Subtracts the top item from the second-to-top item on the stack");
+    if current_stack.len() < TWO {
+        error!("OP_SUB: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(n1 - n2));
     true
 }
 
@@ -1312,6 +1337,25 @@ mod tests {
         }
         v.push(StackEntry::Num(11));
         op_add(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_SUB
+    fn test_sub() {
+        /// op_sub([1,2,3,4,6,5]) -> [1,2,3,4,1]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(6));
+        current_stack.push(StackEntry::Num(5));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(1));
+        op_sub(&mut current_stack);
         assert_eq!(current_stack, v)
     }
 }
