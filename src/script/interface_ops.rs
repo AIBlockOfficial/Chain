@@ -450,6 +450,27 @@ pub fn op_1sub(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// OP_2MUL: Multiplies by TWO the top item on the stack. Returns a bool.
+///
+/// Example: OP_2MUL([x1, n]) -> [x1, n*2]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_2mul(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_2MUL: Multiplies by TWO the top item on the stack");
+    if current_stack.is_empty() {
+        error!("OP_2MUL: Not enough elements on the stack");
+        return false;
+    }
+    let n = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(n * TWO));
+    true
+}
+
 /*---- CRYPTO OPS ----*/
 
 /// Handles the execution for the hash256 opcode. Returns a bool.
@@ -1068,6 +1089,23 @@ mod tests {
         }
         v.push(StackEntry::Num(5));
         op_1sub(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_2MUL
+    fn test_2mul() {
+        /// op_2mul([1,2,3,4,5,6]) -> [1,2,3,4,5,12]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(12));
+        op_2mul(&mut current_stack);
         assert_eq!(current_stack, v)
     }
 }
