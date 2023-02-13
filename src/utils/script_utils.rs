@@ -330,6 +330,10 @@ fn interpret_script(script: &Script) -> bool {
                     test_for_return &=
                         interface_ops::op_not(&mut current_stack);
                 }
+                StackEntry::Op(OpCodes::OP_0NOTEQUAL) => {
+                    test_for_return &=
+                        interface_ops::op_0notequal(&mut current_stack);
+                }
                 /*---- CRYPTO OPS ----*/
                 StackEntry::Op(OpCodes::OP_HASH256) => {
                     test_for_return &= interface_ops::op_hash256(&mut current_stack, None);
