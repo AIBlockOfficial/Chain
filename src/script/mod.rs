@@ -117,7 +117,7 @@ pub enum OpCodes {
     OP_RESERVED2 = 0x8a,
 
     // numeric
-    OP_1ADD = 0x8b,
+    OP_1ADD = 0x8b,                 // implemented, tested
     OP_1SUB = 0x8c,
     OP_2MUL = 0x8d,
     OP_2DIV = 0x8e,
@@ -125,7 +125,6 @@ pub enum OpCodes {
     OP_ABS = 0x90,
     OP_NOT = 0x91,
     OP_0NOTEQUAL = 0x92,
-
     OP_ADD = 0x93,
     OP_SUB = 0x94,
     OP_MUL = 0x95,
@@ -133,7 +132,6 @@ pub enum OpCodes {
     OP_MOD = 0x97,
     OP_LSHIFT = 0x98,
     OP_RSHIFT = 0x99,
-
     OP_BOOLAND = 0x9a,
     OP_BOOLOR = 0x9b,
     OP_NUMEQUAL = 0x9c,
@@ -142,10 +140,9 @@ pub enum OpCodes {
     OP_LESSTHAN = 0x9f,
     OP_GREATERTHAN = 0xa0,
     OP_LESSTHANOREQUAL = 0xa1,
-    OP_GREATERTHANOREQUAL = 0xa2,
+    OP_GREATERTHANOREQUAL = 0xa2, 
     OP_MIN = 0xa3,
     OP_MAX = 0xa4,
-
     OP_WITHIN = 0xa5,
 
     // crypto
