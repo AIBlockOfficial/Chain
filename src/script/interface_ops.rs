@@ -429,6 +429,27 @@ pub fn op_1add(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// OP_1SUB: Subtracts ONE from the top item on the stack. Returns a bool.
+///
+/// Example: OP_1SUB([x1, n]) -> [x1, n-1]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_1sub(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_1SUB: Subtracts ONE from the top item on the stack");
+    if current_stack.is_empty() {
+        error!("OP_1SUB: Not enough elements on the stack");
+        return false;
+    }
+    let n = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(n - ONE));
+    true
+}
+
 /*---- CRYPTO OPS ----*/
 
 /// Handles the execution for the hash256 opcode. Returns a bool.
@@ -1030,6 +1051,23 @@ mod tests {
         }
         v.push(StackEntry::Num(7));
         op_1add(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_1SUB
+    fn test_1sub() {
+        /// op_1sub([1,2,3,4,5,6]) -> [1,2,3,4,5,5]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(5));
+        op_1sub(&mut current_stack);
         assert_eq!(current_stack, v)
     }
 }
