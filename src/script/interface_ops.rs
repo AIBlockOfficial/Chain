@@ -410,7 +410,7 @@ pub fn op_tuck(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_1ADD: Adds ONE to the top item on the stack. Returns a bool.
 ///
-/// Example: OP_1ADD([x1, n]) -> [x1, n+1]
+/// Example: OP_1ADD([x, n]) -> [x, n+1]
 ///
 /// ### Arguments
 ///
@@ -431,7 +431,7 @@ pub fn op_1add(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_1SUB: Subtracts ONE from the top item on the stack. Returns a bool.
 ///
-/// Example: OP_1SUB([x1, n]) -> [x1, n-1]
+/// Example: OP_1SUB([x, n]) -> [x, n-1]
 ///
 /// ### Arguments
 ///
@@ -452,7 +452,7 @@ pub fn op_1sub(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_2MUL: Multiplies by TWO the top item on the stack. Returns a bool.
 ///
-/// Example: OP_2MUL([x1, n]) -> [x1, n*2]
+/// Example: OP_2MUL([x, n]) -> [x, n*2]
 ///
 /// ### Arguments
 ///
@@ -473,7 +473,7 @@ pub fn op_2mul(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_2DIV: Divides by TWO the top item on the stack. Returns a bool.
 ///
-/// Example: OP_2DIV([x1, n]) -> [x1, n/2]
+/// Example: OP_2DIV([x, n]) -> [x, n/2]
 ///
 /// ### Arguments
 ///
@@ -492,17 +492,17 @@ pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_NOT: Substitutes the top item n on the stack with ONE if n is equal to ZERO, 
+/// OP_NOT: Substitutes the top item on the stack with ONE if it is equal to ZERO,
 ///         with ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_NOT([x1, n]) -> [x1, 1] if n == 0
-///          OP_NOT([x1, n]) -> [x1, 0] if n != 0
+/// Example: OP_NOT([x, n]) -> [x, 1] if n == 0
+///          OP_NOT([x, n]) -> [x, 0] if n != 0
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_NOT: Substitutes the top item n on the stack with ONE if n is equal to ZERO, with ZERO otherwise");
+    trace!("OP_NOT: Substitutes the top item on the stack with ONE if it is equal to ZERO, with ZERO otherwise");
     if current_stack.is_empty() {
         error!("OP_NOT: Not enough elements on the stack");
         return false;
@@ -513,24 +513,23 @@ pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
     };
     if n == 0 {
         current_stack.push(StackEntry::Num(ONE));
-    }
-    else {
+    } else {
         current_stack.push(StackEntry::Num(ZERO));
     }
     true
 }
 
-/// OP_0NOTEQUAL: Substitutes the top item n on the stack with ONE if n is not equal to ZERO, 
+/// OP_0NOTEQUAL: Substitutes the top item on the stack with ONE if it is not equal to ZERO,
 ///               with ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_0NOTEQUAL([x1, n]) -> [x1, 1] if n != 0
-///          OP_0NOTEQUAL([x1, n]) -> [x1, 0] if n == 0
+/// Example: OP_0NOTEQUAL([x, n]) -> [x, 1] if n != 0
+///          OP_0NOTEQUAL([x, n]) -> [x, 0] if n == 0
 ///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_0NOTEQUAL: Substitutes the top item n on the stack with ONE if n is not equal to ZERO, with ZERO otherwise.");
+    trace!("OP_0NOTEQUAL: Substitutes the top item on the stack with ONE if it is not equal to ZERO, with ZERO otherwise");
     if current_stack.is_empty() {
         error!("OP_0NOTEQUAL: Not enough elements on the stack");
         return false;
@@ -541,10 +540,34 @@ pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
     };
     if n != 0 {
         current_stack.push(StackEntry::Num(ONE));
-    }
-    else {
+    } else {
         current_stack.push(StackEntry::Num(ZERO));
     }
+    true
+}
+
+/// OP_ADD: Adds the top two items on the stack. Returns a bool.
+///
+/// Example: OP_ADD([x, n1, n2]) -> [x1, n1+n2]
+/// 
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_ADD: Adds the top two items on the stack");
+    if current_stack.len() < TWO {
+        error!("OP_ADD: Not enough elements on the stack");
+        return false;
+    }
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(n1 + n2));
     true
 }
 
@@ -1272,6 +1295,23 @@ mod tests {
         }
         v.push(StackEntry::Num(0));
         op_0notequal(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_ADD
+    fn test_add() {
+        /// op_add([1,2,3,4,5,6]) -> [1,2,3,4,11]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(11));
+        op_add(&mut current_stack);
         assert_eq!(current_stack, v)
     }
 }

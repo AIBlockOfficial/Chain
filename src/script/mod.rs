@@ -117,15 +117,15 @@ pub enum OpCodes {
     OP_RESERVED2 = 0x8a,
 
     // numeric
-    OP_1ADD = 0x8b,                 // implemented, tested, added to interpret_script
-    OP_1SUB = 0x8c,                 // implemented, tested, added to interpret_script
-    OP_2MUL = 0x8d,                 // implemented, tested, currently disabled
-    OP_2DIV = 0x8e,                 // implemented, tested, currently disabled
-    OP_NEGATE = 0x8f,               // not implemented: we do not allow negative numbers on the stack
-    OP_ABS = 0x90,                  // not implemented: we do not allow negative numbers on the stack
-    OP_NOT = 0x91,                  // implemented, tested, added to interpret_script
-    OP_0NOTEQUAL = 0x92,            // implemented, tested, added to interpret_script
-    OP_ADD = 0x93,
+    OP_1ADD = 0x8b,      // implemented, tested, added to interpret_script
+    OP_1SUB = 0x8c,      // implemented, tested, added to interpret_script
+    OP_2MUL = 0x8d,      // implemented, tested, currently disabled
+    OP_2DIV = 0x8e,      // implemented, tested, currently disabled
+    OP_NEGATE = 0x8f,    // not implemented: we do not allow negative numbers on the stack
+    OP_ABS = 0x90,       // not implemented: we do not allow negative numbers on the stack
+    OP_NOT = 0x91,       // implemented, tested, added to interpret_script
+    OP_0NOTEQUAL = 0x92, // implemented, tested, added to interpret_script
+    OP_ADD = 0x93,       // implemented, tested, added to interpret_script
     OP_SUB = 0x94,
     OP_MUL = 0x95,
     OP_DIV = 0x96,
@@ -140,7 +140,7 @@ pub enum OpCodes {
     OP_LESSTHAN = 0x9f,
     OP_GREATERTHAN = 0xa0,
     OP_LESSTHANOREQUAL = 0xa1,
-    OP_GREATERTHANOREQUAL = 0xa2, 
+    OP_GREATERTHANOREQUAL = 0xa2,
     OP_MIN = 0xa3,
     OP_MAX = 0xa4,
     OP_WITHIN = 0xa5,

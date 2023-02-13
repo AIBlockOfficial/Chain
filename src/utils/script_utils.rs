@@ -319,20 +319,19 @@ fn interpret_script(script: &Script) -> bool {
                 }
                 /*---- NUMERIC OPS ----*/
                 StackEntry::Op(OpCodes::OP_1ADD) => {
-                    test_for_return &=
-                        interface_ops::op_1add(&mut current_stack);
+                    test_for_return &= interface_ops::op_1add(&mut current_stack);
                 }
                 StackEntry::Op(OpCodes::OP_1SUB) => {
-                    test_for_return &=
-                        interface_ops::op_1sub(&mut current_stack);
+                    test_for_return &= interface_ops::op_1sub(&mut current_stack);
                 }
                 StackEntry::Op(OpCodes::OP_NOT) => {
-                    test_for_return &=
-                        interface_ops::op_not(&mut current_stack);
+                    test_for_return &= interface_ops::op_not(&mut current_stack);
                 }
                 StackEntry::Op(OpCodes::OP_0NOTEQUAL) => {
-                    test_for_return &=
-                        interface_ops::op_0notequal(&mut current_stack);
+                    test_for_return &= interface_ops::op_0notequal(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_ADD) => {
+                    test_for_return &= interface_ops::op_add(&mut current_stack);
                 }
                 /*---- CRYPTO OPS ----*/
                 StackEntry::Op(OpCodes::OP_HASH256) => {
