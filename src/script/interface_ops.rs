@@ -548,7 +548,7 @@ pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_ADD: Adds the top item to the second-to-top item on the stack. Returns a bool.
 ///
-/// Example: OP_ADD([x, n1, n2]) -> [x1, n1+n2]
+/// Example: OP_ADD([x, n1, n2]) -> [x, n1+n2]
 /// 
 /// ### Arguments
 ///
@@ -573,7 +573,7 @@ pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_SUB: Subtracts the top item from the second-to-top item on the stack. Returns a bool.
 ///
-/// Example: OP_SUB([x, n1, n2]) -> [x1, n1-n2]
+/// Example: OP_SUB([x, n1, n2]) -> [x, n1-n2]
 /// 
 /// ### Arguments
 ///
@@ -593,6 +593,81 @@ pub fn op_sub(current_stack: &mut Vec<StackEntry>) -> bool {
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n1 - n2));
+    true
+}
+
+/// OP_MUL: Multiplies the second-to-top item by the top item on the stack. Returns a bool.
+///
+/// Example: OP_MUL([x, n1, n2]) -> [x, n1*n2]
+/// 
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_mul(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_MUL: Multiplies the second-to-top item by the top item on the stack");
+    if current_stack.len() < TWO {
+        error!("OP_MUL: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(n1 * n2));
+    true
+}
+
+/// OP_DIV: Divides the second-to-top item by the top item on the stack. Returns a bool.
+///
+/// Example: OP_DIV([x, n1, n2]) -> [x, n1/n2]
+/// 
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_div(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_DIV: Divides the second-to-top item by the top item on the stack");
+    if current_stack.len() < TWO {
+        error!("OP_DIV: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(n1 / n2));
+    true
+}
+
+/// OP_MOD: Computes the remainder of the division of the second-to-top item by the top item on the stack. Returns a bool.
+///
+/// Example: OP_MOD([x, n1, n2]) -> [x, n1%n2]
+/// 
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_mod(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_MOD: Computes the remainder of the division of the second-to-top item by the top item on the stack");
+    if current_stack.len() < TWO {
+        error!("OP_MOD: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(n1 % n2));
     true
 }
 
@@ -1356,6 +1431,60 @@ mod tests {
         }
         v.push(StackEntry::Num(1));
         op_sub(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_MUL
+    fn test_mul() {
+        /// op_mul([1,2,3,4,5,6]) -> [1,2,3,4,30]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(30));
+        op_mul(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_DIV
+    fn test_div() {
+        /// op_div([1,2,3,4,5,6,3]) -> [1,2,3,4,5,2]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(3));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(2));
+        op_div(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_MOD
+    fn test_mod() {
+        /// op_mod([1,2,3,4,6,4]) -> [1,2,3,4,2]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(6));
+        current_stack.push(StackEntry::Num(4));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(2));
+        op_mod(&mut current_stack);
         assert_eq!(current_stack, v)
     }
 }

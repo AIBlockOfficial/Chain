@@ -127,9 +127,9 @@ pub enum OpCodes {
     OP_0NOTEQUAL = 0x92, // implemented, tested, added to interpret_script
     OP_ADD = 0x93,       // implemented, tested, added to interpret_script
     OP_SUB = 0x94,       // implemented, tested, added to interpret_script
-    OP_MUL = 0x95,
-    OP_DIV = 0x96,
-    OP_MOD = 0x97,
+    OP_MUL = 0x95,       // implemented, tested, currently disabled
+    OP_DIV = 0x96,       // implemented, tested, currently disabled
+    OP_MOD = 0x97,       // implemented, tested, currently disabled
     OP_LSHIFT = 0x98,
     OP_RSHIFT = 0x99,
     OP_BOOLAND = 0x9a,
