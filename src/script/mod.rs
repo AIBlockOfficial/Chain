@@ -119,7 +119,7 @@ pub enum OpCodes {
     // numeric
     OP_1ADD = 0x8b,                 // implemented, tested
     OP_1SUB = 0x8c,                 // implemented, tested
-    OP_2MUL = 0x8d,
+    OP_2MUL = 0x8d,                 // implemented, tested
     OP_2DIV = 0x8e,
     OP_NEGATE = 0x8f,
     OP_ABS = 0x90,
