@@ -492,7 +492,8 @@ pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_NOT: Flips the top item on the stack. Returns a bool.
+/// OP_NOT: Substitutes the top item n on the stack with ONE if n is equal to ZERO, 
+///         with ZERO otherwise. Returns a bool.
 ///
 /// Example: OP_NOT([x1, n]) -> [x1, 1] if n == 0
 ///          OP_NOT([x1, n]) -> [x1, 0] if n != 0
@@ -501,7 +502,7 @@ pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_NOT: Flips the top item on the stack");
+    trace!("OP_NOT: Substitutes the top item n on the stack with ONE if n is equal to ZERO, with ZERO otherwise");
     if current_stack.is_empty() {
         error!("OP_NOT: Not enough elements on the stack");
         return false;
@@ -511,10 +512,38 @@ pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
         _ => return false,
     };
     if n == 0 {
-        current_stack.push(StackEntry::Num(1));
+        current_stack.push(StackEntry::Num(ONE));
     }
     else {
-        current_stack.push(StackEntry::Num(0));
+        current_stack.push(StackEntry::Num(ZERO));
+    }
+    true
+}
+
+/// OP_0NOTEQUAL: Substitutes the top item n on the stack with ONE if n is not equal to ZERO, 
+///               with ZERO otherwise. Returns a bool.
+///
+/// Example: OP_0NOTEQUAL([x1, n]) -> [x1, 1] if n != 0
+///          OP_0NOTEQUAL([x1, n]) -> [x1, 0] if n == 0
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_0NOTEQUAL: Substitutes the top item n on the stack with ONE if n is not equal to ZERO, with ZERO otherwise.");
+    if current_stack.is_empty() {
+        error!("OP_0NOTEQUAL: Not enough elements on the stack");
+        return false;
+    }
+    let n = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    if n != 0 {
+        current_stack.push(StackEntry::Num(ONE));
+    }
+    else {
+        current_stack.push(StackEntry::Num(ZERO));
     }
     true
 }
@@ -1213,6 +1242,36 @@ mod tests {
         }
         v.push(StackEntry::Num(0));
         op_not(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_0NOTEQUAL
+    fn test_0notequal() {
+        /// op_0notequal([1,2,3,4,5,6]) -> [1,2,3,4,5,1]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(1));
+        op_0notequal(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_0notequal([1,2,3,4,5,0]) -> [1,2,3,4,5,0]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(0));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(0));
+        op_0notequal(&mut current_stack);
         assert_eq!(current_stack, v)
     }
 }

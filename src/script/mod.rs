@@ -124,7 +124,7 @@ pub enum OpCodes {
     OP_NEGATE = 0x8f,               // not implemented: we do not allow negative numbers on the stack
     OP_ABS = 0x90,                  // not implemented: we do not allow negative numbers on the stack
     OP_NOT = 0x91,                  // implemented, tested, added to interpret_script
-    OP_0NOTEQUAL = 0x92,
+    OP_0NOTEQUAL = 0x92,            // implemented, tested, added to interpret_script
     OP_ADD = 0x93,
     OP_SUB = 0x94,
     OP_MUL = 0x95,
