@@ -471,6 +471,27 @@ pub fn op_2mul(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// OP_2DIV: Divides by TWO the top item on the stack. Returns a bool.
+///
+/// Example: OP_2DIV([x1, n]) -> [x1, n/2]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_2DIV: Divides by TWO the top item on the stack");
+    if current_stack.is_empty() {
+        error!("OP_2DIV: Not enough elements on the stack");
+        return false;
+    }
+    let n = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(n / TWO));
+    true
+}
+
 /*---- CRYPTO OPS ----*/
 
 /// Handles the execution for the hash256 opcode. Returns a bool.
@@ -1106,6 +1127,35 @@ mod tests {
         }
         v.push(StackEntry::Num(12));
         op_2mul(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_2DIV
+    fn test_2div() {
+        /// op_2div([1,2,3,4,5,6]) -> [1,2,3,4,5,3]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(3));
+        op_2div(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_2div([1,2,3,4,5]) -> [1,2,3,4,2]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(2));
+        op_2div(&mut current_stack);
         assert_eq!(current_stack, v)
     }
 }
