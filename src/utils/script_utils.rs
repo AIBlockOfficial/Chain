@@ -342,6 +342,9 @@ fn interpret_script(script: &Script) -> bool {
                 StackEntry::Op(OpCodes::OP_BOOLOR) => {
                     test_for_return &= interface_ops::op_boolor(&mut current_stack);
                 }
+                StackEntry::Op(OpCodes::OP_NUMEQUAL) => {
+                    test_for_return &= interface_ops::op_numequal(&mut current_stack);
+                }
                 /*---- CRYPTO OPS ----*/
                 StackEntry::Op(OpCodes::OP_HASH256) => {
                     test_for_return &= interface_ops::op_hash256(&mut current_stack, None);
