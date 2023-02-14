@@ -1052,7 +1052,7 @@ pub fn op_max(current_stack: &mut Vec<StackEntry>) -> bool {
 ///            with ZERO otherwise. Returns a bool.
 ///
 /// Example: OP_WITHIN([x, n1, n2, n3]) -> [x, 1] if n1 >= n2 and n1 < n3
-///          OP_WITHIN([x, n1, n2, n3]) -> [x, 0] if n1 < n2 or n1 >= n3 
+///          OP_WITHIN([x, n1, n2, n3]) -> [x, 0] if n1 < n2 or n1 >= n3
 ///
 /// ### Arguments
 ///
