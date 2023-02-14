@@ -363,6 +363,12 @@ fn interpret_script(script: &Script) -> bool {
                 StackEntry::Op(OpCodes::OP_GREATERTHANOREQUAL) => {
                     test_for_return &= interface_ops::op_greaterthanorequal(&mut current_stack);
                 }
+                StackEntry::Op(OpCodes::OP_MIN) => {
+                    test_for_return &= interface_ops::op_min(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_MAX) => {
+                    test_for_return &= interface_ops::op_max(&mut current_stack);
+                }
                 /*---- CRYPTO OPS ----*/
                 StackEntry::Op(OpCodes::OP_HASH256) => {
                     test_for_return &= interface_ops::op_hash256(&mut current_stack, None);

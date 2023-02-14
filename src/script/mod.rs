@@ -141,9 +141,9 @@ pub enum OpCodes {
     OP_GREATERTHAN = 0xa0,        // implemented, tested, added to interpret_script
     OP_LESSTHANOREQUAL = 0xa1,    // implemented, tested, added to interpret_script
     OP_GREATERTHANOREQUAL = 0xa2, // implemented, tested, added to interpret_script
-    OP_MIN = 0xa3,
-    OP_MAX = 0xa4,
-    OP_WITHIN = 0xa5,
+    OP_MIN = 0xa3,                // implemented, tested, added to interpret_script
+    OP_MAX = 0xa4,                // implemented, tested, added to interpret_script
+    OP_WITHIN = 0xa5,             // implemented, tested, added to interpret_script
 
     // crypto
     OP_SHA256 = 0xa8,
