@@ -66,7 +66,7 @@ pub enum OpCodes {
     OP_15 = 0x5f,
     OP_16 = 0x60,
 
-    // control
+    // flow control
     OP_NOP = 0x61,
     OP_VER = 0x62,
     OP_IF = 0x63,
@@ -78,7 +78,7 @@ pub enum OpCodes {
     OP_VERIFY = 0x69,
     OP_RETURN = 0x6a,
 
-    // stack ops
+    // stack
     OP_TOALTSTACK = 0x6b,   // implemented, tested, added to interpret_script
     OP_FROMALTSTACK = 0x6c, // implemented, tested, added to interpret_script
     OP_2DROP = 0x6d,        // implemented, tested, added to interpret_script
@@ -99,14 +99,14 @@ pub enum OpCodes {
     OP_SWAP = 0x7c,         // implemented, tested, added to interpret_script
     OP_TUCK = 0x7d,         // implemented, tested, added to interpret_script
 
-    // splice ops
+    // splice 
     OP_CAT = 0x7e,
     OP_SUBSTR = 0x7f,
     OP_LEFT = 0x80,
     OP_RIGHT = 0x81,
     OP_SIZE = 0x82,
 
-    // bit logic
+    // bitwise logic
     OP_INVERT = 0x83,
     OP_AND = 0x84,
     OP_OR = 0x85,
@@ -116,7 +116,7 @@ pub enum OpCodes {
     OP_RESERVED1 = 0x89,
     OP_RESERVED2 = 0x8a,
 
-    // numeric
+    // arithmetic
     OP_1ADD = 0x8b,      // implemented, tested, added to interpret_script
     OP_1SUB = 0x8c,      // implemented, tested, added to interpret_script
     OP_2MUL = 0x8d,      // implemented, tested, currently disabled
@@ -130,8 +130,8 @@ pub enum OpCodes {
     OP_MUL = 0x95,       // implemented, tested, currently disabled
     OP_DIV = 0x96,       // implemented, tested, currently disabled
     OP_MOD = 0x97,       // implemented, tested, currently disabled
-    OP_LSHIFT = 0x98,
-    OP_RSHIFT = 0x99,
+    OP_LSHIFT = 0x98,    // implemented, tested, currently disabled
+    OP_RSHIFT = 0x99,    // implemented, tested, currently disabled
     OP_BOOLAND = 0x9a,   // implemented, tested, added to interpret_script
     OP_BOOLOR = 0x9b,
     OP_NUMEQUAL = 0x9c,

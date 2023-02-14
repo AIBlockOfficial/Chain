@@ -406,7 +406,7 @@ pub fn op_tuck(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/*---- NUMERIC OPS ----*/
+/*---- ARITHMETIC OPS ----*/
 
 /// OP_1ADD: Adds ONE to the top item on the stack. Returns a bool.
 ///
@@ -425,7 +425,7 @@ pub fn op_1add(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    current_stack.push(StackEntry::Num(n + ONE));
+    current_stack.push(StackEntry::Num(n.wrapping_add(ONE)));
     true
 }
 
@@ -446,7 +446,7 @@ pub fn op_1sub(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    current_stack.push(StackEntry::Num(n - ONE));
+    current_stack.push(StackEntry::Num(n.wrapping_sub(ONE)));
     true
 }
 
@@ -467,7 +467,7 @@ pub fn op_2mul(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    current_stack.push(StackEntry::Num(n * TWO));
+    current_stack.push(StackEntry::Num(n.wrapping_mul(TWO)));
     true
 }
 
@@ -488,7 +488,7 @@ pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    current_stack.push(StackEntry::Num(n / TWO));
+    current_stack.push(StackEntry::Num(n.wrapping_div(TWO)));
     true
 }
 
@@ -567,7 +567,7 @@ pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    current_stack.push(StackEntry::Num(n1 + n2));
+    current_stack.push(StackEntry::Num(n1.wrapping_add(n2)));
     true
 }
 
@@ -592,7 +592,7 @@ pub fn op_sub(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    current_stack.push(StackEntry::Num(n1 - n2));
+    current_stack.push(StackEntry::Num(n1.wrapping_sub(n2)));
     true
 }
 
@@ -617,7 +617,7 @@ pub fn op_mul(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    current_stack.push(StackEntry::Num(n1 * n2));
+    current_stack.push(StackEntry::Num(n1.wrapping_mul(n2)));
     true
 }
 
@@ -642,7 +642,7 @@ pub fn op_div(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    current_stack.push(StackEntry::Num(n1 / n2));
+    current_stack.push(StackEntry::Num(n1.wrapping_div(n2)));
     true
 }
 
@@ -667,7 +667,57 @@ pub fn op_mod(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    current_stack.push(StackEntry::Num(n1 % n2));
+    current_stack.push(StackEntry::Num(n1.wrapping_rem(n2)));
+    true
+}
+
+/// OP_LSHIFT: Computes the left shift of the second-to-top item by the top item on the stack. Returns a bool.
+///
+/// Example: OP_LSHIFT([x, n1, n2]) -> [x, n1 << n2]
+/// 
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_lshift(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_LSHIFT: Computes the left shift of the second-to-top item by the top item on the stack");
+    if current_stack.len() < TWO {
+        error!("OP_LSHIFT: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num as u32,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(n1.wrapping_shl(n2)));
+    true
+}
+
+/// OP_RSHIFT: Computes the right shift of the second-to-top item by the top item on the stack. Returns a bool.
+///
+/// Example: OP_RSHIFT([x, n1, n2]) -> [x, n1 >> n2]
+/// 
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_rshift(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_RSHIFT: Computes the right shift of the second-to-top item by the top item on the stack");
+    if current_stack.len() < TWO {
+        error!("OP_RSHIFT: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num as u32,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(n1.wrapping_shr(n2)));
     true
 }
 
@@ -1286,7 +1336,7 @@ mod tests {
         assert_eq!(current_stack, v)
     }
 
-    /*---- NUMERIC OPS ----*/
+    /*---- ARITHMETIC OPS ----*/
 
     #[test]
     /// Test OP_1ADD
@@ -1519,6 +1569,42 @@ mod tests {
     }
 
     #[test]
+    /// Test OP_LSHIFT
+    fn test_lshift() {
+        /// op_lshift([1,2,3,4,5,6,1]) -> [1,2,3,4,5,12]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(1));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(12));
+        op_lshift(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_RSHIFT
+    fn test_rshift() {
+        /// op_rshift([1,2,3,4,5,6,1]) -> [1,2,3,4,5,3]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(1));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(3));
+        op_rshift(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
     /// Test OP_BOOLAND
     fn test_booland() {
         /// op_booland([1,2,3,4,5,6]) -> [1,2,3,4,1]
@@ -1547,4 +1633,5 @@ mod tests {
         op_booland(&mut current_stack);
         assert_eq!(current_stack, v)
     }
+
 }
