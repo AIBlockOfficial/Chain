@@ -671,6 +671,36 @@ pub fn op_mod(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// OP_BOOLAND: Substitutes the top two items on the stack with ONE if they are both non-ZERO, with ZERO otherwise. Returns a bool.
+///
+/// Example: OP_BOOLAND([x, n1, n2]) -> [x, 1] if n1 != 0 and n2 != 0
+///          OP_BOOLAND([x, n1, n2]) -> [x, 0] if n1 == 0 or  n2 == 0
+/// 
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_booland(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_BOOLAND: Substitutes the top two items on the stack with ONE if they are both non-ZERO, with ZERO otherwise");
+    if current_stack.len() < TWO {
+        error!("OP_BOOLAND: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let item = match n1 != ZERO && n2 != ZERO {
+        true => StackEntry::Num(ONE),
+        false => StackEntry::Num(ZERO),
+    };
+    current_stack.push(item);
+    true
+}
+
 /*---- CRYPTO OPS ----*/
 
 /// Handles the execution for the hash256 opcode. Returns a bool.
@@ -1485,6 +1515,36 @@ mod tests {
         }
         v.push(StackEntry::Num(2));
         op_mod(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_BOOLAND
+    fn test_booland() {
+        /// op_booland([1,2,3,4,5,6]) -> [1,2,3,4,1]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(1));
+        op_booland(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_booland([1,2,3,4,5,6,0]) -> [1,2,3,4,5,0]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(0));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(0));
+        op_booland(&mut current_stack);
         assert_eq!(current_stack, v)
     }
 }
