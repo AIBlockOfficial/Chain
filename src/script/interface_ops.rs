@@ -13,7 +13,6 @@ use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
-use std::cmp::min;
 use std::collections::BTreeMap;
 use tracing::{debug, error, info, trace};
 
@@ -512,7 +511,7 @@ pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    if n == 0 {
+    if n == ZERO {
         current_stack.push(StackEntry::Num(ONE));
     } else {
         current_stack.push(StackEntry::Num(ZERO));
@@ -539,7 +538,7 @@ pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    if n != 0 {
+    if n != ZERO {
         current_stack.push(StackEntry::Num(ONE));
     } else {
         current_stack.push(StackEntry::Num(ZERO));
