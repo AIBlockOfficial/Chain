@@ -317,6 +317,13 @@ fn interpret_script(script: &Script) -> bool {
                 StackEntry::Op(OpCodes::OP_TUCK) => {
                     test_for_return &= interface_ops::op_tuck(&mut current_stack);
                 }
+                /*---- BITWISE LOGIC OPS ----*/
+                StackEntry::Op(OpCodes::OP_EQUAL) => {
+                    test_for_return &= interface_ops::op_equal(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
+                    test_for_return &= interface_ops::op_equalverify(&mut current_stack);
+                }
                 /*---- ARITHMETIC OPS ----*/
                 StackEntry::Op(OpCodes::OP_1ADD) => {
                     test_for_return &= interface_ops::op_1add(&mut current_stack);
