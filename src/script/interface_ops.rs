@@ -14,6 +14,7 @@ use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
 use std::collections::BTreeMap;
+use std::ops::{BitAnd, BitOr, BitXor, Not};
 use tracing::{debug, error, info, trace};
 
 /*---- STACK OPS ----*/
@@ -425,7 +426,7 @@ pub fn op_invert(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    current_stack.push(StackEntry::Num(!n));
+    current_stack.push(StackEntry::Num(n.not()));
     true
 }
 
@@ -450,7 +451,7 @@ pub fn op_and(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    current_stack.push(StackEntry::Num(n1 & n2));
+    current_stack.push(StackEntry::Num(n1.bitand(n2)));
     true
 }
 
@@ -475,7 +476,7 @@ pub fn op_or(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    current_stack.push(StackEntry::Num(n1 | n2));
+    current_stack.push(StackEntry::Num(n1.bitor(n2)));
     true
 }
 
@@ -500,7 +501,54 @@ pub fn op_xor(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    current_stack.push(StackEntry::Num(n1 ^ n2));
+    current_stack.push(StackEntry::Num(n1.bitxor(n2)));
+    true
+}
+
+/// OP_EQUAL: Substitutes the top two items on the stack with ONE if they are equal, with ZERO otherwise. Returns a bool.
+///
+/// Example: OP_EQUAL([x, x1, x2]) -> [x, 1] if x1 == x2
+///          OP_EQUAL([x, x1, x2]) -> [x, 0] if x1 != x2
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_equal(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_EQUAL: Substitutes the top two items on the stack with ONE if they are equal, with ZERO otherwise");
+    if current_stack.len() < TWO {
+        error!("OP_EQUAL: Not enough elements on the stack");
+        return false;
+    }
+    let x2 = current_stack.pop().unwrap();
+    let x1 = current_stack.pop().unwrap();
+    let item = match x1 == x2 {
+        true => StackEntry::Num(ONE),
+        false => StackEntry::Num(ZERO),
+    };
+    current_stack.push(item);
+    true
+}
+
+/// OP_EQUALVERIFY: Computes OP_EQUAL and OP_VERIFY in sequence. Returns a bool.
+///
+/// Example: OP_EQUALVERIFY([x, x1, x2]) -> [x]  if x1 == x2
+///          OP_EQUALVERIFY([x, x1, x2]) -> fail if x1 != x2
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_EQUALVERIFY: Computes OP_EQUAL and OP_VERIFY in sequence");
+    if current_stack.len() < TWO {
+        error!("OP_EQUALVERIFY: Not enough elements on the stack");
+        return false;
+    }
+    let x2 = current_stack.pop().unwrap();
+    let x1 = current_stack.pop().unwrap();
+    if x1 != x2 {
+        error!("OP_EQUALVERIFY: The two top items are not equal");
+        return false;
+    }
     true
 }
 
@@ -881,7 +929,7 @@ pub fn op_boolor(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_NUMEQUAL: Substitutes the top two items on the stack with ONE if they are equal, with ZERO otherwise. Returns a bool.
+/// OP_NUMEQUAL: Substitutes the top two items on the stack with ONE if they are equal as numbers, with ZERO otherwise. Returns a bool.
 ///
 /// Example: OP_NUMEQUAL([x, n1, n2]) -> [x, 1] if n1 == n2
 ///          OP_NUMEQUAL([x, n1, n2]) -> [x, 0] if n1 != n2
@@ -890,7 +938,7 @@ pub fn op_boolor(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_numequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_NUMEQUAL: Substitutes the top two items on the stack with ONE if they are equal, with ZERO otherwise");
+    trace!("OP_NUMEQUAL: Substitutes the top two items on the stack with ONE if they are equal as numbers, with ZERO otherwise");
     if current_stack.len() < TWO {
         error!("OP_NUMEQUAL: Not enough elements on the stack");
         return false;
@@ -933,11 +981,8 @@ pub fn op_numequalverify(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Num(num) => num,
         _ => return false,
     };
-    let item = match n1 == n2 {
-        true => StackEntry::Num(ONE),
-        false => StackEntry::Num(ZERO),
-    };
-    if item == StackEntry::Num(ZERO) {
+    if n1 != n2 {
+        error!("OP_NUMEQUALVERIFY: The two top items are not equal");
         return false;
     }
     true
@@ -1197,23 +1242,6 @@ pub fn op_hash256(current_stack: &mut Vec<StackEntry>, address_version: Option<u
 
     let new_entry = construct_address_for(&pub_key, address_version);
     current_stack.push(StackEntry::PubKeyHash(new_entry));
-    true
-}
-
-/// Handles the execution for the equalverify op_code. Returns a bool.
-///
-/// ### Arguments
-///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("Verifying p2pkh hash");
-    let input_hash = current_stack.pop();
-    let computed_hash = current_stack.pop();
-
-    if input_hash != computed_hash {
-        error!("Hash not valid. Transaction input invalid");
-        return false;
-    }
     true
 }
 
@@ -1784,7 +1812,7 @@ mod tests {
         op_invert(&mut current_stack);
         assert_eq!(current_stack, v)
     }
-    
+
     #[test]
     /// Test OP_AND
     fn test_and() {
@@ -1834,6 +1862,64 @@ mod tests {
         v.push(StackEntry::Num(3));
         op_xor(&mut current_stack);
         assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_EQUAL
+    fn test_equal() {
+        /// op_equal([1,2,3,4,5,6,"hello","hello"]) -> [1,2,3,4,5,6,1]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(1));
+        op_equal(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_equal([1,2,3,4,5,6,"hello"]) -> [1,2,3,4,5,0]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(0));
+        op_equal(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_EQUALVERIFY
+    fn test_equalverify() {
+        /// op_equalverify([1,2,3,4,5,6,"hello","hello"]) -> [1,2,3,4,5,6]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        op_equalverify(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_equalverify([1,2,3,4,5,6,"hello"]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        let b = op_equalverify(&mut current_stack);
+        assert!(!b)
     }
 
     /*---- ARITHMETIC OPS ----*/
