@@ -811,6 +811,38 @@ pub fn op_numequal(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// OP_NUMEQUALVERIFY: Computes OP_NUMEQUAL and OP_VERIFY in sequence. Returns a bool.
+///
+/// Example: OP_NUMEQUALVERIFY([x, n1, n2]) -> [x]  if n1 == n2
+///          OP_NUMEQUALVERIFY([x, n1, n2]) -> fail if n1 != n2
+/// 
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_numequalverify(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_NUMEQUALVERIFY: Computes OP_NUMEQUAL and OP_VERIFY in sequence");
+    if current_stack.len() < TWO {
+        error!("OP_NUMEQUALVERIFY: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let item = match n1 == n2 {
+        true => StackEntry::Num(ONE),
+        false => StackEntry::Num(ZERO),
+    };
+    if item == StackEntry::Num(ZERO) {
+        return false;
+    }
+    true
+}
+
 /*---- CRYPTO OPS ----*/
 
 /// Handles the execution for the hash256 opcode. Returns a bool.
@@ -1754,6 +1786,30 @@ mod tests {
         v.push(StackEntry::Num(0));
         op_numequal(&mut current_stack);
         assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_NUMEQUALVERIFY
+    fn test_numequalverify() {
+        /// op_numequalverify([1,2,3,4,5,6,6]) -> [1,2,3,4,5]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(6));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        op_numequalverify(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_numequalverify([1,2,3,4,5,6]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let b = op_numequalverify(&mut current_stack);
+        assert_eq!(b, false)
     }
 
 }
