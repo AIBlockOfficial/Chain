@@ -1048,6 +1048,41 @@ pub fn op_max(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// OP_WITHIN: Substitutes the top three items on the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item,
+///            with ZERO otherwise. Returns a bool.
+///
+/// Example: OP_WITHIN([x, n1, n2, n3]) -> [x, 1] if n1 >= n2 and n1 < n3
+///          OP_WITHIN([x, n1, n2, n3]) -> [x, 0] if n1 < n2 or n1 >= n3 
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_within(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_WITHIN: Substitutes the top three items on the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item, with ZERO otherwise");
+    if current_stack.len() < THREE {
+        error!("OP_WITHIN: Not enough elements on the stack");
+        return false;
+    }
+    let n3 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let item = match n1 >= n2 && n1 < n3 {
+        true => StackEntry::Num(ONE),
+        false => StackEntry::Num(ZERO),
+    };
+    current_stack.push(item);
+    true
+}
+
 /*---- CRYPTO OPS ----*/
 
 /// Handles the execution for the hash256 opcode. Returns a bool.
@@ -2203,6 +2238,38 @@ mod tests {
         }
         v.push(StackEntry::Num(6));
         op_max(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_WITHIN
+    fn test_within() {
+        /// op_within([1,2,3,5,4,6]) -> [1,2,3,1]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=3 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(5));
+        current_stack.push(StackEntry::Num(4));
+        current_stack.push(StackEntry::Num(6));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=3 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(1));
+        op_within(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_within([1,2,3,4,5,6]) -> [1,2,3,0]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=3 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(0));
+        op_within(&mut current_stack);
         assert_eq!(current_stack, v)
     }
 }
