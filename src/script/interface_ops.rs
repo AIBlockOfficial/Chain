@@ -13,6 +13,7 @@ use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
+use std::cmp::min;
 use std::collections::BTreeMap;
 use tracing::{debug, error, info, trace};
 
@@ -992,6 +993,58 @@ pub fn op_greaterthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
         false => StackEntry::Num(ZERO),
     };
     current_stack.push(item);
+    true
+}
+
+/// OP_MIN: Substitutes the top two items on the stack with the minimum between the two. Returns a bool.
+///
+/// Example: OP_MIN([x, n1, n2]) -> [x, n1] if n1 <= n2
+///          OP_MIN([x, n1, n2]) -> [x, n2] if n1 > n2
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_min(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_MIN: Substitutes the top two items on the stack with the minimum between the two");
+    if current_stack.len() < TWO {
+        error!("OP_MIN: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(n1.min(n2)));
+    true
+}
+
+/// OP_MAX: Substitutes the top two items on the stack with the maximum between the two. Returns a bool.
+///
+/// Example: OP_MAX([x, n1, n2]) -> [x, n1] if n1 >= n2
+///          OP_MAX([x, n1, n2]) -> [x, n2] if n1 < n2
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_max(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_MAX: Substitutes the top two items on the stack with the maximum between the two");
+    if current_stack.len() < TWO {
+        error!("OP_MAX: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(n1.max(n2)));
     true
 }
 
@@ -2117,6 +2170,39 @@ mod tests {
         }
         v.push(StackEntry::Num(1));
         op_greaterthanorequal(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_MIN
+    fn test_min() {
+        /// op_min([1,2,3,4,5,6]) -> [1,2,3,4,5]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        op_min(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_MAX
+    fn test_max() {
+        /// op_max([1,2,3,4,5,6]) -> [1,2,3,4,6]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(6));
+        op_max(&mut current_stack);
         assert_eq!(current_stack, v)
     }
 }
