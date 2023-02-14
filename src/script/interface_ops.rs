@@ -2049,7 +2049,7 @@ mod tests {
             current_stack.push(StackEntry::Num(i));
         }
         let b = op_numequalverify(&mut current_stack);
-        assert_eq!(b, false)
+        assert!(!b)
     }
 
     #[test]
