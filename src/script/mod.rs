@@ -134,7 +134,7 @@ pub enum OpCodes {
     OP_RSHIFT = 0x99,    // implemented, tested, currently disabled
     OP_BOOLAND = 0x9a,   // implemented, tested, added to interpret_script
     OP_BOOLOR = 0x9b,    // implemented, tested, added to interpret_script
-    OP_NUMEQUAL = 0x9c,
+    OP_NUMEQUAL = 0x9c,  // implemented, tested, added to interpret_script
     OP_NUMEQUALVERIFY = 0x9d,
     OP_NUMNOTEQUAL = 0x9e,
     OP_LESSTHAN = 0x9f,
