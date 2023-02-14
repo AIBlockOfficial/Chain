@@ -317,7 +317,7 @@ fn interpret_script(script: &Script) -> bool {
                 StackEntry::Op(OpCodes::OP_TUCK) => {
                     test_for_return &= interface_ops::op_tuck(&mut current_stack);
                 }
-                /*---- NUMERIC OPS ----*/
+                /*---- ARITHMETIC OPS ----*/
                 StackEntry::Op(OpCodes::OP_1ADD) => {
                     test_for_return &= interface_ops::op_1add(&mut current_stack);
                 }
