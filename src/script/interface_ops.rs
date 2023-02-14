@@ -406,6 +406,104 @@ pub fn op_tuck(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/*---- BITWISE LOGIC OPS ----*/
+
+/// OP_INVERT: Computes bitwise complement of the top item on the stack. Returns a bool.
+///
+/// Example: OP_INVERT([x, n]) -> [x, !n]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_invert(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_INVERT: Computes bitwise complement of the top item on the stack");
+    if current_stack.is_empty() {
+        error!("OP_INVERT: Not enough elements on the stack");
+        return false;
+    }
+    let n = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(!n));
+    true
+}
+
+/// OP_AND: Computes bitwise AND between the second-to-top and the top item on the stack. Returns a bool.
+///
+/// Example: OP_AND([x, n1, n2]) -> [x, n1 & n2]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_and(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_AND: Computes bitwise AND between the second-to-top and the top item on the stack");
+    if current_stack.len() < TWO {
+        error!("OP_AND: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(n1 & n2));
+    true
+}
+
+/// OP_OR: Computes bitwise OR between the second-to-top and the top item on the stack. Returns a bool.
+///
+/// Example: OP_OR([x, n1, n2]) -> [x, n1 | n2]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_or(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_OR: Computes bitwise OR between the second-to-top and the top item on the stack");
+    if current_stack.len() < TWO {
+        error!("OP_OR: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(n1 | n2));
+    true
+}
+
+/// OP_XOR: Computes bitwise exclusive OR between the second-to-top and the top item on the stack. Returns a bool.
+///
+/// Example: OP_XOR([x, n1, n2]) -> [x, n1 ^ n2]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_xor(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_XOR: Computes bitwise exclusive OR between the second-to-top and the top item on the stack");
+    if current_stack.len() < TWO {
+        error!("OP_XOR: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(n1 ^ n2));
+    true
+}
+
 /*---- ARITHMETIC OPS ----*/
 
 /// OP_1ADD: Adds ONE to the top item on the stack. Returns a bool.
@@ -1664,6 +1762,77 @@ mod tests {
         v.push(StackEntry::Num(5));
         v.push(StackEntry::Num(6));
         op_tuck(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    /*---- BITWISE LOGIC OPS ----*/
+
+    #[test]
+    /// Test OP_INVERT
+    fn test_invert() {
+        /// op_invert([1,2,3,4,5,6,0]) -> [1,2,3,4,5,6,usize::MAX]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(0));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(usize::MAX));
+        op_invert(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+    
+    #[test]
+    /// Test OP_AND
+    fn test_and() {
+        /// op_and([1,2,3,4,5,6]) -> [1,2,3,4,4]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(4));
+        op_and(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_OR
+    fn test_or() {
+        /// op_or([1,2,3,4,5,6]) -> [1,2,3,4,7]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(7));
+        op_or(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_XOR
+    fn test_xor() {
+        /// op_xor([1,2,3,4,5,6]) -> [1,2,3,4,3]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(3));
+        op_xor(&mut current_stack);
         assert_eq!(current_stack, v)
     }
 

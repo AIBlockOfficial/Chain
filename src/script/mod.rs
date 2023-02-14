@@ -107,14 +107,12 @@ pub enum OpCodes {
     OP_SIZE = 0x82,
 
     // bitwise logic
-    OP_INVERT = 0x83,
-    OP_AND = 0x84,
-    OP_OR = 0x85,
-    OP_XOR = 0x86,
+    OP_INVERT = 0x83,       // implemented, tested, currently disabled
+    OP_AND = 0x84,          // implemented, tested, currently disabled
+    OP_OR = 0x85,           // implemented, tested, currently disabled
+    OP_XOR = 0x86,          // implemented, tested, currently disabled
     OP_EQUAL = 0x87,
     OP_EQUALVERIFY = 0x88,
-    OP_RESERVED1 = 0x89,
-    OP_RESERVED2 = 0x8a,
 
     // arithmetic
     OP_1ADD = 0x8b,               // implemented, tested, added to interpret_script
@@ -166,6 +164,10 @@ pub enum OpCodes {
     OP_NOP8 = 0xb7,
     OP_NOP9 = 0xb8,
     OP_NOP10 = 0xb9,
+
+    // reserved
+    OP_RESERVED1 = 0x89,
+    OP_RESERVED2 = 0x8a,
 
     // data
     OP_CREATE = 0xc0,
