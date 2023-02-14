@@ -99,7 +99,7 @@ pub enum OpCodes {
     OP_SWAP = 0x7c,         // implemented, tested, added to interpret_script
     OP_TUCK = 0x7d,         // implemented, tested, added to interpret_script
 
-    // splice 
+    // splice
     OP_CAT = 0x7e,
     OP_SUBSTR = 0x7f,
     OP_LEFT = 0x80,
@@ -117,30 +117,30 @@ pub enum OpCodes {
     OP_RESERVED2 = 0x8a,
 
     // arithmetic
-    OP_1ADD = 0x8b,      // implemented, tested, added to interpret_script
-    OP_1SUB = 0x8c,      // implemented, tested, added to interpret_script
-    OP_2MUL = 0x8d,      // implemented, tested, currently disabled
-    OP_2DIV = 0x8e,      // implemented, tested, currently disabled
-    OP_NEGATE = 0x8f,    // not implemented: we do not allow negative numbers on the stack
-    OP_ABS = 0x90,       // not implemented: we do not allow negative numbers on the stack
-    OP_NOT = 0x91,       // implemented, tested, added to interpret_script
-    OP_0NOTEQUAL = 0x92, // implemented, tested, added to interpret_script
-    OP_ADD = 0x93,       // implemented, tested, added to interpret_script
-    OP_SUB = 0x94,       // implemented, tested, added to interpret_script
-    OP_MUL = 0x95,       // implemented, tested, currently disabled
-    OP_DIV = 0x96,       // implemented, tested, currently disabled
-    OP_MOD = 0x97,       // implemented, tested, currently disabled
-    OP_LSHIFT = 0x98,    // implemented, tested, currently disabled
-    OP_RSHIFT = 0x99,    // implemented, tested, currently disabled
-    OP_BOOLAND = 0x9a,   // implemented, tested, added to interpret_script
-    OP_BOOLOR = 0x9b,    // implemented, tested, added to interpret_script
-    OP_NUMEQUAL = 0x9c,  // implemented, tested, added to interpret_script
-    OP_NUMEQUALVERIFY = 0x9d, // implemented, tested, added to interpret_script
-    OP_NUMNOTEQUAL = 0x9e, // implemented, tested, added to interpret_script
-    OP_LESSTHAN = 0x9f,
-    OP_GREATERTHAN = 0xa0,
-    OP_LESSTHANOREQUAL = 0xa1,
-    OP_GREATERTHANOREQUAL = 0xa2,
+    OP_1ADD = 0x8b,               // implemented, tested, added to interpret_script
+    OP_1SUB = 0x8c,               // implemented, tested, added to interpret_script
+    OP_2MUL = 0x8d,               // implemented, tested, currently disabled
+    OP_2DIV = 0x8e,               // implemented, tested, currently disabled
+    OP_NEGATE = 0x8f,             // not implemented: we do not allow negative numbers on the stack
+    OP_ABS = 0x90,                // not implemented: we do not allow negative numbers on the stack
+    OP_NOT = 0x91,                // implemented, tested, added to interpret_script
+    OP_0NOTEQUAL = 0x92,          // implemented, tested, added to interpret_script
+    OP_ADD = 0x93,                // implemented, tested, added to interpret_script
+    OP_SUB = 0x94,                // implemented, tested, added to interpret_script
+    OP_MUL = 0x95,                // implemented, tested, currently disabled
+    OP_DIV = 0x96,                // implemented, tested, currently disabled
+    OP_MOD = 0x97,                // implemented, tested, currently disabled
+    OP_LSHIFT = 0x98,             // implemented, tested, currently disabled
+    OP_RSHIFT = 0x99,             // implemented, tested, currently disabled
+    OP_BOOLAND = 0x9a,            // implemented, tested, added to interpret_script
+    OP_BOOLOR = 0x9b,             // implemented, tested, added to interpret_script
+    OP_NUMEQUAL = 0x9c,           // implemented, tested, added to interpret_script
+    OP_NUMEQUALVERIFY = 0x9d,     // implemented, tested, added to interpret_script
+    OP_NUMNOTEQUAL = 0x9e,        // implemented, tested, added to interpret_script
+    OP_LESSTHAN = 0x9f,           // implemented, tested, added to interpret_script
+    OP_GREATERTHAN = 0xa0,        // implemented, tested, added to interpret_script
+    OP_LESSTHANOREQUAL = 0xa1,    // implemented, tested, added to interpret_script
+    OP_GREATERTHANOREQUAL = 0xa2, // implemented, tested, added to interpret_script
     OP_MIN = 0xa3,
     OP_MAX = 0xa4,
     OP_WITHIN = 0xa5,
