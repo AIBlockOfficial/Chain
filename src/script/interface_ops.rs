@@ -549,7 +549,7 @@ pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
 /// OP_ADD: Adds the top item to the second-to-top item on the stack. Returns a bool.
 ///
 /// Example: OP_ADD([x, n1, n2]) -> [x, n1+n2]
-/// 
+///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
@@ -574,7 +574,7 @@ pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
 /// OP_SUB: Subtracts the top item from the second-to-top item on the stack. Returns a bool.
 ///
 /// Example: OP_SUB([x, n1, n2]) -> [x, n1-n2]
-/// 
+///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
@@ -599,7 +599,7 @@ pub fn op_sub(current_stack: &mut Vec<StackEntry>) -> bool {
 /// OP_MUL: Multiplies the second-to-top item by the top item on the stack. Returns a bool.
 ///
 /// Example: OP_MUL([x, n1, n2]) -> [x, n1*n2]
-/// 
+///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
@@ -624,7 +624,7 @@ pub fn op_mul(current_stack: &mut Vec<StackEntry>) -> bool {
 /// OP_DIV: Divides the second-to-top item by the top item on the stack. Returns a bool.
 ///
 /// Example: OP_DIV([x, n1, n2]) -> [x, n1/n2]
-/// 
+///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
@@ -649,7 +649,7 @@ pub fn op_div(current_stack: &mut Vec<StackEntry>) -> bool {
 /// OP_MOD: Computes the remainder of the division of the second-to-top item by the top item on the stack. Returns a bool.
 ///
 /// Example: OP_MOD([x, n1, n2]) -> [x, n1%n2]
-/// 
+///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
@@ -674,12 +674,14 @@ pub fn op_mod(current_stack: &mut Vec<StackEntry>) -> bool {
 /// OP_LSHIFT: Computes the left shift of the second-to-top item by the top item on the stack. Returns a bool.
 ///
 /// Example: OP_LSHIFT([x, n1, n2]) -> [x, n1 << n2]
-/// 
+///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_lshift(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_LSHIFT: Computes the left shift of the second-to-top item by the top item on the stack");
+    trace!(
+        "OP_LSHIFT: Computes the left shift of the second-to-top item by the top item on the stack"
+    );
     if current_stack.len() < TWO {
         error!("OP_LSHIFT: Not enough elements on the stack");
         return false;
@@ -699,7 +701,7 @@ pub fn op_lshift(current_stack: &mut Vec<StackEntry>) -> bool {
 /// OP_RSHIFT: Computes the right shift of the second-to-top item by the top item on the stack. Returns a bool.
 ///
 /// Example: OP_RSHIFT([x, n1, n2]) -> [x, n1 >> n2]
-/// 
+///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
@@ -725,7 +727,7 @@ pub fn op_rshift(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// Example: OP_BOOLAND([x, n1, n2]) -> [x, 1] if n1 != 0 and n2 != 0
 ///          OP_BOOLAND([x, n1, n2]) -> [x, 0] if n1 == 0 or n2 == 0
-/// 
+///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
@@ -755,7 +757,7 @@ pub fn op_booland(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// Example: OP_BOOLOR([x, n1, n2]) -> [x, 1] if n1 != 0 or n2 != 0
 ///          OP_BOOLOR([x, n1, n2]) -> [x, 0] if n1 == 0 and n2 == 0
-/// 
+///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
@@ -785,7 +787,7 @@ pub fn op_boolor(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// Example: OP_NUMEQUAL([x, n1, n2]) -> [x, 1] if n1 == n2
 ///          OP_NUMEQUAL([x, n1, n2]) -> [x, 0] if n1 != n2
-/// 
+///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
@@ -815,7 +817,7 @@ pub fn op_numequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// Example: OP_NUMEQUALVERIFY([x, n1, n2]) -> [x]  if n1 == n2
 ///          OP_NUMEQUALVERIFY([x, n1, n2]) -> fail if n1 != n2
-/// 
+///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
@@ -845,9 +847,9 @@ pub fn op_numequalverify(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_NUMNOTEQUAL: Substitutes the top two items on the stack with ONE if they are not equal, with ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_NUMEQUAL([x, n1, n2]) -> [x, 1] if n1 != n2
-///          OP_NUMEQUAL([x, n1, n2]) -> [x, 0] if n1 == n2
-/// 
+/// Example: OP_NUMNOTEQUAL([x, n1, n2]) -> [x, 1] if n1 != n2
+///          OP_NUMNOTEQUAL([x, n1, n2]) -> [x, 0] if n1 == n2
+///
 /// ### Arguments
 ///
 /// * `current_stack`  - mutable reference to the current stack
@@ -866,6 +868,126 @@ pub fn op_numnotequal(current_stack: &mut Vec<StackEntry>) -> bool {
         _ => return false,
     };
     let item = match n1 != n2 {
+        true => StackEntry::Num(ONE),
+        false => StackEntry::Num(ZERO),
+    };
+    current_stack.push(item);
+    true
+}
+
+/// OP_LESSTHAN: Substitutes the top two items on the stack with ONE if the second-to-top is less than the top item, with ZERO otherwise. Returns a bool.
+///
+/// Example: OP_LESSTHAN([x, n1, n2]) -> [x, 1] if n1 < n2
+///          OP_LESSTHAN([x, n1, n2]) -> [x, 0] if n1 >= n2
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_lessthan(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_LESSTHAN: Substitutes the top two items on the stack with ONE if the second-to-top is less than the top item, with ZERO otherwise");
+    if current_stack.len() < TWO {
+        error!("OP_LESSTHAN: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let item = match n1 < n2 {
+        true => StackEntry::Num(ONE),
+        false => StackEntry::Num(ZERO),
+    };
+    current_stack.push(item);
+    true
+}
+
+/// OP_GREATERTHAN: Substitutes the top two items on the stack with ONE if the second-to-top is greater than the top item, with ZERO otherwise. Returns a bool.
+///
+/// Example: OP_GREATERTHAN([x, n1, n2]) -> [x, 1] if n1 > n2
+///          OP_GREATERTHAN([x, n1, n2]) -> [x, 0] if n1 <= n2
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_greaterthan(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_GREATERTHAN: Substitutes the top two items on the stack with ONE if the second-to-top is greater than the top item, with ZERO otherwise");
+    if current_stack.len() < TWO {
+        error!("OP_GREATERTHAN: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let item = match n1 > n2 {
+        true => StackEntry::Num(ONE),
+        false => StackEntry::Num(ZERO),
+    };
+    current_stack.push(item);
+    true
+}
+
+/// OP_LESSTHANOREQUAL: Substitutes the top two items on the stack with ONE if the second-to-top is less than or equal to the top item, with ZERO otherwise. Returns a bool.
+///
+/// Example: OP_LESSTHANOREQUAL([x, n1, n2]) -> [x, 1] if n1 <= n2
+///          OP_LESSTHANOREQUAL([x, n1, n2]) -> [x, 0] if n1 > n2
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_lessthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_LESSTHANOREQUAL: Substitutes the top two items on the stack with ONE if the second-to-top is less than or equal to the top item, with ZERO otherwise");
+    if current_stack.len() < TWO {
+        error!("OP_LESSTHANOREQUAL: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let item = match n1 <= n2 {
+        true => StackEntry::Num(ONE),
+        false => StackEntry::Num(ZERO),
+    };
+    current_stack.push(item);
+    true
+}
+
+/// OP_GREATERTHANOREQUAL: Substitutes the top two items on the stack with ONE if the second-to-top is greater than or equal to the top item, with ZERO otherwise. Returns a bool.
+///
+/// Example: OP_GREATERTHANOREQUAL([x, n1, n2]) -> [x, 1] if n1 >= n2
+///          OP_GREATERTHANOREQUAL([x, n1, n2]) -> [x, 0] if n1 < n2
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_greaterthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_GREATERTHANOREQUAL: Substitutes the top two items on the stack with ONE if the second-to-top is greater than or equal to the top item, with ZERO otherwise");
+    if current_stack.len() < TWO {
+        error!("OP_GREATERTHANOREQUAL: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let item = match n1 >= n2 {
         true => StackEntry::Num(ONE),
         false => StackEntry::Num(ZERO),
     };
@@ -1872,4 +1994,129 @@ mod tests {
         assert_eq!(current_stack, v)
     }
 
+    #[test]
+    /// Test OP_LESSTHAN
+    fn test_lessthan() {
+        /// op_lessthan([1,2,3,4,5,6]) -> [1,2,3,4,1]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(1));
+        op_lessthan(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_lessthan([1,2,3,4,6,5]) -> [1,2,3,4,0]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(6));
+        current_stack.push(StackEntry::Num(5));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(0));
+        op_lessthan(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_GREATERTHAN
+    fn test_greaterthan() {
+        /// op_greaterthan([1,2,3,4,5,6]) -> [1,2,3,4,0]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(0));
+        op_greaterthan(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_greaterthan([1,2,3,4,6,5]) -> [1,2,3,4,1]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(6));
+        current_stack.push(StackEntry::Num(5));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(1));
+        op_greaterthan(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_LESSTHANOREQUAL
+    fn test_lessthanorequal() {
+        /// test_lessthanorequal([1,2,3,4,6,6]) -> [1,2,3,4,1]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(6));
+        current_stack.push(StackEntry::Num(6));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(1));
+        op_lessthanorequal(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_lessthanorequal([1,2,3,4,6,5]) -> [1,2,3,4,0]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(6));
+        current_stack.push(StackEntry::Num(5));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(0));
+        op_lessthanorequal(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_GREATERTHANOREQUAL
+    fn test_greaterthanorequal() {
+        /// op_greaterthanorequal([1,2,3,4,5,6]) -> [1,2,3,4,0]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(0));
+        op_greaterthan(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_greaterthanorequal([1,2,3,4,6,6]) -> [1,2,3,4,1]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(6));
+        current_stack.push(StackEntry::Num(6));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=4 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(1));
+        op_greaterthanorequal(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
 }

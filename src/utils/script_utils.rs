@@ -351,6 +351,18 @@ fn interpret_script(script: &Script) -> bool {
                 StackEntry::Op(OpCodes::OP_NUMNOTEQUAL) => {
                     test_for_return &= interface_ops::op_numnotequal(&mut current_stack);
                 }
+                StackEntry::Op(OpCodes::OP_LESSTHAN) => {
+                    test_for_return &= interface_ops::op_lessthan(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_GREATERTHAN) => {
+                    test_for_return &= interface_ops::op_greaterthan(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_LESSTHANOREQUAL) => {
+                    test_for_return &= interface_ops::op_lessthanorequal(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_GREATERTHANOREQUAL) => {
+                    test_for_return &= interface_ops::op_greaterthanorequal(&mut current_stack);
+                }
                 /*---- CRYPTO OPS ----*/
                 StackEntry::Op(OpCodes::OP_HASH256) => {
                     test_for_return &= interface_ops::op_hash256(&mut current_stack, None);
