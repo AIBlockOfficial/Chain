@@ -42,7 +42,7 @@ impl StackEntry {
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub enum OpCodes {
-    // push value
+    // constants
     OP_0 = 0x00,
     OP_PUSHDATA1 = 0x4c,
     OP_PUSHDATA2 = 0x4d,
@@ -132,7 +132,7 @@ pub enum OpCodes {
     OP_MOD = 0x97,       // implemented, tested, currently disabled
     OP_LSHIFT = 0x98,
     OP_RSHIFT = 0x99,
-    OP_BOOLAND = 0x9a,
+    OP_BOOLAND = 0x9a,   // implemented, tested, added to interpret_script
     OP_BOOLOR = 0x9b,
     OP_NUMEQUAL = 0x9c,
     OP_NUMEQUALVERIFY = 0x9d,
