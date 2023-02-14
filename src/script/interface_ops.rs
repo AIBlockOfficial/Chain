@@ -724,7 +724,7 @@ pub fn op_rshift(current_stack: &mut Vec<StackEntry>) -> bool {
 /// OP_BOOLAND: Substitutes the top two items on the stack with ONE if they are both non-ZERO, with ZERO otherwise. Returns a bool.
 ///
 /// Example: OP_BOOLAND([x, n1, n2]) -> [x, 1] if n1 != 0 and n2 != 0
-///          OP_BOOLAND([x, n1, n2]) -> [x, 0] if n1 == 0 or  n2 == 0
+///          OP_BOOLAND([x, n1, n2]) -> [x, 0] if n1 == 0 or n2 == 0
 /// 
 /// ### Arguments
 ///
@@ -744,6 +744,36 @@ pub fn op_booland(current_stack: &mut Vec<StackEntry>) -> bool {
         _ => return false,
     };
     let item = match n1 != ZERO && n2 != ZERO {
+        true => StackEntry::Num(ONE),
+        false => StackEntry::Num(ZERO),
+    };
+    current_stack.push(item);
+    true
+}
+
+/// OP_BOOLOR: Substitutes the top two items on the stack with ONE if they are not both ZERO, with ZERO otherwise. Returns a bool.
+///
+/// Example: OP_BOOLOR([x, n1, n2]) -> [x, 1] if n1 != 0 or n2 != 0
+///          OP_BOOLOR([x, n1, n2]) -> [x, 0] if n1 == 0 and n2 == 0
+/// 
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_boolor(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_BOOLOR: Substitutes the top two items on the stack with ONE if they are not both ZERO, with ZERO otherwise");
+    if current_stack.len() < TWO {
+        error!("OP_BOOLOR: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(num) => num,
+        _ => return false,
+    };
+    let item = match n1 != ZERO || n2 != ZERO {
         true => StackEntry::Num(ONE),
         false => StackEntry::Num(ZERO),
     };
@@ -1624,6 +1654,38 @@ mod tests {
         for i in 1..=6 {
             current_stack.push(StackEntry::Num(i));
         }
+        current_stack.push(StackEntry::Num(0));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(0));
+        op_booland(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_BOOLOR
+    fn test_boolor() {
+        /// op_boolor([1,2,3,4,5,6,0]) -> [1,2,3,4,5,1]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(0));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(1));
+        op_boolor(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_booland([1,2,3,4,5,0,0]) -> [1,2,3,4,5,0]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(0));
         current_stack.push(StackEntry::Num(0));
         let mut v: Vec<StackEntry> = Vec::new();
         for i in 1..=5 {
