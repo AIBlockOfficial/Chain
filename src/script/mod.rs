@@ -99,7 +99,7 @@ pub enum OpCodes {
     OP_TUCK = 0x7d,         // implemented, tested, added to interpret_script
 
     // splice
-    OP_CAT = 0x7e, // implemented, tested, currently disabled
+    OP_CAT = 0x7e,    // implemented, tested, currently disabled
     OP_SUBSTR = 0x7f, // implemented, tested, currently disabled
     OP_LEFT = 0x80,
     OP_RIGHT = 0x81,
