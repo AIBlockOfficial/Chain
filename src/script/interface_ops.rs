@@ -431,7 +431,10 @@ pub fn op_cat(current_stack: &mut Vec<StackEntry>) -> bool {
         _ => return false,
     };
     if s1.len() + s2.len() > MAX_SCRIPT_ELEMENT_SIZE as usize {
-        error!("OP_CAT: Size of concatenated string is greater than {}-byte limit", MAX_SCRIPT_ELEMENT_SIZE);
+        error!(
+            "OP_CAT: Size of concatenated string is greater than {}-byte limit",
+            MAX_SCRIPT_ELEMENT_SIZE
+        );
         return false;
     }
     current_stack.push(StackEntry::Bytes([s1, s2].join("")));
@@ -498,8 +501,7 @@ pub fn op_left(current_stack: &mut Vec<StackEntry>) -> bool {
     };
     if n >= s.len() {
         current_stack.push(StackEntry::Bytes(s));
-    }
-    else {
+    } else {
         current_stack.push(StackEntry::Bytes(s.get(..n).unwrap().to_string()));
     }
     true
@@ -528,10 +530,30 @@ pub fn op_right(current_stack: &mut Vec<StackEntry>) -> bool {
     };
     if n >= s.len() {
         current_stack.push(StackEntry::Bytes(String::new()));
-    }
-    else {
+    } else {
         current_stack.push(StackEntry::Bytes(s.get(n..).unwrap().to_string()));
     }
+    true
+}
+
+/// OP_SIZE: Computes the size in bytes of the top item on the stack. Returns a bool.
+///
+/// Example: OP_SIZE([x, s]) -> [x, s, len(s)]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_size(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_SIZE: Computes the size in bytes of the top item on the stack");
+    if current_stack.is_empty() {
+        error!("OP_SIZE: Not enough elements on the stack");
+        return false;
+    }
+    let s = match current_stack.pop().unwrap() {
+        StackEntry::Bytes(s) => s,
+        _ => return false,
+    };
+    current_stack.push(StackEntry::Num(s.len()));
     true
 }
 
@@ -2106,6 +2128,37 @@ mod tests {
         v.push(StackEntry::Bytes("".to_string()));
         op_right(&mut current_stack);
         assert_eq!(current_stack, v);
+    }
+
+    #[test]
+    /// Test OP_SIZE
+    fn test_size() {
+        /// op_size([1,2,3,4,5,6,"hello"]) -> [1,2,3,4,5,6,5]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(5));
+        op_size(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_size([1,2,3,4,5,6,""]) -> [1,2,3,4,5,6,0]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("".to_string()));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(0));
+        op_size(&mut current_stack);
+        assert_eq!(current_stack, v)
     }
 
     /*---- BITWISE LOGIC OPS ----*/

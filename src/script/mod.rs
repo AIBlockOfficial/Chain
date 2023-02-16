@@ -103,7 +103,7 @@ pub enum OpCodes {
     OP_SUBSTR = 0x7f, // implemented, tested, currently disabled
     OP_LEFT = 0x80,   // implemented, tested, currently disabled
     OP_RIGHT = 0x81,  // implemented, tested, currently disabled
-    OP_SIZE = 0x82,
+    OP_SIZE = 0x82,   // implemented, tested, added to interpret_script
 
     // bitwise logic
     OP_INVERT = 0x83,      // implemented, tested, currently disabled
