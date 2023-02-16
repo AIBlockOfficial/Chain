@@ -407,6 +407,36 @@ pub fn op_tuck(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/*---- SPLICE OPS ----*/
+
+/// OP_CAT: Concatenates the second-to-top item and the top item on the stack. Returns a bool.
+///
+/// Example: OP_CAT([x, s1, s2]) -> [x, s1s2]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_cat(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_CAT: Concatenates the second-to-top item and the top item on the stack");
+    if current_stack.len() < TWO {
+        error!("OP_CAT: Not enough elements on the stack");
+        return false;
+    }
+    let s2 = match current_stack.pop().unwrap() {
+        StackEntry::Bytes(s) => s,
+        _ => return false,
+    };
+    let s1 = match current_stack.pop().unwrap() {
+        StackEntry::Bytes(s) => s,
+        _ => return false,
+    };
+    if s1.len() + s2.len() > MAX_SCRIPT_ELEMENT_SIZE as usize {
+        return false;
+    }
+    current_stack.push(StackEntry::Bytes([s1, s2].join("")));
+    true
+}
+
 /*---- BITWISE LOGIC OPS ----*/
 
 /// OP_INVERT: Computes bitwise complement of the top item on the stack. Returns a bool.
@@ -1791,6 +1821,40 @@ mod tests {
         v.push(StackEntry::Num(6));
         op_tuck(&mut current_stack);
         assert_eq!(current_stack, v)
+    }
+
+    /*---- SPLICE OPS ----*/
+
+    #[test]
+    /// Test OP_CAT
+    fn test_cat() {
+        /// op_cat([1,2,3,4,5,6,"hello",""]) -> [1,2,3,4,5,6,"hello"]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        current_stack.push(StackEntry::Bytes("".to_string()));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Bytes("hello".to_string()));
+        op_cat(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_cat([1,2,3,4,5,6,"a","a"*520]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes('a'.to_string()));
+        let mut s = String::new();
+        for i in 1..=MAX_SCRIPT_ELEMENT_SIZE {
+            s.push('a');
+        }
+        current_stack.push(StackEntry::Bytes(s.to_string()));
+        let b = op_cat(&mut current_stack);
+        assert!(!b);
     }
 
     /*---- BITWISE LOGIC OPS ----*/
