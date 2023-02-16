@@ -437,6 +437,39 @@ pub fn op_cat(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// OP_SUBSTR: Extracts a substring from the third-to-top item on the stack. Returns a bool.
+///
+/// Example: OP_SUBSTR([x, s, n1, n2]) -> [x, s[n1..n1+n2-1]]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_substr(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_SUBSTR: Extracts a substring from the third-to-top item on the stack");
+    if current_stack.len() < THREE {
+        error!("OP_SUBSTR: Not enough elements on the stack");
+        return false;
+    }
+    let n2 = match current_stack.pop().unwrap() {
+        StackEntry::Num(n) => n,
+        _ => return false,
+    };
+    let n1 = match current_stack.pop().unwrap() {
+        StackEntry::Num(n) => n,
+        _ => return false,
+    };
+    let s = match current_stack.pop().unwrap() {
+        StackEntry::Bytes(s) => s,
+        _ => return false,
+    };
+    if n1 + n2 > s.len() {
+        error!("OP_SUBSTR: Indexes are not correct");
+        return false;
+    }
+    current_stack.push(StackEntry::Bytes(s.get(n1..n1+n2).unwrap().to_string()));
+    true
+}
+
 /*---- BITWISE LOGIC OPS ----*/
 
 /// OP_INVERT: Computes bitwise complement of the top item on the stack. Returns a bool.
@@ -1854,6 +1887,51 @@ mod tests {
         }
         current_stack.push(StackEntry::Bytes(s.to_string()));
         let b = op_cat(&mut current_stack);
+        assert!(!b);
+    }
+
+    #[test]
+    /// Test OP_SUBSTR
+    fn test_substr() {
+        /// op_substr([1,2,3,4,5,6,"hello",1,2]) -> [1,2,3,4,5,6,"el"]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        current_stack.push(StackEntry::Num(1));
+        current_stack.push(StackEntry::Num(2));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Bytes("el".to_string()));
+        op_substr(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_substr([1,2,3,4,5,6,"hello",0,0]) -> [1,2,3,4,5,6,""]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        current_stack.push(StackEntry::Num(0));
+        current_stack.push(StackEntry::Num(0));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Bytes("".to_string()));
+        op_substr(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_substr([1,2,3,4,5,6,"hello",1,5]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        current_stack.push(StackEntry::Num(1));
+        current_stack.push(StackEntry::Num(5));
+        let b = op_substr(&mut current_stack);
         assert!(!b);
     }
 
