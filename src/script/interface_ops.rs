@@ -466,7 +466,7 @@ pub fn op_substr(current_stack: &mut Vec<StackEntry>) -> bool {
         error!("OP_SUBSTR: Indexes are not correct");
         return false;
     }
-    current_stack.push(StackEntry::Bytes(s.get(n1..n1+n2).unwrap().to_string()));
+    current_stack.push(StackEntry::Bytes(s.get(n1..n1 + n2).unwrap().to_string()));
     true
 }
 
