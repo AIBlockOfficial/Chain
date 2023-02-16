@@ -101,8 +101,8 @@ pub enum OpCodes {
     // splice
     OP_CAT = 0x7e,    // implemented, tested, currently disabled
     OP_SUBSTR = 0x7f, // implemented, tested, currently disabled
-    OP_LEFT = 0x80,
-    OP_RIGHT = 0x81,
+    OP_LEFT = 0x80,   // implemented, tested, currently disabled
+    OP_RIGHT = 0x81,  // implemented, tested, currently disabled
     OP_SIZE = 0x82,
 
     // bitwise logic

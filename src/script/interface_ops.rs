@@ -431,6 +431,7 @@ pub fn op_cat(current_stack: &mut Vec<StackEntry>) -> bool {
         _ => return false,
     };
     if s1.len() + s2.len() > MAX_SCRIPT_ELEMENT_SIZE as usize {
+        error!("OP_CAT: Size of concatenated string is greater than {}-byte limit", MAX_SCRIPT_ELEMENT_SIZE);
         return false;
     }
     current_stack.push(StackEntry::Bytes([s1, s2].join("")));
@@ -462,11 +463,75 @@ pub fn op_substr(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Bytes(s) => s,
         _ => return false,
     };
-    if n1 + n2 > s.len() {
-        error!("OP_SUBSTR: Indexes are not correct");
+    if n1 > s.len() {
+        error!("OP_SUBSTR: Start index is out of bound");
+        return false;
+    }
+    if n1 + n2 >= s.len() {
+        error!("OP_SUBSTR: End index is out of bound");
         return false;
     }
     current_stack.push(StackEntry::Bytes(s.get(n1..n1 + n2).unwrap().to_string()));
+    true
+}
+
+/// OP_LEFT: Extracts a left substring from the second-to-top item on the stack. Returns a bool.
+///
+/// Example: OP_LEFT([x, s, n]) -> [x, s[..n-1]]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_left(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_LEFT: Extracts a left substring from the second-to-top item on the stack");
+    if current_stack.len() < THREE {
+        error!("OP_LEFT: Not enough elements on the stack");
+        return false;
+    }
+    let n = match current_stack.pop().unwrap() {
+        StackEntry::Num(n) => n,
+        _ => return false,
+    };
+    let s = match current_stack.pop().unwrap() {
+        StackEntry::Bytes(s) => s,
+        _ => return false,
+    };
+    if n >= s.len() {
+        current_stack.push(StackEntry::Bytes(s));
+    }
+    else {
+        current_stack.push(StackEntry::Bytes(s.get(..n).unwrap().to_string()));
+    }
+    true
+}
+
+/// OP_RIGHT: Extracts a right substring from the second-to-top item on the stack. Returns a bool.
+///
+/// Example: OP_RIGHT([x, s, n]) -> [x, s[n..]]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_right(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_RIGHT: Extracts a right substring from the second-to-top item on the stack");
+    if current_stack.len() < THREE {
+        error!("OP_RIGHT: Not enough elements on the stack");
+        return false;
+    }
+    let n = match current_stack.pop().unwrap() {
+        StackEntry::Num(n) => n,
+        _ => return false,
+    };
+    let s = match current_stack.pop().unwrap() {
+        StackEntry::Bytes(s) => s,
+        _ => return false,
+    };
+    if n >= s.len() {
+        current_stack.push(StackEntry::Bytes(String::new()));
+    }
+    else {
+        current_stack.push(StackEntry::Bytes(s.get(n..).unwrap().to_string()));
+    }
     true
 }
 
@@ -1861,6 +1926,20 @@ mod tests {
     #[test]
     /// Test OP_CAT
     fn test_cat() {
+        /// op_cat([1,2,3,4,5,6,"hello","world"]) -> [1,2,3,4,5,6,"helloworld"]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        current_stack.push(StackEntry::Bytes("world".to_string()));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Bytes("helloworld".to_string()));
+        op_cat(&mut current_stack);
+        assert_eq!(current_stack, v);
         /// op_cat([1,2,3,4,5,6,"hello",""]) -> [1,2,3,4,5,6,"hello"]
         let mut current_stack: Vec<StackEntry> = Vec::new();
         for i in 1..=6 {
@@ -1933,6 +2012,100 @@ mod tests {
         current_stack.push(StackEntry::Num(5));
         let b = op_substr(&mut current_stack);
         assert!(!b);
+    }
+
+    #[test]
+    /// Test OP_LEFT
+    fn test_left() {
+        /// op_left([1,2,3,4,5,6,"hello",2]) -> [1,2,3,4,5,6,"he"]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        current_stack.push(StackEntry::Num(2));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Bytes("he".to_string()));
+        op_left(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_left([1,2,3,4,5,6,"hello",0]) -> [1,2,3,4,5,6,""]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        current_stack.push(StackEntry::Num(0));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Bytes("".to_string()));
+        op_left(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_substr([1,2,3,4,5,6,"hello",5]) -> [1,2,3,4,5,6,"hello"]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        current_stack.push(StackEntry::Num(5));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Bytes("hello".to_string()));
+        op_left(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_RIGHT
+    fn test_right() {
+        /// op_right([1,2,3,4,5,6,"hello",0]) -> [1,2,3,4,5,6,"hello"]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        current_stack.push(StackEntry::Num(0));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Bytes("hello".to_string()));
+        op_right(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_right([1,2,3,4,5,6,"hello",2]) -> [1,2,3,4,5,6,"llo"]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        current_stack.push(StackEntry::Num(2));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Bytes("llo".to_string()));
+        op_right(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_right([1,2,3,4,5,6,"hello",5]) -> [1,2,3,4,5,6,""]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        current_stack.push(StackEntry::Num(5));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Bytes("".to_string()));
+        op_right(&mut current_stack);
+        assert_eq!(current_stack, v);
     }
 
     /*---- BITWISE LOGIC OPS ----*/
