@@ -48,7 +48,6 @@ pub enum OpCodes {
     OP_PUSHDATA2 = 0x4d,
     OP_PUSHDATA4 = 0x4e,
     OP_1NEGATE = 0x4f,
-    OP_RESERVED = 0x50,
     OP_1 = 0x51,
     OP_2 = 0x52,
     OP_3 = 0x53,
@@ -100,7 +99,7 @@ pub enum OpCodes {
     OP_TUCK = 0x7d,         // implemented, tested, added to interpret_script
 
     // splice
-    OP_CAT = 0x7e,
+    OP_CAT = 0x7e, // implemented, tested, currently disabled
     OP_SUBSTR = 0x7f,
     OP_LEFT = 0x80,
     OP_RIGHT = 0x81,
@@ -166,6 +165,7 @@ pub enum OpCodes {
     OP_NOP10 = 0xb9,
 
     // reserved
+    OP_RESERVED = 0x50,
     OP_RESERVED1 = 0x89,
     OP_RESERVED2 = 0x8a,
 
