@@ -1835,8 +1835,7 @@ mod tests {
         assert_eq!(current_stack, v);
         /// op_depth([]) -> [0]
         let mut current_stack: Vec<StackEntry> = Vec::new();
-        let mut v: Vec<StackEntry> = Vec::new();
-        v.push(StackEntry::Num(0));
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
         op_depth(&mut current_stack);
         assert_eq!(current_stack, v)
     }
