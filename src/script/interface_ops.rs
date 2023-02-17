@@ -185,6 +185,27 @@ pub fn op_2swap(current_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
+/// OP_IFDUP: Duplicates the top item on the stack if it is not ZERO. Returns a bool.
+///
+/// Example: OP_IFDUP([x1, x2]) -> [x1, x2, x2] if x2 != 0
+///          OP_IFDUP([x1, x2]) -> [x1, x2]     if x2 == 0
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_ifdup(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_IFDUP: Duplicates the top item on the stack if it is not ZERO");
+    if current_stack.is_empty() {
+        error!("OP_IFDUP: Not enough elements on the stack");
+        return false;
+    }
+    let item = current_stack[current_stack.len() - ONE].clone();
+    if item != StackEntry::Num(ZERO) {
+        current_stack.push(item);
+    }
+    true
+}
+
 /// OP_DEPTH: Adds the stack size to the top of the stack. Returns a bool.
 ///
 /// Example: OP_DEPTH([x1, x2, x3, x4]) -> [x1, x2, x3, x4, 4]
@@ -230,27 +251,6 @@ pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
     }
     let item = current_stack[current_stack.len() - ONE].clone();
     current_stack.push(item);
-    true
-}
-
-/// OP_IFDUP: Duplicates the top item on the stack if it is not ZERO. Returns a bool.
-///
-/// Example: OP_DUP([x1, x2]) -> [x1, x2, x2] if x2 != 0
-///          OP_DUP([x1, x2]) -> [x1, x2]     if x2 == 0
-///
-/// ### Arguments
-///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_ifdup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_IFDUP: Duplicates the top item on the stack if it is not ZERO");
-    if current_stack.is_empty() {
-        error!("OP_IFDUP: Not enough elements on the stack");
-        return false;
-    }
-    let item = current_stack[current_stack.len() - ONE].clone();
-    if item != StackEntry::Num(ZERO) {
-        current_stack.push(item);
-    }
     true
 }
 
@@ -312,7 +312,7 @@ pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
     };
     let len = current_stack.len();
     if n >= len {
-        error!("OP_PICK: Not enough elements on the stack");
+        error!("OP_PICK: Index is out of bound");
         return false;
     }
     let item = current_stack[len - ONE - n].clone();
@@ -341,7 +341,7 @@ pub fn op_roll(current_stack: &mut Vec<StackEntry>) -> bool {
     };
     let len = current_stack.len();
     if n >= len {
-        error!("OP_ROLL: Not enough elements on the stack");
+        error!("OP_ROLL: Index is out of bound");
         return false;
     }
     let index = len - ONE - n;
@@ -1597,7 +1597,13 @@ mod tests {
         v2.push(StackEntry::Num(6));
         op_toaltstack(&mut current_stack, &mut current_alt_stack);
         assert_eq!(current_stack, v1);
-        assert_eq!(current_alt_stack, v2)
+        assert_eq!(current_alt_stack, v2);
+        /// op_toaltstack([], [1]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        let mut current_alt_stack: Vec<StackEntry> = Vec::new();
+        current_alt_stack.push(StackEntry::Num(1));
+        let b = op_toaltstack(&mut current_stack, &mut current_alt_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1623,7 +1629,13 @@ mod tests {
         }
         op_fromaltstack(&mut current_stack, &mut current_alt_stack);
         assert_eq!(current_stack, v1);
-        assert_eq!(current_alt_stack, v2)
+        assert_eq!(current_alt_stack, v2);
+        /// op_fromaltstack([1], []) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        let mut current_alt_stack: Vec<StackEntry> = Vec::new();
+        current_stack.push(StackEntry::Num(1));
+        let b = op_fromaltstack(&mut current_stack, &mut current_alt_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1639,7 +1651,12 @@ mod tests {
             v.push(StackEntry::Num(i));
         }
         op_2drop(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_2drop([1]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        current_stack.push(StackEntry::Num(1));
+        let b = op_2drop(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1657,7 +1674,12 @@ mod tests {
         v.push(StackEntry::Num(5));
         v.push(StackEntry::Num(6));
         op_2dup(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_2dup([1]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        current_stack.push(StackEntry::Num(1));
+        let b = op_2dup(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1676,7 +1698,13 @@ mod tests {
         v.push(StackEntry::Num(5));
         v.push(StackEntry::Num(6));
         op_3dup(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_3dup([1,2]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        current_stack.push(StackEntry::Num(1));
+        current_stack.push(StackEntry::Num(2));
+        let b = op_3dup(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1694,7 +1722,14 @@ mod tests {
         v.push(StackEntry::Num(3));
         v.push(StackEntry::Num(4));
         op_2over(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_2over([1,2,3]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=3 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let b = op_2over(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1712,7 +1747,14 @@ mod tests {
         v.push(StackEntry::Num(1));
         v.push(StackEntry::Num(2));
         op_2rot(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_2rot([1,2,3,4,5]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=5 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let b = op_2rot(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1732,7 +1774,14 @@ mod tests {
         v.push(StackEntry::Num(3));
         v.push(StackEntry::Num(4));
         op_2swap(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_2swap([1,2,3]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=3 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let b = op_2swap(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1762,7 +1811,11 @@ mod tests {
         }
         v.push(StackEntry::Num(0));
         op_ifdup(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_ifdup([]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        let b = op_2swap(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1778,6 +1831,12 @@ mod tests {
             v.push(StackEntry::Num(1));
         }
         v.push(StackEntry::Num(6));
+        op_depth(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_depth([]) -> [0]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        let mut v: Vec<StackEntry> = Vec::new();
+        v.push(StackEntry::Num(0));
         op_depth(&mut current_stack);
         assert_eq!(current_stack, v)
     }
@@ -1795,7 +1854,11 @@ mod tests {
             v.push(StackEntry::Num(i));
         }
         op_drop(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_drop([]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        let b = op_drop(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1812,7 +1875,11 @@ mod tests {
         }
         v.push(StackEntry::Num(6));
         op_dup(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_dup([]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        let b = op_dup(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1829,7 +1896,12 @@ mod tests {
         }
         v.push(StackEntry::Num(6));
         op_nip(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_nip([1]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        current_stack.push(StackEntry::Num(1));
+        let b = op_nip(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1846,7 +1918,12 @@ mod tests {
         }
         v.push(StackEntry::Num(5));
         op_over(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_over([1]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        current_stack.push(StackEntry::Num(1));
+        let b = op_over(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1864,7 +1941,31 @@ mod tests {
         }
         v.push(StackEntry::Num(4));
         op_pick(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_pick([1,2,3,4,5,6,0]) -> [1,2,3,4,5,6,6]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(0));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        v.push(StackEntry::Num(6));
+        op_pick(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_pick([1]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        current_stack.push(StackEntry::Num(1));
+        let b = op_pick(&mut current_stack);
+        assert!(!b);
+        /// op_pick([1,1]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        current_stack.push(StackEntry::Num(1));
+        current_stack.push(StackEntry::Num(1));
+        let b = op_pick(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1884,7 +1985,30 @@ mod tests {
         v.push(StackEntry::Num(6));
         v.push(StackEntry::Num(4));
         op_roll(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_roll([1,2,3,4,5,6,0]) -> [1,2,3,4,5,6]
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Num(0));
+        let mut v: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            v.push(StackEntry::Num(i));
+        }
+        op_roll(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_roll([1]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        current_stack.push(StackEntry::Num(1));
+        let b = op_roll(&mut current_stack);
+        assert!(!b);
+        /// op_roll([1,1]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        current_stack.push(StackEntry::Num(1));
+        current_stack.push(StackEntry::Num(1));
+        let b = op_roll(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1903,7 +2027,14 @@ mod tests {
         v.push(StackEntry::Num(6));
         v.push(StackEntry::Num(4));
         op_rot(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_rot([1,2]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=2 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        let b = op_rot(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1921,7 +2052,12 @@ mod tests {
         v.push(StackEntry::Num(6));
         v.push(StackEntry::Num(5));
         op_swap(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_swap([1]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        current_stack.push(StackEntry::Num(1));
+        let b = op_swap(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -1940,7 +2076,12 @@ mod tests {
         v.push(StackEntry::Num(5));
         v.push(StackEntry::Num(6));
         op_tuck(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_tuck([1]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        current_stack.push(StackEntry::Num(1));
+        let b = op_tuck(&mut current_stack);
+        assert!(!b)
     }
 
     /*---- SPLICE OPS ----*/
