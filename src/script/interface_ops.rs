@@ -432,7 +432,7 @@ pub fn op_cat(current_stack: &mut Vec<StackEntry>) -> bool {
     };
     if s1.len() + s2.len() > MAX_SCRIPT_ELEMENT_SIZE as usize {
         error!(
-            "OP_CAT: Size of concatenated string is greater than {}-byte limit",
+            "OP_CAT: Item size is greater than {}-byte limit",
             MAX_SCRIPT_ELEMENT_SIZE
         );
         return false;
@@ -2129,6 +2129,12 @@ mod tests {
         current_stack.push(StackEntry::Bytes(s.to_string()));
         let b = op_cat(&mut current_stack);
         assert!(!b);
+        /// op_cat(["hello"]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        let mut s = String::new();
+        let b = op_cat(&mut current_stack);
+        assert!(!b);
     }
 
     #[test]
@@ -2164,6 +2170,16 @@ mod tests {
         v.push(StackEntry::Bytes("".to_string()));
         op_substr(&mut current_stack);
         assert_eq!(current_stack, v);
+        /// op_substr([1,2,3,4,5,6,"hello",5,1]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        for i in 1..=6 {
+            current_stack.push(StackEntry::Num(i));
+        }
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        current_stack.push(StackEntry::Num(5));
+        current_stack.push(StackEntry::Num(1));
+        let b = op_substr(&mut current_stack);
+        assert!(!b);
         /// op_substr([1,2,3,4,5,6,"hello",1,5]) -> fail
         let mut current_stack: Vec<StackEntry> = Vec::new();
         for i in 1..=6 {
@@ -2174,6 +2190,12 @@ mod tests {
         current_stack.push(StackEntry::Num(5));
         let b = op_substr(&mut current_stack);
         assert!(!b);
+        /// op_substr(["hello",1]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        current_stack.push(StackEntry::Num(1));
+        let b = op_substr(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
@@ -2298,7 +2320,11 @@ mod tests {
         }
         v.push(StackEntry::Num(0));
         op_size(&mut current_stack);
-        assert_eq!(current_stack, v)
+        assert_eq!(current_stack, v);
+        /// op_size([]) -> fail
+        let mut current_stack: Vec<StackEntry> = Vec::new();
+        let b = op_size(&mut current_stack);
+        assert!(!b)
     }
 
     /*---- BITWISE LOGIC OPS ----*/
