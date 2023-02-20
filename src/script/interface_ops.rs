@@ -306,7 +306,7 @@ pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let len = current_stack.len();
@@ -334,7 +334,7 @@ pub fn op_roll(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let len = current_stack.len();
@@ -441,7 +441,7 @@ pub fn op_cat(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_SUBSTR: Extracts a substring from the third-to-top item on the stack. Returns a bool.
 ///
-/// Example: OP_SUBSTR([x, s, n1, n2]) -> [x, s[n1..n1+n2-1]]
+/// Example: OP_SUBSTR([s, n1, n2]) -> [s[n1..n1+n2-1]]
 ///
 /// ### Arguments
 ///
@@ -464,11 +464,11 @@ pub fn op_substr(current_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Bytes(s) => s,
         _ => return false,
     };
-    if n1 > s.len() {
+    if n1 >= s.len() {
         error!("OP_SUBSTR: Start index is out of bound");
         return false;
     }
-    if n1 + n2 >= s.len() {
+    if n1 + n2 > s.len() {
         error!("OP_SUBSTR: End index is out of bound");
         return false;
     }
@@ -478,7 +478,8 @@ pub fn op_substr(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_LEFT: Extracts a left substring from the second-to-top item on the stack. Returns a bool.
 ///
-/// Example: OP_LEFT([x, s, n]) -> [x, s[..n-1]]
+/// Example: OP_LEFT([s, n]) -> [s[..n-1]] if n < len(s)
+///          OP_LEFT([s, n]) -> [s]        if n >= len(s)
 ///
 /// ### Arguments
 ///
@@ -507,7 +508,8 @@ pub fn op_left(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_RIGHT: Extracts a right substring from the second-to-top item on the stack. Returns a bool.
 ///
-/// Example: OP_RIGHT([x, s, n]) -> [x, s[n..]]
+/// Example: OP_RIGHT([s, n]) -> [s[n..]] if n < len(s)
+///          OP_RIGHT([s, n]) -> [""]     if n >= len(s)
 ///
 /// ### Arguments
 ///
@@ -536,7 +538,7 @@ pub fn op_right(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_SIZE: Computes the size in bytes of the top item on the stack. Returns a bool.
 ///
-/// Example: OP_SIZE([x, s]) -> [x, s, len(s)]
+/// Example: OP_SIZE([s]) -> [s, len(s)]
 ///
 /// ### Arguments
 ///
@@ -547,7 +549,7 @@ pub fn op_size(current_stack: &mut Vec<StackEntry>) -> bool {
         error!("OP_SIZE: Not enough elements on the stack");
         return false;
     }
-    let s = match current_stack.pop().unwrap() {
+    let s = match current_stack[current_stack.len() - ONE].clone() {
         StackEntry::Bytes(s) => s,
         _ => return false,
     };
@@ -571,7 +573,7 @@ pub fn op_invert(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n.not()));
@@ -592,11 +594,11 @@ pub fn op_and(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n1.bitand(n2)));
@@ -617,11 +619,11 @@ pub fn op_or(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n1.bitor(n2)));
@@ -642,11 +644,11 @@ pub fn op_xor(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n1.bitxor(n2)));
@@ -716,7 +718,7 @@ pub fn op_1add(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n.wrapping_add(ONE)));
@@ -737,7 +739,7 @@ pub fn op_1sub(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n.wrapping_sub(ONE)));
@@ -758,7 +760,7 @@ pub fn op_2mul(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n.wrapping_mul(TWO)));
@@ -779,7 +781,7 @@ pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n.wrapping_div(TWO)));
@@ -802,7 +804,7 @@ pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     if n == ZERO {
@@ -829,7 +831,7 @@ pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     if n != ZERO {
@@ -854,11 +856,11 @@ pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n1.wrapping_add(n2)));
@@ -879,11 +881,11 @@ pub fn op_sub(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n1.wrapping_sub(n2)));
@@ -904,11 +906,11 @@ pub fn op_mul(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n1.wrapping_mul(n2)));
@@ -929,11 +931,11 @@ pub fn op_div(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n1.wrapping_div(n2)));
@@ -954,11 +956,11 @@ pub fn op_mod(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n1.wrapping_rem(n2)));
@@ -981,11 +983,11 @@ pub fn op_lshift(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num as u32,
+        StackEntry::Num(n) => n as u32,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n1.wrapping_shl(n2)));
@@ -1006,11 +1008,11 @@ pub fn op_rshift(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num as u32,
+        StackEntry::Num(n) => n as u32,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n1.wrapping_shr(n2)));
@@ -1032,11 +1034,11 @@ pub fn op_booland(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     if n1 != ZERO && n2 != ZERO {
@@ -1062,11 +1064,11 @@ pub fn op_boolor(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     if n1 != ZERO || n2 != ZERO {
@@ -1092,11 +1094,11 @@ pub fn op_numequal(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     if n1 == n2 {
@@ -1122,11 +1124,11 @@ pub fn op_numequalverify(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     if n1 != n2 {
@@ -1151,11 +1153,11 @@ pub fn op_numnotequal(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     if n1 != n2 {
@@ -1181,11 +1183,11 @@ pub fn op_lessthan(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     if n1 < n2 {
@@ -1211,11 +1213,11 @@ pub fn op_greaterthan(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     if n1 > n2 {
@@ -1241,11 +1243,11 @@ pub fn op_lessthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     if n1 <= n2 {
@@ -1271,11 +1273,11 @@ pub fn op_greaterthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     if n1 >= n2 {
@@ -1301,11 +1303,11 @@ pub fn op_min(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n1.min(n2)));
@@ -1327,11 +1329,11 @@ pub fn op_max(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     current_stack.push(StackEntry::Num(n1.max(n2)));
@@ -1354,15 +1356,15 @@ pub fn op_within(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
     let n3 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(num) => num,
+        StackEntry::Num(n) => n,
         _ => return false,
     };
     if n1 >= n2 && n1 < n3 {
@@ -1898,6 +1900,11 @@ mod tests {
         let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let b = op_pick(&mut current_stack);
         assert!(!b);
+        /// op_pick([1,"hello"]) -> fail
+        let mut current_stack: Vec<StackEntry> =
+            vec![StackEntry::Num(1), StackEntry::Bytes("hello".to_string())];
+        let b = op_pick(&mut current_stack);
+        assert!(!b);
         /// op_pick([1,1]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
@@ -1937,6 +1944,11 @@ mod tests {
         assert_eq!(current_stack, v);
         /// op_roll([1]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_roll(&mut current_stack);
+        assert!(!b);
+        /// op_roll([1,"hello"]) -> fail
+        let mut current_stack: Vec<StackEntry> =
+            vec![StackEntry::Num(1), StackEntry::Bytes("hello".to_string())];
         let b = op_roll(&mut current_stack);
         assert!(!b);
         /// op_roll([1,1]) -> fail
@@ -2014,40 +2026,24 @@ mod tests {
     #[test]
     /// Test OP_CAT
     fn test_cat() {
-        /// op_cat([1,2,3,4,5,6,"hello","world"]) -> [1,2,3,4,5,6,"helloworld"]
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
-        }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        current_stack.push(StackEntry::Bytes("world".to_string()));
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Bytes("helloworld".to_string()));
+        /// op_cat(["hello","world"]) -> ["helloworld"]
+        let mut current_stack: Vec<StackEntry> = vec![
+            StackEntry::Bytes("hello".to_string()),
+            StackEntry::Bytes("world".to_string()),
+        ];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("helloworld".to_string())];
         op_cat(&mut current_stack);
         assert_eq!(current_stack, v);
-        /// op_cat([1,2,3,4,5,6,"hello",""]) -> [1,2,3,4,5,6,"hello"]
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
-        }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        current_stack.push(StackEntry::Bytes("".to_string()));
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Bytes("hello".to_string()));
+        /// op_cat(["hello",""]) -> ["hello"]
+        let mut current_stack: Vec<StackEntry> = vec![
+            StackEntry::Bytes("hello".to_string()),
+            StackEntry::Bytes("".to_string()),
+        ];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
         op_cat(&mut current_stack);
         assert_eq!(current_stack, v);
-        /// op_cat([1,2,3,4,5,6,"a","a"*520]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
-        }
-        current_stack.push(StackEntry::Bytes('a'.to_string()));
+        /// op_cat(["a","a"*520]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes('a'.to_string())];
         let mut s = String::new();
         for i in 1..=MAX_SCRIPT_ELEMENT_SIZE {
             s.push('a');
@@ -2056,70 +2052,63 @@ mod tests {
         let b = op_cat(&mut current_stack);
         assert!(!b);
         /// op_cat(["hello"]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        let mut s = String::new();
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
         let b = op_cat(&mut current_stack);
         assert!(!b);
+        /// op_cat(["hello", 1]) -> fail
+        let mut current_stack: Vec<StackEntry> =
+            vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(1)];
+        let b = op_cat(&mut current_stack);
+        assert!(!b)
     }
 
     #[test]
     /// Test OP_SUBSTR
     fn test_substr() {
-        /// op_substr([1,2,3,4,5,6,"hello",1,2]) -> [1,2,3,4,5,6,"el"]
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
+        /// op_substr(["hello",1,2]) -> ["el"]
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        for i in 1..=2 {
             current_stack.push(StackEntry::Num(i));
         }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        current_stack.push(StackEntry::Num(1));
-        current_stack.push(StackEntry::Num(2));
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Bytes("el".to_string()));
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("el".to_string())];
         op_substr(&mut current_stack);
         assert_eq!(current_stack, v);
-        /// op_substr([1,2,3,4,5,6,"hello",0,0]) -> [1,2,3,4,5,6,""]
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
+        /// op_substr(["hello",0,0]) -> [""]
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        for i in 1..=2 {
+            current_stack.push(StackEntry::Num(0));
         }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        current_stack.push(StackEntry::Num(0));
-        current_stack.push(StackEntry::Num(0));
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Bytes("".to_string()));
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("".to_string())];
         op_substr(&mut current_stack);
         assert_eq!(current_stack, v);
-        /// op_substr([1,2,3,4,5,6,"hello",5,1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
-        }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        /// op_substr(["hello",0,5]) -> ["hello"]
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        current_stack.push(StackEntry::Num(0));
         current_stack.push(StackEntry::Num(5));
-        current_stack.push(StackEntry::Num(1));
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        op_substr(&mut current_stack);
+        assert_eq!(current_stack, v);
+        /// op_substr(["hello",5,0]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        current_stack.push(StackEntry::Num(5));
+        current_stack.push(StackEntry::Num(0));
         let b = op_substr(&mut current_stack);
         assert!(!b);
-        /// op_substr([1,2,3,4,5,6,"hello",1,5]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
-        }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        /// op_substr(["hello",1,5]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
         current_stack.push(StackEntry::Num(1));
         current_stack.push(StackEntry::Num(5));
         let b = op_substr(&mut current_stack);
         assert!(!b);
         /// op_substr(["hello",1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
         current_stack.push(StackEntry::Num(1));
+        let b = op_substr(&mut current_stack);
+        assert!(!b);
+        /// op_substr(["hello",1,""]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        current_stack.push(StackEntry::Num(1));
+        current_stack.push(StackEntry::Bytes("".to_string()));
         let b = op_substr(&mut current_stack);
         assert!(!b)
     }
@@ -2127,51 +2116,33 @@ mod tests {
     #[test]
     /// Test OP_LEFT
     fn test_left() {
-        /// op_left([1,2,3,4,5,6,"hello",2]) -> [1,2,3,4,5,6,"he"]
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
-        }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        current_stack.push(StackEntry::Num(2));
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Bytes("he".to_string()));
+        /// op_left(["hello",2]) -> ["he"]
+        let mut current_stack: Vec<StackEntry> =
+            vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(2)];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("he".to_string())];
         op_left(&mut current_stack);
         assert_eq!(current_stack, v);
-        /// op_left([1,2,3,4,5,6,"hello",0]) -> [1,2,3,4,5,6,""]
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
-        }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        current_stack.push(StackEntry::Num(0));
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Bytes("".to_string()));
+        /// op_left(["hello",0]) -> [""]
+        let mut current_stack: Vec<StackEntry> =
+            vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(0)];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("".to_string())];
         op_left(&mut current_stack);
         assert_eq!(current_stack, v);
-        /// op_substr([1,2,3,4,5,6,"hello",5]) -> [1,2,3,4,5,6,"hello"]
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
-        }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        current_stack.push(StackEntry::Num(5));
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Bytes("hello".to_string()));
+        /// op_left(["hello",5]) -> ["hello"]
+        let mut current_stack: Vec<StackEntry> =
+            vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(5)];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
         op_left(&mut current_stack);
         assert_eq!(current_stack, v);
+        /// op_left(["hello",""]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![
+            StackEntry::Bytes("hello".to_string()),
+            StackEntry::Bytes("".to_string()),
+        ];
+        let b = op_left(&mut current_stack);
+        assert!(!b);
         /// op_left(["hello"]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
         let b = op_left(&mut current_stack);
         assert!(!b)
     }
@@ -2179,51 +2150,33 @@ mod tests {
     #[test]
     /// Test OP_RIGHT
     fn test_right() {
-        /// op_right([1,2,3,4,5,6,"hello",0]) -> [1,2,3,4,5,6,"hello"]
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
-        }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        current_stack.push(StackEntry::Num(0));
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Bytes("hello".to_string()));
+        /// op_right(["hello",0]) -> ["hello"]
+        let mut current_stack: Vec<StackEntry> =
+            vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(0)];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
         op_right(&mut current_stack);
         assert_eq!(current_stack, v);
-        /// op_right([1,2,3,4,5,6,"hello",2]) -> [1,2,3,4,5,6,"llo"]
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
-        }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        current_stack.push(StackEntry::Num(2));
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Bytes("llo".to_string()));
+        /// op_right(["hello",2]) -> ["llo"]
+        let mut current_stack: Vec<StackEntry> =
+            vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(2)];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("llo".to_string())];
         op_right(&mut current_stack);
         assert_eq!(current_stack, v);
-        /// op_right([1,2,3,4,5,6,"hello",5]) -> [1,2,3,4,5,6,""]
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
-        }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        current_stack.push(StackEntry::Num(5));
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Bytes("".to_string()));
+        /// op_right(["hello",5]) -> [""]
+        let mut current_stack: Vec<StackEntry> =
+            vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(5)];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("".to_string())];
         op_right(&mut current_stack);
         assert_eq!(current_stack, v);
+        /// op_right(["hello",""]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![
+            StackEntry::Bytes("hello".to_string()),
+            StackEntry::Bytes("".to_string()),
+        ];
+        let b = op_right(&mut current_stack);
+        assert!(!b);
         /// op_right(["hello"]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
         let b = op_right(&mut current_stack);
         assert!(!b)
     }
@@ -2231,32 +2184,21 @@ mod tests {
     #[test]
     /// Test OP_SIZE
     fn test_size() {
-        /// op_size([1,2,3,4,5,6,"hello"]) -> [1,2,3,4,5,6,5]
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
-        }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Num(5));
+        /// op_size(["hello"]) -> ["hello",5]
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        let mut v: Vec<StackEntry> =
+            vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(5)];
         op_size(&mut current_stack);
         assert_eq!(current_stack, v);
-        /// op_size([1,2,3,4,5,6,""]) -> [1,2,3,4,5,6,0]
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
-        }
-        current_stack.push(StackEntry::Bytes("".to_string()));
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Num(0));
+        /// op_size([""]) -> ["",0]
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("".to_string())];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("".to_string()), StackEntry::Num(0)];
         op_size(&mut current_stack);
         assert_eq!(current_stack, v);
+        /// op_size([1]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_size(&mut current_stack);
+        assert!(!b);
         /// op_size([]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![];
         let b = op_size(&mut current_stack);
