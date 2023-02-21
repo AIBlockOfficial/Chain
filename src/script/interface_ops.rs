@@ -33,7 +33,7 @@ pub fn op_toaltstack(
 ) -> bool {
     trace!("OP_TOALTSTACK: Moves the top item from the main stack to the top of the alt stack");
     if current_stack.is_empty() {
-        error!("OP_TOALTSTACK: Not enough elements on the stack");
+        error!("OP_TOALTSTACK: Not enough items on the stack");
         return false;
     }
     current_alt_stack.push(current_stack.pop().unwrap());
@@ -54,7 +54,7 @@ pub fn op_fromaltstack(
 ) -> bool {
     trace!("OP_FROMALTSTACK: Moves the top item from the alt stack to the top of the main stack");
     if current_alt_stack.is_empty() {
-        error!("OP_FROMALTSTACK: Not enough elements on the alt stack");
+        error!("OP_FROMALTSTACK: Not enough items on the alt stack");
         return false;
     }
     current_stack.push(current_alt_stack.pop().unwrap());
@@ -71,7 +71,7 @@ pub fn op_fromaltstack(
 pub fn op_2drop(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_2DROP: Removes the top two items from the stack");
     if current_stack.len() < TWO {
-        error!("OP_2DROP: Not enough elements on the stack");
+        error!("OP_2DROP: Not enough items on the stack");
         return false;
     }
     current_stack.pop();
@@ -90,7 +90,7 @@ pub fn op_2dup(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_2DUP: Duplicates the top two items on the stack");
     let len = current_stack.len();
     if len < TWO {
-        error!("OP_2DUP: Not enough elements on the stack");
+        error!("OP_2DUP: Not enough items on the stack");
         return false;
     }
     let x1 = current_stack[len - TWO].clone();
@@ -111,7 +111,7 @@ pub fn op_3dup(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_3DUP: Duplicates the top three items on the stack");
     let len = current_stack.len();
     if len < THREE {
-        error!("OP_3DUP: Not enough elements on the stack");
+        error!("OP_3DUP: Not enough items on the stack");
         return false;
     }
     let x1 = current_stack[len - THREE].clone();
@@ -134,7 +134,7 @@ pub fn op_2over(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_2OVER: Copies the second-to-top pair of items to the top of the stack");
     let len = current_stack.len();
     if len < FOUR {
-        error!("OP_2OVER: Not enough elements on the stack");
+        error!("OP_2OVER: Not enough items on the stack");
         return false;
     }
     let x1 = current_stack[len - FOUR].clone();
@@ -155,7 +155,7 @@ pub fn op_2rot(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_2ROT: Moves the third-to-top pair of items to the top of the stack");
     let len = current_stack.len();
     if len < SIX {
-        error!("OP_2ROT: Not enough elements on the stack");
+        error!("OP_2ROT: Not enough items on the stack");
         return false;
     }
     let x1 = current_stack[len - SIX].clone();
@@ -177,7 +177,7 @@ pub fn op_2swap(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_2SWAP: Swaps the top two pairs of items on the stack");
     let len = current_stack.len();
     if len < FOUR {
-        error!("OP_2SWAP: Not enough elements on the stack");
+        error!("OP_2SWAP: Not enough items on the stack");
         return false;
     }
     current_stack.swap(len - FOUR, len - TWO);
@@ -196,7 +196,7 @@ pub fn op_2swap(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_ifdup(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_IFDUP: Duplicates the top item on the stack if it is not ZERO");
     if current_stack.is_empty() {
-        error!("OP_IFDUP: Not enough elements on the stack");
+        error!("OP_IFDUP: Not enough items on the stack");
         return false;
     }
     let x = current_stack[current_stack.len() - ONE].clone();
@@ -229,7 +229,7 @@ pub fn op_depth(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_DROP: Removes the top item from the stack");
     if current_stack.is_empty() {
-        error!("OP_DROP: Not enough elements on the stack");
+        error!("OP_DROP: Not enough items on the stack");
         return false;
     }
     current_stack.pop();
@@ -246,7 +246,7 @@ pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_DUP: Duplicates the top item on the stack");
     if current_stack.is_empty() {
-        error!("OP_DUP: Not enough elements on the stack");
+        error!("OP_DUP: Not enough items on the stack");
         return false;
     }
     let x = current_stack[current_stack.len() - ONE].clone();
@@ -265,7 +265,7 @@ pub fn op_nip(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_NIP: Removes the second-to-top item from the stack");
     let len = current_stack.len();
     if len < TWO {
-        error!("OP_NIP: Not enough elements on the stack");
+        error!("OP_NIP: Not enough items on the stack");
         return false;
     }
     current_stack.remove(len - TWO);
@@ -283,7 +283,7 @@ pub fn op_over(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_OVER: Copies the second-to-top item to the top of the stack");
     let len = current_stack.len();
     if len < TWO {
-        error!("OP_OVER: Not enough elements on the stack");
+        error!("OP_OVER: Not enough items on the stack");
         return false;
     }
     let x1 = current_stack[len - TWO].clone();
@@ -302,12 +302,15 @@ pub fn op_over(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_PICK: Copies the nth-to-top item to the top of the stack");
     if current_stack.len() < TWO {
-        error!("OP_PICK: Not enough elements on the stack");
+        error!("OP_PICK: Not enough items on the stack");
         return false;
     }
     let n = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_PICK: Item type is not correct");
+            return false;
+        }
     };
     let len = current_stack.len();
     if n >= len {
@@ -330,12 +333,15 @@ pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_roll(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_ROLL: Moves the nth-to-top item to the top of the stack");
     if current_stack.len() < TWO {
-        error!("OP_ROLL: Not enough elements on the stack");
+        error!("OP_ROLL: Not enough items on the stack");
         return false;
     }
     let n = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_ROLL: Item type is not correct");
+            return false;
+        }
     };
     let len = current_stack.len();
     if n >= len {
@@ -360,7 +366,7 @@ pub fn op_rot(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_ROT: Moves the third-to-top item to the top of the stack");
     let len = current_stack.len();
     if len < THREE {
-        error!("OP_ROT: Not enough elements on the stack");
+        error!("OP_ROT: Not enough items on the stack");
         return false;
     }
     current_stack.swap(len - THREE, len - TWO);
@@ -379,7 +385,7 @@ pub fn op_swap(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_SWAP: Swaps the top two items on the stack");
     let len = current_stack.len();
     if len < TWO {
-        error!("OP_SWAP: Not enough elements on the stack");
+        error!("OP_SWAP: Not enough items on the stack");
         return false;
     }
     current_stack.swap(len - TWO, len - ONE);
@@ -397,7 +403,7 @@ pub fn op_tuck(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_TUCK: Copies the top item before the second-to-top item on the stack");
     let len = current_stack.len();
     if len < TWO {
-        error!("OP_TUCK: Not enough elements on the stack");
+        error!("OP_TUCK: Not enough items on the stack");
         return false;
     }
     let x2 = current_stack[len - ONE].clone();
@@ -417,16 +423,22 @@ pub fn op_tuck(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_cat(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_CAT: Concatenates the second-to-top item and the top item on the stack");
     if current_stack.len() < TWO {
-        error!("OP_CAT: Not enough elements on the stack");
+        error!("OP_CAT: Not enough items on the stack");
         return false;
     }
     let s2 = match current_stack.pop().unwrap() {
         StackEntry::Bytes(s) => s,
-        _ => return false,
+        _ => {
+            error!("OP_CAT: Item type is not correct");
+            return false;
+        }
     };
     let s1 = match current_stack.pop().unwrap() {
         StackEntry::Bytes(s) => s,
-        _ => return false,
+        _ => {
+            error!("OP_CAT: Item type is not correct");
+            return false;
+        }
     };
     if s1.len() + s2.len() > MAX_SCRIPT_ELEMENT_SIZE as usize {
         error!(
@@ -449,20 +461,29 @@ pub fn op_cat(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_substr(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_SUBSTR: Extracts a substring from the third-to-top item on the stack");
     if current_stack.len() < THREE {
-        error!("OP_SUBSTR: Not enough elements on the stack");
+        error!("OP_SUBSTR: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_SUBSTR: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_SUBSTR: Item type is not correct");
+            return false;
+        }
     };
     let s = match current_stack.pop().unwrap() {
         StackEntry::Bytes(s) => s,
-        _ => return false,
+        _ => {
+            error!("OP_SUBSTR: Item type is not correct");
+            return false;
+        }
     };
     if n1 >= s.len() {
         error!("OP_SUBSTR: Start index is out of bound");
@@ -491,16 +512,22 @@ pub fn op_substr(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_left(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_LEFT: Extracts a left substring from the second-to-top item on the stack");
     if current_stack.len() < TWO {
-        error!("OP_LEFT: Not enough elements on the stack");
+        error!("OP_LEFT: Not enough items on the stack");
         return false;
     }
     let n = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_LEFT: Item type is not correct");
+            return false;
+        }
     };
     let s = match current_stack.pop().unwrap() {
         StackEntry::Bytes(s) => s,
-        _ => return false,
+        _ => {
+            error!("OP_LEFT: Item type is not correct");
+            return false;
+        }
     };
     if n >= s.len() {
         current_stack.push(StackEntry::Bytes(s));
@@ -521,16 +548,22 @@ pub fn op_left(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_right(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_RIGHT: Extracts a right substring from the second-to-top item on the stack");
     if current_stack.len() < TWO {
-        error!("OP_RIGHT: Not enough elements on the stack");
+        error!("OP_RIGHT: Not enough items on the stack");
         return false;
     }
     let n = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_RIGHT: Item type is not correct");
+            return false;
+        }
     };
     let s = match current_stack.pop().unwrap() {
         StackEntry::Bytes(s) => s,
-        _ => return false,
+        _ => {
+            error!("OP_RIGHT: Item type is not correct");
+            return false;
+        }
     };
     if n >= s.len() {
         current_stack.push(StackEntry::Bytes(String::new()));
@@ -550,12 +583,15 @@ pub fn op_right(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_size(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_SIZE: Computes the size in bytes of the top item on the stack");
     if current_stack.is_empty() {
-        error!("OP_SIZE: Not enough elements on the stack");
+        error!("OP_SIZE: Not enough items on the stack");
         return false;
     }
     let s = match current_stack[current_stack.len() - ONE].clone() {
         StackEntry::Bytes(s) => s,
-        _ => return false,
+        _ => {
+            error!("OP_SIZE: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(s.len()));
     true
@@ -573,12 +609,15 @@ pub fn op_size(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_invert(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_INVERT: Computes bitwise complement of the top item on the stack");
     if current_stack.is_empty() {
-        error!("OP_INVERT: Not enough elements on the stack");
+        error!("OP_INVERT: Not enough items on the stack");
         return false;
     }
     let n = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_INVERT: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n.not()));
     true
@@ -594,16 +633,22 @@ pub fn op_invert(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_and(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_AND: Computes bitwise AND between the second-to-top and the top item on the stack");
     if current_stack.len() < TWO {
-        error!("OP_AND: Not enough elements on the stack");
+        error!("OP_AND: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_AND: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_AND: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n1.bitand(n2)));
     true
@@ -619,16 +664,22 @@ pub fn op_and(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_or(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_OR: Computes bitwise OR between the second-to-top and the top item on the stack");
     if current_stack.len() < TWO {
-        error!("OP_OR: Not enough elements on the stack");
+        error!("OP_OR: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_OR: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_OR: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n1.bitor(n2)));
     true
@@ -644,16 +695,22 @@ pub fn op_or(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_xor(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_XOR: Computes bitwise exclusive OR between the second-to-top and the top item on the stack");
     if current_stack.len() < TWO {
-        error!("OP_XOR: Not enough elements on the stack");
+        error!("OP_XOR: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_XOR: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_XOR: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n1.bitxor(n2)));
     true
@@ -670,7 +727,7 @@ pub fn op_xor(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_equal(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_EQUAL: Substitutes the top two items on the stack with ONE if they are equal, with ZERO otherwise");
     if current_stack.len() < TWO {
-        error!("OP_EQUAL: Not enough elements on the stack");
+        error!("OP_EQUAL: Not enough items on the stack");
         return false;
     }
     let x2 = current_stack.pop().unwrap();
@@ -694,7 +751,7 @@ pub fn op_equal(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_EQUALVERIFY: Computes OP_EQUAL and OP_VERIFY in sequence");
     if current_stack.len() < TWO {
-        error!("OP_EQUALVERIFY: Not enough elements on the stack");
+        error!("OP_EQUALVERIFY: Not enough items on the stack");
         return false;
     }
     let x2 = current_stack.pop().unwrap();
@@ -718,14 +775,23 @@ pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_1add(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_1ADD: Adds ONE to the top item on the stack");
     if current_stack.is_empty() {
-        error!("OP_1ADD: Not enough elements on the stack");
+        error!("OP_1ADD: Not enough items on the stack");
         return false;
     }
     let n = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_1ADD: Item type is not correct");
+            return false;
+        }
     };
-    current_stack.push(StackEntry::Num(n.wrapping_add(ONE)));
+    match n.checked_add(ONE) {
+        Some(n) => current_stack.push(StackEntry::Num(n)),
+        None => {
+            error!("OP_1ADD: Attempt to overflow");
+            return false;
+        }
+    }
     true
 }
 
@@ -739,12 +805,15 @@ pub fn op_1add(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_1sub(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_1SUB: Subtracts ONE from the top item on the stack");
     if current_stack.is_empty() {
-        error!("OP_1SUB: Not enough elements on the stack");
+        error!("OP_1SUB: Not enough items on the stack");
         return false;
     }
     let n = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_1SUB: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n.wrapping_sub(ONE)));
     true
@@ -760,12 +829,15 @@ pub fn op_1sub(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_2mul(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_2MUL: Multiplies by TWO the top item on the stack");
     if current_stack.is_empty() {
-        error!("OP_2MUL: Not enough elements on the stack");
+        error!("OP_2MUL: Not enough items on the stack");
         return false;
     }
     let n = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_2MUL: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n.wrapping_mul(TWO)));
     true
@@ -781,12 +853,15 @@ pub fn op_2mul(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_2DIV: Divides by TWO the top item on the stack");
     if current_stack.is_empty() {
-        error!("OP_2DIV: Not enough elements on the stack");
+        error!("OP_2DIV: Not enough items on the stack");
         return false;
     }
     let n = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_2DIV: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n.wrapping_div(TWO)));
     true
@@ -804,12 +879,15 @@ pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_NOT: Substitutes the top item on the stack with ONE if it is equal to ZERO, with ZERO otherwise");
     if current_stack.is_empty() {
-        error!("OP_NOT: Not enough elements on the stack");
+        error!("OP_NOT: Not enough items on the stack");
         return false;
     }
     let n = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_NOT: Item type is not correct");
+            return false;
+        }
     };
     if n == ZERO {
         current_stack.push(StackEntry::Num(ONE));
@@ -831,12 +909,15 @@ pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_0NOTEQUAL: Substitutes the top item on the stack with ONE if it is not equal to ZERO, with ZERO otherwise");
     if current_stack.is_empty() {
-        error!("OP_0NOTEQUAL: Not enough elements on the stack");
+        error!("OP_0NOTEQUAL: Not enough items on the stack");
         return false;
     }
     let n = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_0NOTEQUAL: Item type is not correct");
+            return false;
+        }
     };
     if n != ZERO {
         current_stack.push(StackEntry::Num(ONE));
@@ -856,16 +937,22 @@ pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_ADD: Adds the top item to the second-to-top item on the stack");
     if current_stack.len() < TWO {
-        error!("OP_ADD: Not enough elements on the stack");
+        error!("OP_ADD: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_ADD: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_ADD: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n1.wrapping_add(n2)));
     true
@@ -881,16 +968,22 @@ pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_sub(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_SUB: Subtracts the top item from the second-to-top item on the stack");
     if current_stack.len() < TWO {
-        error!("OP_SUB: Not enough elements on the stack");
+        error!("OP_SUB: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_SUB: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_SUB: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n1.wrapping_sub(n2)));
     true
@@ -906,16 +999,22 @@ pub fn op_sub(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_mul(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_MUL: Multiplies the second-to-top item by the top item on the stack");
     if current_stack.len() < TWO {
-        error!("OP_MUL: Not enough elements on the stack");
+        error!("OP_MUL: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_MUL: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_MUL: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n1.wrapping_mul(n2)));
     true
@@ -931,16 +1030,22 @@ pub fn op_mul(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_div(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_DIV: Divides the second-to-top item by the top item on the stack");
     if current_stack.len() < TWO {
-        error!("OP_DIV: Not enough elements on the stack");
+        error!("OP_DIV: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_DIV: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_DIV: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n1.wrapping_div(n2)));
     true
@@ -956,16 +1061,22 @@ pub fn op_div(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_mod(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_MOD: Computes the remainder of the division of the second-to-top item by the top item on the stack");
     if current_stack.len() < TWO {
-        error!("OP_MOD: Not enough elements on the stack");
+        error!("OP_MOD: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_MOD: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_MOD: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n1.wrapping_rem(n2)));
     true
@@ -983,16 +1094,22 @@ pub fn op_lshift(current_stack: &mut Vec<StackEntry>) -> bool {
         "OP_LSHIFT: Computes the left shift of the second-to-top item by the top item on the stack"
     );
     if current_stack.len() < TWO {
-        error!("OP_LSHIFT: Not enough elements on the stack");
+        error!("OP_LSHIFT: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n as u32,
-        _ => return false,
+        _ => {
+            error!("OP_LSHIFT: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_LSHIFT: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n1.wrapping_shl(n2)));
     true
@@ -1008,16 +1125,22 @@ pub fn op_lshift(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_rshift(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_RSHIFT: Computes the right shift of the second-to-top item by the top item on the stack");
     if current_stack.len() < TWO {
-        error!("OP_RSHIFT: Not enough elements on the stack");
+        error!("OP_RSHIFT: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n as u32,
-        _ => return false,
+        _ => {
+            error!("OP_RSHIFT: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_RSHIFT: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n1.wrapping_shr(n2)));
     true
@@ -1034,16 +1157,22 @@ pub fn op_rshift(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_booland(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_BOOLAND: Substitutes the top two items on the stack with ONE if they are both non-ZERO, with ZERO otherwise");
     if current_stack.len() < TWO {
-        error!("OP_BOOLAND: Not enough elements on the stack");
+        error!("OP_BOOLAND: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_BOOLAND: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_BOOLAND: Item type is not correct");
+            return false;
+        }
     };
     if n1 != ZERO && n2 != ZERO {
         current_stack.push(StackEntry::Num(ONE));
@@ -1064,16 +1193,22 @@ pub fn op_booland(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_boolor(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_BOOLOR: Substitutes the top two items on the stack with ONE if they are not both ZERO, with ZERO otherwise");
     if current_stack.len() < TWO {
-        error!("OP_BOOLOR: Not enough elements on the stack");
+        error!("OP_BOOLOR: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_BOOLOR: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_BOOLOR: Item type is not correct");
+            return false;
+        }
     };
     if n1 != ZERO || n2 != ZERO {
         current_stack.push(StackEntry::Num(ONE));
@@ -1094,16 +1229,22 @@ pub fn op_boolor(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_numequal(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_NUMEQUAL: Substitutes the top two items on the stack with ONE if they are equal as numbers, with ZERO otherwise");
     if current_stack.len() < TWO {
-        error!("OP_NUMEQUAL: Not enough elements on the stack");
+        error!("OP_NUMEQUAL: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_NUMEQUAL: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_NUMEQUAL: Item type is not correct");
+            return false;
+        }
     };
     if n1 == n2 {
         current_stack.push(StackEntry::Num(ONE));
@@ -1124,16 +1265,22 @@ pub fn op_numequal(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_numequalverify(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_NUMEQUALVERIFY: Computes OP_NUMEQUAL and OP_VERIFY in sequence");
     if current_stack.len() < TWO {
-        error!("OP_NUMEQUALVERIFY: Not enough elements on the stack");
+        error!("OP_NUMEQUALVERIFY: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_NUMEQUALVERIFY: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_NUMEQUALVERIFY: Item type is not correct");
+            return false;
+        }
     };
     if n1 != n2 {
         error!("OP_NUMEQUALVERIFY: The two top items are not equal");
@@ -1153,16 +1300,22 @@ pub fn op_numequalverify(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_numnotequal(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_NUMNOTEQUAL: Substitutes the top two items on the stack with ONE if they are not equal, with ZERO otherwise");
     if current_stack.len() < TWO {
-        error!("OP_NUMNOTEQUAL: Not enough elements on the stack");
+        error!("OP_NUMNOTEQUAL: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_NUMNOTEQUAL: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_NUMNOTEQUAL: Item type is not correct");
+            return false;
+        }
     };
     if n1 != n2 {
         current_stack.push(StackEntry::Num(ONE));
@@ -1183,16 +1336,22 @@ pub fn op_numnotequal(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_lessthan(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_LESSTHAN: Substitutes the top two items on the stack with ONE if the second-to-top is less than the top item, with ZERO otherwise");
     if current_stack.len() < TWO {
-        error!("OP_LESSTHAN: Not enough elements on the stack");
+        error!("OP_LESSTHAN: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_LESSTHAN: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_LESSTHAN: Item type is not correct");
+            return false;
+        }
     };
     if n1 < n2 {
         current_stack.push(StackEntry::Num(ONE));
@@ -1213,16 +1372,22 @@ pub fn op_lessthan(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_greaterthan(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_GREATERTHAN: Substitutes the top two items on the stack with ONE if the second-to-top is greater than the top item, with ZERO otherwise");
     if current_stack.len() < TWO {
-        error!("OP_GREATERTHAN: Not enough elements on the stack");
+        error!("OP_GREATERTHAN: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_GREATERTHAN: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_GREATERTHAN: Item type is not correct");
+            return false;
+        }
     };
     if n1 > n2 {
         current_stack.push(StackEntry::Num(ONE));
@@ -1243,16 +1408,22 @@ pub fn op_greaterthan(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_lessthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_LESSTHANOREQUAL: Substitutes the top two items on the stack with ONE if the second-to-top is less than or equal to the top item, with ZERO otherwise");
     if current_stack.len() < TWO {
-        error!("OP_LESSTHANOREQUAL: Not enough elements on the stack");
+        error!("OP_LESSTHANOREQUAL: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_LESSTHANOREQUAL: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_LESSTHANOREQUAL: Item type is not correct");
+            return false;
+        }
     };
     if n1 <= n2 {
         current_stack.push(StackEntry::Num(ONE));
@@ -1273,16 +1444,22 @@ pub fn op_lessthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_greaterthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_GREATERTHANOREQUAL: Substitutes the top two items on the stack with ONE if the second-to-top is greater than or equal to the top item, with ZERO otherwise");
     if current_stack.len() < TWO {
-        error!("OP_GREATERTHANOREQUAL: Not enough elements on the stack");
+        error!("OP_GREATERTHANOREQUAL: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_GREATERTHANOREQUAL: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_GREATERTHANOREQUAL: Item type is not correct");
+            return false;
+        }
     };
     if n1 >= n2 {
         current_stack.push(StackEntry::Num(ONE));
@@ -1303,16 +1480,22 @@ pub fn op_greaterthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_min(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_MIN: Substitutes the top two items on the stack with the minimum between the two");
     if current_stack.len() < TWO {
-        error!("OP_MIN: Not enough elements on the stack");
+        error!("OP_MIN: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_MIN: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_MIN: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n1.min(n2)));
     true
@@ -1329,16 +1512,22 @@ pub fn op_min(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_max(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_MAX: Substitutes the top two items on the stack with the maximum between the two");
     if current_stack.len() < TWO {
-        error!("OP_MAX: Not enough elements on the stack");
+        error!("OP_MAX: Not enough items on the stack");
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_MAX: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_MAX: Item type is not correct");
+            return false;
+        }
     };
     current_stack.push(StackEntry::Num(n1.max(n2)));
     true
@@ -1356,20 +1545,29 @@ pub fn op_max(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_within(current_stack: &mut Vec<StackEntry>) -> bool {
     trace!("OP_WITHIN: Substitutes the top three items on the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item, with ZERO otherwise");
     if current_stack.len() < THREE {
-        error!("OP_WITHIN: Not enough elements on the stack");
+        error!("OP_WITHIN: Not enough items on the stack");
         return false;
     }
     let n3 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_WITHIN: Item type is not correct");
+            return false;
+        }
     };
     let n2 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_WITHIN: Item type is not correct");
+            return false;
+        }
     };
     let n1 = match current_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
-        _ => return false,
+        _ => {
+            error!("OP_WITHIN: Item type is not correct");
+            return false;
+        }
     };
     if n1 >= n2 && n1 < n3 {
         current_stack.push(StackEntry::Num(ONE));
@@ -2341,6 +2539,10 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(2)];
         op_1add(&mut current_stack);
         assert_eq!(current_stack, v);
+        /// op_1add([usize::MAX]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(usize::MAX)];
+        let b = op_1add(&mut current_stack);
+        assert!(!b);
         /// op_1add([]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![];
         let b = op_1add(&mut current_stack);
