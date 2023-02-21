@@ -468,6 +468,10 @@ pub fn op_substr(current_stack: &mut Vec<StackEntry>) -> bool {
         error!("OP_SUBSTR: Start index is out of bound");
         return false;
     }
+    if n2 > s.len() {
+        error!("OP_SUBSTR: End index is out of bound");
+        return false;
+    }
     if n1 + n2 > s.len() {
         error!("OP_SUBSTR: End index is out of bound");
         return false;
@@ -2103,6 +2107,12 @@ mod tests {
         /// op_substr(["hello",1]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
         current_stack.push(StackEntry::Num(1));
+        let b = op_substr(&mut current_stack);
+        assert!(!b);
+        /// op_substr(["hello",1,usize::MAX]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        current_stack.push(StackEntry::Num(1));
+        current_stack.push(StackEntry::Num(usize::MAX));
         let b = op_substr(&mut current_stack);
         assert!(!b);
         /// op_substr(["hello",1,""]) -> fail
