@@ -561,7 +561,7 @@ pub fn op_size(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_INVERT: Computes bitwise complement of the top item on the stack. Returns a bool.
 ///
-/// Example: OP_INVERT([x, n]) -> [x, !n]
+/// Example: OP_INVERT([n]) -> [!n]
 ///
 /// ### Arguments
 ///
@@ -582,7 +582,7 @@ pub fn op_invert(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_AND: Computes bitwise AND between the second-to-top and the top item on the stack. Returns a bool.
 ///
-/// Example: OP_AND([x, n1, n2]) -> [x, n1 & n2]
+/// Example: OP_AND([n1, n2]) -> [n1 & n2]
 ///
 /// ### Arguments
 ///
@@ -607,7 +607,7 @@ pub fn op_and(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_OR: Computes bitwise OR between the second-to-top and the top item on the stack. Returns a bool.
 ///
-/// Example: OP_OR([x, n1, n2]) -> [x, n1 | n2]
+/// Example: OP_OR([n1, n2]) -> [n1 | n2]
 ///
 /// ### Arguments
 ///
@@ -632,7 +632,7 @@ pub fn op_or(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_XOR: Computes bitwise exclusive OR between the second-to-top and the top item on the stack. Returns a bool.
 ///
-/// Example: OP_XOR([x, n1, n2]) -> [x, n1 ^ n2]
+/// Example: OP_XOR([n1, n2]) -> [n1 ^ n2]
 ///
 /// ### Arguments
 ///
@@ -657,8 +657,8 @@ pub fn op_xor(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_EQUAL: Substitutes the top two items on the stack with ONE if they are equal, with ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_EQUAL([x, x1, x2]) -> [x, 1] if x1 == x2
-///          OP_EQUAL([x, x1, x2]) -> [x, 0] if x1 != x2
+/// Example: OP_EQUAL([x1, x2]) -> [1] if x1 == x2
+///          OP_EQUAL([x1, x2]) -> [0] if x1 != x2
 ///
 /// ### Arguments
 ///
@@ -681,8 +681,8 @@ pub fn op_equal(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_EQUALVERIFY: Computes OP_EQUAL and OP_VERIFY in sequence. Returns a bool.
 ///
-/// Example: OP_EQUALVERIFY([x, x1, x2]) -> [x]  if x1 == x2
-///          OP_EQUALVERIFY([x, x1, x2]) -> fail if x1 != x2
+/// Example: OP_EQUALVERIFY([x1, x2]) -> []   if x1 == x2
+///          OP_EQUALVERIFY([x1, x2]) -> fail if x1 != x2
 ///
 /// ### Arguments
 ///
@@ -706,7 +706,7 @@ pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_1ADD: Adds ONE to the top item on the stack. Returns a bool.
 ///
-/// Example: OP_1ADD([x, n]) -> [x, n+1]
+/// Example: OP_1ADD([n]) -> [n+1]
 ///
 /// ### Arguments
 ///
@@ -727,7 +727,7 @@ pub fn op_1add(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_1SUB: Subtracts ONE from the top item on the stack. Returns a bool.
 ///
-/// Example: OP_1SUB([x, n]) -> [x, n-1]
+/// Example: OP_1SUB([n]) -> [n-1]
 ///
 /// ### Arguments
 ///
@@ -748,7 +748,7 @@ pub fn op_1sub(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_2MUL: Multiplies by TWO the top item on the stack. Returns a bool.
 ///
-/// Example: OP_2MUL([x, n]) -> [x, n*2]
+/// Example: OP_2MUL([n]) -> [n*2]
 ///
 /// ### Arguments
 ///
@@ -769,7 +769,7 @@ pub fn op_2mul(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_2DIV: Divides by TWO the top item on the stack. Returns a bool.
 ///
-/// Example: OP_2DIV([x, n]) -> [x, n/2]
+/// Example: OP_2DIV([n]) -> [n/2]
 ///
 /// ### Arguments
 ///
@@ -791,8 +791,8 @@ pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
 /// OP_NOT: Substitutes the top item on the stack with ONE if it is equal to ZERO,
 ///         with ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_NOT([x, n]) -> [x, 1] if n == 0
-///          OP_NOT([x, n]) -> [x, 0] if n != 0
+/// Example: OP_NOT([n]) -> [1] if n == 0
+///          OP_NOT([n]) -> [0] if n != 0
 ///
 /// ### Arguments
 ///
@@ -818,8 +818,8 @@ pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
 /// OP_0NOTEQUAL: Substitutes the top item on the stack with ONE if it is not equal to ZERO,
 ///               with ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_0NOTEQUAL([x, n]) -> [x, 1] if n != 0
-///          OP_0NOTEQUAL([x, n]) -> [x, 0] if n == 0
+/// Example: OP_0NOTEQUAL([n]) -> [1] if n != 0
+///          OP_0NOTEQUAL([n]) -> [0] if n == 0
 ///
 /// ### Arguments
 ///
@@ -844,7 +844,7 @@ pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_ADD: Adds the top item to the second-to-top item on the stack. Returns a bool.
 ///
-/// Example: OP_ADD([x, n1, n2]) -> [x, n1+n2]
+/// Example: OP_ADD([n1, n2]) -> [n1+n2]
 ///
 /// ### Arguments
 ///
@@ -869,7 +869,7 @@ pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_SUB: Subtracts the top item from the second-to-top item on the stack. Returns a bool.
 ///
-/// Example: OP_SUB([x, n1, n2]) -> [x, n1-n2]
+/// Example: OP_SUB([n1, n2]) -> [n1-n2]
 ///
 /// ### Arguments
 ///
@@ -894,7 +894,7 @@ pub fn op_sub(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_MUL: Multiplies the second-to-top item by the top item on the stack. Returns a bool.
 ///
-/// Example: OP_MUL([x, n1, n2]) -> [x, n1*n2]
+/// Example: OP_MUL([n1, n2]) -> [n1*n2]
 ///
 /// ### Arguments
 ///
@@ -919,7 +919,7 @@ pub fn op_mul(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_DIV: Divides the second-to-top item by the top item on the stack. Returns a bool.
 ///
-/// Example: OP_DIV([x, n1, n2]) -> [x, n1/n2]
+/// Example: OP_DIV([n1, n2]) -> [n1/n2]
 ///
 /// ### Arguments
 ///
@@ -944,7 +944,7 @@ pub fn op_div(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_MOD: Computes the remainder of the division of the second-to-top item by the top item on the stack. Returns a bool.
 ///
-/// Example: OP_MOD([x, n1, n2]) -> [x, n1%n2]
+/// Example: OP_MOD([n1, n2]) -> [n1%n2]
 ///
 /// ### Arguments
 ///
@@ -969,7 +969,7 @@ pub fn op_mod(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_LSHIFT: Computes the left shift of the second-to-top item by the top item on the stack. Returns a bool.
 ///
-/// Example: OP_LSHIFT([x, n1, n2]) -> [x, n1 << n2]
+/// Example: OP_LSHIFT([n1, n2]) -> [n1 << n2]
 ///
 /// ### Arguments
 ///
@@ -996,7 +996,7 @@ pub fn op_lshift(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_RSHIFT: Computes the right shift of the second-to-top item by the top item on the stack. Returns a bool.
 ///
-/// Example: OP_RSHIFT([x, n1, n2]) -> [x, n1 >> n2]
+/// Example: OP_RSHIFT([n1, n2]) -> [n1 >> n2]
 ///
 /// ### Arguments
 ///
@@ -1021,8 +1021,8 @@ pub fn op_rshift(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_BOOLAND: Substitutes the top two items on the stack with ONE if they are both non-ZERO, with ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_BOOLAND([x, n1, n2]) -> [x, 1] if n1 != 0 and n2 != 0
-///          OP_BOOLAND([x, n1, n2]) -> [x, 0] if n1 == 0 or n2 == 0
+/// Example: OP_BOOLAND([n1, n2]) -> [1] if n1 != 0 and n2 != 0
+///          OP_BOOLAND([n1, n2]) -> [0] if n1 == 0 or n2 == 0
 ///
 /// ### Arguments
 ///
@@ -1051,8 +1051,8 @@ pub fn op_booland(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_BOOLOR: Substitutes the top two items on the stack with ONE if they are not both ZERO, with ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_BOOLOR([x, n1, n2]) -> [x, 1] if n1 != 0 or n2 != 0
-///          OP_BOOLOR([x, n1, n2]) -> [x, 0] if n1 == 0 and n2 == 0
+/// Example: OP_BOOLOR([n1, n2]) -> [1] if n1 != 0 or n2 != 0
+///          OP_BOOLOR([n1, n2]) -> [0] if n1 == 0 and n2 == 0
 ///
 /// ### Arguments
 ///
@@ -1081,8 +1081,8 @@ pub fn op_boolor(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_NUMEQUAL: Substitutes the top two items on the stack with ONE if they are equal as numbers, with ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_NUMEQUAL([x, n1, n2]) -> [x, 1] if n1 == n2
-///          OP_NUMEQUAL([x, n1, n2]) -> [x, 0] if n1 != n2
+/// Example: OP_NUMEQUAL([n1, n2]) -> [1] if n1 == n2
+///          OP_NUMEQUAL([n1, n2]) -> [0] if n1 != n2
 ///
 /// ### Arguments
 ///
@@ -1111,8 +1111,8 @@ pub fn op_numequal(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_NUMEQUALVERIFY: Computes OP_NUMEQUAL and OP_VERIFY in sequence. Returns a bool.
 ///
-/// Example: OP_NUMEQUALVERIFY([x, n1, n2]) -> [x]  if n1 == n2
-///          OP_NUMEQUALVERIFY([x, n1, n2]) -> fail if n1 != n2
+/// Example: OP_NUMEQUALVERIFY([n1, n2]) -> []   if n1 == n2
+///          OP_NUMEQUALVERIFY([n1, n2]) -> fail if n1 != n2
 ///
 /// ### Arguments
 ///
@@ -1140,8 +1140,8 @@ pub fn op_numequalverify(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_NUMNOTEQUAL: Substitutes the top two items on the stack with ONE if they are not equal, with ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_NUMNOTEQUAL([x, n1, n2]) -> [x, 1] if n1 != n2
-///          OP_NUMNOTEQUAL([x, n1, n2]) -> [x, 0] if n1 == n2
+/// Example: OP_NUMNOTEQUAL([n1, n2]) -> [1] if n1 != n2
+///          OP_NUMNOTEQUAL([n1, n2]) -> [0] if n1 == n2
 ///
 /// ### Arguments
 ///
@@ -1170,8 +1170,8 @@ pub fn op_numnotequal(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_LESSTHAN: Substitutes the top two items on the stack with ONE if the second-to-top is less than the top item, with ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_LESSTHAN([x, n1, n2]) -> [x, 1] if n1 < n2
-///          OP_LESSTHAN([x, n1, n2]) -> [x, 0] if n1 >= n2
+/// Example: OP_LESSTHAN([n1, n2]) -> [1] if n1 < n2
+///          OP_LESSTHAN([n1, n2]) -> [0] if n1 >= n2
 ///
 /// ### Arguments
 ///
@@ -1200,8 +1200,8 @@ pub fn op_lessthan(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_GREATERTHAN: Substitutes the top two items on the stack with ONE if the second-to-top is greater than the top item, with ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_GREATERTHAN([x, n1, n2]) -> [x, 1] if n1 > n2
-///          OP_GREATERTHAN([x, n1, n2]) -> [x, 0] if n1 <= n2
+/// Example: OP_GREATERTHAN([n1, n2]) -> [1] if n1 > n2
+///          OP_GREATERTHAN([n1, n2]) -> [0] if n1 <= n2
 ///
 /// ### Arguments
 ///
@@ -1230,8 +1230,8 @@ pub fn op_greaterthan(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_LESSTHANOREQUAL: Substitutes the top two items on the stack with ONE if the second-to-top is less than or equal to the top item, with ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_LESSTHANOREQUAL([x, n1, n2]) -> [x, 1] if n1 <= n2
-///          OP_LESSTHANOREQUAL([x, n1, n2]) -> [x, 0] if n1 > n2
+/// Example: OP_LESSTHANOREQUAL([n1, n2]) -> [1] if n1 <= n2
+///          OP_LESSTHANOREQUAL([n1, n2]) -> [0] if n1 > n2
 ///
 /// ### Arguments
 ///
@@ -1260,8 +1260,8 @@ pub fn op_lessthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_GREATERTHANOREQUAL: Substitutes the top two items on the stack with ONE if the second-to-top is greater than or equal to the top item, with ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_GREATERTHANOREQUAL([x, n1, n2]) -> [x, 1] if n1 >= n2
-///          OP_GREATERTHANOREQUAL([x, n1, n2]) -> [x, 0] if n1 < n2
+/// Example: OP_GREATERTHANOREQUAL([n1, n2]) -> [1] if n1 >= n2
+///          OP_GREATERTHANOREQUAL([n1, n2]) -> [0] if n1 < n2
 ///
 /// ### Arguments
 ///
@@ -1290,8 +1290,8 @@ pub fn op_greaterthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_MIN: Substitutes the top two items on the stack with the minimum between the two. Returns a bool.
 ///
-/// Example: OP_MIN([x, n1, n2]) -> [x, n1] if n1 <= n2
-///          OP_MIN([x, n1, n2]) -> [x, n2] if n1 > n2
+/// Example: OP_MIN([n1, n2]) -> [n1] if n1 <= n2
+///          OP_MIN([n1, n2]) -> [n2] if n1 > n2
 ///
 /// ### Arguments
 ///
@@ -1316,8 +1316,8 @@ pub fn op_min(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_MAX: Substitutes the top two items on the stack with the maximum between the two. Returns a bool.
 ///
-/// Example: OP_MAX([x, n1, n2]) -> [x, n1] if n1 >= n2
-///          OP_MAX([x, n1, n2]) -> [x, n2] if n1 < n2
+/// Example: OP_MAX([n1, n2]) -> [n1] if n1 >= n2
+///          OP_MAX([n1, n2]) -> [n2] if n1 < n2
 ///
 /// ### Arguments
 ///
@@ -1343,8 +1343,8 @@ pub fn op_max(current_stack: &mut Vec<StackEntry>) -> bool {
 /// OP_WITHIN: Substitutes the top three items on the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item,
 ///            with ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_WITHIN([x, n1, n2, n3]) -> [x, 1] if n1 >= n2 and n1 < n3
-///          OP_WITHIN([x, n1, n2, n3]) -> [x, 0] if n1 < n2 or n1 >= n3
+/// Example: OP_WITHIN([n1, n2, n3]) -> [1] if n1 >= n2 and n1 < n3
+///          OP_WITHIN([n1, n2, n3]) -> [0] if n1 < n2 or n1 >= n3
 ///
 /// ### Arguments
 ///
@@ -2210,17 +2210,9 @@ mod tests {
     #[test]
     /// Test OP_INVERT
     fn test_invert() {
-        /// op_invert([1,2,3,4,5,6,0]) -> [1,2,3,4,5,6,usize::MAX]
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
-        }
-        current_stack.push(StackEntry::Num(0));
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Num(usize::MAX));
+        /// op_invert([0]) -> [usize::MAX]
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(0)];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(usize::MAX)];
         op_invert(&mut current_stack);
         assert_eq!(current_stack, v);
         /// op_invert([]) -> fail
@@ -2232,21 +2224,16 @@ mod tests {
     #[test]
     /// Test OP_AND
     fn test_and() {
-        /// op_and([1,2,3,4,5,6]) -> [1,2,3,4,4]
+        /// op_and([1,2]) -> [0]
         let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
+        for i in 1..=2 {
             current_stack.push(StackEntry::Num(i));
         }
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=4 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Num(4));
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
         op_and(&mut current_stack);
         assert_eq!(current_stack, v);
         /// op_and([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        current_stack.push(StackEntry::Num(1));
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let b = op_and(&mut current_stack);
         assert!(!b)
     }
@@ -2254,21 +2241,16 @@ mod tests {
     #[test]
     /// Test OP_OR
     fn test_or() {
-        /// op_or([1,2,3,4,5,6]) -> [1,2,3,4,7]
+        /// op_or([1,2]) -> [3]
         let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
+        for i in 1..=2 {
             current_stack.push(StackEntry::Num(i));
         }
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=4 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Num(7));
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(3)];
         op_or(&mut current_stack);
         assert_eq!(current_stack, v);
         /// op_or([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        current_stack.push(StackEntry::Num(1));
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let b = op_or(&mut current_stack);
         assert!(!b)
     }
@@ -2276,21 +2258,16 @@ mod tests {
     #[test]
     /// Test OP_XOR
     fn test_xor() {
-        /// op_xor([1,2,3,4,5,6]) -> [1,2,3,4,3]
+        /// op_xor([1,2]) -> [3]
         let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
+        for i in 1..=2 {
             current_stack.push(StackEntry::Num(i));
         }
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=4 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Num(3));
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(3)];
         op_xor(&mut current_stack);
         assert_eq!(current_stack, v);
         /// op_xor([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        current_stack.push(StackEntry::Num(1));
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let b = op_xor(&mut current_stack);
         assert!(!b)
     }
@@ -2298,36 +2275,24 @@ mod tests {
     #[test]
     /// Test OP_EQUAL
     fn test_equal() {
-        /// op_equal([1,2,3,4,5,6,"hello","hello"]) -> [1,2,3,4,5,6,1]
+        /// op_equal(["hello","hello"]) -> [1]
         let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
+        for i in 1..=2 {
+            current_stack.push(StackEntry::Bytes("hello".to_string()));
         }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Num(1));
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
         op_equal(&mut current_stack);
         assert_eq!(current_stack, v);
-        /// op_equal([1,2,3,4,5,6,"hello"]) -> [1,2,3,4,5,0]
+        /// op_equal([1,2]) -> [0]
         let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
+        for i in 1..=2 {
             current_stack.push(StackEntry::Num(i));
         }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=5 {
-            v.push(StackEntry::Num(i));
-        }
-        v.push(StackEntry::Num(0));
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
         op_equal(&mut current_stack);
         assert_eq!(current_stack, v);
         /// op_equal([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        current_stack.push(StackEntry::Num(1));
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let b = op_equal(&mut current_stack);
         assert!(!b)
     }
@@ -2335,30 +2300,23 @@ mod tests {
     #[test]
     /// Test OP_EQUALVERIFY
     fn test_equalverify() {
-        /// op_equalverify([1,2,3,4,5,6,"hello","hello"]) -> [1,2,3,4,5,6]
+        /// op_equalverify(["hello","hello"]) -> []
         let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
+        for i in 1..=2 {
+            current_stack.push(StackEntry::Bytes("hello".to_string()));
         }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
         let mut v: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
-            v.push(StackEntry::Num(i));
-        }
         op_equalverify(&mut current_stack);
         assert_eq!(current_stack, v);
-        /// op_equalverify([1,2,3,4,5,6,"hello"]) -> fail
+        /// op_equalverify([1,2]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=6 {
+        for i in 1..=2 {
             current_stack.push(StackEntry::Num(i));
         }
-        current_stack.push(StackEntry::Bytes("hello".to_string()));
         let b = op_equalverify(&mut current_stack);
         assert!(!b);
         /// op_equalverify([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        current_stack.push(StackEntry::Num(1));
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let b = op_equalverify(&mut current_stack);
         assert!(!b)
     }
