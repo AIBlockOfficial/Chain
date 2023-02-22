@@ -788,7 +788,7 @@ pub fn op_1add(current_stack: &mut Vec<StackEntry>) -> bool {
     match n.checked_add(ONE) {
         Some(n) => current_stack.push(StackEntry::Num(n)),
         None => {
-            error!("OP_1ADD: Attempt to overflow");
+            error!("OP_1ADD: Attempt to add with overflow");
             return false;
         }
     }
@@ -815,7 +815,13 @@ pub fn op_1sub(current_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n.wrapping_sub(ONE)));
+    match n.checked_sub(ONE) {
+        Some(n) => current_stack.push(StackEntry::Num(n)),
+        None => {
+            error!("OP_1SUB: Attempt to subtract with overflow");
+            return false;
+        }
+    }
     true
 }
 
@@ -839,7 +845,13 @@ pub fn op_2mul(current_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n.wrapping_mul(TWO)));
+    match n.checked_mul(TWO) {
+        Some(n) => current_stack.push(StackEntry::Num(n)),
+        None => {
+            error!("OP_2MUL: Attempt to multiply with overflow");
+            return false;
+        }
+    }
     true
 }
 
@@ -863,7 +875,7 @@ pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n.wrapping_div(TWO)));
+    current_stack.push(StackEntry::Num(n / TWO));
     true
 }
 
@@ -954,7 +966,13 @@ pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1.wrapping_add(n2)));
+    match n1.checked_add(n2) {
+        Some(n) => current_stack.push(StackEntry::Num(n)),
+        None => {
+            error!("OP_ADD: Attempt to add with overflow");
+            return false;
+        }
+    }
     true
 }
 
@@ -985,7 +1003,13 @@ pub fn op_sub(current_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1.wrapping_sub(n2)));
+    match n1.checked_sub(n2) {
+        Some(n) => current_stack.push(StackEntry::Num(n)),
+        None => {
+            error!("OP_SUB: Attempt to subtract with overflow");
+            return false;
+        }
+    }
     true
 }
 
@@ -1016,7 +1040,13 @@ pub fn op_mul(current_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1.wrapping_mul(n2)));
+    match n1.checked_mul(n2) {
+        Some(n) => current_stack.push(StackEntry::Num(n)),
+        None => {
+            error!("OP_MUL: Attempt to multiply with overflow");
+            return false;
+        }
+    }
     true
 }
 
@@ -1047,7 +1077,13 @@ pub fn op_div(current_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1.wrapping_div(n2)));
+    match n1.checked_div(n2) {
+        Some(n) => current_stack.push(StackEntry::Num(n)),
+        None => {
+            error!("OP_DIV: Attempt to divide by zero");
+            return false;
+        }
+    }
     true
 }
 
@@ -1078,7 +1114,7 @@ pub fn op_mod(current_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1.wrapping_rem(n2)));
+    current_stack.push(StackEntry::Num(n1.rem_euclid(n2)));
     true
 }
 
@@ -1111,7 +1147,13 @@ pub fn op_lshift(current_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1.wrapping_shl(n2)));
+    match n1.checked_shl(n2) {
+        Some(n) => current_stack.push(StackEntry::Num(n)),
+        None => {
+            error!("OP_LSHIFT: Attempt to shift left with overflow");
+            return false;
+        }
+    }
     true
 }
 
@@ -1142,7 +1184,13 @@ pub fn op_rshift(current_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1.wrapping_shr(n2)));
+    match n1.checked_shr(n2) {
+        Some(n) => current_stack.push(StackEntry::Num(n)),
+        None => {
+            error!("OP_RSHIFT: Attempt to shift right with overflow");
+            return false;
+        }
+    }
     true
 }
 
@@ -2557,6 +2605,10 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
         op_1sub(&mut current_stack);
         assert_eq!(current_stack, v);
+        /// op_1sub([0]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(0)];
+        let b = op_1sub(&mut current_stack);
+        assert!(!b);
         /// op_1sub([]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![];
         let b = op_1sub(&mut current_stack);
@@ -2571,6 +2623,10 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(2)];
         op_2mul(&mut current_stack);
         assert_eq!(current_stack, v);
+        /// op_2mul([usize::MAX]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(usize::MAX)];
+        let b = op_2mul(&mut current_stack);
+        assert!(!b);
         /// op_2mul([]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![];
         let b = op_2mul(&mut current_stack);
@@ -2640,6 +2696,10 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(3)];
         op_add(&mut current_stack);
         assert_eq!(current_stack, v);
+        /// op_add([1,usize::MAX]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(usize::MAX)];
+        let b = op_add(&mut current_stack);
+        assert!(!b);
         /// op_add([1]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let b = op_add(&mut current_stack);
@@ -2649,14 +2709,15 @@ mod tests {
     #[test]
     /// Test OP_SUB
     fn test_sub() {
-        /// op_sub([1,2]) -> [usize::MAX]
-        let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
-        }
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(usize::MAX)];
+        /// op_sub([1,0]) -> [1]
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(0)];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
         op_sub(&mut current_stack);
         assert_eq!(current_stack, v);
+        /// op_sub([0,1]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(0), StackEntry::Num(1)];
+        let b = op_sub(&mut current_stack);
+        assert!(!b);
         /// op_sub([1]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let b = op_sub(&mut current_stack);
@@ -2674,6 +2735,10 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(2)];
         op_mul(&mut current_stack);
         assert_eq!(current_stack, v);
+        /// op_mul([2,usize::MAX]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(2), StackEntry::Num(usize::MAX)];
+        let b = op_mul(&mut current_stack);
+        assert!(!b);
         /// op_mul([1]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let b = op_mul(&mut current_stack);
@@ -2691,6 +2756,10 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
         op_div(&mut current_stack);
         assert_eq!(current_stack, v);
+        /// op_div([1,0]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(0)];
+        let b = op_div(&mut current_stack);
+        assert!(!b);
         /// op_div([1]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let b = op_div(&mut current_stack);
