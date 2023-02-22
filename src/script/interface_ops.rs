@@ -2697,7 +2697,8 @@ mod tests {
         op_add(&mut current_stack);
         assert_eq!(current_stack, v);
         /// op_add([1,usize::MAX]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(usize::MAX)];
+        let mut current_stack: Vec<StackEntry> =
+            vec![StackEntry::Num(1), StackEntry::Num(usize::MAX)];
         let b = op_add(&mut current_stack);
         assert!(!b);
         /// op_add([1]) -> fail
@@ -2736,7 +2737,8 @@ mod tests {
         op_mul(&mut current_stack);
         assert_eq!(current_stack, v);
         /// op_mul([2,usize::MAX]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(2), StackEntry::Num(usize::MAX)];
+        let mut current_stack: Vec<StackEntry> =
+            vec![StackEntry::Num(2), StackEntry::Num(usize::MAX)];
         let b = op_mul(&mut current_stack);
         assert!(!b);
         /// op_mul([1]) -> fail
