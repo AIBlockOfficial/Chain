@@ -317,6 +317,72 @@ fn interpret_script(script: &Script) -> bool {
                 StackEntry::Op(OpCodes::OP_TUCK) => {
                     test_for_return &= interface_ops::op_tuck(&mut current_stack);
                 }
+                /*---- SPLICE OPS ----*/
+                StackEntry::Op(OpCodes::OP_SIZE) => {
+                    test_for_return &= interface_ops::op_size(&mut current_stack);
+                }
+                /*---- BITWISE LOGIC OPS ----*/
+                StackEntry::Op(OpCodes::OP_EQUAL) => {
+                    test_for_return &= interface_ops::op_equal(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
+                    test_for_return &= interface_ops::op_equalverify(&mut current_stack);
+                }
+                /*---- ARITHMETIC OPS ----*/
+                StackEntry::Op(OpCodes::OP_1ADD) => {
+                    test_for_return &= interface_ops::op_1add(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_1SUB) => {
+                    test_for_return &= interface_ops::op_1sub(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_NOT) => {
+                    test_for_return &= interface_ops::op_not(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_0NOTEQUAL) => {
+                    test_for_return &= interface_ops::op_0notequal(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_ADD) => {
+                    test_for_return &= interface_ops::op_add(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_SUB) => {
+                    test_for_return &= interface_ops::op_sub(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_BOOLAND) => {
+                    test_for_return &= interface_ops::op_booland(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_BOOLOR) => {
+                    test_for_return &= interface_ops::op_boolor(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_NUMEQUAL) => {
+                    test_for_return &= interface_ops::op_numequal(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_NUMEQUALVERIFY) => {
+                    test_for_return &= interface_ops::op_numequalverify(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_NUMNOTEQUAL) => {
+                    test_for_return &= interface_ops::op_numnotequal(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_LESSTHAN) => {
+                    test_for_return &= interface_ops::op_lessthan(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_GREATERTHAN) => {
+                    test_for_return &= interface_ops::op_greaterthan(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_LESSTHANOREQUAL) => {
+                    test_for_return &= interface_ops::op_lessthanorequal(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_GREATERTHANOREQUAL) => {
+                    test_for_return &= interface_ops::op_greaterthanorequal(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_MIN) => {
+                    test_for_return &= interface_ops::op_min(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_MAX) => {
+                    test_for_return &= interface_ops::op_max(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_WITHIN) => {
+                    test_for_return &= interface_ops::op_within(&mut current_stack);
+                }
                 /*---- CRYPTO OPS ----*/
                 StackEntry::Op(OpCodes::OP_HASH256) => {
                     test_for_return &= interface_ops::op_hash256(&mut current_stack, None);

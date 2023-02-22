@@ -42,13 +42,12 @@ impl StackEntry {
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub enum OpCodes {
-    // push value
+    // constants
     OP_0 = 0x00,
     OP_PUSHDATA1 = 0x4c,
     OP_PUSHDATA2 = 0x4d,
     OP_PUSHDATA4 = 0x4e,
     OP_1NEGATE = 0x4f,
-    OP_RESERVED = 0x50,
     OP_1 = 0x51,
     OP_2 = 0x52,
     OP_3 = 0x53,
@@ -66,7 +65,7 @@ pub enum OpCodes {
     OP_15 = 0x5f,
     OP_16 = 0x60,
 
-    // control
+    // flow control
     OP_NOP = 0x61,
     OP_VER = 0x62,
     OP_IF = 0x63,
@@ -78,7 +77,7 @@ pub enum OpCodes {
     OP_VERIFY = 0x69,
     OP_RETURN = 0x6a,
 
-    // stack ops
+    // stack
     OP_TOALTSTACK = 0x6b,   // implemented, tested, added to interpret_script
     OP_FROMALTSTACK = 0x6c, // implemented, tested, added to interpret_script
     OP_2DROP = 0x6d,        // implemented, tested, added to interpret_script
@@ -99,54 +98,49 @@ pub enum OpCodes {
     OP_SWAP = 0x7c,         // implemented, tested, added to interpret_script
     OP_TUCK = 0x7d,         // implemented, tested, added to interpret_script
 
-    // splice ops
-    OP_CAT = 0x7e,
-    OP_SUBSTR = 0x7f,
-    OP_LEFT = 0x80,
-    OP_RIGHT = 0x81,
-    OP_SIZE = 0x82,
+    // splice
+    OP_CAT = 0x7e,    // implemented, tested, currently disabled
+    OP_SUBSTR = 0x7f, // implemented, tested, currently disabled
+    OP_LEFT = 0x80,   // implemented, tested, currently disabled
+    OP_RIGHT = 0x81,  // implemented, tested, currently disabled
+    OP_SIZE = 0x82,   // implemented, tested, added to interpret_script
 
-    // bit logic
-    OP_INVERT = 0x83,
-    OP_AND = 0x84,
-    OP_OR = 0x85,
-    OP_XOR = 0x86,
-    OP_EQUAL = 0x87,
-    OP_EQUALVERIFY = 0x88,
-    OP_RESERVED1 = 0x89,
-    OP_RESERVED2 = 0x8a,
+    // bitwise logic
+    OP_INVERT = 0x83,      // implemented, tested, currently disabled
+    OP_AND = 0x84,         // implemented, tested, currently disabled
+    OP_OR = 0x85,          // implemented, tested, currently disabled
+    OP_XOR = 0x86,         // implemented, tested, currently disabled
+    OP_EQUAL = 0x87,       // implemented, tested, added to interpret_script
+    OP_EQUALVERIFY = 0x88, // implemented, tested, added to interpret_script
 
-    // numeric
-    OP_1ADD = 0x8b,
-    OP_1SUB = 0x8c,
-    OP_2MUL = 0x8d,
-    OP_2DIV = 0x8e,
-    OP_NEGATE = 0x8f,
-    OP_ABS = 0x90,
-    OP_NOT = 0x91,
-    OP_0NOTEQUAL = 0x92,
-
-    OP_ADD = 0x93,
-    OP_SUB = 0x94,
-    OP_MUL = 0x95,
-    OP_DIV = 0x96,
-    OP_MOD = 0x97,
-    OP_LSHIFT = 0x98,
-    OP_RSHIFT = 0x99,
-
-    OP_BOOLAND = 0x9a,
-    OP_BOOLOR = 0x9b,
-    OP_NUMEQUAL = 0x9c,
-    OP_NUMEQUALVERIFY = 0x9d,
-    OP_NUMNOTEQUAL = 0x9e,
-    OP_LESSTHAN = 0x9f,
-    OP_GREATERTHAN = 0xa0,
-    OP_LESSTHANOREQUAL = 0xa1,
-    OP_GREATERTHANOREQUAL = 0xa2,
-    OP_MIN = 0xa3,
-    OP_MAX = 0xa4,
-
-    OP_WITHIN = 0xa5,
+    // arithmetic
+    OP_1ADD = 0x8b,               // implemented, tested, added to interpret_script
+    OP_1SUB = 0x8c,               // implemented, tested, added to interpret_script
+    OP_2MUL = 0x8d,               // implemented, tested, currently disabled
+    OP_2DIV = 0x8e,               // implemented, tested, currently disabled
+    OP_NEGATE = 0x8f,             // not implemented: we do not allow negative numbers on the stack
+    OP_ABS = 0x90,                // not implemented: we do not allow negative numbers on the stack
+    OP_NOT = 0x91,                // implemented, tested, added to interpret_script
+    OP_0NOTEQUAL = 0x92,          // implemented, tested, added to interpret_script
+    OP_ADD = 0x93,                // implemented, tested, added to interpret_script
+    OP_SUB = 0x94,                // implemented, tested, added to interpret_script
+    OP_MUL = 0x95,                // implemented, tested, currently disabled
+    OP_DIV = 0x96,                // implemented, tested, currently disabled
+    OP_MOD = 0x97,                // implemented, tested, currently disabled
+    OP_LSHIFT = 0x98,             // implemented, tested, currently disabled
+    OP_RSHIFT = 0x99,             // implemented, tested, currently disabled
+    OP_BOOLAND = 0x9a,            // implemented, tested, added to interpret_script
+    OP_BOOLOR = 0x9b,             // implemented, tested, added to interpret_script
+    OP_NUMEQUAL = 0x9c,           // implemented, tested, added to interpret_script
+    OP_NUMEQUALVERIFY = 0x9d,     // implemented, tested, added to interpret_script
+    OP_NUMNOTEQUAL = 0x9e,        // implemented, tested, added to interpret_script
+    OP_LESSTHAN = 0x9f,           // implemented, tested, added to interpret_script
+    OP_GREATERTHAN = 0xa0,        // implemented, tested, added to interpret_script
+    OP_LESSTHANOREQUAL = 0xa1,    // implemented, tested, added to interpret_script
+    OP_GREATERTHANOREQUAL = 0xa2, // implemented, tested, added to interpret_script
+    OP_MIN = 0xa3,                // implemented, tested, added to interpret_script
+    OP_MAX = 0xa4,                // implemented, tested, added to interpret_script
+    OP_WITHIN = 0xa5,             // implemented, tested, added to interpret_script
 
     // crypto
     OP_SHA256 = 0xa8,
@@ -169,6 +163,11 @@ pub enum OpCodes {
     OP_NOP8 = 0xb7,
     OP_NOP9 = 0xb8,
     OP_NOP10 = 0xb9,
+
+    // reserved
+    OP_RESERVED = 0x50,
+    OP_RESERVED1 = 0x89,
+    OP_RESERVED2 = 0x8a,
 
     // data
     OP_CREATE = 0xc0,
