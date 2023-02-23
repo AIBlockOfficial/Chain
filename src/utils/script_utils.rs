@@ -257,6 +257,58 @@ fn interpret_script(script: &Script) -> bool {
     for stack_entry in &script.stack {
         if test_for_return {
             match stack_entry {
+                /*---- CONSTANTS OPS ----*/
+                StackEntry::Op(OpCodes::OP_0) => {
+                    test_for_return &= interface_ops::op_0(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_1) => {
+                    test_for_return &= interface_ops::op_1(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_2) => {
+                    test_for_return &= interface_ops::op_2(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_3) => {
+                    test_for_return &= interface_ops::op_3(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_4) => {
+                    test_for_return &= interface_ops::op_4(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_5) => {
+                    test_for_return &= interface_ops::op_5(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_6) => {
+                    test_for_return &= interface_ops::op_6(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_7) => {
+                    test_for_return &= interface_ops::op_7(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_8) => {
+                    test_for_return &= interface_ops::op_8(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_9) => {
+                    test_for_return &= interface_ops::op_9(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_10) => {
+                    test_for_return &= interface_ops::op_10(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_11) => {
+                    test_for_return &= interface_ops::op_11(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_12) => {
+                    test_for_return &= interface_ops::op_12(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_13) => {
+                    test_for_return &= interface_ops::op_13(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_14) => {
+                    test_for_return &= interface_ops::op_14(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_15) => {
+                    test_for_return &= interface_ops::op_15(&mut current_stack);
+                }
+                StackEntry::Op(OpCodes::OP_16) => {
+                    test_for_return &= interface_ops::op_16(&mut current_stack);
+                }
                 /*---- STACK OPS ----*/
                 StackEntry::Op(OpCodes::OP_TOALTSTACK) => {
                     test_for_return &=

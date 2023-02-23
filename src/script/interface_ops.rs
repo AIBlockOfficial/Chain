@@ -17,6 +17,229 @@ use std::collections::BTreeMap;
 use std::ops::{BitAnd, BitOr, BitXor, Not};
 use tracing::{debug, error, info, trace};
 
+/*---- CONSTANTS OPS ----*/
+
+/// OP_0: Pushes the number ZERO onto the stack. Returns a bool.
+///
+/// Example: OP_0([]) -> [0]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_0(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_0: Pushes the number ZERO onto the stack");
+    current_stack.push(StackEntry::Num(ZERO));
+    true
+}
+
+/// OP_1: Pushes the number ONE onto the stack. Returns a bool.
+///
+/// Example: OP_1([]) -> [1]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_1(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_1: Pushes the number ONE onto the stack");
+    current_stack.push(StackEntry::Num(ONE));
+    true
+}
+
+/// OP_2: Pushes the number TWO onto the stack. Returns a bool.
+///
+/// Example: OP_2([]) -> [2]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_2(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_2: Pushes the number TWO onto the stack");
+    current_stack.push(StackEntry::Num(TWO));
+    true
+}
+
+/// OP_3: Pushes the number THREE onto the stack. Returns a bool.
+///
+/// Example: OP_3([]) -> [3]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_3(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_3: Pushes the number THREE onto the stack");
+    current_stack.push(StackEntry::Num(THREE));
+    true
+}
+
+/// OP_4: Pushes the number FOUR onto the stack. Returns a bool.
+///
+/// Example: OP_4([]) -> [4]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_4(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_4: Pushes the number FOUR onto the stack");
+    current_stack.push(StackEntry::Num(FOUR));
+    true
+}
+
+/// OP_5: Pushes the number FIVE onto the stack. Returns a bool.
+///
+/// Example: OP_5([]) -> [5]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_5(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_5: Pushes the number FIVE onto the stack");
+    current_stack.push(StackEntry::Num(FIVE));
+    true
+}
+
+/// OP_6: Pushes the number SIX onto the stack. Returns a bool.
+///
+/// Example: OP_6([]) -> [6]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_6(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_6: Pushes the number SIX onto the stack");
+    current_stack.push(StackEntry::Num(SIX));
+    true
+}
+
+/// OP_7: Pushes the number SEVEN onto the stack. Returns a bool.
+///
+/// Example: OP_7([]) -> [7]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_7(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_7: Pushes the number SEVEN onto the stack");
+    current_stack.push(StackEntry::Num(SEVEN));
+    true
+}
+
+/// OP_8: Pushes the number EIGHT onto the stack. Returns a bool.
+///
+/// Example: OP_8([]) -> [8]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_8(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_8: Pushes the number EIGHT onto the stack");
+    current_stack.push(StackEntry::Num(EIGHT));
+    true
+}
+
+/// OP_9: Pushes the number NINE onto the stack. Returns a bool.
+///
+/// Example: OP_9([]) -> [9]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_9(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_9: Pushes the number NINE onto the stack");
+    current_stack.push(StackEntry::Num(NINE));
+    true
+}
+
+/// OP_10: Pushes the number TEN onto the stack. Returns a bool.
+///
+/// Example: OP_10([]) -> [10]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_10(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_10: Pushes the number TEN onto the stack");
+    current_stack.push(StackEntry::Num(TEN));
+    true
+}
+
+/// OP_11: Pushes the number ELEVEN onto the stack. Returns a bool.
+///
+/// Example: OP_11([]) -> [11]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_11(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_11: Pushes the number ELEVEN onto the stack");
+    current_stack.push(StackEntry::Num(ELEVEN));
+    true
+}
+
+/// OP_12: Pushes the number TWELVE onto the stack. Returns a bool.
+///
+/// Example: OP_12([]) -> [12]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_12(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_12: Pushes the number TWELVE onto the stack");
+    current_stack.push(StackEntry::Num(TWELVE));
+    true
+}
+
+/// OP_13: Pushes the number THIRTEEN onto the stack. Returns a bool.
+///
+/// Example: OP_13([]) -> [13]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_13(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_13: Pushes the number THIRTEEN onto the stack");
+    current_stack.push(StackEntry::Num(THIRTEEN));
+    true
+}
+
+/// OP_14: Pushes the number FOURTEEN onto the stack. Returns a bool.
+///
+/// Example: OP_14([]) -> [14]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_14(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_14: Pushes the number FOURTEEN onto the stack");
+    current_stack.push(StackEntry::Num(FOURTEEN));
+    true
+}
+
+/// OP_15: Pushes the number FIFTEEN onto the stack. Returns a bool.
+///
+/// Example: OP_15([]) -> [15]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_15(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_15: Pushes the number FIFTEEN onto the stack");
+    current_stack.push(StackEntry::Num(FIFTEEN));
+    true
+}
+
+/// OP_16: Pushes the number SIXTEEN onto the stack. Returns a bool.
+///
+/// Example: OP_16([]) -> [16]
+///
+/// ### Arguments
+///
+/// * `current_stack`  - mutable reference to the current stack
+pub fn op_16(current_stack: &mut Vec<StackEntry>) -> bool {
+    trace!("OP_16: Pushes the number SIXTEEN onto the stack");
+    current_stack.push(StackEntry::Num(SIXTEEN));
+    true
+}
+
 /*---- STACK OPS ----*/
 
 /// OP_TOALTSTACK: Moves the top item from the main stack to the top of the alt stack. Returns a bool.
@@ -1827,6 +2050,178 @@ pub fn push_entry_to_stack_ref(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /*---- CONSTANTS OPS ----*/
+
+    #[test]
+    /// Test OP_0
+    fn test_0() {
+        /// op_0([]) -> [0]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
+        op_0(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_1
+    fn test_1() {
+        /// op_1([]) -> [1]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        op_1(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_2
+    fn test_2() {
+        /// op_2([]) -> [2]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(2)];
+        op_2(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_3
+    fn test_3() {
+        /// op_3([]) -> [3]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(3)];
+        op_3(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_4
+    fn test_4() {
+        /// op_4([]) -> [4]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(4)];
+        op_4(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_5
+    fn test_5() {
+        /// op_5([]) -> [5]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(5)];
+        op_5(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_6
+    fn test_6() {
+        /// op_6([]) -> [6]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(6)];
+        op_6(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_7
+    fn test_7() {
+        /// op_7([]) -> [7]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(7)];
+        op_7(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_8
+    fn test_8() {
+        /// op_8([]) -> [8]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(8)];
+        op_8(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_9
+    fn test_9() {
+        /// op_9([]) -> [9]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(9)];
+        op_9(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_10
+    fn test_10() {
+        /// op_10([]) -> [10]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(10)];
+        op_10(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_11
+    fn test_11() {
+        /// op_11([]) -> [11]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(11)];
+        op_11(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_12
+    fn test_12() {
+        /// op_12([]) -> [12]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(12)];
+        op_12(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_13
+    fn test_13() {
+        /// op_13([]) -> [13]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(13)];
+        op_13(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_14
+    fn test_14() {
+        /// op_14([]) -> [14]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(14)];
+        op_14(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_15
+    fn test_15() {
+        /// op_15([]) -> [15]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(15)];
+        op_15(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
+
+    #[test]
+    /// Test OP_16
+    fn test_16() {
+        /// op_16([]) -> [16]
+        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(16)];
+        op_16(&mut current_stack);
+        assert_eq!(current_stack, v)
+    }
 
     /*---- STACK OPS ----*/
 

@@ -43,27 +43,27 @@ impl StackEntry {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub enum OpCodes {
     // constants
-    OP_0 = 0x00,
+    OP_0 = 0x00, // implemented, tested, added to interpret_script
     OP_PUSHDATA1 = 0x4c,
     OP_PUSHDATA2 = 0x4d,
     OP_PUSHDATA4 = 0x4e,
-    OP_1NEGATE = 0x4f,
-    OP_1 = 0x51,
-    OP_2 = 0x52,
-    OP_3 = 0x53,
-    OP_4 = 0x54,
-    OP_5 = 0x55,
-    OP_6 = 0x56,
-    OP_7 = 0x57,
-    OP_8 = 0x58,
-    OP_9 = 0x59,
-    OP_10 = 0x5a,
-    OP_11 = 0x5b,
-    OP_12 = 0x5c,
-    OP_13 = 0x5d,
-    OP_14 = 0x5e,
-    OP_15 = 0x5f,
-    OP_16 = 0x60,
+    OP_1NEGATE = 0x4f, // not implemented: we do not allow negative numbers on the stack
+    OP_1 = 0x51,       // implemented, tested, added to interpret_script
+    OP_2 = 0x52,       // implemented, tested, added to interpret_script
+    OP_3 = 0x53,       // implemented, tested, added to interpret_script
+    OP_4 = 0x54,       // implemented, tested, added to interpret_script
+    OP_5 = 0x55,       // implemented, tested, added to interpret_script
+    OP_6 = 0x56,       // implemented, tested, added to interpret_script
+    OP_7 = 0x57,       // implemented, tested, added to interpret_script
+    OP_8 = 0x58,       // implemented, tested, added to interpret_script
+    OP_9 = 0x59,       // implemented, tested, added to interpret_script
+    OP_10 = 0x5a,      // implemented, tested, added to interpret_script
+    OP_11 = 0x5b,      // implemented, tested, added to interpret_script
+    OP_12 = 0x5c,      // implemented, tested, added to interpret_script
+    OP_13 = 0x5d,      // implemented, tested, added to interpret_script
+    OP_14 = 0x5e,      // implemented, tested, added to interpret_script
+    OP_15 = 0x5f,      // implemented, tested, added to interpret_script
+    OP_16 = 0x60,      // implemented, tested, added to interpret_script
 
     // flow control
     OP_NOP = 0x61,
