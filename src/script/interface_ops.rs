@@ -1080,7 +1080,7 @@ pub fn op_div(current_stack: &mut Vec<StackEntry>) -> bool {
     match n1.checked_div(n2) {
         Some(n) => current_stack.push(StackEntry::Num(n)),
         None => {
-            error!("OP_DIV: Attempt to divide by zero");
+            error!("OP_DIV: Attempt to divide by ZERO");
             return false;
         }
     }
@@ -1114,7 +1114,13 @@ pub fn op_mod(current_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1.rem_euclid(n2)));
+    match n1.checked_rem_euclid(n2) {
+        Some(n) => current_stack.push(StackEntry::Num(n)),
+        None => {
+            error!("OP_MOD: Attempt to divide by ZERO");
+            return false;
+        }
+    }
     true
 }
 
@@ -2029,7 +2035,7 @@ mod tests {
     #[test]
     /// Test OP_DEPTH
     fn test_depth() {
-        /// op_depth([1,1,1,1]) -> [1,1,1,1,6]
+        /// op_depth([1,1,1,1]) -> [1,1,1,1,4]
         let mut current_stack: Vec<StackEntry> = vec![];
         for i in 1..=4 {
             current_stack.push(StackEntry::Num(1));
@@ -2292,7 +2298,7 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
         op_cat(&mut current_stack);
         assert_eq!(current_stack, v);
-        /// op_cat(["a","a"*520]) -> fail
+        /// op_cat(["a","a"*MAX_SCRIPT_ELEMENT_SIZE]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes('a'.to_string())];
         let mut s = String::new();
         for i in 1..=MAX_SCRIPT_ELEMENT_SIZE {
@@ -2779,6 +2785,10 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
         op_mod(&mut current_stack);
         assert_eq!(current_stack, v);
+        /// op_mod([1,0]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(0)];
+        let b = op_mod(&mut current_stack);
+        assert!(!b);
         /// op_mod([1]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let b = op_mod(&mut current_stack);
@@ -2796,6 +2806,10 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(4)];
         op_lshift(&mut current_stack);
         assert_eq!(current_stack, v);
+        /// op_lshift([1,64]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(64)];
+        let b = op_lshift(&mut current_stack);
+        assert!(!b);
         /// op_lshift([1]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let b = op_lshift(&mut current_stack);
@@ -2813,6 +2827,10 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
         op_rshift(&mut current_stack);
         assert_eq!(current_stack, v);
+        /// op_rshift([1,64]) -> fail
+        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(64)];
+        let b = op_rshift(&mut current_stack);
+        assert!(!b);
         /// op_rshift([1]) -> fail
         let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let b = op_rshift(&mut current_stack);
