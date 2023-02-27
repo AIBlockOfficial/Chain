@@ -277,7 +277,7 @@ pub fn op_toaltstack(
             error_num_items(opcode);
             return false;
         }
-    }; 
+    };
     current_alt_stack.push(x);
     true
 }
@@ -302,7 +302,7 @@ pub fn op_fromaltstack(
             error_num_items(opcode);
             return false;
         }
-    }; 
+    };
     current_stack.push(x);
     true
 }
@@ -461,8 +461,7 @@ pub fn op_ifdup(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_depth(current_stack: &mut Vec<StackEntry>) -> bool {
     let (opcode, desc) = (OPDEPTH, OPDEPTH_DESC);
     trace(opcode, desc);
-    let len = current_stack.len();
-    current_stack.push(StackEntry::Num(len));
+    current_stack.push(StackEntry::Num(current_stack.len()));
     true
 }
 
@@ -476,7 +475,7 @@ pub fn op_depth(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
     let (opcode, desc) = (OPDROP, OPDROP_DESC);
     trace(opcode, desc);
-    let x = match current_stack.pop() {
+    match current_stack.pop() {
         Some(x) => x,
         _ => {
             error_num_items(opcode);
@@ -692,8 +691,8 @@ pub fn op_cat(current_stack: &mut Vec<StackEntry>) -> bool {
         error_size(opcode);
         return false;
     }
-    let concat = [s1, s2].join("");
-    current_stack.push(StackEntry::Bytes(concat));
+    let cat = [s1, s2].join("");
+    current_stack.push(StackEntry::Bytes(cat));
     true
 }
 
@@ -773,8 +772,8 @@ pub fn op_left(current_stack: &mut Vec<StackEntry>) -> bool {
     if n >= s.len() {
         current_stack.push(StackEntry::Bytes(s));
     } else {
-        let substr = s[..n].to_string();
-        current_stack.push(StackEntry::Bytes(substr));
+        let left = s[..n].to_string();
+        current_stack.push(StackEntry::Bytes(left));
     }
     true
 }
@@ -807,8 +806,8 @@ pub fn op_right(current_stack: &mut Vec<StackEntry>) -> bool {
     if n >= s.len() {
         current_stack.push(StackEntry::Bytes("".to_string()));
     } else {
-        let substr = s[n..].to_string();
-        current_stack.push(StackEntry::Bytes(substr));
+        let right = s[n..].to_string();
+        current_stack.push(StackEntry::Bytes(right));
     }
     true
 }
@@ -1016,24 +1015,19 @@ pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_1add(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.is_empty() {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OP1ADD, OP1ADD_DESC);
+    trace(opcode, desc);
+    let n = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_1ADD: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
     match n.checked_add(ONE) {
         Some(n) => current_stack.push(StackEntry::Num(n)),
-        None => {
-            error!("OP_1ADD: Attempt to add with overflow");
+        _ => {
+            error_overflow(opcode);
             return false;
         }
     }
@@ -1048,24 +1042,19 @@ pub fn op_1add(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_1sub(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.is_empty() {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OP1SUB, OP1SUB_DESC);
+    trace(opcode, desc);
+    let n = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_1SUB: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
     match n.checked_sub(ONE) {
         Some(n) => current_stack.push(StackEntry::Num(n)),
-        None => {
-            error!("OP_1SUB: Attempt to subtract with overflow");
+        _ => {
+            error_overflow(opcode);
             return false;
         }
     }
@@ -1080,24 +1069,19 @@ pub fn op_1sub(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2mul(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.is_empty() {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OP2MUL, OP2MUL_DESC);
+    trace(opcode, desc);
+    let n = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_2MUL: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
     match n.checked_mul(TWO) {
         Some(n) => current_stack.push(StackEntry::Num(n)),
-        None => {
-            error!("OP_2MUL: Attempt to multiply with overflow");
+        _ => {
+            error_overflow(opcode);
             return false;
         }
     }
@@ -1112,17 +1096,12 @@ pub fn op_2mul(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.is_empty() {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OP2DIV, OP2DIV_DESC);
+    trace(opcode, desc);
+    let n = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_2DIV: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
@@ -1140,17 +1119,12 @@ pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.is_empty() {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPNOT, OPNOT_DESC);
+    trace(opcode, desc);
+    let n = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_NOT: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
@@ -1172,17 +1146,12 @@ pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.is_empty() {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OP0NOTEQUAL, OP0NOTEQUAL_DESC);
+    trace(opcode, desc);
+    let n = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_0NOTEQUAL: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
@@ -1202,31 +1171,26 @@ pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPADD, OPADD_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_ADD: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_ADD: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
     match n1.checked_add(n2) {
         Some(n) => current_stack.push(StackEntry::Num(n)),
-        None => {
-            error!("OP_ADD: Attempt to add with overflow");
+        _ => {
+            error_overflow(opcode);
             return false;
         }
     }
@@ -1241,31 +1205,26 @@ pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_sub(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPSUB, OPSUB_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_SUB: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_SUB: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
     match n1.checked_sub(n2) {
         Some(n) => current_stack.push(StackEntry::Num(n)),
-        None => {
-            error!("OP_SUB: Attempt to subtract with overflow");
+        _ => {
+            error_overflow(opcode);
             return false;
         }
     }
@@ -1280,31 +1239,26 @@ pub fn op_sub(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_mul(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPMUL, OPMUL_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_MUL: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_MUL: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
     match n1.checked_mul(n2) {
         Some(n) => current_stack.push(StackEntry::Num(n)),
-        None => {
-            error!("OP_MUL: Attempt to multiply with overflow");
+        _ => {
+            error_overflow(opcode);
             return false;
         }
     }
@@ -1319,31 +1273,26 @@ pub fn op_mul(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_div(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPDIV, OPDIV_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_DIV: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_DIV: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
     match n1.checked_div(n2) {
         Some(n) => current_stack.push(StackEntry::Num(n)),
-        None => {
-            error!("OP_DIV: Attempt to divide by ZERO");
+        _ => {
+            error_div_zero(opcode);
             return false;
         }
     }
@@ -1358,31 +1307,26 @@ pub fn op_div(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_mod(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPMOD, OPMOD_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_MOD: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_MOD: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    match n1.checked_rem_euclid(n2) {
+    match n1.checked_rem(n2) {
         Some(n) => current_stack.push(StackEntry::Num(n)),
-        None => {
-            error!("OP_MOD: Attempt to divide by ZERO");
+        _ => {
+            error_div_zero(opcode);
             return false;
         }
     }
@@ -1397,31 +1341,26 @@ pub fn op_mod(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_lshift(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n as u32,
+    let (opcode, desc) = (OPLSHIFT, OPLSHIFT_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_LSHIFT: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_LSHIFT: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    match n1.checked_shl(n2) {
+    match n1.checked_shl(n2 as u32) {
         Some(n) => current_stack.push(StackEntry::Num(n)),
-        None => {
-            error!("OP_LSHIFT: Attempt to shift left with overflow");
+        _ => {
+            error_overflow(opcode);
             return false;
         }
     }
@@ -1436,31 +1375,26 @@ pub fn op_lshift(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_rshift(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n as u32,
+    let (opcode, desc) = (OPRIGHT, OPRIGHT_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_RSHIFT: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_RSHIFT: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    match n1.checked_shr(n2) {
+    match n1.checked_shr(n2 as u32) {
         Some(n) => current_stack.push(StackEntry::Num(n)),
-        None => {
-            error!("OP_RSHIFT: Attempt to shift right with overflow");
+        _ => {
+            error_overflow(opcode);
             return false;
         }
     }
@@ -1476,24 +1410,19 @@ pub fn op_rshift(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_booland(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPBOOLAND, OPBOOLAND_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_BOOLAND: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_BOOLAND: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
@@ -1514,24 +1443,19 @@ pub fn op_booland(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_boolor(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPBOOLOR, OPBOOLOR_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_BOOLOR: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_BOOLOR: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
@@ -1552,24 +1476,19 @@ pub fn op_boolor(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_numequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPNUMEQUAL, OPNUMEQUAL_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_NUMEQUAL: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_NUMEQUAL: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
@@ -1590,29 +1509,24 @@ pub fn op_numequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_numequalverify(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPNUMEQUALVERIFY, OPNUMEQUALVERIFY_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_NUMEQUALVERIFY: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_NUMEQUALVERIFY: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
     if n1 != n2 {
-        error!("OP_NUMEQUALVERIFY: The two top items are not equal");
+        error_not_equal(opcode);
         return false;
     }
     true
@@ -1627,24 +1541,19 @@ pub fn op_numequalverify(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_numnotequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPNUMNOTEQUAL, OPNUMNOTEQUAL_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_NUMNOTEQUAL: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_NUMNOTEQUAL: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
@@ -1665,24 +1574,19 @@ pub fn op_numnotequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_lessthan(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPLESSTHAN, OPLESSTHAN_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_LESSTHAN: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_LESSTHAN: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
@@ -1703,24 +1607,19 @@ pub fn op_lessthan(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_greaterthan(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OP0NOTEQUAL, OP0NOTEQUAL_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_GREATERTHAN: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_GREATERTHAN: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
@@ -1741,24 +1640,19 @@ pub fn op_greaterthan(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_lessthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPLESSTHANOREQUAL, OPLESSTHANOREQUAL_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_LESSTHANOREQUAL: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_LESSTHANOREQUAL: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
@@ -1779,24 +1673,19 @@ pub fn op_lessthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_greaterthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPGREATERTHANOREQUAL, OPGREATERTHANOREQUAL_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_GREATERTHANOREQUAL: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_GREATERTHANOREQUAL: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
@@ -1817,24 +1706,19 @@ pub fn op_greaterthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_min(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPMIN, OPMIN_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_MIN: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_MIN: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
@@ -1851,24 +1735,19 @@ pub fn op_min(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_max(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPMAX, OPMAX_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_MAX: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_MAX: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
@@ -1886,31 +1765,26 @@ pub fn op_max(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_within(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < THREE {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n3 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPWITHIN, OPWITHIN_DESC);
+    trace(opcode, desc);
+    let n3 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_WITHIN: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_WITHIN: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_WITHIN: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
@@ -3380,10 +3254,10 @@ mod tests {
     fn test_numequalverify() {
         /// op_numequalverify([1,1]) -> []
         let mut current_stack: Vec<StackEntry> = vec![];
-        for i in 1..=1 {
-            current_stack.push(StackEntry::Num(i));
+        for i in 1..=2 {
+            current_stack.push(StackEntry::Num(1));
         }
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let mut v: Vec<StackEntry> = vec![];
         op_numequalverify(&mut current_stack);
         assert_eq!(current_stack, v);
         /// op_numequalverify([1,2]) -> fail

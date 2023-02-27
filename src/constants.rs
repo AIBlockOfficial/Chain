@@ -205,12 +205,74 @@ pub const OPEQUAL_DESC: &str =
     "Substitutes the top two items on the stack with ONE if they are equal, with ZERO otherwise";
 pub const OPEQUALVERIFY_DESC: &str = "Computes OP_EQUAL and OP_VERIFY in sequence";
 
+// arithmetic
+pub const OP1ADD: &str = "OP_1ADD";
+pub const OP1SUB: &str = "OP_1SUB";
+pub const OP2MUL: &str = "OP_2MUL";
+pub const OP2DIV: &str = "OP_2DIV";
+pub const OPNOT: &str = "OP_NOT";
+pub const OP0NOTEQUAL: &str = "OP_0NOTEQUAL";
+pub const OPADD: &str = "OP_ADD";
+pub const OPSUB: &str = "OP_SUB";
+pub const OPMUL: &str = "OP_MUL";
+pub const OPDIV: &str = "OP_DIV";
+pub const OPMOD: &str = "OP_MOD";
+pub const OPLSHIFT: &str = "OP_LSHIFT";
+pub const OPRSHIFT: &str = "OP_RSHIFT";
+pub const OPBOOLAND: &str = "OP_BOOLAND";
+pub const OPBOOLOR: &str = "OP_BOOLOR";
+pub const OPNUMEQUAL: &str = "OP_NUMEQUAL";
+pub const OPNUMEQUALVERIFY: &str = "OP_NUMEQUALVERIFY";
+pub const OPNUMNOTEQUAL: &str = "OP_NUMNOTEQUAL";
+pub const OPLESSTHAN: &str = "OP_LESSTHAN";
+pub const OPGREATERTHAN: &str = "OP_GREATERTHAN";
+pub const OPLESSTHANOREQUAL: &str = "OP_LESSTHANOREQUAL";
+pub const OPGREATERTHANOREQUAL: &str = "OP_GREATERTHANOREQUAL";
+pub const OPMIN: &str = "OP_MIN";
+pub const OPMAX: &str = "OP_MAX";
+pub const OPWITHIN: &str = "OP_WITHIN";
+
+pub const OP1ADD_DESC: &str = "Adds ONE to the top item on the stack";
+pub const OP1SUB_DESC: &str = "Subtracts ONE from the top item on the stack";
+pub const OP2MUL_DESC: &str = "Multiplies by TWO the top item on the stack";
+pub const OP2DIV_DESC: &str = "Divides by TWO the top item on the stack";
+pub const OPNOT_DESC: &str =
+    "Substitutes the top item on the stack with ONE if it is equal to ZERO, with ZERO otherwise";
+pub const OP0NOTEQUAL_DESC: &str =
+    "Substitutes the top item on the stack with ONE if it is not equal to ZERO, with ZERO otherwise";
+pub const OPADD_DESC: &str = "Adds the top item to the second-to-top item on the stack";
+pub const OPSUB_DESC: &str = "Subtracts the top item from the second-to-top item on the stack";
+pub const OPMUL_DESC: &str = "Multiplies the second-to-top item by the top item on the stack";
+pub const OPDIV_DESC: &str = "Divides the second-to-top item by the top item on the stack";
+pub const OPMOD_DESC: &str =
+    "Computes the remainder of the division of the second-to-top item by the top item on the stack";
+pub const OPLSHIFT_DESC: &str =
+    "Computes the left shift of the second-to-top item by the top item on the stack";
+pub const OPRSHIFT_DESC: &str =
+    "Computes the right shift of the second-to-top item by the top item on the stack";
+pub const OPBOOLAND_DESC: &str = "Substitutes the top two items on the stack with ONE if they are both non-ZERO, with ZERO otherwise";
+pub const OPBOOLOR_DESC: &str = "Substitutes the top two items on the stack with ONE if they are not both ZERO, with ZERO otherwise";
+pub const OPNUMEQUAL_DESC: &str = "Substitutes the top two items on the stack with ONE if they are equal as numbers, with ZERO otherwise";
+pub const OPNUMEQUALVERIFY_DESC: &str = "Computes OP_NUMEQUAL and OP_VERIFY in sequence";
+pub const OPNUMNOTEQUAL_DESC: &str = "Substitutes the top two items on the stack with ONE if they are not equal, with ZERO otherwise";
+pub const OPLESSTHAN_DESC: &str = "Substitutes the top two items on the stack with ONE if the second-to-top is less than the top item, with ZERO otherwise";
+pub const OPGREATERTHAN_DESC: &str = "Substitutes the top two items on the stack with ONE if the second-to-top is greater than the top item, with ZERO otherwise";
+pub const OPLESSTHANOREQUAL_DESC: &str = "Substitutes the top two items on the stack with ONE if the second-to-top is less than or equal to the top item, with ZERO otherwise";
+pub const OPGREATERTHANOREQUAL_DESC: &str = "Substitutes the top two items on the stack with ONE if the second-to-top is greater than or equal to the top item, with ZERO otherwise";
+pub const OPMIN_DESC: &str =
+    "Substitutes the top two items on the stack with the minimum between the two";
+pub const OPMAX_DESC: &str =
+    "Substitutes the top two items on the stack with the maximum between the two";
+pub const OPWITHIN_DESC: &str = "Substitutes the top three items on the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item, with ZERO otherwise";
+
 // error messages
 pub const ERROR_NUM_ITEMS: &str = "Not enough items on the stack";
 pub const ERROR_TYPE: &str = "Item type is not correct";
 pub const ERROR_INDEX: &str = "Index is out of bound";
 pub const ERROR_SIZE: &str = "Item size exceeds 520-byte limit";
 pub const ERROR_NOT_EQUAL: &str = "The two top items are not equal";
+pub const ERROR_OVERFLOW: &str = "Attempt to overflow";
+pub const ERROR_DIV_ZERO: &str = "Attempt to divide by ZERO";
 
 // util functions
 pub fn trace(opcode: &str, desc: &str) {
@@ -235,4 +297,12 @@ pub fn error_size(opcode: &str) {
 
 pub fn error_not_equal(opcode: &str) {
     error!("{}: {}", opcode, ERROR_NOT_EQUAL)
+}
+
+pub fn error_overflow(opcode: &str) {
+    error!("{}: {}", opcode, ERROR_OVERFLOW)
+}
+
+pub fn error_div_zero(opcode: &str) {
+    error!("{}: {}", opcode, ERROR_DIV_ZERO)
 }
