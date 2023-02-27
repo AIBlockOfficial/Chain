@@ -2,14 +2,13 @@
 
 use crate::constants::*;
 use crate::crypto::sha3_256;
+use crate::crypto::sign_ed25519 as sign;
+use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::transaction_utils::{construct_address, construct_address_for};
-
-use crate::crypto::sign_ed25519 as sign;
-use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
@@ -27,7 +26,8 @@ use tracing::{debug, error, info, trace};
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_0(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_0: Pushes the number ZERO onto the stack");
+    let (opcode, desc) = (OP0, OP0_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(ZERO));
     true
 }
@@ -40,7 +40,8 @@ pub fn op_0(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_1(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_1: Pushes the number ONE onto the stack");
+    let (opcode, desc) = (OP1, OP1_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(ONE));
     true
 }
@@ -53,7 +54,8 @@ pub fn op_1(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2: Pushes the number TWO onto the stack");
+    let (opcode, desc) = (OP2, OP2_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(TWO));
     true
 }
@@ -66,7 +68,8 @@ pub fn op_2(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_3(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_3: Pushes the number THREE onto the stack");
+    let (opcode, desc) = (OP3, OP3_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(THREE));
     true
 }
@@ -79,7 +82,8 @@ pub fn op_3(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_4(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_4: Pushes the number FOUR onto the stack");
+    let (opcode, desc) = (OP4, OP4_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(FOUR));
     true
 }
@@ -92,7 +96,8 @@ pub fn op_4(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_5(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_5: Pushes the number FIVE onto the stack");
+    let (opcode, desc) = (OP5, OP5_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(FIVE));
     true
 }
@@ -105,7 +110,8 @@ pub fn op_5(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_6(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_6: Pushes the number SIX onto the stack");
+    let (opcode, desc) = (OP6, OP6_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(SIX));
     true
 }
@@ -118,7 +124,8 @@ pub fn op_6(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_7(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_7: Pushes the number SEVEN onto the stack");
+    let (opcode, desc) = (OP7, OP7_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(SEVEN));
     true
 }
@@ -131,7 +138,8 @@ pub fn op_7(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_8(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_8: Pushes the number EIGHT onto the stack");
+    let (opcode, desc) = (OP8, OP8_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(EIGHT));
     true
 }
@@ -144,7 +152,8 @@ pub fn op_8(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_9(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_9: Pushes the number NINE onto the stack");
+    let (opcode, desc) = (OP9, OP9_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(NINE));
     true
 }
@@ -157,7 +166,8 @@ pub fn op_9(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_10(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_10: Pushes the number TEN onto the stack");
+    let (opcode, desc) = (OP10, OP10_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(TEN));
     true
 }
@@ -170,7 +180,8 @@ pub fn op_10(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_11(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_11: Pushes the number ELEVEN onto the stack");
+    let (opcode, desc) = (OP11, OP11_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(ELEVEN));
     true
 }
@@ -183,7 +194,8 @@ pub fn op_11(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_12(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_12: Pushes the number TWELVE onto the stack");
+    let (opcode, desc) = (OP12, OP12_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(TWELVE));
     true
 }
@@ -196,7 +208,8 @@ pub fn op_12(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_13(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_13: Pushes the number THIRTEEN onto the stack");
+    let (opcode, desc) = (OP13, OP13_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(THIRTEEN));
     true
 }
@@ -209,7 +222,8 @@ pub fn op_13(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_14(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_14: Pushes the number FOURTEEN onto the stack");
+    let (opcode, desc) = (OP14, OP14_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(FOURTEEN));
     true
 }
@@ -222,7 +236,8 @@ pub fn op_14(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_15(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_15: Pushes the number FIFTEEN onto the stack");
+    let (opcode, desc) = (OP15, OP15_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(FIFTEEN));
     true
 }
@@ -235,7 +250,8 @@ pub fn op_15(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_16(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_16: Pushes the number SIXTEEN onto the stack");
+    let (opcode, desc) = (OP16, OP16_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(SIXTEEN));
     true
 }
@@ -254,13 +270,15 @@ pub fn op_toaltstack(
     current_stack: &mut Vec<StackEntry>,
     current_alt_stack: &mut Vec<StackEntry>,
 ) -> bool {
-    trace!("OP_TOALTSTACK: Moves the top item from the main stack to the top of the alt stack");
-    if current_stack.is_empty() {
-        error!("OP_TOALTSTACK: Not enough items on the stack");
-        return false;
+    let (opcode, desc) = (OPTOALTSTACK, OPTOALTSTACK_DESC);
+    trace(opcode, desc);
+    if let Some(x) = current_stack.pop() {
+        current_alt_stack.push(x);
+        true
+    } else {
+        error_num_items(opcode);
+        false
     }
-    current_alt_stack.push(current_stack.pop().unwrap());
-    true
 }
 
 /// OP_FROMALTSTACK: Moves the top item from the alt stack to the top of the main stack. Returns a bool.
@@ -275,13 +293,15 @@ pub fn op_fromaltstack(
     current_stack: &mut Vec<StackEntry>,
     current_alt_stack: &mut Vec<StackEntry>,
 ) -> bool {
-    trace!("OP_FROMALTSTACK: Moves the top item from the alt stack to the top of the main stack");
-    if current_alt_stack.is_empty() {
-        error!("OP_FROMALTSTACK: Not enough items on the alt stack");
-        return false;
+    let (opcode, desc) = (OPFROMALTSTACK, OPFROMALTSTACK_DESC);
+    trace(opcode, desc);
+    if let Some(x) = current_alt_stack.pop() {
+        current_stack.push(x);
+        true
+    } else {
+        error_num_items(opcode);
+        false
     }
-    current_stack.push(current_alt_stack.pop().unwrap());
-    true
 }
 
 /// OP_2DROP: Removes the top two items from the stack. Returns a bool.
@@ -292,14 +312,14 @@ pub fn op_fromaltstack(
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2drop(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2DROP: Removes the top two items from the stack");
-    if current_stack.len() < TWO {
-        error!("OP_2DROP: Not enough items on the stack");
-        return false;
+    let (opcode, desc) = (OP2DROP, OP2DROP_DESC);
+    trace(opcode, desc);
+    if let (Some(x1), Some(x2)) = (current_stack.pop(), current_stack.pop()) {
+        true
+    } else {
+        error_num_items(opcode);
+        false
     }
-    current_stack.pop();
-    current_stack.pop();
-    true
 }
 
 /// OP_2DUP: Duplicates the top two items on the stack. Returns a bool.
@@ -310,16 +330,15 @@ pub fn op_2drop(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2DUP: Duplicates the top two items on the stack");
+    let (opcode, desc) = (OP2DUP, OP2DUP_DESC);
+    trace(opcode, desc);
     let len = current_stack.len();
     if len < TWO {
-        error!("OP_2DUP: Not enough items on the stack");
+        error_num_items(opcode);
         return false;
     }
-    let x1 = current_stack[len - TWO].clone();
-    let x2 = current_stack[len - ONE].clone();
-    current_stack.push(x1);
-    current_stack.push(x2);
+    let last_two = current_stack[len - TWO..].to_vec();
+    current_stack.extend_from_slice(&last_two);
     true
 }
 
@@ -331,18 +350,15 @@ pub fn op_2dup(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_3dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_3DUP: Duplicates the top three items on the stack");
+    let (opcode, desc) = (OP3DUP, OP3DUP_DESC);
+    trace(opcode, desc);
     let len = current_stack.len();
     if len < THREE {
-        error!("OP_3DUP: Not enough items on the stack");
+        error_num_items(opcode);
         return false;
     }
-    let x1 = current_stack[len - THREE].clone();
-    let x2 = current_stack[len - TWO].clone();
-    let x3 = current_stack[len - ONE].clone();
-    current_stack.push(x1);
-    current_stack.push(x2);
-    current_stack.push(x3);
+    let last_three = current_stack[len - THREE..].to_vec();
+    current_stack.extend_from_slice(&last_three);
     true
 }
 
@@ -354,16 +370,15 @@ pub fn op_3dup(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2over(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2OVER: Copies the second-to-top pair of items to the top of the stack");
+    let (opcode, desc) = (OP2OVER, OP2OVER_DESC);
+    trace(opcode, desc);
     let len = current_stack.len();
     if len < FOUR {
-        error!("OP_2OVER: Not enough items on the stack");
+        error_num_items(opcode);
         return false;
     }
-    let x1 = current_stack[len - FOUR].clone();
-    let x2 = current_stack[len - THREE].clone();
-    current_stack.push(x1);
-    current_stack.push(x2);
+    let items = current_stack[len - FOUR..len - TWO].to_vec();
+    current_stack.extend_from_slice(&items);
     true
 }
 
@@ -375,17 +390,16 @@ pub fn op_2over(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2rot(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2ROT: Moves the third-to-top pair of items to the top of the stack");
+    let (opcode, desc) = (OP2ROT, OP2ROT_DESC);
+    trace(opcode, desc);
     let len = current_stack.len();
     if len < SIX {
-        error!("OP_2ROT: Not enough items on the stack");
+        error_num_items(opcode);
         return false;
     }
-    let x1 = current_stack[len - SIX].clone();
-    let x2 = current_stack[len - FIVE].clone();
+    let items = current_stack[len - SIX..len - FOUR].to_vec();
     current_stack.drain(len - SIX..len - FOUR);
-    current_stack.push(x1);
-    current_stack.push(x2);
+    current_stack.extend_from_slice(&items);
     true
 }
 
@@ -397,10 +411,11 @@ pub fn op_2rot(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2swap(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2SWAP: Swaps the top two pairs of items on the stack");
+    let (opcode, desc) = (OP2SWAP, OP2SWAP_DESC);
+    trace(opcode, desc);
     let len = current_stack.len();
     if len < FOUR {
-        error!("OP_2SWAP: Not enough items on the stack");
+        error_num_items(opcode);
         return false;
     }
     current_stack.swap(len - FOUR, len - TWO);
@@ -417,19 +432,20 @@ pub fn op_2swap(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_ifdup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_IFDUP: Duplicates the top item on the stack if it is not ZERO");
-    if current_stack.is_empty() {
-        error!("OP_IFDUP: Not enough items on the stack");
-        return false;
+    let (opcode, desc) = (OPIFDUP, OPIFDUP_DESC);
+    trace(opcode, desc);
+    if let Some(x) = current_stack.last().cloned() {
+        if x != StackEntry::Num(ZERO) {
+            current_stack.push(x);
+        }
+        true
+    } else {
+        error_num_items(opcode);
+        false
     }
-    let x = current_stack[current_stack.len() - ONE].clone();
-    if x != StackEntry::Num(ZERO) {
-        current_stack.push(x);
-    }
-    true
 }
 
-/// OP_DEPTH: Adds the stack size to the top of the stack. Returns a bool.
+/// OP_DEPTH: Pushes the stack size onto the stack. Returns a bool.
 ///
 /// Example: OP_DEPTH([x1, x2, x3, x4]) -> [x1, x2, x3, x4, 4]
 ///
@@ -437,7 +453,8 @@ pub fn op_ifdup(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_depth(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_DEPTH: Adds the stack size to the top of the stack");
+    let (opcode, desc) = (OPDEPTH, OPDEPTH_DESC);
+    trace(opcode, desc);
     current_stack.push(StackEntry::Num(current_stack.len()));
     true
 }
@@ -450,13 +467,14 @@ pub fn op_depth(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_DROP: Removes the top item from the stack");
-    if current_stack.is_empty() {
-        error!("OP_DROP: Not enough items on the stack");
-        return false;
+    let (opcode, desc) = (OPDROP, OPDROP_DESC);
+    trace(opcode, desc);
+    if let Some(x) = current_stack.pop() {
+        true
+    } else {
+        error_num_items(opcode);
+        false
     }
-    current_stack.pop();
-    true
 }
 
 /// OP_DUP: Duplicates the top item on the stack. Returns a bool.
@@ -467,14 +485,15 @@ pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_DUP: Duplicates the top item on the stack");
-    if current_stack.is_empty() {
-        error!("OP_DUP: Not enough items on the stack");
-        return false;
+    let (opcode, desc) = (OPDUP, OPDUP_DESC);
+    trace(opcode, desc);
+    if let Some(x) = current_stack.last().cloned() {
+        current_stack.push(x);
+        true
+    } else {
+        error_num_items(opcode);
+        false
     }
-    let x = current_stack[current_stack.len() - ONE].clone();
-    current_stack.push(x);
-    true
 }
 
 /// OP_NIP: Removes the second-to-top item from the stack. Returns a bool.
@@ -485,10 +504,11 @@ pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_nip(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_NIP: Removes the second-to-top item from the stack");
+    let (opcode, desc) = (OPNIP, OPNIP_DESC);
+    trace(opcode, desc);
     let len = current_stack.len();
     if len < TWO {
-        error!("OP_NIP: Not enough items on the stack");
+        error_num_items(opcode);
         return false;
     }
     current_stack.remove(len - TWO);
@@ -503,10 +523,11 @@ pub fn op_nip(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_over(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_OVER: Copies the second-to-top item to the top of the stack");
+    let (opcode, desc) = (OPOVER, OPOVER_DESC);
+    trace(opcode, desc);
     let len = current_stack.len();
     if len < TWO {
-        error!("OP_OVER: Not enough items on the stack");
+        error_num_items(opcode);
         return false;
     }
     let x1 = current_stack[len - TWO].clone();
@@ -523,24 +544,27 @@ pub fn op_over(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_PICK: Copies the nth-to-top item to the top of the stack");
-    if current_stack.len() < TWO {
-        error!("OP_PICK: Not enough items on the stack");
+    let (opcode, desc) = (OPPICK, OPPICK_DESC);
+    trace(opcode, desc);
+    let mut len = current_stack.len();
+    if len < TWO {
+        error_num_items(opcode);
         return false;
     }
-    let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_PICK: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let len = current_stack.len();
+    len = current_stack.len();
     if n >= len {
-        error!("OP_PICK: Index is out of bound");
+        error_index(opcode);
         return false;
     }
-    let x = current_stack[len - ONE - n].clone();
+    let index = len - ONE - n;
+    let x = current_stack[index].clone();
     current_stack.push(x);
     true
 }
@@ -554,21 +578,23 @@ pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_roll(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_ROLL: Moves the nth-to-top item to the top of the stack");
-    if current_stack.len() < TWO {
-        error!("OP_ROLL: Not enough items on the stack");
+    let (opcode, desc) = (OPROLL, OPROLL_DESC);
+    trace(opcode, desc);
+    let mut len = current_stack.len();
+    if len < TWO {
+        error_num_items(opcode);
         return false;
     }
-    let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_ROLL: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let len = current_stack.len();
+    len = current_stack.len();
     if n >= len {
-        error!("OP_ROLL: Index is out of bound");
+        error_index(opcode);
         return false;
     }
     let index = len - ONE - n;
@@ -586,10 +612,11 @@ pub fn op_roll(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_rot(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_ROT: Moves the third-to-top item to the top of the stack");
+    let (opcode, desc) = (OPROT, OPROT_DESC);
+    trace(opcode, desc);
     let len = current_stack.len();
     if len < THREE {
-        error!("OP_ROT: Not enough items on the stack");
+        error_num_items(opcode);
         return false;
     }
     current_stack.swap(len - THREE, len - TWO);
@@ -605,10 +632,11 @@ pub fn op_rot(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_swap(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_SWAP: Swaps the top two items on the stack");
+    let (opcode, desc) = (OPSWAP, OPSWAP_DESC);
+    trace(opcode, desc);
     let len = current_stack.len();
     if len < TWO {
-        error!("OP_SWAP: Not enough items on the stack");
+        error_num_items(opcode);
         return false;
     }
     current_stack.swap(len - TWO, len - ONE);
@@ -623,10 +651,11 @@ pub fn op_swap(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_tuck(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_TUCK: Copies the top item before the second-to-top item on the stack");
+    let (opcode, desc) = (OPTUCK, OPTUCK_DESC);
+    trace(opcode, desc);
     let len = current_stack.len();
     if len < TWO {
-        error!("OP_TUCK: Not enough items on the stack");
+        error_num_items(opcode);
         return false;
     }
     let x2 = current_stack[len - ONE].clone();
@@ -644,9 +673,11 @@ pub fn op_tuck(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_cat(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_CAT: Concatenates the second-to-top item and the top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_CAT: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let s2 = match current_stack.pop().unwrap() {
@@ -682,9 +713,11 @@ pub fn op_cat(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_substr(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_SUBSTR: Extracts a substring from the third-to-top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < THREE {
-        error!("OP_SUBSTR: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -733,9 +766,11 @@ pub fn op_substr(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_left(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_LEFT: Extracts a left substring from the second-to-top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_LEFT: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n = match current_stack.pop().unwrap() {
@@ -769,9 +804,11 @@ pub fn op_left(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_right(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_RIGHT: Extracts a right substring from the second-to-top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_RIGHT: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n = match current_stack.pop().unwrap() {
@@ -804,9 +841,11 @@ pub fn op_right(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_size(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_SIZE: Computes the size in bytes of the top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.is_empty() {
-        error!("OP_SIZE: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let s = match current_stack[current_stack.len() - ONE].clone() {
@@ -830,9 +869,11 @@ pub fn op_size(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_invert(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_INVERT: Computes bitwise complement of the top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.is_empty() {
-        error!("OP_INVERT: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n = match current_stack.pop().unwrap() {
@@ -854,9 +895,11 @@ pub fn op_invert(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_and(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_AND: Computes bitwise AND between the second-to-top and the top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_AND: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -885,9 +928,11 @@ pub fn op_and(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_or(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_OR: Computes bitwise OR between the second-to-top and the top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_OR: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -916,9 +961,11 @@ pub fn op_or(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_xor(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_XOR: Computes bitwise exclusive OR between the second-to-top and the top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_XOR: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -948,9 +995,11 @@ pub fn op_xor(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_equal(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_EQUAL: Substitutes the top two items on the stack with ONE if they are equal, with ZERO otherwise");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_EQUAL: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let x2 = current_stack.pop().unwrap();
@@ -972,9 +1021,11 @@ pub fn op_equal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_EQUALVERIFY: Computes OP_EQUAL and OP_VERIFY in sequence");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_EQUALVERIFY: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let x2 = current_stack.pop().unwrap();
@@ -996,9 +1047,11 @@ pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_1add(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_1ADD: Adds ONE to the top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.is_empty() {
-        error!("OP_1ADD: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n = match current_stack.pop().unwrap() {
@@ -1026,9 +1079,11 @@ pub fn op_1add(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_1sub(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_1SUB: Subtracts ONE from the top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.is_empty() {
-        error!("OP_1SUB: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n = match current_stack.pop().unwrap() {
@@ -1056,9 +1111,11 @@ pub fn op_1sub(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2mul(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2MUL: Multiplies by TWO the top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.is_empty() {
-        error!("OP_2MUL: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n = match current_stack.pop().unwrap() {
@@ -1086,9 +1143,11 @@ pub fn op_2mul(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_2DIV: Divides by TWO the top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.is_empty() {
-        error!("OP_2DIV: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n = match current_stack.pop().unwrap() {
@@ -1112,9 +1171,11 @@ pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_NOT: Substitutes the top item on the stack with ONE if it is equal to ZERO, with ZERO otherwise");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.is_empty() {
-        error!("OP_NOT: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n = match current_stack.pop().unwrap() {
@@ -1142,9 +1203,11 @@ pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_0NOTEQUAL: Substitutes the top item on the stack with ONE if it is not equal to ZERO, with ZERO otherwise");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.is_empty() {
-        error!("OP_0NOTEQUAL: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n = match current_stack.pop().unwrap() {
@@ -1170,9 +1233,11 @@ pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_ADD: Adds the top item to the second-to-top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_ADD: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1207,9 +1272,11 @@ pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_sub(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_SUB: Subtracts the top item from the second-to-top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_SUB: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1244,9 +1311,11 @@ pub fn op_sub(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_mul(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_MUL: Multiplies the second-to-top item by the top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_MUL: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1281,9 +1350,11 @@ pub fn op_mul(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_div(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_DIV: Divides the second-to-top item by the top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_DIV: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1318,9 +1389,11 @@ pub fn op_div(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_mod(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_MOD: Computes the remainder of the division of the second-to-top item by the top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_MOD: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1355,11 +1428,11 @@ pub fn op_mod(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_lshift(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!(
-        "OP_LSHIFT: Computes the left shift of the second-to-top item by the top item on the stack"
-    );
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_LSHIFT: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1394,9 +1467,11 @@ pub fn op_lshift(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_rshift(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_RSHIFT: Computes the right shift of the second-to-top item by the top item on the stack");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_RSHIFT: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1432,9 +1507,11 @@ pub fn op_rshift(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_booland(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_BOOLAND: Substitutes the top two items on the stack with ONE if they are both non-ZERO, with ZERO otherwise");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_BOOLAND: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1468,9 +1545,11 @@ pub fn op_booland(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_boolor(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_BOOLOR: Substitutes the top two items on the stack with ONE if they are not both ZERO, with ZERO otherwise");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_BOOLOR: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1504,9 +1583,11 @@ pub fn op_boolor(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_numequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_NUMEQUAL: Substitutes the top two items on the stack with ONE if they are equal as numbers, with ZERO otherwise");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_NUMEQUAL: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1540,9 +1621,11 @@ pub fn op_numequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_numequalverify(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_NUMEQUALVERIFY: Computes OP_NUMEQUAL and OP_VERIFY in sequence");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_NUMEQUALVERIFY: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1575,9 +1658,11 @@ pub fn op_numequalverify(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_numnotequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_NUMNOTEQUAL: Substitutes the top two items on the stack with ONE if they are not equal, with ZERO otherwise");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_NUMNOTEQUAL: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1611,9 +1696,11 @@ pub fn op_numnotequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_lessthan(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_LESSTHAN: Substitutes the top two items on the stack with ONE if the second-to-top is less than the top item, with ZERO otherwise");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_LESSTHAN: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1647,9 +1734,11 @@ pub fn op_lessthan(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_greaterthan(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_GREATERTHAN: Substitutes the top two items on the stack with ONE if the second-to-top is greater than the top item, with ZERO otherwise");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_GREATERTHAN: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1683,9 +1772,11 @@ pub fn op_greaterthan(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_lessthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_LESSTHANOREQUAL: Substitutes the top two items on the stack with ONE if the second-to-top is less than or equal to the top item, with ZERO otherwise");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_LESSTHANOREQUAL: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1719,9 +1810,11 @@ pub fn op_lessthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_greaterthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_GREATERTHANOREQUAL: Substitutes the top two items on the stack with ONE if the second-to-top is greater than or equal to the top item, with ZERO otherwise");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_GREATERTHANOREQUAL: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1755,9 +1848,11 @@ pub fn op_greaterthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_min(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_MIN: Substitutes the top two items on the stack with the minimum between the two");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_MIN: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1787,9 +1882,11 @@ pub fn op_min(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_max(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_MAX: Substitutes the top two items on the stack with the maximum between the two");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < TWO {
-        error!("OP_MAX: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n2 = match current_stack.pop().unwrap() {
@@ -1820,9 +1917,11 @@ pub fn op_max(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_within(current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("OP_WITHIN: Substitutes the top three items on the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item, with ZERO otherwise");
+    const OPCODE: &str = "OP_3DUP";
+    const DESC: &str = "Duplicates the top three items on the stack";
+    trace!("{}: {}", OPCODE, DESC);
     if current_stack.len() < THREE {
-        error!("OP_WITHIN: Not enough items on the stack");
+        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
         return false;
     }
     let n3 = match current_stack.pop().unwrap() {
