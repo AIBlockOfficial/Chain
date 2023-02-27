@@ -13,7 +13,6 @@ use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
 use std::collections::BTreeMap;
-use std::ops::{BitAnd, BitOr, BitXor, Not};
 use tracing::{debug, error, info, trace};
 
 /*---- CONSTANTS OPS ----*/
@@ -272,13 +271,15 @@ pub fn op_toaltstack(
 ) -> bool {
     let (opcode, desc) = (OPTOALTSTACK, OPTOALTSTACK_DESC);
     trace(opcode, desc);
-    if let Some(x) = current_stack.pop() {
-        current_alt_stack.push(x);
-        true
-    } else {
-        error_num_items(opcode);
-        false
-    }
+    let x = match current_stack.pop() {
+        Some(x) => x,
+        _ => {
+            error_num_items(opcode);
+            return false;
+        }
+    }; 
+    current_alt_stack.push(x);
+    true
 }
 
 /// OP_FROMALTSTACK: Moves the top item from the alt stack to the top of the main stack. Returns a bool.
@@ -295,13 +296,15 @@ pub fn op_fromaltstack(
 ) -> bool {
     let (opcode, desc) = (OPFROMALTSTACK, OPFROMALTSTACK_DESC);
     trace(opcode, desc);
-    if let Some(x) = current_alt_stack.pop() {
-        current_stack.push(x);
-        true
-    } else {
-        error_num_items(opcode);
-        false
-    }
+    let x = match current_alt_stack.pop() {
+        Some(x) => x,
+        _ => {
+            error_num_items(opcode);
+            return false;
+        }
+    }; 
+    current_stack.push(x);
+    true
 }
 
 /// OP_2DROP: Removes the top two items from the stack. Returns a bool.
@@ -314,12 +317,13 @@ pub fn op_fromaltstack(
 pub fn op_2drop(current_stack: &mut Vec<StackEntry>) -> bool {
     let (opcode, desc) = (OP2DROP, OP2DROP_DESC);
     trace(opcode, desc);
-    if let (Some(x1), Some(x2)) = (current_stack.pop(), current_stack.pop()) {
-        true
-    } else {
+    let len = current_stack.len();
+    if len < TWO {
         error_num_items(opcode);
-        false
+        return false;
     }
+    current_stack.drain(len - TWO..);
+    true
 }
 
 /// OP_2DUP: Duplicates the top two items on the stack. Returns a bool.
@@ -434,15 +438,17 @@ pub fn op_2swap(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_ifdup(current_stack: &mut Vec<StackEntry>) -> bool {
     let (opcode, desc) = (OPIFDUP, OPIFDUP_DESC);
     trace(opcode, desc);
-    if let Some(x) = current_stack.last().cloned() {
-        if x != StackEntry::Num(ZERO) {
-            current_stack.push(x);
+    let x = match current_stack.last().cloned() {
+        Some(x) => x,
+        _ => {
+            error_num_items(opcode);
+            return false;
         }
-        true
-    } else {
-        error_num_items(opcode);
-        false
+    };
+    if x != StackEntry::Num(ZERO) {
+        current_stack.push(x);
     }
+    true
 }
 
 /// OP_DEPTH: Pushes the stack size onto the stack. Returns a bool.
@@ -455,7 +461,8 @@ pub fn op_ifdup(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_depth(current_stack: &mut Vec<StackEntry>) -> bool {
     let (opcode, desc) = (OPDEPTH, OPDEPTH_DESC);
     trace(opcode, desc);
-    current_stack.push(StackEntry::Num(current_stack.len()));
+    let len = current_stack.len();
+    current_stack.push(StackEntry::Num(len));
     true
 }
 
@@ -469,12 +476,14 @@ pub fn op_depth(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
     let (opcode, desc) = (OPDROP, OPDROP_DESC);
     trace(opcode, desc);
-    if let Some(x) = current_stack.pop() {
-        true
-    } else {
-        error_num_items(opcode);
-        false
-    }
+    let x = match current_stack.pop() {
+        Some(x) => x,
+        _ => {
+            error_num_items(opcode);
+            return false;
+        }
+    };
+    true
 }
 
 /// OP_DUP: Duplicates the top item on the stack. Returns a bool.
@@ -487,13 +496,15 @@ pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
     let (opcode, desc) = (OPDUP, OPDUP_DESC);
     trace(opcode, desc);
-    if let Some(x) = current_stack.last().cloned() {
-        current_stack.push(x);
-        true
-    } else {
-        error_num_items(opcode);
-        false
-    }
+    let x = match current_stack.last().cloned() {
+        Some(x) => x,
+        _ => {
+            error_num_items(opcode);
+            return false;
+        }
+    };
+    current_stack.push(x);
+    true
 }
 
 /// OP_NIP: Removes the second-to-top item from the stack. Returns a bool.
@@ -546,11 +557,6 @@ pub fn op_over(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
     let (opcode, desc) = (OPPICK, OPPICK_DESC);
     trace(opcode, desc);
-    let mut len = current_stack.len();
-    if len < TWO {
-        error_num_items(opcode);
-        return false;
-    }
     let n = match current_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
@@ -558,13 +564,12 @@ pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    len = current_stack.len();
+    let len = current_stack.len();
     if n >= len {
         error_index(opcode);
         return false;
     }
-    let index = len - ONE - n;
-    let x = current_stack[index].clone();
+    let x = current_stack[len - ONE - n].clone();
     current_stack.push(x);
     true
 }
@@ -580,11 +585,6 @@ pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_roll(current_stack: &mut Vec<StackEntry>) -> bool {
     let (opcode, desc) = (OPROLL, OPROLL_DESC);
     trace(opcode, desc);
-    let mut len = current_stack.len();
-    if len < TWO {
-        error_num_items(opcode);
-        return false;
-    }
     let n = match current_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
@@ -592,14 +592,13 @@ pub fn op_roll(current_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    len = current_stack.len();
+    let len = current_stack.len();
     if n >= len {
         error_index(opcode);
         return false;
     }
-    let index = len - ONE - n;
-    let x = current_stack[index].clone();
-    current_stack.remove(index);
+    let x = current_stack[len - ONE - n].clone();
+    current_stack.remove(len - ONE - n);
     current_stack.push(x);
     true
 }
@@ -673,35 +672,28 @@ pub fn op_tuck(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_cat(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let s2 = match current_stack.pop().unwrap() {
-        StackEntry::Bytes(s) => s,
+    let (opcode, desc) = (OPCAT, OPCAT_DESC);
+    trace(opcode, desc);
+    let s2 = match current_stack.pop() {
+        Some(StackEntry::Bytes(s)) => s,
         _ => {
-            error!("OP_CAT: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let s1 = match current_stack.pop().unwrap() {
-        StackEntry::Bytes(s) => s,
+    let s1 = match current_stack.pop() {
+        Some(StackEntry::Bytes(s)) => s,
         _ => {
-            error!("OP_CAT: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
     if s1.len() + s2.len() > MAX_SCRIPT_ELEMENT_SIZE as usize {
-        error!(
-            "OP_CAT: Item size exceeds {}-byte limit",
-            MAX_SCRIPT_ELEMENT_SIZE
-        );
+        error_size(opcode);
         return false;
     }
-    current_stack.push(StackEntry::Bytes([s1, s2].join("")));
+    let concat = [s1, s2].join("");
+    current_stack.push(StackEntry::Bytes(concat));
     true
 }
 
@@ -713,47 +705,43 @@ pub fn op_cat(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_substr(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < THREE {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPSUBSTR, OPSUBSTR_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_SUBSTR: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_SUBSTR: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let s = match current_stack.pop().unwrap() {
-        StackEntry::Bytes(s) => s,
+    let s = match current_stack.pop() {
+        Some(StackEntry::Bytes(s)) => s,
         _ => {
-            error!("OP_SUBSTR: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
     if n1 >= s.len() {
-        error!("OP_SUBSTR: Start index is out of bound");
+        error_index(opcode);
         return false;
     }
     if n2 > s.len() {
-        error!("OP_SUBSTR: End index is out of bound");
+        error_index(opcode);
         return false;
     }
     if n1 + n2 > s.len() {
-        error!("OP_SUBSTR: End index is out of bound");
+        error_index(opcode);
         return false;
     }
-    current_stack.push(StackEntry::Bytes(s.get(n1..n1 + n2).unwrap().to_string()));
+    let substr = s[n1..n1 + n2].to_string();
+    current_stack.push(StackEntry::Bytes(substr));
     true
 }
 
@@ -766,31 +754,27 @@ pub fn op_substr(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_left(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPLEFT, OPLEFT_DESC);
+    trace(opcode, desc);
+    let n = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_LEFT: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let s = match current_stack.pop().unwrap() {
-        StackEntry::Bytes(s) => s,
+    let s = match current_stack.pop() {
+        Some(StackEntry::Bytes(s)) => s,
         _ => {
-            error!("OP_LEFT: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
     if n >= s.len() {
         current_stack.push(StackEntry::Bytes(s));
     } else {
-        current_stack.push(StackEntry::Bytes(s.get(..n).unwrap().to_string()));
+        let substr = s[..n].to_string();
+        current_stack.push(StackEntry::Bytes(substr));
     }
     true
 }
@@ -804,31 +788,27 @@ pub fn op_left(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_right(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPRIGHT, OPRIGHT_DESC);
+    trace(opcode, desc);
+    let n = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_RIGHT: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let s = match current_stack.pop().unwrap() {
-        StackEntry::Bytes(s) => s,
+    let s = match current_stack.pop() {
+        Some(StackEntry::Bytes(s)) => s,
         _ => {
-            error!("OP_RIGHT: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
     if n >= s.len() {
-        current_stack.push(StackEntry::Bytes(String::new()));
+        current_stack.push(StackEntry::Bytes("".to_string()));
     } else {
-        current_stack.push(StackEntry::Bytes(s.get(n..).unwrap().to_string()));
+        let substr = s[n..].to_string();
+        current_stack.push(StackEntry::Bytes(substr));
     }
     true
 }
@@ -841,17 +821,12 @@ pub fn op_right(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_size(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.is_empty() {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let s = match current_stack[current_stack.len() - ONE].clone() {
-        StackEntry::Bytes(s) => s,
+    let (opcode, desc) = (OPSIZE, OPSIZE_DESC);
+    trace(opcode, desc);
+    let s = match current_stack.last().cloned() {
+        Some(StackEntry::Bytes(s)) => s,
         _ => {
-            error!("OP_SIZE: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
@@ -861,7 +836,7 @@ pub fn op_size(current_stack: &mut Vec<StackEntry>) -> bool {
 
 /*---- BITWISE LOGIC OPS ----*/
 
-/// OP_INVERT: Computes bitwise complement of the top item on the stack. Returns a bool.
+/// OP_INVERT: Computes bitwise NOT of the top item on the stack. Returns a bool.
 ///
 /// Example: OP_INVERT([n]) -> [!n]
 ///
@@ -869,21 +844,16 @@ pub fn op_size(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_invert(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.is_empty() {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPINVERT, OPINVERT_DESC);
+    trace(opcode, desc);
+    let n = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_INVERT: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n.not()));
+    current_stack.push(StackEntry::Num(!n));
     true
 }
 
@@ -895,28 +865,23 @@ pub fn op_invert(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_and(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPAND, OPAND_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_AND: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_AND: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1.bitand(n2)));
+    current_stack.push(StackEntry::Num(n1 & n2));
     true
 }
 
@@ -928,32 +893,27 @@ pub fn op_and(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_or(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPOR, OPOR_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_OR: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_OR: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1.bitor(n2)));
+    current_stack.push(StackEntry::Num(n1 | n2));
     true
 }
 
-/// OP_XOR: Computes bitwise exclusive OR between the second-to-top and the top item on the stack. Returns a bool.
+/// OP_XOR: Computes bitwise XOR between the second-to-top and the top item on the stack. Returns a bool.
 ///
 /// Example: OP_XOR([n1, n2]) -> [n1 ^ n2]
 ///
@@ -961,28 +921,23 @@ pub fn op_or(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_xor(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let n2 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let (opcode, desc) = (OPXOR, OPXOR_DESC);
+    trace(opcode, desc);
+    let n2 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_XOR: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    let n1 = match current_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
+    let n1 = match current_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         _ => {
-            error!("OP_XOR: Item type is not correct");
+            error_type(opcode);
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1.bitxor(n2)));
+    current_stack.push(StackEntry::Num(n1 ^ n2));
     true
 }
 
@@ -995,15 +950,22 @@ pub fn op_xor(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_equal(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let x2 = current_stack.pop().unwrap();
-    let x1 = current_stack.pop().unwrap();
+    let (opcode, desc) = (OPEQUAL, OPEQUAL_DESC);
+    trace(opcode, desc);
+    let x2 = match current_stack.pop() {
+        Some(x) => x,
+        _ => {
+            error_num_items(opcode);
+            return false;
+        }
+    };
+    let x1 = match current_stack.pop() {
+        Some(x) => x,
+        _ => {
+            error_num_items(opcode);
+            return false;
+        }
+    };
     if x1 == x2 {
         current_stack.push(StackEntry::Num(ONE));
     } else {
@@ -1021,17 +983,24 @@ pub fn op_equal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// * `current_stack`  - mutable reference to the current stack
 pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
-    const OPCODE: &str = "OP_3DUP";
-    const DESC: &str = "Duplicates the top three items on the stack";
-    trace!("{}: {}", OPCODE, DESC);
-    if current_stack.len() < TWO {
-        error!("{}: {}", ERROR_NUM_ITEMS, OPCODE);
-        return false;
-    }
-    let x2 = current_stack.pop().unwrap();
-    let x1 = current_stack.pop().unwrap();
+    let (opcode, desc) = (OPEQUALVERIFY, OPEQUALVERIFY_DESC);
+    trace(opcode, desc);
+    let x2 = match current_stack.pop() {
+        Some(x) => x,
+        _ => {
+            error_num_items(opcode);
+            return false;
+        }
+    };
+    let x1 = match current_stack.pop() {
+        Some(x) => x,
+        _ => {
+            error_num_items(opcode);
+            return false;
+        }
+    };
     if x1 != x2 {
-        error!("OP_EQUALVERIFY: The two top items are not equal");
+        error_not_equal(opcode);
         return false;
     }
     true

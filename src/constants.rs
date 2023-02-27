@@ -172,11 +172,45 @@ pub const OPROT_DESC: &str = "Moves the third-to-top item to the top of the stac
 pub const OPSWAP_DESC: &str = "Swaps the top two items on the stack";
 pub const OPTUCK_DESC: &str = "Copies the top item before the second-to-top item on the stack";
 
+// splice
+pub const OPCAT: &str = "OP_CAT";
+pub const OPSUBSTR: &str = "OP_SUBSTR";
+pub const OPLEFT: &str = "OP_LEFT";
+pub const OPRIGHT: &str = "OP_RIGHT";
+pub const OPSIZE: &str = "OP_SIZE";
+
+pub const OPCAT_DESC: &str = "Concatenates the second-to-top item and the top item on the stack";
+pub const OPSUBSTR_DESC: &str = "Extracts a substring from the third-to-top item on the stack";
+pub const OPLEFT_DESC: &str = "Extracts a left substring from the second-to-top item on the stack";
+pub const OPRIGHT_DESC: &str =
+    "Extracts a right substring from the second-to-top item on the stack";
+pub const OPSIZE_DESC: &str = "Computes the size in bytes of the top item on the stack";
+
+// bitwise logic
+pub const OPINVERT: &str = "OP_INVERT";
+pub const OPAND: &str = "OP_AND";
+pub const OPOR: &str = "OP_OR";
+pub const OPXOR: &str = "OP_XOR";
+pub const OPEQUAL: &str = "OP_EQUAL";
+pub const OPEQUALVERIFY: &str = "OP_EQUALVERIFY";
+
+pub const OPINVERT_DESC: &str = "Computes bitwise NOT of the top item on the stack";
+pub const OPAND_DESC: &str =
+    "Computes bitwise AND between the second-to-top and the top item on the stack";
+pub const OPOR_DESC: &str =
+    "Computes bitwise OR between the second-to-top and the top item on the stack";
+pub const OPXOR_DESC: &str =
+    "Computes bitwise XOR between the second-to-top and the top item on the stack";
+pub const OPEQUAL_DESC: &str =
+    "Substitutes the top two items on the stack with ONE if they are equal, with ZERO otherwise";
+pub const OPEQUALVERIFY_DESC: &str = "Computes OP_EQUAL and OP_VERIFY in sequence";
+
 // error messages
 pub const ERROR_NUM_ITEMS: &str = "Not enough items on the stack";
 pub const ERROR_TYPE: &str = "Item type is not correct";
 pub const ERROR_INDEX: &str = "Index is out of bound";
-
+pub const ERROR_SIZE: &str = "Item size exceeds 520-byte limit";
+pub const ERROR_NOT_EQUAL: &str = "The two top items are not equal";
 
 // util functions
 pub fn trace(opcode: &str, desc: &str) {
@@ -193,4 +227,12 @@ pub fn error_type(opcode: &str) {
 
 pub fn error_index(opcode: &str) {
     error!("{}: {}", opcode, ERROR_INDEX)
+}
+
+pub fn error_size(opcode: &str) {
+    error!("{}: {}", opcode, ERROR_SIZE)
+}
+
+pub fn error_not_equal(opcode: &str) {
+    error!("{}: {}", opcode, ERROR_NOT_EQUAL)
 }
