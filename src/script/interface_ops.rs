@@ -23,11 +23,11 @@ use tracing::{debug, error, info, trace};
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_0(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP0, OP0_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(ZERO));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_0(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP0, OP0_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(ZERO));
     true
 }
 
@@ -37,11 +37,11 @@ pub fn op_0(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_1(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP1, OP1_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(ONE));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_1(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP1, OP1_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(ONE));
     true
 }
 
@@ -51,11 +51,11 @@ pub fn op_1(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_2(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP2, OP2_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(TWO));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_2(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP2, OP2_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(TWO));
     true
 }
 
@@ -65,11 +65,11 @@ pub fn op_2(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_3(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP3, OP3_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(THREE));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_3(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP3, OP3_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(THREE));
     true
 }
 
@@ -79,11 +79,11 @@ pub fn op_3(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_4(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP4, OP4_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(FOUR));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_4(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP4, OP4_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(FOUR));
     true
 }
 
@@ -93,11 +93,11 @@ pub fn op_4(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_5(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP5, OP5_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(FIVE));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_5(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP5, OP5_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(FIVE));
     true
 }
 
@@ -107,11 +107,11 @@ pub fn op_5(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_6(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP6, OP6_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(SIX));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_6(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP6, OP6_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(SIX));
     true
 }
 
@@ -121,11 +121,11 @@ pub fn op_6(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_7(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP7, OP7_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(SEVEN));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_7(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP7, OP7_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(SEVEN));
     true
 }
 
@@ -135,11 +135,11 @@ pub fn op_7(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_8(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP8, OP8_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(EIGHT));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_8(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP8, OP8_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(EIGHT));
     true
 }
 
@@ -149,11 +149,11 @@ pub fn op_8(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_9(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP9, OP9_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(NINE));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_9(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP9, OP9_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(NINE));
     true
 }
 
@@ -163,11 +163,11 @@ pub fn op_9(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_10(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP10, OP10_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(TEN));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_10(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP10, OP10_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(TEN));
     true
 }
 
@@ -177,11 +177,11 @@ pub fn op_10(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_11(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP11, OP11_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(ELEVEN));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_11(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP11, OP11_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(ELEVEN));
     true
 }
 
@@ -191,11 +191,11 @@ pub fn op_11(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_12(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP12, OP12_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(TWELVE));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_12(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP12, OP12_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(TWELVE));
     true
 }
 
@@ -205,11 +205,11 @@ pub fn op_12(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_13(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP13, OP13_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(THIRTEEN));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_13(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP13, OP13_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(THIRTEEN));
     true
 }
 
@@ -219,11 +219,11 @@ pub fn op_13(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_14(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP14, OP14_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(FOURTEEN));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_14(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP14, OP14_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(FOURTEEN));
     true
 }
 
@@ -233,11 +233,11 @@ pub fn op_14(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_15(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP15, OP15_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(FIFTEEN));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_15(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP15, OP15_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(FIFTEEN));
     true
 }
 
@@ -247,11 +247,11 @@ pub fn op_15(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_16(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP16, OP16_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(SIXTEEN));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_16(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP16, OP16_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(SIXTEEN));
     true
 }
 
@@ -263,22 +263,21 @@ pub fn op_16(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-/// * `current_alt_stack`  - mutable reference to the current alt stack
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+/// * `interpreter_alt_stack`  - mutable reference to the interpreter alt stack
 pub fn op_toaltstack(
-    current_stack: &mut Vec<StackEntry>,
-    current_alt_stack: &mut Vec<StackEntry>,
+    interpreter_stack: &mut Vec<StackEntry>,
+    interpreter_alt_stack: &mut Vec<StackEntry>,
 ) -> bool {
-    let (opcode, desc) = (OPTOALTSTACK, OPTOALTSTACK_DESC);
-    trace(opcode, desc);
-    let x = match current_stack.pop() {
-        Some(x) => x,
+    let (op, desc) = (OPTOALTSTACK, OPTOALTSTACK_DESC);
+    trace(op, desc);
+    match interpreter_stack.pop() {
+        Some(x) => interpreter_alt_stack.push(x),
         _ => {
-            error_num_items(opcode);
+            error_num_items(op);
             return false;
         }
     };
-    current_alt_stack.push(x);
     true
 }
 
@@ -288,22 +287,21 @@ pub fn op_toaltstack(
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-/// * `current_alt_stack`  - mutable reference to the current alt stack
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+/// * `interpreter_alt_stack`  - mutable reference to the interpreter alt stack
 pub fn op_fromaltstack(
-    current_stack: &mut Vec<StackEntry>,
-    current_alt_stack: &mut Vec<StackEntry>,
+    interpreter_stack: &mut Vec<StackEntry>,
+    interpreter_alt_stack: &mut Vec<StackEntry>,
 ) -> bool {
-    let (opcode, desc) = (OPFROMALTSTACK, OPFROMALTSTACK_DESC);
-    trace(opcode, desc);
-    let x = match current_alt_stack.pop() {
-        Some(x) => x,
+    let (op, desc) = (OPFROMALTSTACK, OPFROMALTSTACK_DESC);
+    trace(op, desc);
+    match interpreter_alt_stack.pop() {
+        Some(x) => interpreter_stack.push(x),
         _ => {
-            error_num_items(opcode);
+            error_num_items(op);
             return false;
         }
     };
-    current_stack.push(x);
     true
 }
 
@@ -313,16 +311,16 @@ pub fn op_fromaltstack(
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_2drop(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP2DROP, OP2DROP_DESC);
-    trace(opcode, desc);
-    let len = current_stack.len();
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_2drop(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP2DROP, OP2DROP_DESC);
+    trace(op, desc);
+    let len = interpreter_stack.len();
     if len < TWO {
-        error_num_items(opcode);
+        error_num_items(op);
         return false;
     }
-    current_stack.drain(len - TWO..);
+    interpreter_stack.drain(len - TWO..);
     true
 }
 
@@ -332,17 +330,17 @@ pub fn op_2drop(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_2dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP2DUP, OP2DUP_DESC);
-    trace(opcode, desc);
-    let len = current_stack.len();
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_2dup(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP2DUP, OP2DUP_DESC);
+    trace(op, desc);
+    let len = interpreter_stack.len();
     if len < TWO {
-        error_num_items(opcode);
+        error_num_items(op);
         return false;
     }
-    let last_two = current_stack[len - TWO..].to_vec();
-    current_stack.extend_from_slice(&last_two);
+    let last_two = interpreter_stack[len - TWO..].to_vec();
+    interpreter_stack.extend_from_slice(&last_two);
     true
 }
 
@@ -352,17 +350,17 @@ pub fn op_2dup(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_3dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP3DUP, OP3DUP_DESC);
-    trace(opcode, desc);
-    let len = current_stack.len();
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_3dup(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP3DUP, OP3DUP_DESC);
+    trace(op, desc);
+    let len = interpreter_stack.len();
     if len < THREE {
-        error_num_items(opcode);
+        error_num_items(op);
         return false;
     }
-    let last_three = current_stack[len - THREE..].to_vec();
-    current_stack.extend_from_slice(&last_three);
+    let last_three = interpreter_stack[len - THREE..].to_vec();
+    interpreter_stack.extend_from_slice(&last_three);
     true
 }
 
@@ -372,17 +370,17 @@ pub fn op_3dup(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_2over(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP2OVER, OP2OVER_DESC);
-    trace(opcode, desc);
-    let len = current_stack.len();
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_2over(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP2OVER, OP2OVER_DESC);
+    trace(op, desc);
+    let len = interpreter_stack.len();
     if len < FOUR {
-        error_num_items(opcode);
+        error_num_items(op);
         return false;
     }
-    let items = current_stack[len - FOUR..len - TWO].to_vec();
-    current_stack.extend_from_slice(&items);
+    let items = interpreter_stack[len - FOUR..len - TWO].to_vec();
+    interpreter_stack.extend_from_slice(&items);
     true
 }
 
@@ -392,18 +390,18 @@ pub fn op_2over(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_2rot(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP2ROT, OP2ROT_DESC);
-    trace(opcode, desc);
-    let len = current_stack.len();
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_2rot(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP2ROT, OP2ROT_DESC);
+    trace(op, desc);
+    let len = interpreter_stack.len();
     if len < SIX {
-        error_num_items(opcode);
+        error_num_items(op);
         return false;
     }
-    let items = current_stack[len - SIX..len - FOUR].to_vec();
-    current_stack.drain(len - SIX..len - FOUR);
-    current_stack.extend_from_slice(&items);
+    let items = interpreter_stack[len - SIX..len - FOUR].to_vec();
+    interpreter_stack.drain(len - SIX..len - FOUR);
+    interpreter_stack.extend_from_slice(&items);
     true
 }
 
@@ -413,17 +411,17 @@ pub fn op_2rot(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_2swap(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP2SWAP, OP2SWAP_DESC);
-    trace(opcode, desc);
-    let len = current_stack.len();
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_2swap(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP2SWAP, OP2SWAP_DESC);
+    trace(op, desc);
+    let len = interpreter_stack.len();
     if len < FOUR {
-        error_num_items(opcode);
+        error_num_items(op);
         return false;
     }
-    current_stack.swap(len - FOUR, len - TWO);
-    current_stack.swap(len - THREE, len - ONE);
+    interpreter_stack.swap(len - FOUR, len - TWO);
+    interpreter_stack.swap(len - THREE, len - ONE);
     true
 }
 
@@ -434,20 +432,21 @@ pub fn op_2swap(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_ifdup(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPIFDUP, OPIFDUP_DESC);
-    trace(opcode, desc);
-    let x = match current_stack.last().cloned() {
-        Some(x) => x,
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_ifdup(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPIFDUP, OPIFDUP_DESC);
+    trace(op, desc);
+    match interpreter_stack.last().cloned() {
+        Some(x) => {
+            if x != StackEntry::Num(ZERO) {
+                interpreter_stack.push(x);
+            }
+        }
         _ => {
-            error_num_items(opcode);
+            error_num_items(op);
             return false;
         }
     };
-    if x != StackEntry::Num(ZERO) {
-        current_stack.push(x);
-    }
     true
 }
 
@@ -457,11 +456,11 @@ pub fn op_ifdup(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_depth(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPDEPTH, OPDEPTH_DESC);
-    trace(opcode, desc);
-    current_stack.push(StackEntry::Num(current_stack.len()));
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_depth(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPDEPTH, OPDEPTH_DESC);
+    trace(op, desc);
+    interpreter_stack.push(StackEntry::Num(interpreter_stack.len()));
     true
 }
 
@@ -471,14 +470,14 @@ pub fn op_depth(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPDROP, OPDROP_DESC);
-    trace(opcode, desc);
-    match current_stack.pop() {
-        Some(x) => x,
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_drop(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPDROP, OPDROP_DESC);
+    trace(op, desc);
+    match interpreter_stack.pop() {
+        Some(x) => (),
         _ => {
-            error_num_items(opcode);
+            error_num_items(op);
             return false;
         }
     };
@@ -491,18 +490,17 @@ pub fn op_drop(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPDUP, OPDUP_DESC);
-    trace(opcode, desc);
-    let x = match current_stack.last().cloned() {
-        Some(x) => x,
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_dup(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPDUP, OPDUP_DESC);
+    trace(op, desc);
+    match interpreter_stack.last().cloned() {
+        Some(x) => interpreter_stack.push(x),
         _ => {
-            error_num_items(opcode);
+            error_num_items(op);
             return false;
         }
     };
-    current_stack.push(x);
     true
 }
 
@@ -512,16 +510,16 @@ pub fn op_dup(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_nip(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPNIP, OPNIP_DESC);
-    trace(opcode, desc);
-    let len = current_stack.len();
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_nip(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPNIP, OPNIP_DESC);
+    trace(op, desc);
+    let len = interpreter_stack.len();
     if len < TWO {
-        error_num_items(opcode);
+        error_num_items(op);
         return false;
     }
-    current_stack.remove(len - TWO);
+    interpreter_stack.remove(len - TWO);
     true
 }
 
@@ -531,17 +529,17 @@ pub fn op_nip(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_over(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPOVER, OPOVER_DESC);
-    trace(opcode, desc);
-    let len = current_stack.len();
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_over(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPOVER, OPOVER_DESC);
+    trace(op, desc);
+    let len = interpreter_stack.len();
     if len < TWO {
-        error_num_items(opcode);
+        error_num_items(op);
         return false;
     }
-    let x1 = current_stack[len - TWO].clone();
-    current_stack.push(x1);
+    let x1 = interpreter_stack[len - TWO].clone();
+    interpreter_stack.push(x1);
     true
 }
 
@@ -552,24 +550,24 @@ pub fn op_over(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPPICK, OPPICK_DESC);
-    trace(opcode, desc);
-    let n = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_pick(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPPICK, OPPICK_DESC);
+    trace(op, desc);
+    let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let len = current_stack.len();
+    let len = interpreter_stack.len();
     if n >= len {
-        error_index(opcode);
+        error_item_index(op);
         return false;
     }
-    let x = current_stack[len - ONE - n].clone();
-    current_stack.push(x);
+    let x = interpreter_stack[len - ONE - n].clone();
+    interpreter_stack.push(x);
     true
 }
 
@@ -580,25 +578,25 @@ pub fn op_pick(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_roll(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPROLL, OPROLL_DESC);
-    trace(opcode, desc);
-    let n = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_roll(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPROLL, OPROLL_DESC);
+    trace(op, desc);
+    let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let len = current_stack.len();
+    let len = interpreter_stack.len();
     if n >= len {
-        error_index(opcode);
+        error_item_index(op);
         return false;
     }
-    let x = current_stack[len - ONE - n].clone();
-    current_stack.remove(len - ONE - n);
-    current_stack.push(x);
+    let x = interpreter_stack[len - ONE - n].clone();
+    interpreter_stack.remove(len - ONE - n);
+    interpreter_stack.push(x);
     true
 }
 
@@ -608,17 +606,17 @@ pub fn op_roll(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_rot(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPROT, OPROT_DESC);
-    trace(opcode, desc);
-    let len = current_stack.len();
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_rot(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPROT, OPROT_DESC);
+    trace(op, desc);
+    let len = interpreter_stack.len();
     if len < THREE {
-        error_num_items(opcode);
+        error_num_items(op);
         return false;
     }
-    current_stack.swap(len - THREE, len - TWO);
-    current_stack.swap(len - TWO, len - ONE);
+    interpreter_stack.swap(len - THREE, len - TWO);
+    interpreter_stack.swap(len - TWO, len - ONE);
     true
 }
 
@@ -628,16 +626,16 @@ pub fn op_rot(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_swap(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPSWAP, OPSWAP_DESC);
-    trace(opcode, desc);
-    let len = current_stack.len();
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_swap(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPSWAP, OPSWAP_DESC);
+    trace(op, desc);
+    let len = interpreter_stack.len();
     if len < TWO {
-        error_num_items(opcode);
+        error_num_items(op);
         return false;
     }
-    current_stack.swap(len - TWO, len - ONE);
+    interpreter_stack.swap(len - TWO, len - ONE);
     true
 }
 
@@ -647,17 +645,17 @@ pub fn op_swap(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_tuck(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPTUCK, OPTUCK_DESC);
-    trace(opcode, desc);
-    let len = current_stack.len();
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_tuck(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPTUCK, OPTUCK_DESC);
+    trace(op, desc);
+    let len = interpreter_stack.len();
     if len < TWO {
-        error_num_items(opcode);
+        error_num_items(op);
         return false;
     }
-    let x2 = current_stack[len - ONE].clone();
-    current_stack.insert(len - TWO, x2);
+    let x2 = interpreter_stack[len - ONE].clone();
+    interpreter_stack.insert(len - TWO, x2);
     true
 }
 
@@ -669,30 +667,30 @@ pub fn op_tuck(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_cat(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPCAT, OPCAT_DESC);
-    trace(opcode, desc);
-    let s2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_cat(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPCAT, OPCAT_DESC);
+    trace(op, desc);
+    let s2 = match interpreter_stack.pop() {
         Some(StackEntry::Bytes(s)) => s,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let s1 = match current_stack.pop() {
+    let s1 = match interpreter_stack.pop() {
         Some(StackEntry::Bytes(s)) => s,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    if s1.len() + s2.len() > MAX_SCRIPT_ELEMENT_SIZE as usize {
-        error_size(opcode);
+    if s1.len() + s2.len() > MAX_SCRIPT_ITEM_SIZE as usize {
+        error_item_size(op);
         return false;
     }
     let cat = [s1, s2].join("");
-    current_stack.push(StackEntry::Bytes(cat));
+    interpreter_stack.push(StackEntry::Bytes(cat));
     true
 }
 
@@ -702,45 +700,45 @@ pub fn op_cat(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_substr(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPSUBSTR, OPSUBSTR_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_substr(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPSUBSTR, OPSUBSTR_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let s = match current_stack.pop() {
+    let s = match interpreter_stack.pop() {
         Some(StackEntry::Bytes(s)) => s,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     if n1 >= s.len() {
-        error_index(opcode);
+        error_item_index(op);
         return false;
     }
     if n2 > s.len() {
-        error_index(opcode);
+        error_item_index(op);
         return false;
     }
     if n1 + n2 > s.len() {
-        error_index(opcode);
+        error_item_index(op);
         return false;
     }
     let substr = s[n1..n1 + n2].to_string();
-    current_stack.push(StackEntry::Bytes(substr));
+    interpreter_stack.push(StackEntry::Bytes(substr));
     true
 }
 
@@ -751,29 +749,29 @@ pub fn op_substr(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_left(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPLEFT, OPLEFT_DESC);
-    trace(opcode, desc);
-    let n = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_left(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPLEFT, OPLEFT_DESC);
+    trace(op, desc);
+    let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let s = match current_stack.pop() {
+    let s = match interpreter_stack.pop() {
         Some(StackEntry::Bytes(s)) => s,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     if n >= s.len() {
-        current_stack.push(StackEntry::Bytes(s));
+        interpreter_stack.push(StackEntry::Bytes(s));
     } else {
         let left = s[..n].to_string();
-        current_stack.push(StackEntry::Bytes(left));
+        interpreter_stack.push(StackEntry::Bytes(left));
     }
     true
 }
@@ -785,29 +783,29 @@ pub fn op_left(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_right(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPRIGHT, OPRIGHT_DESC);
-    trace(opcode, desc);
-    let n = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_right(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPRIGHT, OPRIGHT_DESC);
+    trace(op, desc);
+    let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let s = match current_stack.pop() {
+    let s = match interpreter_stack.pop() {
         Some(StackEntry::Bytes(s)) => s,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     if n >= s.len() {
-        current_stack.push(StackEntry::Bytes("".to_string()));
+        interpreter_stack.push(StackEntry::Bytes("".to_string()));
     } else {
         let right = s[n..].to_string();
-        current_stack.push(StackEntry::Bytes(right));
+        interpreter_stack.push(StackEntry::Bytes(right));
     }
     true
 }
@@ -818,18 +816,18 @@ pub fn op_right(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_size(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPSIZE, OPSIZE_DESC);
-    trace(opcode, desc);
-    let s = match current_stack.last().cloned() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_size(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPSIZE, OPSIZE_DESC);
+    trace(op, desc);
+    let s = match interpreter_stack.last().cloned() {
         Some(StackEntry::Bytes(s)) => s,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(s.len()));
+    interpreter_stack.push(StackEntry::Num(s.len()));
     true
 }
 
@@ -841,18 +839,18 @@ pub fn op_size(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_invert(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPINVERT, OPINVERT_DESC);
-    trace(opcode, desc);
-    let n = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_invert(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPINVERT, OPINVERT_DESC);
+    trace(op, desc);
+    let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(!n));
+    interpreter_stack.push(StackEntry::Num(!n));
     true
 }
 
@@ -862,25 +860,25 @@ pub fn op_invert(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_and(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPAND, OPAND_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_and(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPAND, OPAND_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1 & n2));
+    interpreter_stack.push(StackEntry::Num(n1 & n2));
     true
 }
 
@@ -890,25 +888,25 @@ pub fn op_and(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_or(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPOR, OPOR_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_or(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPOR, OPOR_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1 | n2));
+    interpreter_stack.push(StackEntry::Num(n1 | n2));
     true
 }
 
@@ -918,25 +916,25 @@ pub fn op_or(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_xor(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPXOR, OPXOR_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_xor(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPXOR, OPXOR_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1 ^ n2));
+    interpreter_stack.push(StackEntry::Num(n1 ^ n2));
     true
 }
 
@@ -947,28 +945,28 @@ pub fn op_xor(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_equal(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPEQUAL, OPEQUAL_DESC);
-    trace(opcode, desc);
-    let x2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_equal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPEQUAL, OPEQUAL_DESC);
+    trace(op, desc);
+    let x2 = match interpreter_stack.pop() {
         Some(x) => x,
         _ => {
-            error_num_items(opcode);
+            error_num_items(op);
             return false;
         }
     };
-    let x1 = match current_stack.pop() {
+    let x1 = match interpreter_stack.pop() {
         Some(x) => x,
         _ => {
-            error_num_items(opcode);
+            error_num_items(op);
             return false;
         }
     };
     if x1 == x2 {
-        current_stack.push(StackEntry::Num(ONE));
+        interpreter_stack.push(StackEntry::Num(ONE));
     } else {
-        current_stack.push(StackEntry::Num(ZERO));
+        interpreter_stack.push(StackEntry::Num(ZERO));
     }
     true
 }
@@ -980,26 +978,26 @@ pub fn op_equal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPEQUALVERIFY, OPEQUALVERIFY_DESC);
-    trace(opcode, desc);
-    let x2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_equalverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPEQUALVERIFY, OPEQUALVERIFY_DESC);
+    trace(op, desc);
+    let x2 = match interpreter_stack.pop() {
         Some(x) => x,
         _ => {
-            error_num_items(opcode);
+            error_num_items(op);
             return false;
         }
     };
-    let x1 = match current_stack.pop() {
+    let x1 = match interpreter_stack.pop() {
         Some(x) => x,
         _ => {
-            error_num_items(opcode);
+            error_num_items(op);
             return false;
         }
     };
     if x1 != x2 {
-        error_not_equal(opcode);
+        error_not_equal_items(op);
         return false;
     }
     true
@@ -1013,21 +1011,21 @@ pub fn op_equalverify(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_1add(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP1ADD, OP1ADD_DESC);
-    trace(opcode, desc);
-    let n = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_1add(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP1ADD, OP1ADD_DESC);
+    trace(op, desc);
+    let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     match n.checked_add(ONE) {
-        Some(n) => current_stack.push(StackEntry::Num(n)),
+        Some(n) => interpreter_stack.push(StackEntry::Num(n)),
         _ => {
-            error_overflow(opcode);
+            error_overflow(op);
             return false;
         }
     }
@@ -1040,21 +1038,21 @@ pub fn op_1add(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_1sub(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP1SUB, OP1SUB_DESC);
-    trace(opcode, desc);
-    let n = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_1sub(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP1SUB, OP1SUB_DESC);
+    trace(op, desc);
+    let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     match n.checked_sub(ONE) {
-        Some(n) => current_stack.push(StackEntry::Num(n)),
+        Some(n) => interpreter_stack.push(StackEntry::Num(n)),
         _ => {
-            error_overflow(opcode);
+            error_overflow(op);
             return false;
         }
     }
@@ -1067,21 +1065,21 @@ pub fn op_1sub(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_2mul(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP2MUL, OP2MUL_DESC);
-    trace(opcode, desc);
-    let n = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_2mul(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP2MUL, OP2MUL_DESC);
+    trace(op, desc);
+    let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     match n.checked_mul(TWO) {
-        Some(n) => current_stack.push(StackEntry::Num(n)),
+        Some(n) => interpreter_stack.push(StackEntry::Num(n)),
         _ => {
-            error_overflow(opcode);
+            error_overflow(op);
             return false;
         }
     }
@@ -1094,18 +1092,18 @@ pub fn op_2mul(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP2DIV, OP2DIV_DESC);
-    trace(opcode, desc);
-    let n = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_2div(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP2DIV, OP2DIV_DESC);
+    trace(op, desc);
+    let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n / TWO));
+    interpreter_stack.push(StackEntry::Num(n / TWO));
     true
 }
 
@@ -1117,21 +1115,21 @@ pub fn op_2div(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPNOT, OPNOT_DESC);
-    trace(opcode, desc);
-    let n = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_not(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPNOT, OPNOT_DESC);
+    trace(op, desc);
+    let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     if n == ZERO {
-        current_stack.push(StackEntry::Num(ONE));
+        interpreter_stack.push(StackEntry::Num(ONE));
     } else {
-        current_stack.push(StackEntry::Num(ZERO));
+        interpreter_stack.push(StackEntry::Num(ZERO));
     }
     true
 }
@@ -1144,21 +1142,21 @@ pub fn op_not(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP0NOTEQUAL, OP0NOTEQUAL_DESC);
-    trace(opcode, desc);
-    let n = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_0notequal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP0NOTEQUAL, OP0NOTEQUAL_DESC);
+    trace(op, desc);
+    let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     if n != ZERO {
-        current_stack.push(StackEntry::Num(ONE));
+        interpreter_stack.push(StackEntry::Num(ONE));
     } else {
-        current_stack.push(StackEntry::Num(ZERO));
+        interpreter_stack.push(StackEntry::Num(ZERO));
     }
     true
 }
@@ -1169,28 +1167,28 @@ pub fn op_0notequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPADD, OPADD_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_add(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPADD, OPADD_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     match n1.checked_add(n2) {
-        Some(n) => current_stack.push(StackEntry::Num(n)),
+        Some(n) => interpreter_stack.push(StackEntry::Num(n)),
         _ => {
-            error_overflow(opcode);
+            error_overflow(op);
             return false;
         }
     }
@@ -1203,28 +1201,28 @@ pub fn op_add(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_sub(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPSUB, OPSUB_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_sub(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPSUB, OPSUB_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     match n1.checked_sub(n2) {
-        Some(n) => current_stack.push(StackEntry::Num(n)),
+        Some(n) => interpreter_stack.push(StackEntry::Num(n)),
         _ => {
-            error_overflow(opcode);
+            error_overflow(op);
             return false;
         }
     }
@@ -1237,28 +1235,28 @@ pub fn op_sub(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_mul(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPMUL, OPMUL_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_mul(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPMUL, OPMUL_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     match n1.checked_mul(n2) {
-        Some(n) => current_stack.push(StackEntry::Num(n)),
+        Some(n) => interpreter_stack.push(StackEntry::Num(n)),
         _ => {
-            error_overflow(opcode);
+            error_overflow(op);
             return false;
         }
     }
@@ -1271,28 +1269,28 @@ pub fn op_mul(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_div(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPDIV, OPDIV_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_div(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPDIV, OPDIV_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     match n1.checked_div(n2) {
-        Some(n) => current_stack.push(StackEntry::Num(n)),
+        Some(n) => interpreter_stack.push(StackEntry::Num(n)),
         _ => {
-            error_div_zero(opcode);
+            error_div_zero(op);
             return false;
         }
     }
@@ -1305,28 +1303,28 @@ pub fn op_div(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_mod(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPMOD, OPMOD_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_mod(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPMOD, OPMOD_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     match n1.checked_rem(n2) {
-        Some(n) => current_stack.push(StackEntry::Num(n)),
+        Some(n) => interpreter_stack.push(StackEntry::Num(n)),
         _ => {
-            error_div_zero(opcode);
+            error_div_zero(op);
             return false;
         }
     }
@@ -1339,28 +1337,28 @@ pub fn op_mod(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_lshift(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPLSHIFT, OPLSHIFT_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_lshift(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPLSHIFT, OPLSHIFT_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     match n1.checked_shl(n2 as u32) {
-        Some(n) => current_stack.push(StackEntry::Num(n)),
+        Some(n) => interpreter_stack.push(StackEntry::Num(n)),
         _ => {
-            error_overflow(opcode);
+            error_overflow(op);
             return false;
         }
     }
@@ -1373,28 +1371,28 @@ pub fn op_lshift(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_rshift(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPRIGHT, OPRIGHT_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_rshift(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPRIGHT, OPRIGHT_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     match n1.checked_shr(n2 as u32) {
-        Some(n) => current_stack.push(StackEntry::Num(n)),
+        Some(n) => interpreter_stack.push(StackEntry::Num(n)),
         _ => {
-            error_overflow(opcode);
+            error_overflow(op);
             return false;
         }
     }
@@ -1408,28 +1406,28 @@ pub fn op_rshift(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_booland(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPBOOLAND, OPBOOLAND_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_booland(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPBOOLAND, OPBOOLAND_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     if n1 != ZERO && n2 != ZERO {
-        current_stack.push(StackEntry::Num(ONE));
+        interpreter_stack.push(StackEntry::Num(ONE));
     } else {
-        current_stack.push(StackEntry::Num(ZERO));
+        interpreter_stack.push(StackEntry::Num(ZERO));
     }
     true
 }
@@ -1441,28 +1439,28 @@ pub fn op_booland(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_boolor(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPBOOLOR, OPBOOLOR_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_boolor(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPBOOLOR, OPBOOLOR_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     if n1 != ZERO || n2 != ZERO {
-        current_stack.push(StackEntry::Num(ONE));
+        interpreter_stack.push(StackEntry::Num(ONE));
     } else {
-        current_stack.push(StackEntry::Num(ZERO));
+        interpreter_stack.push(StackEntry::Num(ZERO));
     }
     true
 }
@@ -1474,28 +1472,28 @@ pub fn op_boolor(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_numequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPNUMEQUAL, OPNUMEQUAL_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_numequal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPNUMEQUAL, OPNUMEQUAL_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     if n1 == n2 {
-        current_stack.push(StackEntry::Num(ONE));
+        interpreter_stack.push(StackEntry::Num(ONE));
     } else {
-        current_stack.push(StackEntry::Num(ZERO));
+        interpreter_stack.push(StackEntry::Num(ZERO));
     }
     true
 }
@@ -1507,26 +1505,26 @@ pub fn op_numequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_numequalverify(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPNUMEQUALVERIFY, OPNUMEQUALVERIFY_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_numequalverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPNUMEQUALVERIFY, OPNUMEQUALVERIFY_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     if n1 != n2 {
-        error_not_equal(opcode);
+        error_not_equal_items(op);
         return false;
     }
     true
@@ -1539,28 +1537,28 @@ pub fn op_numequalverify(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_numnotequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPNUMNOTEQUAL, OPNUMNOTEQUAL_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_numnotequal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPNUMNOTEQUAL, OPNUMNOTEQUAL_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     if n1 != n2 {
-        current_stack.push(StackEntry::Num(ONE));
+        interpreter_stack.push(StackEntry::Num(ONE));
     } else {
-        current_stack.push(StackEntry::Num(ZERO));
+        interpreter_stack.push(StackEntry::Num(ZERO));
     }
     true
 }
@@ -1572,28 +1570,28 @@ pub fn op_numnotequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_lessthan(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPLESSTHAN, OPLESSTHAN_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_lessthan(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPLESSTHAN, OPLESSTHAN_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     if n1 < n2 {
-        current_stack.push(StackEntry::Num(ONE));
+        interpreter_stack.push(StackEntry::Num(ONE));
     } else {
-        current_stack.push(StackEntry::Num(ZERO));
+        interpreter_stack.push(StackEntry::Num(ZERO));
     }
     true
 }
@@ -1605,28 +1603,28 @@ pub fn op_lessthan(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_greaterthan(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OP0NOTEQUAL, OP0NOTEQUAL_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_greaterthan(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OP0NOTEQUAL, OP0NOTEQUAL_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     if n1 > n2 {
-        current_stack.push(StackEntry::Num(ONE));
+        interpreter_stack.push(StackEntry::Num(ONE));
     } else {
-        current_stack.push(StackEntry::Num(ZERO));
+        interpreter_stack.push(StackEntry::Num(ZERO));
     }
     true
 }
@@ -1638,28 +1636,28 @@ pub fn op_greaterthan(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_lessthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPLESSTHANOREQUAL, OPLESSTHANOREQUAL_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_lessthanorequal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPLESSTHANOREQUAL, OPLESSTHANOREQUAL_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     if n1 <= n2 {
-        current_stack.push(StackEntry::Num(ONE));
+        interpreter_stack.push(StackEntry::Num(ONE));
     } else {
-        current_stack.push(StackEntry::Num(ZERO));
+        interpreter_stack.push(StackEntry::Num(ZERO));
     }
     true
 }
@@ -1671,28 +1669,28 @@ pub fn op_lessthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_greaterthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPGREATERTHANOREQUAL, OPGREATERTHANOREQUAL_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_greaterthanorequal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPGREATERTHANOREQUAL, OPGREATERTHANOREQUAL_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     if n1 >= n2 {
-        current_stack.push(StackEntry::Num(ONE));
+        interpreter_stack.push(StackEntry::Num(ONE));
     } else {
-        current_stack.push(StackEntry::Num(ZERO));
+        interpreter_stack.push(StackEntry::Num(ZERO));
     }
     true
 }
@@ -1704,25 +1702,25 @@ pub fn op_greaterthanorequal(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_min(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPMIN, OPMIN_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_min(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPMIN, OPMIN_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1.min(n2)));
+    interpreter_stack.push(StackEntry::Num(n1.min(n2)));
     true
 }
 
@@ -1733,25 +1731,25 @@ pub fn op_min(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_max(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPMAX, OPMAX_DESC);
-    trace(opcode, desc);
-    let n2 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_max(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPMAX, OPMAX_DESC);
+    trace(op, desc);
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    current_stack.push(StackEntry::Num(n1.max(n2)));
+    interpreter_stack.push(StackEntry::Num(n1.max(n2)));
     true
 }
 
@@ -1763,56 +1761,56 @@ pub fn op_max(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_within(current_stack: &mut Vec<StackEntry>) -> bool {
-    let (opcode, desc) = (OPWITHIN, OPWITHIN_DESC);
-    trace(opcode, desc);
-    let n3 = match current_stack.pop() {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_within(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPWITHIN, OPWITHIN_DESC);
+    trace(op, desc);
+    let n3 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n2 = match current_stack.pop() {
+    let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
-    let n1 = match current_stack.pop() {
+    let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
         _ => {
-            error_type(opcode);
+            error_item_type(op);
             return false;
         }
     };
     if n1 >= n2 && n1 < n3 {
-        current_stack.push(StackEntry::Num(ONE));
+        interpreter_stack.push(StackEntry::Num(ONE));
     } else {
-        current_stack.push(StackEntry::Num(ZERO));
+        interpreter_stack.push(StackEntry::Num(ZERO));
     }
     true
 }
 
 /*---- CRYPTO OPS ----*/
 
-/// Handles the execution for the hash256 opcode. Returns a bool.
+/// Handles the execution for the hash256 op. Returns a bool.
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_hash256(current_stack: &mut Vec<StackEntry>, address_version: Option<u64>) -> bool {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_hash256(interpreter_stack: &mut Vec<StackEntry>, address_version: Option<u64>) -> bool {
     trace!("OP_HASH256: creating address from public key and address version");
-    let last_entry = current_stack.pop().unwrap();
+    let last_entry = interpreter_stack.pop().unwrap();
     let pub_key = match last_entry {
         StackEntry::PubKey(v) => v,
         _ => return false,
     };
 
     let new_entry = construct_address_for(&pub_key, address_version);
-    current_stack.push(StackEntry::PubKeyHash(new_entry));
+    interpreter_stack.push(StackEntry::PubKeyHash(new_entry));
     true
 }
 
@@ -1820,20 +1818,20 @@ pub fn op_hash256(current_stack: &mut Vec<StackEntry>, address_version: Option<u
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_checksig(current_stack: &mut Vec<StackEntry>) -> bool {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_checksig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace!("Checking p2pkh signature");
-    let pub_key: PublicKey = match current_stack.pop().unwrap() {
+    let pub_key: PublicKey = match interpreter_stack.pop().unwrap() {
         StackEntry::PubKey(pub_key) => pub_key,
         _ => panic!("Public key not present to verify transaction"),
     };
 
-    let sig: Signature = match current_stack.pop().unwrap() {
+    let sig: Signature = match interpreter_stack.pop().unwrap() {
         StackEntry::Signature(sig) => sig,
         _ => panic!("Signature not present to verify transaction"),
     };
 
-    let check_data = match current_stack.pop().unwrap() {
+    let check_data = match interpreter_stack.pop().unwrap() {
         StackEntry::Bytes(check_data) => check_data,
         _ => panic!("Check data bytes not present to verify transaction"),
     };
@@ -1849,20 +1847,20 @@ pub fn op_checksig(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_checkmultisigmem(current_stack: &mut Vec<StackEntry>) -> bool {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_checkmultisigmem(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace!("Checking signature matches public key for multisig member");
-    let pub_key: PublicKey = match current_stack.pop().unwrap() {
+    let pub_key: PublicKey = match interpreter_stack.pop().unwrap() {
         StackEntry::PubKey(pub_key) => pub_key,
         _ => panic!("Public key not present to verify transaction"),
     };
 
-    let sig: Signature = match current_stack.pop().unwrap() {
+    let sig: Signature = match interpreter_stack.pop().unwrap() {
         StackEntry::Signature(sig) => sig,
         _ => panic!("Signature not present to verify transaction"),
     };
 
-    let check_data = match current_stack.pop().unwrap() {
+    let check_data = match interpreter_stack.pop().unwrap() {
         StackEntry::Bytes(check_data) => check_data,
         _ => panic!("Check data bytes not present to verify transaction"),
     };
@@ -1878,18 +1876,18 @@ pub fn op_checkmultisigmem(current_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `current_stack`  - mutable reference to the current stack
-pub fn op_multisig(current_stack: &mut Vec<StackEntry>) -> bool {
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_multisig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     let mut pub_keys = Vec::new();
     let mut signatures = Vec::new();
     let mut last_val = StackEntry::Op(OpCodes::OP_0);
-    let n = match current_stack.pop().unwrap() {
+    let n = match interpreter_stack.pop().unwrap() {
         StackEntry::Num(n) => n,
         _ => panic!("No n value of keys for multisig present"),
     };
 
-    while let StackEntry::PubKey(_pk) = current_stack[current_stack.len() - 1] {
-        let next_key = current_stack.pop();
+    while let StackEntry::PubKey(_pk) = interpreter_stack[interpreter_stack.len() - 1] {
+        let next_key = interpreter_stack.pop();
 
         if let Some(StackEntry::PubKey(pub_key)) = next_key {
             pub_keys.push(pub_key);
@@ -1902,7 +1900,7 @@ pub fn op_multisig(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
 
-    let m = match current_stack.pop().unwrap() {
+    let m = match interpreter_stack.pop().unwrap() {
         StackEntry::Num(m) => m,
         _ => panic!("No m value of keys for multisig present"),
     };
@@ -1913,15 +1911,15 @@ pub fn op_multisig(current_stack: &mut Vec<StackEntry>) -> bool {
         return false;
     }
 
-    while let StackEntry::Signature(_sig) = current_stack[current_stack.len() - 1] {
-        let next_key = current_stack.pop();
+    while let StackEntry::Signature(_sig) = interpreter_stack[interpreter_stack.len() - 1] {
+        let next_key = interpreter_stack.pop();
 
         if let Some(StackEntry::Signature(sig)) = next_key {
             signatures.push(sig);
         }
     }
 
-    let check_data = match current_stack.pop().unwrap() {
+    let check_data = match interpreter_stack.pop().unwrap() {
         StackEntry::Bytes(check_data) => check_data,
         _ => panic!("Check data for validation not present"),
     };
@@ -1960,33 +1958,6 @@ fn match_on_multisig_to_pubkey(
     counter >= m
 }
 
-/// Pushes a new entry to the current stack. Returns a bool.
-///
-/// ### Arguments
-///
-/// * `stack_entry`  - The current entry on the stack
-/// * `current_stack`  - mutable reference to the current stack
-pub fn push_entry_to_stack(stack_entry: StackEntry, current_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("Adding constant to stack: {:?}", stack_entry);
-    current_stack.push(stack_entry);
-    true
-}
-
-/// Pushes a new entry to the current stack. Returns a bool.
-///
-/// ### Arguments
-///
-/// * `stack_entry`  - reference to the current entry on the stack
-/// * `current_stack`  - mutable reference to the current stack
-pub fn push_entry_to_stack_ref(
-    stack_entry: &StackEntry,
-    current_stack: &mut Vec<StackEntry>,
-) -> bool {
-    trace!("Adding constant to stack: {:?}", stack_entry);
-    current_stack.push(stack_entry.clone());
-    true
-}
-
 /*---- TESTS ----*/
 
 #[cfg(test)]
@@ -1999,170 +1970,170 @@ mod tests {
     /// Test OP_0
     fn test_0() {
         /// op_0([]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_0(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_0(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_1
     fn test_1() {
         /// op_1([]) -> [1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_1(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_1(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_2
     fn test_2() {
         /// op_2([]) -> [2]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(2)];
-        op_2(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_2(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_3
     fn test_3() {
         /// op_3([]) -> [3]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(3)];
-        op_3(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_3(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_4
     fn test_4() {
         /// op_4([]) -> [4]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(4)];
-        op_4(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_4(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_5
     fn test_5() {
         /// op_5([]) -> [5]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(5)];
-        op_5(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_5(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_6
     fn test_6() {
         /// op_6([]) -> [6]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(6)];
-        op_6(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_6(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_7
     fn test_7() {
         /// op_7([]) -> [7]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(7)];
-        op_7(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_7(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_8
     fn test_8() {
         /// op_8([]) -> [8]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(8)];
-        op_8(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_8(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_9
     fn test_9() {
         /// op_9([]) -> [9]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(9)];
-        op_9(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_9(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_10
     fn test_10() {
         /// op_10([]) -> [10]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(10)];
-        op_10(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_10(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_11
     fn test_11() {
         /// op_11([]) -> [11]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(11)];
-        op_11(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_11(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_12
     fn test_12() {
         /// op_12([]) -> [12]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(12)];
-        op_12(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_12(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_13
     fn test_13() {
         /// op_13([]) -> [13]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(13)];
-        op_13(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_13(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_14
     fn test_14() {
         /// op_14([]) -> [14]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(14)];
-        op_14(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_14(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_15
     fn test_15() {
         /// op_15([]) -> [15]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(15)];
-        op_15(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_15(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_16
     fn test_16() {
         /// op_16([]) -> [16]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(16)];
-        op_16(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_16(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     /*---- STACK OPS ----*/
@@ -2171,17 +2142,17 @@ mod tests {
     /// Test OP_TOALTSTACK
     fn test_toaltstack() {
         /// op_toaltstack([1], []) -> [], [1]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let mut current_alt_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let mut interpreter_alt_stack: Vec<StackEntry> = vec![];
         let mut v1: Vec<StackEntry> = vec![];
         let mut v2: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_toaltstack(&mut current_stack, &mut current_alt_stack);
-        assert_eq!(current_stack, v1);
-        assert_eq!(current_alt_stack, v2);
+        op_toaltstack(&mut interpreter_stack, &mut interpreter_alt_stack);
+        assert_eq!(interpreter_stack, v1);
+        assert_eq!(interpreter_alt_stack, v2);
         /// op_toaltstack([], []) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        let mut current_alt_stack: Vec<StackEntry> = vec![];
-        let b = op_toaltstack(&mut current_stack, &mut current_alt_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_alt_stack: Vec<StackEntry> = vec![];
+        let b = op_toaltstack(&mut interpreter_stack, &mut interpreter_alt_stack);
         assert!(!b)
     }
 
@@ -2189,17 +2160,17 @@ mod tests {
     /// Test OP_FROMALTSTACK
     fn test_fromaltstack() {
         /// op_fromaltstack([], [1]) -> [1], []
-        let mut current_stack: Vec<StackEntry> = vec![];
-        let mut current_alt_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_alt_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let mut v1: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let mut v2: Vec<StackEntry> = vec![];
-        op_fromaltstack(&mut current_stack, &mut current_alt_stack);
-        assert_eq!(current_stack, v1);
-        assert_eq!(current_alt_stack, v2);
+        op_fromaltstack(&mut interpreter_stack, &mut interpreter_alt_stack);
+        assert_eq!(interpreter_stack, v1);
+        assert_eq!(interpreter_alt_stack, v2);
         /// op_fromaltstack([], []) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        let mut current_alt_stack: Vec<StackEntry> = vec![];
-        let b = op_fromaltstack(&mut current_stack, &mut current_alt_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_alt_stack: Vec<StackEntry> = vec![];
+        let b = op_fromaltstack(&mut interpreter_stack, &mut interpreter_alt_stack);
         assert!(!b)
     }
 
@@ -2207,16 +2178,16 @@ mod tests {
     /// Test OP_2DROP
     fn test_2drop() {
         /// op_2drop([1,2]) -> []
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![];
-        op_2drop(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_2drop(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_2drop([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_2drop(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_2drop(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2224,9 +2195,9 @@ mod tests {
     /// Test OP_2DUP
     fn test_2dup() {
         /// op_2dup([1,2]) -> [1,2,1,2]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![];
         for i in 1..=2 {
@@ -2235,11 +2206,11 @@ mod tests {
         for i in 1..=2 {
             v.push(StackEntry::Num(i));
         }
-        op_2dup(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_2dup(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_2dup([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_2dup(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_2dup(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2247,9 +2218,9 @@ mod tests {
     /// Test OP_3DUP
     fn test_3dup() {
         /// op_3dup([1,2,3]) -> [1,2,3,1,2,3]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=3 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![];
         for i in 1..=3 {
@@ -2258,14 +2229,14 @@ mod tests {
         for i in 1..=3 {
             v.push(StackEntry::Num(i));
         }
-        op_3dup(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_3dup(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_3dup([1,2]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
-        let b = op_3dup(&mut current_stack);
+        let b = op_3dup(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2273,9 +2244,9 @@ mod tests {
     /// Test OP_2OVER
     fn test_2over() {
         /// op_2over([1,2,3,4]) -> [1,2,3,4,1,2]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=4 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![];
         for i in 1..=4 {
@@ -2284,14 +2255,14 @@ mod tests {
         for i in 1..=2 {
             v.push(StackEntry::Num(i));
         }
-        op_2over(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_2over(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_2over([1,2,3]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=3 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
-        let b = op_2over(&mut current_stack);
+        let b = op_2over(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2299,9 +2270,9 @@ mod tests {
     /// Test OP_2ROT
     fn test_2rot() {
         /// op_2rot([1,2,3,4,5,6]) -> [3,4,5,6,1,2]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=6 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![];
         for i in 3..=6 {
@@ -2310,14 +2281,14 @@ mod tests {
         for i in 1..=2 {
             v.push(StackEntry::Num(i));
         }
-        op_2rot(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_2rot(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_2rot([1,2,3,4,5]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=5 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
-        let b = op_2rot(&mut current_stack);
+        let b = op_2rot(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2325,9 +2296,9 @@ mod tests {
     /// Test OP_2SWAP
     fn test_2swap() {
         /// op_2swap([1,2,3,4]) -> [3,4,1,2]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=4 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![];
         for i in 3..=4 {
@@ -2336,14 +2307,14 @@ mod tests {
         for i in 1..=2 {
             v.push(StackEntry::Num(i));
         }
-        op_2swap(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_2swap(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_2swap([1,2,3]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=3 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
-        let b = op_2swap(&mut current_stack);
+        let b = op_2swap(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2351,21 +2322,21 @@ mod tests {
     /// Test OP_IFDUP
     fn test_ifdup() {
         /// op_ifdup([1]) -> [1,1]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let mut v: Vec<StackEntry> = vec![];
         for i in 1..=2 {
             v.push(StackEntry::Num(1));
         }
-        op_ifdup(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_ifdup(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_ifdup([0]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(0)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(0)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_ifdup(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_ifdup(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_ifdup([]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        let b = op_ifdup(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_ifdup(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2373,35 +2344,35 @@ mod tests {
     /// Test OP_DEPTH
     fn test_depth() {
         /// op_depth([1,1,1,1]) -> [1,1,1,1,4]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=4 {
-            current_stack.push(StackEntry::Num(1));
+            interpreter_stack.push(StackEntry::Num(1));
         }
         let mut v: Vec<StackEntry> = vec![];
         for i in 1..=4 {
             v.push(StackEntry::Num(1));
         }
         v.push(StackEntry::Num(4));
-        op_depth(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_depth(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_depth([]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_depth(&mut current_stack);
-        assert_eq!(current_stack, v)
+        op_depth(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
     }
 
     #[test]
     /// Test OP_DROP
     fn test_drop() {
         /// op_drop([1]) -> []
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let mut v: Vec<StackEntry> = vec![];
-        op_drop(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_drop(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_drop([]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        let b = op_drop(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_drop(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2409,16 +2380,16 @@ mod tests {
     /// Test OP_DUP
     fn test_dup() {
         /// op_dup([1]) -> [1,1]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let mut v: Vec<StackEntry> = vec![];
         for i in 1..=2 {
             v.push(StackEntry::Num(1));
         }
-        op_dup(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_dup(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_dup([]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        let b = op_dup(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_dup(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2426,16 +2397,16 @@ mod tests {
     /// Test OP_NIP
     fn test_nip() {
         /// op_nip([1,2]) -> [2]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(2)];
-        op_nip(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_nip(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_nip([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_nip(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_nip(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2443,20 +2414,20 @@ mod tests {
     /// Test OP_OVER
     fn test_over() {
         /// op_over([1,2]) -> [1,2,1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![];
         for i in 1..=2 {
             v.push(StackEntry::Num(i));
         }
         v.push(StackEntry::Num(1));
-        op_over(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_over(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_over([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_over(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_over(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2464,46 +2435,46 @@ mod tests {
     /// Test OP_PICK
     fn test_pick() {
         /// op_pick([1,2,3,4,3]) -> [1,2,3,4,1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=4 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
-        current_stack.push(StackEntry::Num(3));
+        interpreter_stack.push(StackEntry::Num(3));
         let mut v: Vec<StackEntry> = vec![];
         for i in 1..=4 {
             v.push(StackEntry::Num(i));
         }
         v.push(StackEntry::Num(1));
-        op_pick(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_pick(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_pick([1,2,3,4,0]) -> [1,2,3,4,4]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=4 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
-        current_stack.push(StackEntry::Num(0));
+        interpreter_stack.push(StackEntry::Num(0));
         let mut v: Vec<StackEntry> = vec![];
         for i in 1..=4 {
             v.push(StackEntry::Num(i));
         }
         v.push(StackEntry::Num(4));
-        op_pick(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_pick(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_pick([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_pick(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_pick(&mut interpreter_stack);
         assert!(!b);
         /// op_pick([1,"hello"]) -> fail
-        let mut current_stack: Vec<StackEntry> =
+        let mut interpreter_stack: Vec<StackEntry> =
             vec![StackEntry::Num(1), StackEntry::Bytes("hello".to_string())];
-        let b = op_pick(&mut current_stack);
+        let b = op_pick(&mut interpreter_stack);
         assert!(!b);
         /// op_pick([1,1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
-        let b = op_pick(&mut current_stack);
+        let b = op_pick(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2511,45 +2482,45 @@ mod tests {
     /// Test OP_ROLL
     fn test_roll() {
         /// op_roll([1,2,3,4,3]) -> [2,3,4,1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=4 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
-        current_stack.push(StackEntry::Num(3));
+        interpreter_stack.push(StackEntry::Num(3));
         let mut v: Vec<StackEntry> = vec![];
         for i in 2..=4 {
             v.push(StackEntry::Num(i));
         }
         v.push(StackEntry::Num(1));
-        op_roll(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_roll(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_roll([1,2,3,4,0]) -> [1,2,3,4]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=4 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
-        current_stack.push(StackEntry::Num(0));
+        interpreter_stack.push(StackEntry::Num(0));
         let mut v: Vec<StackEntry> = vec![];
         for i in 1..=4 {
             v.push(StackEntry::Num(i));
         }
-        op_roll(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_roll(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_roll([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_roll(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_roll(&mut interpreter_stack);
         assert!(!b);
         /// op_roll([1,"hello"]) -> fail
-        let mut current_stack: Vec<StackEntry> =
+        let mut interpreter_stack: Vec<StackEntry> =
             vec![StackEntry::Num(1), StackEntry::Bytes("hello".to_string())];
-        let b = op_roll(&mut current_stack);
+        let b = op_roll(&mut interpreter_stack);
         assert!(!b);
         /// op_roll([1,1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
-        let b = op_roll(&mut current_stack);
+        let b = op_roll(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2557,23 +2528,23 @@ mod tests {
     /// Test OP_ROT
     fn test_rot() {
         /// op_rot([1,2,3]) -> [2,3,1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=3 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![];
         for i in 2..=3 {
             v.push(StackEntry::Num(i));
         }
         v.push(StackEntry::Num(1));
-        op_rot(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_rot(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_rot([1,2]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
-        let b = op_rot(&mut current_stack);
+        let b = op_rot(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2581,16 +2552,16 @@ mod tests {
     /// Test OP_SWAP
     fn test_swap() {
         /// op_swap([1,2]) -> [2,1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(2), StackEntry::Num(1)];
-        op_swap(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_swap(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_swap([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_swap(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_swap(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2598,19 +2569,19 @@ mod tests {
     /// Test OP_TUCK
     fn test_tuck() {
         /// op_tuck([1,2]) -> [2,1,2]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(2)];
         for i in 1..=2 {
             v.push(StackEntry::Num(i));
         }
-        op_tuck(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_tuck(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_tuck([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_tuck(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_tuck(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2620,38 +2591,38 @@ mod tests {
     /// Test OP_CAT
     fn test_cat() {
         /// op_cat(["hello","world"]) -> ["helloworld"]
-        let mut current_stack: Vec<StackEntry> = vec![
+        let mut interpreter_stack: Vec<StackEntry> = vec![
             StackEntry::Bytes("hello".to_string()),
             StackEntry::Bytes("world".to_string()),
         ];
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("helloworld".to_string())];
-        op_cat(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_cat(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_cat(["hello",""]) -> ["hello"]
-        let mut current_stack: Vec<StackEntry> = vec![
+        let mut interpreter_stack: Vec<StackEntry> = vec![
             StackEntry::Bytes("hello".to_string()),
             StackEntry::Bytes("".to_string()),
         ];
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
-        op_cat(&mut current_stack);
-        assert_eq!(current_stack, v);
-        /// op_cat(["a","a"*MAX_SCRIPT_ELEMENT_SIZE]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes('a'.to_string())];
+        op_cat(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
+        /// op_cat(["a","a"*MAX_SCRIPT_ITEM_SIZE]) -> fail
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes('a'.to_string())];
         let mut s = String::new();
-        for i in 1..=MAX_SCRIPT_ELEMENT_SIZE {
+        for i in 1..=MAX_SCRIPT_ITEM_SIZE {
             s.push('a');
         }
-        current_stack.push(StackEntry::Bytes(s.to_string()));
-        let b = op_cat(&mut current_stack);
+        interpreter_stack.push(StackEntry::Bytes(s.to_string()));
+        let b = op_cat(&mut interpreter_stack);
         assert!(!b);
         /// op_cat(["hello"]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
-        let b = op_cat(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        let b = op_cat(&mut interpreter_stack);
         assert!(!b);
         /// op_cat(["hello", 1]) -> fail
-        let mut current_stack: Vec<StackEntry> =
+        let mut interpreter_stack: Vec<StackEntry> =
             vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(1)];
-        let b = op_cat(&mut current_stack);
+        let b = op_cat(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2659,56 +2630,56 @@ mod tests {
     /// Test OP_SUBSTR
     fn test_substr() {
         /// op_substr(["hello",1,2]) -> ["el"]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("el".to_string())];
-        op_substr(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_substr(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_substr(["hello",0,0]) -> [""]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(0));
+            interpreter_stack.push(StackEntry::Num(0));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("".to_string())];
-        op_substr(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_substr(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_substr(["hello",0,5]) -> ["hello"]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
-        current_stack.push(StackEntry::Num(0));
-        current_stack.push(StackEntry::Num(5));
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        interpreter_stack.push(StackEntry::Num(0));
+        interpreter_stack.push(StackEntry::Num(5));
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
-        op_substr(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_substr(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_substr(["hello",5,0]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
-        current_stack.push(StackEntry::Num(5));
-        current_stack.push(StackEntry::Num(0));
-        let b = op_substr(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        interpreter_stack.push(StackEntry::Num(5));
+        interpreter_stack.push(StackEntry::Num(0));
+        let b = op_substr(&mut interpreter_stack);
         assert!(!b);
         /// op_substr(["hello",1,5]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
-        current_stack.push(StackEntry::Num(1));
-        current_stack.push(StackEntry::Num(5));
-        let b = op_substr(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        interpreter_stack.push(StackEntry::Num(1));
+        interpreter_stack.push(StackEntry::Num(5));
+        let b = op_substr(&mut interpreter_stack);
         assert!(!b);
         /// op_substr(["hello",1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
-        current_stack.push(StackEntry::Num(1));
-        let b = op_substr(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        interpreter_stack.push(StackEntry::Num(1));
+        let b = op_substr(&mut interpreter_stack);
         assert!(!b);
         /// op_substr(["hello",1,usize::MAX]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
-        current_stack.push(StackEntry::Num(1));
-        current_stack.push(StackEntry::Num(usize::MAX));
-        let b = op_substr(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        interpreter_stack.push(StackEntry::Num(1));
+        interpreter_stack.push(StackEntry::Num(usize::MAX));
+        let b = op_substr(&mut interpreter_stack);
         assert!(!b);
         /// op_substr(["hello",1,""]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
-        current_stack.push(StackEntry::Num(1));
-        current_stack.push(StackEntry::Bytes("".to_string()));
-        let b = op_substr(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        interpreter_stack.push(StackEntry::Num(1));
+        interpreter_stack.push(StackEntry::Bytes("".to_string()));
+        let b = op_substr(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2716,33 +2687,33 @@ mod tests {
     /// Test OP_LEFT
     fn test_left() {
         /// op_left(["hello",2]) -> ["he"]
-        let mut current_stack: Vec<StackEntry> =
+        let mut interpreter_stack: Vec<StackEntry> =
             vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(2)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("he".to_string())];
-        op_left(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_left(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_left(["hello",0]) -> [""]
-        let mut current_stack: Vec<StackEntry> =
+        let mut interpreter_stack: Vec<StackEntry> =
             vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(0)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("".to_string())];
-        op_left(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_left(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_left(["hello",5]) -> ["hello"]
-        let mut current_stack: Vec<StackEntry> =
+        let mut interpreter_stack: Vec<StackEntry> =
             vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(5)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
-        op_left(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_left(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_left(["hello",""]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![
+        let mut interpreter_stack: Vec<StackEntry> = vec![
             StackEntry::Bytes("hello".to_string()),
             StackEntry::Bytes("".to_string()),
         ];
-        let b = op_left(&mut current_stack);
+        let b = op_left(&mut interpreter_stack);
         assert!(!b);
         /// op_left(["hello"]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
-        let b = op_left(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        let b = op_left(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2750,33 +2721,33 @@ mod tests {
     /// Test OP_RIGHT
     fn test_right() {
         /// op_right(["hello",0]) -> ["hello"]
-        let mut current_stack: Vec<StackEntry> =
+        let mut interpreter_stack: Vec<StackEntry> =
             vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(0)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
-        op_right(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_right(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_right(["hello",2]) -> ["llo"]
-        let mut current_stack: Vec<StackEntry> =
+        let mut interpreter_stack: Vec<StackEntry> =
             vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(2)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("llo".to_string())];
-        op_right(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_right(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_right(["hello",5]) -> [""]
-        let mut current_stack: Vec<StackEntry> =
+        let mut interpreter_stack: Vec<StackEntry> =
             vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(5)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("".to_string())];
-        op_right(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_right(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_right(["hello",""]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![
+        let mut interpreter_stack: Vec<StackEntry> = vec![
             StackEntry::Bytes("hello".to_string()),
             StackEntry::Bytes("".to_string()),
         ];
-        let b = op_right(&mut current_stack);
+        let b = op_right(&mut interpreter_stack);
         assert!(!b);
         /// op_right(["hello"]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
-        let b = op_right(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        let b = op_right(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2784,23 +2755,23 @@ mod tests {
     /// Test OP_SIZE
     fn test_size() {
         /// op_size(["hello"]) -> ["hello",5]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes("hello".to_string())];
         let mut v: Vec<StackEntry> =
             vec![StackEntry::Bytes("hello".to_string()), StackEntry::Num(5)];
-        op_size(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_size(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_size([""]) -> ["",0]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Bytes("".to_string())];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes("".to_string())];
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes("".to_string()), StackEntry::Num(0)];
-        op_size(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_size(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_size([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_size(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_size(&mut interpreter_stack);
         assert!(!b);
         /// op_size([]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        let b = op_size(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_size(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2810,13 +2781,13 @@ mod tests {
     /// Test OP_INVERT
     fn test_invert() {
         /// op_invert([0]) -> [usize::MAX]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(0)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(0)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(usize::MAX)];
-        op_invert(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_invert(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_invert([]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        let b = op_invert(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_invert(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2824,16 +2795,16 @@ mod tests {
     /// Test OP_AND
     fn test_and() {
         /// op_and([1,2]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_and(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_and(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_and([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_and(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_and(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2841,16 +2812,16 @@ mod tests {
     /// Test OP_OR
     fn test_or() {
         /// op_or([1,2]) -> [3]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(3)];
-        op_or(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_or(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_or([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_or(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_or(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2858,16 +2829,16 @@ mod tests {
     /// Test OP_XOR
     fn test_xor() {
         /// op_xor([1,2]) -> [3]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(3)];
-        op_xor(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_xor(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_xor([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_xor(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_xor(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2875,24 +2846,24 @@ mod tests {
     /// Test OP_EQUAL
     fn test_equal() {
         /// op_equal(["hello","hello"]) -> [1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Bytes("hello".to_string()));
+            interpreter_stack.push(StackEntry::Bytes("hello".to_string()));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_equal(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_equal(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_equal([1,2]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_equal(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_equal(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_equal([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_equal(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_equal(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2900,23 +2871,23 @@ mod tests {
     /// Test OP_EQUALVERIFY
     fn test_equalverify() {
         /// op_equalverify(["hello","hello"]) -> []
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Bytes("hello".to_string()));
+            interpreter_stack.push(StackEntry::Bytes("hello".to_string()));
         }
         let mut v: Vec<StackEntry> = vec![];
-        op_equalverify(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_equalverify(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_equalverify([1,2]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
-        let b = op_equalverify(&mut current_stack);
+        let b = op_equalverify(&mut interpreter_stack);
         assert!(!b);
         /// op_equalverify([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_equalverify(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_equalverify(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2926,17 +2897,17 @@ mod tests {
     /// Test OP_1ADD
     fn test_1add() {
         /// op_1add([1]) -> [2]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(2)];
-        op_1add(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_1add(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_1add([usize::MAX]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(usize::MAX)];
-        let b = op_1add(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(usize::MAX)];
+        let b = op_1add(&mut interpreter_stack);
         assert!(!b);
         /// op_1add([]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        let b = op_1add(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_1add(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2944,17 +2915,17 @@ mod tests {
     /// Test OP_1SUB
     fn test_1sub() {
         /// op_1sub([1]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_1sub(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_1sub(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_1sub([0]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        let b = op_1sub(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(0)];
+        let b = op_1sub(&mut interpreter_stack);
         assert!(!b);
         /// op_1sub([]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        let b = op_1sub(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_1sub(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2962,17 +2933,17 @@ mod tests {
     /// Test OP_2MUL
     fn test_2mul() {
         /// op_2mul([1]) -> [2]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(2)];
-        op_2mul(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_2mul(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_2mul([usize::MAX]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(usize::MAX)];
-        let b = op_2mul(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(usize::MAX)];
+        let b = op_2mul(&mut interpreter_stack);
         assert!(!b);
         /// op_2mul([]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        let b = op_2mul(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_2mul(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2980,13 +2951,13 @@ mod tests {
     /// Test OP_2DIV
     fn test_2div() {
         /// op_2div([1]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_2div(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_2div(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_2div([]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        let b = op_2div(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_2div(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -2994,18 +2965,18 @@ mod tests {
     /// Test OP_NOT
     fn test_not() {
         /// op_not([0]) -> [1]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(0)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(0)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_not(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_not(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_not([1]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_not(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_not(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_not([]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        let b = op_not(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_not(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3013,18 +2984,18 @@ mod tests {
     /// Test OP_0NOTEQUAL
     fn test_0notequal() {
         /// op_0notequal([1]) -> [1]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_0notequal(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_0notequal(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_0notequal([0]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(0)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(0)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_0notequal(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_0notequal(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_0notequal([]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
-        let b = op_0notequal(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_0notequal(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3032,21 +3003,21 @@ mod tests {
     /// Test OP_ADD
     fn test_add() {
         /// op_add([1,2]) -> [3]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(3)];
-        op_add(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_add(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_add([1,usize::MAX]) -> fail
-        let mut current_stack: Vec<StackEntry> =
+        let mut interpreter_stack: Vec<StackEntry> =
             vec![StackEntry::Num(1), StackEntry::Num(usize::MAX)];
-        let b = op_add(&mut current_stack);
+        let b = op_add(&mut interpreter_stack);
         assert!(!b);
         /// op_add([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_add(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_add(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3054,17 +3025,17 @@ mod tests {
     /// Test OP_SUB
     fn test_sub() {
         /// op_sub([1,0]) -> [1]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(0)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(0)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_sub(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_sub(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_sub([0,1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(0), StackEntry::Num(1)];
-        let b = op_sub(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(0), StackEntry::Num(1)];
+        let b = op_sub(&mut interpreter_stack);
         assert!(!b);
         /// op_sub([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_sub(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_sub(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3072,21 +3043,21 @@ mod tests {
     /// Test OP_MUL
     fn test_mul() {
         /// op_mul([1,2]) -> [2]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(2)];
-        op_mul(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_mul(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_mul([2,usize::MAX]) -> fail
-        let mut current_stack: Vec<StackEntry> =
+        let mut interpreter_stack: Vec<StackEntry> =
             vec![StackEntry::Num(2), StackEntry::Num(usize::MAX)];
-        let b = op_mul(&mut current_stack);
+        let b = op_mul(&mut interpreter_stack);
         assert!(!b);
         /// op_mul([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_mul(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_mul(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3094,20 +3065,20 @@ mod tests {
     /// Test OP_DIV
     fn test_div() {
         /// op_div([1,2]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_div(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_div(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_div([1,0]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(0)];
-        let b = op_div(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(0)];
+        let b = op_div(&mut interpreter_stack);
         assert!(!b);
         /// op_div([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_div(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_div(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3115,20 +3086,20 @@ mod tests {
     /// Test OP_MOD
     fn test_mod() {
         /// op_mod([1,2]) -> [1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_mod(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_mod(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_mod([1,0]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(0)];
-        let b = op_mod(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(0)];
+        let b = op_mod(&mut interpreter_stack);
         assert!(!b);
         /// op_mod([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_mod(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_mod(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3136,20 +3107,20 @@ mod tests {
     /// Test OP_LSHIFT
     fn test_lshift() {
         /// op_lshift([1,2]) -> [4]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(4)];
-        op_lshift(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_lshift(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_lshift([1,64]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(64)];
-        let b = op_lshift(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(64)];
+        let b = op_lshift(&mut interpreter_stack);
         assert!(!b);
         /// op_lshift([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_lshift(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_lshift(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3157,20 +3128,20 @@ mod tests {
     /// Test OP_RSHIFT
     fn test_rshift() {
         /// op_rshift([1,2]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_rshift(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_rshift(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_rshift([1,64]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(64)];
-        let b = op_rshift(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1), StackEntry::Num(64)];
+        let b = op_rshift(&mut interpreter_stack);
         assert!(!b);
         /// op_rshift([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_rshift(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_rshift(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3178,24 +3149,24 @@ mod tests {
     /// Test OP_BOOLAND
     fn test_booland() {
         /// op_booland([1,2]) -> [1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_booland(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_booland(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_booland([0,1]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 0..=1 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_booland(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_booland(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_booland([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_booland(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_booland(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3203,24 +3174,24 @@ mod tests {
     /// Test OP_BOOLOR
     fn test_boolor() {
         /// op_boolor([0,1]) -> [1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 0..=1 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_boolor(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_boolor(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_boolor([0,0]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(0));
+            interpreter_stack.push(StackEntry::Num(0));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_boolor(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_boolor(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_boolor([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_boolor(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_boolor(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3228,24 +3199,24 @@ mod tests {
     /// Test OP_NUMEQUAL
     fn test_numequal() {
         /// op_numequal([1,1]) -> [1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(1));
+            interpreter_stack.push(StackEntry::Num(1));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_numequal(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_numequal(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_numequal([1,2]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_numequal(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_numequal(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_numequal([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_numequal(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_numequal(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3253,23 +3224,23 @@ mod tests {
     /// Test OP_NUMEQUALVERIFY
     fn test_numequalverify() {
         /// op_numequalverify([1,1]) -> []
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(1));
+            interpreter_stack.push(StackEntry::Num(1));
         }
         let mut v: Vec<StackEntry> = vec![];
-        op_numequalverify(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_numequalverify(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_numequalverify([1,2]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
-        let b = op_numequalverify(&mut current_stack);
+        let b = op_numequalverify(&mut interpreter_stack);
         assert!(!b);
         /// op_numequalverify([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_numequalverify(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_numequalverify(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3277,24 +3248,24 @@ mod tests {
     /// Test OP_NUMNOTEQUAL
     fn test_numnotequal() {
         /// op_numnotequal([1,2]) -> [1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_numnotequal(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_numnotequal(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_numnotequal([1,1]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(1));
+            interpreter_stack.push(StackEntry::Num(1));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_numnotequal(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_numnotequal(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_numnotequal([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_numnotequal(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_numnotequal(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3302,24 +3273,24 @@ mod tests {
     /// Test OP_LESSTHAN
     fn test_lessthan() {
         /// op_lessthan([1,2]) -> [1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_lessthan(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_lessthan(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_lessthan([1,1]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(1));
+            interpreter_stack.push(StackEntry::Num(1));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_lessthan(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_lessthan(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_lessthan([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_lessthan(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_lessthan(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3327,21 +3298,21 @@ mod tests {
     /// Test OP_GREATERTHAN
     fn test_greaterthan() {
         /// op_greaterthan([2,1]) -> [1]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(2), StackEntry::Num(1)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(2), StackEntry::Num(1)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_greaterthan(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_greaterthan(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_greaterthan([1,1]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(1));
+            interpreter_stack.push(StackEntry::Num(1));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_greaterthan(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_greaterthan(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_greaterthan([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_greaterthan(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_greaterthan(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3349,21 +3320,21 @@ mod tests {
     /// Test OP_LESSTHANOREQUAL
     fn test_lessthanorequal() {
         /// test_lessthanorequal([1,1]) -> [1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(1));
+            interpreter_stack.push(StackEntry::Num(1));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_lessthanorequal(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_lessthanorequal(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_lessthanorequal([2,1]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(2), StackEntry::Num(1)];
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(2), StackEntry::Num(1)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_lessthanorequal(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_lessthanorequal(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_lessthanorequal([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_lessthanorequal(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_lessthanorequal(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3371,24 +3342,24 @@ mod tests {
     /// Test OP_GREATERTHANOREQUAL
     fn test_greaterthanorequal() {
         /// op_greaterthanorequal([1,1]) -> [1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(1));
+            interpreter_stack.push(StackEntry::Num(1));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_greaterthanorequal(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_greaterthanorequal(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_greaterthanorequal([1,2]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_greaterthanorequal(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_greaterthanorequal(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_greaterthanorequal([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_greaterthanorequal(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_greaterthanorequal(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3396,16 +3367,16 @@ mod tests {
     /// Test OP_MIN
     fn test_min() {
         /// op_min([1,2]) -> [1]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_min(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_min(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_min([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_min(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_min(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3413,16 +3384,16 @@ mod tests {
     /// Test OP_MAX
     fn test_max() {
         /// op_max([1,2]) -> [2]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(2)];
-        op_max(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_max(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_max([1]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        let b = op_max(&mut current_stack);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_max(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3430,25 +3401,25 @@ mod tests {
     /// Test OP_WITHIN
     fn test_within() {
         /// op_within([2,1,3]) -> [1]
-        let mut current_stack: Vec<StackEntry> =
+        let mut interpreter_stack: Vec<StackEntry> =
             vec![StackEntry::Num(2), StackEntry::Num(1), StackEntry::Num(3)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_within(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_within(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_within([1,2,3]) -> [0]
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=3 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_within(&mut current_stack);
-        assert_eq!(current_stack, v);
+        op_within(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_within([1,2]) -> fail
-        let mut current_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
         for i in 1..=2 {
-            current_stack.push(StackEntry::Num(i));
+            interpreter_stack.push(StackEntry::Num(i));
         }
-        let b = op_within(&mut current_stack);
+        let b = op_within(&mut interpreter_stack);
         assert!(!b)
     }
 }

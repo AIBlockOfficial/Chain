@@ -34,7 +34,7 @@ pub const MAX_BLOCK_SIZE: usize = 1000;
 /*------- SCRIPT CONSTANTS -------*/
 
 // Maximum number of bytes pushable to the stack
-pub const MAX_SCRIPT_ELEMENT_SIZE: u16 = 520;
+pub const MAX_SCRIPT_ITEM_SIZE: u16 = 520;
 
 // Maximum number of non-push operations per script
 pub const MAX_OPS_PER_SCRIPT: u8 = 201;
@@ -88,7 +88,11 @@ pub const FOURTEEN: usize = 14;
 pub const FIFTEEN: usize = 15;
 pub const SIXTEEN: usize = 16;
 
-/*------- STRINGS -------*/
+/*------- TRACE MESSAGES -------*/
+
+pub fn trace(op: &str, desc: &str) {
+    trace!("{}: {}", op, desc)
+}
 
 // constants
 pub const OP0: &str = "OP_0";
@@ -265,38 +269,26 @@ pub const OPMAX_DESC: &str =
     "Substitutes the top two items on the stack with the maximum between the two";
 pub const OPWITHIN_DESC: &str = "Substitutes the top three items on the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item, with ZERO otherwise";
 
-// error messages
-pub const ERROR_NUM_ITEMS: &str = "Not enough items on the stack";
-pub const ERROR_TYPE: &str = "Item type is not correct";
-pub const ERROR_INDEX: &str = "Index is out of bound";
-pub const ERROR_SIZE: &str = "Item size exceeds 520-byte limit";
-pub const ERROR_NOT_EQUAL: &str = "The two top items are not equal";
-pub const ERROR_OVERFLOW: &str = "Attempt to overflow";
-pub const ERROR_DIV_ZERO: &str = "Attempt to divide by ZERO";
-
-// util functions
-pub fn trace(opcode: &str, desc: &str) {
-    trace!("{}: {}", opcode, desc)
-}
+/*------- ERROR MESSAGES -------*/
 
 pub fn error_num_items(opcode: &str) {
     error!("{}: {}", opcode, ERROR_NUM_ITEMS)
 }
 
-pub fn error_type(opcode: &str) {
-    error!("{}: {}", opcode, ERROR_TYPE)
+pub fn error_item_type(opcode: &str) {
+    error!("{}: {}", opcode, ERROR_ITEM_TYPE)
 }
 
-pub fn error_index(opcode: &str) {
-    error!("{}: {}", opcode, ERROR_INDEX)
+pub fn error_item_index(opcode: &str) {
+    error!("{}: {}", opcode, ERROR_ITEM_INDEX)
 }
 
-pub fn error_size(opcode: &str) {
-    error!("{}: {}", opcode, ERROR_SIZE)
+pub fn error_item_size(opcode: &str) {
+    error!("{}: {}", opcode, ERROR_ITEM_SIZE)
 }
 
-pub fn error_not_equal(opcode: &str) {
-    error!("{}: {}", opcode, ERROR_NOT_EQUAL)
+pub fn error_not_equal_items(opcode: &str) {
+    error!("{}: {}", opcode, ERROR_NOT_EQUAL_ITEMS)
 }
 
 pub fn error_overflow(opcode: &str) {
@@ -306,3 +298,35 @@ pub fn error_overflow(opcode: &str) {
 pub fn error_div_zero(opcode: &str) {
     error!("{}: {}", opcode, ERROR_DIV_ZERO)
 }
+
+pub fn error_max_script_size() {
+    error!("{}", ERROR_MAX_SCRIPT_SIZE)
+}
+
+pub fn error_max_stack_size() {
+    error!("{}", ERROR_MAX_STACK_SIZE)
+}
+
+pub fn error_max_ops_script() {
+    error!("{}", ERROR_MAX_OPS_SCRIPT)
+}
+
+pub fn error_unknown_operation() {
+    error!("{}", ERROR_UNKWON_OPERATION)
+}
+
+// opcodes
+pub const ERROR_NUM_ITEMS: &str = "Not enough items on the stack";
+pub const ERROR_ITEM_TYPE: &str = "Item type is not correct";
+pub const ERROR_ITEM_INDEX: &str = "Index is out of bound";
+pub const ERROR_ITEM_SIZE: &str = "Item size exceeds MAX_SCRIPT_ITEM_SIZE-byte limit";
+pub const ERROR_NOT_EQUAL_ITEMS: &str = "The two top items are not equal";
+pub const ERROR_OVERFLOW: &str = "Attempt to overflow";
+pub const ERROR_DIV_ZERO: &str = "Attempt to divide by ZERO";
+
+// script
+pub const ERROR_MAX_SCRIPT_SIZE: &str = "Script size exceeds MAX_SCRIPT_SIZE-byte limit";
+pub const ERROR_MAX_STACK_SIZE: &str = "Stack size exceeds MAX_STACK_SIZE limit";
+pub const ERROR_MAX_OPS_SCRIPT: &str =
+    "Number of opcodes in script exceeds MAX_OPS_PER_SCRIPT limit";
+pub const ERROR_UNKWON_OPERATION: &str = "Attempt to perform unknown operation";
