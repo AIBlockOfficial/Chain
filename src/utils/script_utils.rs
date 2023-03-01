@@ -353,7 +353,7 @@ fn interpret_script(script: &Script) -> bool {
         }
         if test_for_return {
             match stack_entry {
-                /*---- OPCODES ----*/
+                /*---- OPCODE ----*/
                 // constants
                 StackEntry::Op(OpCodes::OP_0) => {
                     test_for_return &= interface_ops::op_0(&mut interpreter_stack);
@@ -556,9 +556,18 @@ fn interpret_script(script: &Script) -> bool {
                 StackEntry::Op(OpCodes::OP_CHECKSIG) => {
                     test_for_return &= interface_ops::op_checksig(&mut interpreter_stack);
                 }
-                /*---- DEFAULT ----*/
-                _ => {
+                /*---- SIGNATURE | PUBKEY | PUBKEYHASH | NUM | BYTES ----*/
+                StackEntry::Signature(_)
+                | StackEntry::PubKey(_)
+                | StackEntry::PubKeyHash(_)
+                | StackEntry::Num(_)
+                | StackEntry::Bytes(_) => {
                     test_for_return &= push_entry_to_stack(stack_entry, &mut interpreter_stack);
+                }
+                /*---- UNKNOWN OPERATION ----*/
+                _ => {
+                    error_unknown_operation();
+                    return false;
                 }
             }
         } else {
