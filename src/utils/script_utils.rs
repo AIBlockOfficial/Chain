@@ -272,7 +272,6 @@ pub fn tx_has_valid_p2sh_script(script: &Script, address: &str) -> bool {
     false
 }
 
-
 /// Checks if a script is valid. Returns a bool.
 ///
 /// ### Arguments
