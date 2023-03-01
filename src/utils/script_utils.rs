@@ -17,7 +17,10 @@ use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
 use std::collections::{BTreeMap, BTreeSet};
+use std::thread::current;
 use tracing::{debug, error, info, trace};
+
+use super::transaction_utils::construct_p2sh_address;
 
 /// Verifies that a member of a multisig tx script is valid
 ///
@@ -85,7 +88,9 @@ pub fn tx_is_valid<'a>(
 
         if let Some(pk) = tx_out_pk {
             // Check will need to include other signature types here
-            if !tx_has_valid_p2pkh_sig(&tx_in.script_signature, &tx_out_hash, pk) {
+            if !tx_has_valid_p2pkh_sig(&tx_in.script_signature, &tx_out_hash, pk)
+                && !tx_has_valid_p2sh_script(&tx_in.script_signature, pk)
+            {
                 return false;
             }
         } else {
@@ -173,12 +178,14 @@ pub fn tx_has_valid_create_script(script: &Script, asset: &Asset) -> bool {
     if let (
         Some(StackEntry::Op(OpCodes::OP_CREATE)),
         Some(StackEntry::Num(_)),
+        Some(StackEntry::Op(OpCodes::OP_DROP)),
         Some(StackEntry::Bytes(b)),
         Some(StackEntry::Signature(_)),
         Some(StackEntry::PubKey(_)),
         Some(StackEntry::Op(OpCodes::OP_CHECKSIG)),
         None,
     ) = (
+        it.next(),
         it.next(),
         it.next(),
         it.next(),
@@ -235,7 +242,7 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
     }
 
     trace!(
-        "Invalid script: {:?} tx_out_pub_key: {}",
+        "Invalid P2PKH script: {:?} tx_out_pub_key: {}",
         script.stack,
         tx_out_pub_key
     );
@@ -243,14 +250,37 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
     false
 }
 
+/// Checks whether a transaction to spend tokens in P2SH has a valid hash and executing script
+///
+/// ### Arguments
+///
+/// * `script`          - Script to validate
+/// * `address`         - Address of the P2SH transaction
+pub fn tx_has_valid_p2sh_script(script: &Script, address: &str) -> bool {
+    let p2sh_address = construct_p2sh_address(script);
+
+    if p2sh_address == address {
+        return interpret_script(script);
+    }
+
+    trace!(
+        "Invalid P2SH script: {:?}, address: {}",
+        script.stack,
+        address
+    );
+
+    false
+}
+
+
 /// Checks if a script is valid. Returns a bool.
 ///
 /// ### Arguments
 ///
 /// * `script`  - mutable reference to the script
 fn is_valid_script(script: &Script) -> bool {
-    let mut len = 0; // script lenght in bytes
-    let mut ops_count = 0; // number of opcodes in script
+    let mut len = ZERO; // script lenght in bytes
+    let mut ops_count = ZERO; // number of opcodes in script
     for entry in &script.stack {
         match entry {
             StackEntry::Op(_) => {
@@ -293,10 +323,7 @@ fn is_valid_stack(interpreter_stack: &Vec<StackEntry>) -> bool {
 ///
 /// * `stack_entry`  - reference to the entry to be pushed onto the stack
 /// * `interpreter_stack`  - mutable reference to the interpreter stack
-pub fn push_entry_to_stack(
-    stack_entry: &StackEntry,
-    interpreter_stack: &mut Vec<StackEntry>,
-) -> bool {
+fn push_entry_to_stack(stack_entry: &StackEntry, interpreter_stack: &mut Vec<StackEntry>) -> bool {
     match stack_entry {
         StackEntry::PubKeyHash(s) | StackEntry::Bytes(s) => {
             if s.len() > MAX_SCRIPT_ITEM_SIZE as usize {
@@ -510,6 +537,9 @@ fn interpret_script(script: &Script) -> bool {
                 StackEntry::Op(OpCodes::OP_WITHIN) => {
                     test_for_return &= interface_ops::op_within(&mut interpreter_stack);
                 }
+                StackEntry::Op(OpCodes::OP_CREATE) => {
+                    interpreter_stack.pop();
+                }
                 // crypto
                 StackEntry::Op(OpCodes::OP_HASH256) => {
                     test_for_return &= interface_ops::op_hash256(&mut interpreter_stack, None);
@@ -524,9 +554,6 @@ fn interpret_script(script: &Script) -> bool {
                         Some(NETWORK_VERSION_TEMP),
                     );
                 }
-                StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
-                    test_for_return &= interface_ops::op_equalverify(&mut interpreter_stack);
-                }
                 StackEntry::Op(OpCodes::OP_CHECKSIG) => {
                     test_for_return &= interface_ops::op_checksig(&mut interpreter_stack);
                 }
@@ -539,7 +566,7 @@ fn interpret_script(script: &Script) -> bool {
             return false;
         }
     }
-    test_for_return
+    test_for_return && interpreter_stack.is_empty()
 }
 
 /// Does pairwise validation of signatures against public keys

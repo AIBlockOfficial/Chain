@@ -18,26 +18,6 @@ pub enum StackEntry {
     Bytes(String),
 }
 
-impl StackEntry {
-    /// Checks whether this stack entry is a hash (either a signature or pubkey)
-    pub fn is_a_hash(&self) -> bool {
-        matches!(
-            self,
-            StackEntry::Signature(_) | StackEntry::PubKey(_) | StackEntry::PubKeyHash(_)
-        )
-    }
-
-    /// Checks whether this stack entry is an opcode
-    pub fn is_an_op(&self) -> bool {
-        matches!(self, StackEntry::Op(_))
-    }
-
-    /// Checks whether this stack entry is a numeric value
-    pub fn is_a_num(&self) -> bool {
-        matches!(self, StackEntry::Num(_))
-    }
-}
-
 /// Ops code for stack scripts
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
