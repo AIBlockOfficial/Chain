@@ -324,6 +324,9 @@ fn is_valid_stack(interpreter_stack: &Vec<StackEntry>) -> bool {
 /// * `interpreter_stack`  - mutable reference to the interpreter stack
 fn push_entry_to_stack(stack_entry: &StackEntry, interpreter_stack: &mut Vec<StackEntry>) -> bool {
     match stack_entry {
+        StackEntry::Op(_) => {
+            return false;
+        }
         StackEntry::PubKeyHash(s) | StackEntry::Bytes(s) => {
             if s.len() > MAX_SCRIPT_ITEM_SIZE as usize {
                 return false;
