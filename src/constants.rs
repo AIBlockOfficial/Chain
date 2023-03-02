@@ -33,7 +33,7 @@ pub const MAX_BLOCK_SIZE: usize = 1000;
 /*------- SCRIPT CONSTANTS -------*/
 
 // Maximum number of bytes pushable to the stack
-pub const MAX_SCRIPT_ELEMENT_SIZE: u16 = 520;
+pub const MAX_SCRIPT_ITEM_SIZE: u16 = 520;
 
 // Maximum number of non-push operations per script
 pub const MAX_OPS_PER_SCRIPT: u8 = 201;
@@ -78,3 +78,208 @@ pub const THREE: usize = 3;
 pub const FOUR: usize = 4;
 pub const FIVE: usize = 5;
 pub const SIX: usize = 6;
+pub const SEVEN: usize = 7;
+pub const EIGHT: usize = 8;
+pub const NINE: usize = 9;
+pub const TEN: usize = 10;
+pub const ELEVEN: usize = 11;
+pub const TWELVE: usize = 12;
+pub const THIRTEEN: usize = 13;
+pub const FOURTEEN: usize = 14;
+pub const FIFTEEN: usize = 15;
+pub const SIXTEEN: usize = 16;
+
+/*------- TRACE MESSAGES -------*/
+
+// constants
+pub const OP0: &str = "OP_0";
+pub const OP1: &str = "OP_1";
+pub const OP2: &str = "OP_2";
+pub const OP3: &str = "OP_3";
+pub const OP4: &str = "OP_4";
+pub const OP5: &str = "OP_5";
+pub const OP6: &str = "OP_6";
+pub const OP7: &str = "OP_7";
+pub const OP8: &str = "OP_8";
+pub const OP9: &str = "OP_9";
+pub const OP10: &str = "OP_10";
+pub const OP11: &str = "OP_11";
+pub const OP12: &str = "OP_12";
+pub const OP13: &str = "OP_13";
+pub const OP14: &str = "OP_14";
+pub const OP15: &str = "OP_15";
+pub const OP16: &str = "OP_16";
+
+pub const OP0_DESC: &str = "Pushes the number ZERO onto the stack";
+pub const OP1_DESC: &str = "Pushes the number ONE onto the stack";
+pub const OP2_DESC: &str = "Pushes the number TWO onto the stack";
+pub const OP3_DESC: &str = "Pushes the number THREE onto the stack";
+pub const OP4_DESC: &str = "Pushes the number FOUR onto the stack";
+pub const OP5_DESC: &str = "Pushes the number FIVE onto the stack";
+pub const OP6_DESC: &str = "Pushes the number SIX onto the stack";
+pub const OP7_DESC: &str = "Pushes the number SEVEN onto the stack";
+pub const OP8_DESC: &str = "Pushes the number EIGHT onto the stack";
+pub const OP9_DESC: &str = "Pushes the number NINE onto the stack";
+pub const OP10_DESC: &str = "Pushes the number TEN onto the stack";
+pub const OP11_DESC: &str = "Pushes the number ELEVEN onto the stack";
+pub const OP12_DESC: &str = "Pushes the number TWELVE onto the stack";
+pub const OP13_DESC: &str = "Pushes the number THIRTEEN onto the stack";
+pub const OP14_DESC: &str = "Pushes the number FOURTEEN onto the stack";
+pub const OP15_DESC: &str = "Pushes the number FIFTEEN onto the stack";
+pub const OP16_DESC: &str = "Pushes the number SIXTEEN onto the stack";
+
+// stack
+pub const OPTOALTSTACK: &str = "OP_TOALTSTACK";
+pub const OPFROMALTSTACK: &str = "OP_FROMALTSTACK";
+pub const OP2DROP: &str = "OP_2DROP";
+pub const OP2DUP: &str = "OP_2DUP";
+pub const OP3DUP: &str = "OP_3DUP";
+pub const OP2OVER: &str = "OP_2OVER";
+pub const OP2ROT: &str = "OP_2ROT";
+pub const OP2SWAP: &str = "OP_2SWAP";
+pub const OPIFDUP: &str = "OP_IFDUP";
+pub const OPDEPTH: &str = "OP_DEPTH";
+pub const OPDROP: &str = "OP_DROP";
+pub const OPDUP: &str = "OP_DUP";
+pub const OPNIP: &str = "OP_NIP";
+pub const OPOVER: &str = "OP_OVER";
+pub const OPPICK: &str = "OP_PICK";
+pub const OPROLL: &str = "OP_ROLL";
+pub const OPROT: &str = "OP_ROT";
+pub const OPSWAP: &str = "OP_SWAP";
+pub const OPTUCK: &str = "OP_TUCK";
+
+pub const OPTOALTSTACK_DESC: &str =
+    "Moves the top item from the main stack to the top of the alt stack";
+pub const OPFROMALTSTACK_DESC: &str =
+    "Moves the top item from the alt stack to the top of the main stack";
+pub const OP2DROP_DESC: &str = "Removes the top two items from the stack";
+pub const OP2DUP_DESC: &str = "Duplicates the top two items on the stack";
+pub const OP3DUP_DESC: &str = "Duplicates the top three items on the stack";
+pub const OP2OVER_DESC: &str = "Copies the second-to-top pair of items to the top of the stack";
+pub const OP2ROT_DESC: &str = "Moves the third-to-top pair of items to the top of the stack";
+pub const OP2SWAP_DESC: &str = "Swaps the top two pairs of items on the stack";
+pub const OPIFDUP_DESC: &str = "Duplicates the top item on the stack if it is not ZERO";
+pub const OPDEPTH_DESC: &str = "Pushes the stack size onto the stack";
+pub const OPDROP_DESC: &str = "Removes the top item from the stack";
+pub const OPDUP_DESC: &str = "Duplicates the top item on the stack";
+pub const OPNIP_DESC: &str = "Removes the second-to-top item from the stack";
+pub const OPOVER_DESC: &str = "Copies the second-to-top item to the top of the stack";
+pub const OPPICK_DESC: &str =
+    "Copies the nth-to-top item to the top of the stack, where n is the top item on the stack";
+pub const OPROLL_DESC: &str =
+    "Moves the nth-to-top item to the top of the stack, where n is the top item on the stack";
+pub const OPROT_DESC: &str = "Moves the third-to-top item to the top of the stack";
+pub const OPSWAP_DESC: &str = "Swaps the top two items on the stack";
+pub const OPTUCK_DESC: &str = "Copies the top item before the second-to-top item on the stack";
+
+// splice
+pub const OPCAT: &str = "OP_CAT";
+pub const OPSUBSTR: &str = "OP_SUBSTR";
+pub const OPLEFT: &str = "OP_LEFT";
+pub const OPRIGHT: &str = "OP_RIGHT";
+pub const OPSIZE: &str = "OP_SIZE";
+
+pub const OPCAT_DESC: &str = "Concatenates the second-to-top item and the top item on the stack";
+pub const OPSUBSTR_DESC: &str = "Extracts a substring from the third-to-top item on the stack";
+pub const OPLEFT_DESC: &str = "Extracts a left substring from the second-to-top item on the stack";
+pub const OPRIGHT_DESC: &str =
+    "Extracts a right substring from the second-to-top item on the stack";
+pub const OPSIZE_DESC: &str = "Computes the size in bytes of the top item on the stack";
+
+// bitwise logic
+pub const OPINVERT: &str = "OP_INVERT";
+pub const OPAND: &str = "OP_AND";
+pub const OPOR: &str = "OP_OR";
+pub const OPXOR: &str = "OP_XOR";
+pub const OPEQUAL: &str = "OP_EQUAL";
+pub const OPEQUALVERIFY: &str = "OP_EQUALVERIFY";
+
+pub const OPINVERT_DESC: &str = "Computes bitwise NOT of the top item on the stack";
+pub const OPAND_DESC: &str =
+    "Computes bitwise AND between the second-to-top and the top item on the stack";
+pub const OPOR_DESC: &str =
+    "Computes bitwise OR between the second-to-top and the top item on the stack";
+pub const OPXOR_DESC: &str =
+    "Computes bitwise XOR between the second-to-top and the top item on the stack";
+pub const OPEQUAL_DESC: &str =
+    "Substitutes the top two items on the stack with ONE if they are equal, with ZERO otherwise";
+pub const OPEQUALVERIFY_DESC: &str = "Computes OP_EQUAL and OP_VERIFY in sequence";
+
+// arithmetic
+pub const OP1ADD: &str = "OP_1ADD";
+pub const OP1SUB: &str = "OP_1SUB";
+pub const OP2MUL: &str = "OP_2MUL";
+pub const OP2DIV: &str = "OP_2DIV";
+pub const OPNOT: &str = "OP_NOT";
+pub const OP0NOTEQUAL: &str = "OP_0NOTEQUAL";
+pub const OPADD: &str = "OP_ADD";
+pub const OPSUB: &str = "OP_SUB";
+pub const OPMUL: &str = "OP_MUL";
+pub const OPDIV: &str = "OP_DIV";
+pub const OPMOD: &str = "OP_MOD";
+pub const OPLSHIFT: &str = "OP_LSHIFT";
+pub const OPRSHIFT: &str = "OP_RSHIFT";
+pub const OPBOOLAND: &str = "OP_BOOLAND";
+pub const OPBOOLOR: &str = "OP_BOOLOR";
+pub const OPNUMEQUAL: &str = "OP_NUMEQUAL";
+pub const OPNUMEQUALVERIFY: &str = "OP_NUMEQUALVERIFY";
+pub const OPNUMNOTEQUAL: &str = "OP_NUMNOTEQUAL";
+pub const OPLESSTHAN: &str = "OP_LESSTHAN";
+pub const OPGREATERTHAN: &str = "OP_GREATERTHAN";
+pub const OPLESSTHANOREQUAL: &str = "OP_LESSTHANOREQUAL";
+pub const OPGREATERTHANOREQUAL: &str = "OP_GREATERTHANOREQUAL";
+pub const OPMIN: &str = "OP_MIN";
+pub const OPMAX: &str = "OP_MAX";
+pub const OPWITHIN: &str = "OP_WITHIN";
+
+pub const OP1ADD_DESC: &str = "Adds ONE to the top item on the stack";
+pub const OP1SUB_DESC: &str = "Subtracts ONE from the top item on the stack";
+pub const OP2MUL_DESC: &str = "Multiplies by TWO the top item on the stack";
+pub const OP2DIV_DESC: &str = "Divides by TWO the top item on the stack";
+pub const OPNOT_DESC: &str =
+    "Substitutes the top item on the stack with ONE if it is equal to ZERO, with ZERO otherwise";
+pub const OP0NOTEQUAL_DESC: &str =
+    "Substitutes the top item on the stack with ONE if it is not equal to ZERO, with ZERO otherwise";
+pub const OPADD_DESC: &str = "Adds the top item to the second-to-top item on the stack";
+pub const OPSUB_DESC: &str = "Subtracts the top item from the second-to-top item on the stack";
+pub const OPMUL_DESC: &str = "Multiplies the second-to-top item by the top item on the stack";
+pub const OPDIV_DESC: &str = "Divides the second-to-top item by the top item on the stack";
+pub const OPMOD_DESC: &str =
+    "Computes the remainder of the division of the second-to-top item by the top item on the stack";
+pub const OPLSHIFT_DESC: &str =
+    "Computes the left shift of the second-to-top item by the top item on the stack";
+pub const OPRSHIFT_DESC: &str =
+    "Computes the right shift of the second-to-top item by the top item on the stack";
+pub const OPBOOLAND_DESC: &str = "Substitutes the top two items on the stack with ONE if they are both non-ZERO, with ZERO otherwise";
+pub const OPBOOLOR_DESC: &str = "Substitutes the top two items on the stack with ONE if they are not both ZERO, with ZERO otherwise";
+pub const OPNUMEQUAL_DESC: &str = "Substitutes the top two items on the stack with ONE if they are equal as numbers, with ZERO otherwise";
+pub const OPNUMEQUALVERIFY_DESC: &str = "Computes OP_NUMEQUAL and OP_VERIFY in sequence";
+pub const OPNUMNOTEQUAL_DESC: &str = "Substitutes the top two items on the stack with ONE if they are not equal, with ZERO otherwise";
+pub const OPLESSTHAN_DESC: &str = "Substitutes the top two items on the stack with ONE if the second-to-top is less than the top item, with ZERO otherwise";
+pub const OPGREATERTHAN_DESC: &str = "Substitutes the top two items on the stack with ONE if the second-to-top is greater than the top item, with ZERO otherwise";
+pub const OPLESSTHANOREQUAL_DESC: &str = "Substitutes the top two items on the stack with ONE if the second-to-top is less than or equal to the top item, with ZERO otherwise";
+pub const OPGREATERTHANOREQUAL_DESC: &str = "Substitutes the top two items on the stack with ONE if the second-to-top is greater than or equal to the top item, with ZERO otherwise";
+pub const OPMIN_DESC: &str =
+    "Substitutes the top two items on the stack with the minimum between the two";
+pub const OPMAX_DESC: &str =
+    "Substitutes the top two items on the stack with the maximum between the two";
+pub const OPWITHIN_DESC: &str = "Substitutes the top three items on the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item, with ZERO otherwise";
+
+/*------- ERROR MESSAGES -------*/
+
+// opcodes
+pub const ERROR_NUM_ITEMS: &str = "Not enough items on the stack";
+pub const ERROR_ITEM_TYPE: &str = "Item type is not correct";
+pub const ERROR_ITEM_INDEX: &str = "Index is out of bound";
+pub const ERROR_ITEM_SIZE: &str = "Item size exceeds MAX_SCRIPT_ITEM_SIZE-byte limit";
+pub const ERROR_NOT_EQUAL_ITEMS: &str = "The two top items are not equal";
+pub const ERROR_OVERFLOW: &str = "Attempt to overflow";
+pub const ERROR_DIV_ZERO: &str = "Attempt to divide by ZERO";
+
+// script
+pub const ERROR_MAX_SCRIPT_SIZE: &str = "Script size exceeds MAX_SCRIPT_SIZE-byte limit";
+pub const ERROR_MAX_STACK_SIZE: &str = "Stack size exceeds MAX_STACK_SIZE limit";
+pub const ERROR_MAX_OPS_SCRIPT: &str =
+    "Number of opcodes in script exceeds MAX_OPS_PER_SCRIPT limit";
+pub const ERROR_UNKWON_OPERATION: &str = "Attempt to perform unknown operation";

@@ -1,16 +1,16 @@
 #![allow(unused)]
-use crate::constants::{
-    MAX_METADATA_BYTES, MAX_STACK_SIZE, NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, P2SH_PREPEND,
-    TOTAL_TOKENS,
-};
+use crate::constants::*;
 use crate::crypto::sha3_256;
-use crate::crypto::sign_ed25519::{self as sign, PublicKey, Signature};
+use crate::crypto::sign_ed25519::{
+    self as sign, PublicKey, Signature, ED25519_PUBLIC_KEY_LEN, ED25519_SIGNATURE_LEN,
+};
 use crate::primitives::asset::{Asset, AssetValues, ReceiptAsset, TokenAmount};
 use crate::primitives::druid::DruidExpectation;
 use crate::primitives::transaction::*;
 use crate::script::interface_ops;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
+use crate::utils::error_utils::*;
 use crate::utils::transaction_utils::{
     construct_address, construct_tx_in_signable_asset_hash, construct_tx_in_signable_hash,
 };
@@ -29,16 +29,16 @@ use super::transaction_utils::construct_p2sh_address;
 ///
 /// * `script`  - Script to verify
 pub fn member_multisig_is_valid(script: Script) -> bool {
-    let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
+    let mut interpreter_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
     let mut test_for_return = true;
     for stack_entry in script.stack {
         if test_for_return {
             match stack_entry {
                 StackEntry::Op(OpCodes::OP_CHECKSIG) => {
-                    test_for_return &= interface_ops::op_checkmultisigmem(&mut current_stack);
+                    test_for_return &= interface_ops::op_checkmultisigmem(&mut interpreter_stack);
                 }
                 _ => {
-                    interface_ops::push_entry_to_stack(stack_entry, &mut current_stack);
+                    push_entry_to_stack(&stack_entry, &mut interpreter_stack);
                 }
             }
         } else {
@@ -139,17 +139,16 @@ pub fn tx_outs_are_valid(tx_outs: &[TxOut], tx_ins_spent: AssetValues) -> bool {
 ///
 /// * `script`  - `Script` to validate
 fn tx_has_valid_multsig_validation(script: &Script) -> bool {
-    let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
+    let mut interpreter_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
     let mut test_for_return = true;
     for stack_entry in &script.stack {
         if test_for_return {
             match stack_entry {
                 StackEntry::Op(OpCodes::OP_CHECKMULTISIG) => {
-                    test_for_return &= interface_ops::op_multisig(&mut current_stack);
+                    test_for_return &= interface_ops::op_multisig(&mut interpreter_stack);
                 }
                 _ => {
-                    test_for_return &=
-                        interface_ops::push_entry_to_stack_ref(stack_entry, &mut current_stack);
+                    test_for_return &= push_entry_to_stack(stack_entry, &mut interpreter_stack);
                 }
             }
         } else {
@@ -274,178 +273,312 @@ pub fn tx_has_valid_p2sh_script(script: &Script, address: &str) -> bool {
     false
 }
 
-/// Handles the byte code unwrap and execution for transaction scripts
+/// Checks if a script is valid. Returns a bool.
 ///
 /// ### Arguments
 ///
-/// * `script`  - Script to unwrap and execute
+/// * `script`  - mutable reference to the script
+fn is_valid_script(script: &Script) -> bool {
+    let mut len = ZERO; // script lenght in bytes
+    let mut ops_count = ZERO; // number of opcodes in script
+    for entry in &script.stack {
+        match entry {
+            StackEntry::Op(_) => {
+                len += ONE;
+                ops_count += ONE;
+            }
+            StackEntry::Signature(_) => len += ED25519_SIGNATURE_LEN,
+            StackEntry::PubKey(_) => len += ED25519_PUBLIC_KEY_LEN,
+            StackEntry::PubKeyHash(s) | StackEntry::Bytes(s) => len += s.len(),
+            StackEntry::Num(_) => len += usize::BITS as usize / EIGHT,
+        };
+    }
+    if len > MAX_SCRIPT_SIZE as usize {
+        error_max_script_size();
+        return false;
+    }
+    if ops_count > MAX_OPS_PER_SCRIPT as usize {
+        error_max_ops_script();
+        return false;
+    }
+    true
+}
+
+/// Checks if an interpreter stack is valid. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+fn is_valid_stack(interpreter_stack: &Vec<StackEntry>) -> bool {
+    if interpreter_stack.len() > MAX_STACK_SIZE as usize {
+        error_max_stack_size();
+        return false;
+    }
+    true
+}
+
+/// Pushes a new entry onto the stack. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `stack_entry`  - reference to the entry to be pushed onto the stack
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+fn push_entry_to_stack(stack_entry: &StackEntry, interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    match stack_entry {
+        StackEntry::Op(_) => {
+            return false;
+        }
+        StackEntry::PubKeyHash(s) | StackEntry::Bytes(s) => {
+            if s.len() > MAX_SCRIPT_ITEM_SIZE as usize {
+                return false;
+            }
+        }
+        _ => (),
+    }
+    interpreter_stack.push(stack_entry.clone());
+    true
+}
+
+/// Interpretes and executes a script. Returns a bool.
+///
+/// ### Arguments
+///
+/// * `script`  - mutable reference to the script to interpret and execute
 fn interpret_script(script: &Script) -> bool {
-    // TODO: add checks on constants
-    let mut current_stack: Vec<StackEntry> = Vec::with_capacity(MAX_STACK_SIZE as usize);
-    let mut current_alt_stack: Vec<StackEntry> = Vec::with_capacity(MAX_STACK_SIZE as usize);
+    if !is_valid_script(script) {
+        return false;
+    }
+    let mut interpreter_stack: Vec<StackEntry> = Vec::with_capacity(MAX_STACK_SIZE as usize);
+    let mut interpreter_alt_stack: Vec<StackEntry> = Vec::with_capacity(MAX_STACK_SIZE as usize);
     let mut test_for_return = true;
     for stack_entry in &script.stack {
+        if !is_valid_stack(&interpreter_stack) {
+            return false;
+        }
         if test_for_return {
             match stack_entry {
-                /*---- STACK OPS ----*/
+                /*---- OPCODE ----*/
+                // constants
+                StackEntry::Op(OpCodes::OP_0) => {
+                    test_for_return &= interface_ops::op_0(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_1) => {
+                    test_for_return &= interface_ops::op_1(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_2) => {
+                    test_for_return &= interface_ops::op_2(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_3) => {
+                    test_for_return &= interface_ops::op_3(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_4) => {
+                    test_for_return &= interface_ops::op_4(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_5) => {
+                    test_for_return &= interface_ops::op_5(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_6) => {
+                    test_for_return &= interface_ops::op_6(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_7) => {
+                    test_for_return &= interface_ops::op_7(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_8) => {
+                    test_for_return &= interface_ops::op_8(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_9) => {
+                    test_for_return &= interface_ops::op_9(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_10) => {
+                    test_for_return &= interface_ops::op_10(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_11) => {
+                    test_for_return &= interface_ops::op_11(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_12) => {
+                    test_for_return &= interface_ops::op_12(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_13) => {
+                    test_for_return &= interface_ops::op_13(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_14) => {
+                    test_for_return &= interface_ops::op_14(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_15) => {
+                    test_for_return &= interface_ops::op_15(&mut interpreter_stack);
+                }
+                StackEntry::Op(OpCodes::OP_16) => {
+                    test_for_return &= interface_ops::op_16(&mut interpreter_stack);
+                }
+                // stack
                 StackEntry::Op(OpCodes::OP_TOALTSTACK) => {
-                    test_for_return &=
-                        interface_ops::op_toaltstack(&mut current_stack, &mut current_alt_stack);
+                    test_for_return &= interface_ops::op_toaltstack(
+                        &mut interpreter_stack,
+                        &mut interpreter_alt_stack,
+                    );
                 }
                 StackEntry::Op(OpCodes::OP_FROMALTSTACK) => {
-                    test_for_return &=
-                        interface_ops::op_fromaltstack(&mut current_stack, &mut current_alt_stack);
+                    test_for_return &= interface_ops::op_fromaltstack(
+                        &mut interpreter_stack,
+                        &mut interpreter_alt_stack,
+                    );
                 }
                 StackEntry::Op(OpCodes::OP_2DROP) => {
-                    test_for_return &= interface_ops::op_2drop(&mut current_stack);
+                    test_for_return &= interface_ops::op_2drop(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_2DUP) => {
-                    test_for_return &= interface_ops::op_2dup(&mut current_stack);
+                    test_for_return &= interface_ops::op_2dup(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_3DUP) => {
-                    test_for_return &= interface_ops::op_3dup(&mut current_stack);
+                    test_for_return &= interface_ops::op_3dup(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_2OVER) => {
-                    test_for_return &= interface_ops::op_2over(&mut current_stack);
+                    test_for_return &= interface_ops::op_2over(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_2ROT) => {
-                    test_for_return &= interface_ops::op_2rot(&mut current_stack);
+                    test_for_return &= interface_ops::op_2rot(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_2SWAP) => {
-                    test_for_return &= interface_ops::op_2swap(&mut current_stack);
+                    test_for_return &= interface_ops::op_2swap(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_IFDUP) => {
-                    test_for_return &= interface_ops::op_ifdup(&mut current_stack);
+                    test_for_return &= interface_ops::op_ifdup(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_DEPTH) => {
-                    test_for_return &= interface_ops::op_depth(&mut current_stack);
+                    test_for_return &= interface_ops::op_depth(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_DROP) => {
-                    test_for_return &= interface_ops::op_drop(&mut current_stack);
+                    test_for_return &= interface_ops::op_drop(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_DUP) => {
-                    test_for_return &= interface_ops::op_dup(&mut current_stack);
+                    test_for_return &= interface_ops::op_dup(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_NIP) => {
-                    test_for_return &= interface_ops::op_nip(&mut current_stack);
+                    test_for_return &= interface_ops::op_nip(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_OVER) => {
-                    test_for_return &= interface_ops::op_over(&mut current_stack);
+                    test_for_return &= interface_ops::op_over(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_PICK) => {
-                    test_for_return &= interface_ops::op_pick(&mut current_stack);
+                    test_for_return &= interface_ops::op_pick(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_ROLL) => {
-                    test_for_return &= interface_ops::op_roll(&mut current_stack);
+                    test_for_return &= interface_ops::op_roll(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_ROT) => {
-                    test_for_return &= interface_ops::op_rot(&mut current_stack);
+                    test_for_return &= interface_ops::op_rot(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_SWAP) => {
-                    test_for_return &= interface_ops::op_swap(&mut current_stack);
+                    test_for_return &= interface_ops::op_swap(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_TUCK) => {
-                    test_for_return &= interface_ops::op_tuck(&mut current_stack);
+                    test_for_return &= interface_ops::op_tuck(&mut interpreter_stack);
                 }
-                /*---- SPLICE OPS ----*/
+                // splice
                 StackEntry::Op(OpCodes::OP_SIZE) => {
-                    test_for_return &= interface_ops::op_size(&mut current_stack);
+                    test_for_return &= interface_ops::op_size(&mut interpreter_stack);
                 }
-                /*---- BITWISE LOGIC OPS ----*/
+                // bitwise logic
                 StackEntry::Op(OpCodes::OP_EQUAL) => {
-                    test_for_return &= interface_ops::op_equal(&mut current_stack);
+                    test_for_return &= interface_ops::op_equal(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
-                    test_for_return &= interface_ops::op_equalverify(&mut current_stack);
+                    test_for_return &= interface_ops::op_equalverify(&mut interpreter_stack);
                 }
-                /*---- ARITHMETIC OPS ----*/
+                // arithmetic
                 StackEntry::Op(OpCodes::OP_1ADD) => {
-                    test_for_return &= interface_ops::op_1add(&mut current_stack);
+                    test_for_return &= interface_ops::op_1add(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_1SUB) => {
-                    test_for_return &= interface_ops::op_1sub(&mut current_stack);
+                    test_for_return &= interface_ops::op_1sub(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_NOT) => {
-                    test_for_return &= interface_ops::op_not(&mut current_stack);
+                    test_for_return &= interface_ops::op_not(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_0NOTEQUAL) => {
-                    test_for_return &= interface_ops::op_0notequal(&mut current_stack);
+                    test_for_return &= interface_ops::op_0notequal(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_ADD) => {
-                    test_for_return &= interface_ops::op_add(&mut current_stack);
+                    test_for_return &= interface_ops::op_add(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_SUB) => {
-                    test_for_return &= interface_ops::op_sub(&mut current_stack);
+                    test_for_return &= interface_ops::op_sub(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_BOOLAND) => {
-                    test_for_return &= interface_ops::op_booland(&mut current_stack);
+                    test_for_return &= interface_ops::op_booland(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_BOOLOR) => {
-                    test_for_return &= interface_ops::op_boolor(&mut current_stack);
+                    test_for_return &= interface_ops::op_boolor(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_NUMEQUAL) => {
-                    test_for_return &= interface_ops::op_numequal(&mut current_stack);
+                    test_for_return &= interface_ops::op_numequal(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_NUMEQUALVERIFY) => {
-                    test_for_return &= interface_ops::op_numequalverify(&mut current_stack);
+                    test_for_return &= interface_ops::op_numequalverify(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_NUMNOTEQUAL) => {
-                    test_for_return &= interface_ops::op_numnotequal(&mut current_stack);
+                    test_for_return &= interface_ops::op_numnotequal(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_LESSTHAN) => {
-                    test_for_return &= interface_ops::op_lessthan(&mut current_stack);
+                    test_for_return &= interface_ops::op_lessthan(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_GREATERTHAN) => {
-                    test_for_return &= interface_ops::op_greaterthan(&mut current_stack);
+                    test_for_return &= interface_ops::op_greaterthan(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_LESSTHANOREQUAL) => {
-                    test_for_return &= interface_ops::op_lessthanorequal(&mut current_stack);
+                    test_for_return &= interface_ops::op_lessthanorequal(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_GREATERTHANOREQUAL) => {
-                    test_for_return &= interface_ops::op_greaterthanorequal(&mut current_stack);
+                    test_for_return &= interface_ops::op_greaterthanorequal(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_MIN) => {
-                    test_for_return &= interface_ops::op_min(&mut current_stack);
+                    test_for_return &= interface_ops::op_min(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_MAX) => {
-                    test_for_return &= interface_ops::op_max(&mut current_stack);
+                    test_for_return &= interface_ops::op_max(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_WITHIN) => {
-                    test_for_return &= interface_ops::op_within(&mut current_stack);
+                    test_for_return &= interface_ops::op_within(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_CREATE) => {
-                    current_stack.pop();
+                    interpreter_stack.pop();
                 }
-
-                /*---- CRYPTO OPS ----*/
+                // crypto
                 StackEntry::Op(OpCodes::OP_HASH256) => {
-                    test_for_return &= interface_ops::op_hash256(&mut current_stack, None);
+                    test_for_return &= interface_ops::op_hash256(&mut interpreter_stack, None);
                 }
                 StackEntry::Op(OpCodes::OP_HASH256_V0) => {
                     test_for_return &=
-                        interface_ops::op_hash256(&mut current_stack, Some(NETWORK_VERSION_V0));
+                        interface_ops::op_hash256(&mut interpreter_stack, Some(NETWORK_VERSION_V0));
                 }
                 StackEntry::Op(OpCodes::OP_HASH256_TEMP) => {
-                    test_for_return &=
-                        interface_ops::op_hash256(&mut current_stack, Some(NETWORK_VERSION_TEMP));
-                }
-                StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
-                    test_for_return &= interface_ops::op_equalverify(&mut current_stack);
+                    test_for_return &= interface_ops::op_hash256(
+                        &mut interpreter_stack,
+                        Some(NETWORK_VERSION_TEMP),
+                    );
                 }
                 StackEntry::Op(OpCodes::OP_CHECKSIG) => {
-                    test_for_return &= interface_ops::op_checksig(&mut current_stack);
+                    test_for_return &= interface_ops::op_checksig(&mut interpreter_stack);
                 }
+                /*---- SIGNATURE | PUBKEY | PUBKEYHASH | NUM | BYTES ----*/
+                StackEntry::Signature(_)
+                | StackEntry::PubKey(_)
+                | StackEntry::PubKeyHash(_)
+                | StackEntry::Num(_)
+                | StackEntry::Bytes(_) => {
+                    test_for_return &= push_entry_to_stack(stack_entry, &mut interpreter_stack);
+                }
+                /*---- UNKNOWN OPERATION ----*/
                 _ => {
-                    test_for_return &=
-                        interface_ops::push_entry_to_stack_ref(stack_entry, &mut current_stack);
+                    error_unknown_operation();
+                    return false;
                 }
             }
         } else {
             return false;
         }
     }
-
-    test_for_return && current_stack.is_empty()
+    test_for_return && interpreter_stack.is_empty()
 }
 
 /// Does pairwise validation of signatures against public keys

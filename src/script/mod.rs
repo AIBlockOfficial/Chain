@@ -18,52 +18,32 @@ pub enum StackEntry {
     Bytes(String),
 }
 
-impl StackEntry {
-    /// Checks whether this stack entry is a hash (either a signature or pubkey)
-    pub fn is_a_hash(&self) -> bool {
-        matches!(
-            self,
-            StackEntry::Signature(_) | StackEntry::PubKey(_) | StackEntry::PubKeyHash(_)
-        )
-    }
-
-    /// Checks whether this stack entry is an opcode
-    pub fn is_an_op(&self) -> bool {
-        matches!(self, StackEntry::Op(_))
-    }
-
-    /// Checks whether this stack entry is a numeric value
-    pub fn is_a_num(&self) -> bool {
-        matches!(self, StackEntry::Num(_))
-    }
-}
-
 /// Ops code for stack scripts
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub enum OpCodes {
     // constants
-    OP_0 = 0x00,
-    OP_PUSHDATA1 = 0x4c,
-    OP_PUSHDATA2 = 0x4d,
-    OP_PUSHDATA4 = 0x4e,
-    OP_1NEGATE = 0x4f,
-    OP_1 = 0x51,
-    OP_2 = 0x52,
-    OP_3 = 0x53,
-    OP_4 = 0x54,
-    OP_5 = 0x55,
-    OP_6 = 0x56,
-    OP_7 = 0x57,
-    OP_8 = 0x58,
-    OP_9 = 0x59,
-    OP_10 = 0x5a,
-    OP_11 = 0x5b,
-    OP_12 = 0x5c,
-    OP_13 = 0x5d,
-    OP_14 = 0x5e,
-    OP_15 = 0x5f,
-    OP_16 = 0x60,
+    OP_0 = 0x00,         // implemented, tested, added to interpret_script
+    OP_PUSHDATA1 = 0x4c, // not implemented: we use push_entry_to_stack
+    OP_PUSHDATA2 = 0x4d, // not implemented: we use push_entry_to_stack
+    OP_PUSHDATA4 = 0x4e, // not implemented: we use push_entry_to_stack
+    OP_1NEGATE = 0x4f,   // not implemented: we do not allow negative numbers on the stack
+    OP_1 = 0x51,         // implemented, tested, added to interpret_script
+    OP_2 = 0x52,         // implemented, tested, added to interpret_script
+    OP_3 = 0x53,         // implemented, tested, added to interpret_script
+    OP_4 = 0x54,         // implemented, tested, added to interpret_script
+    OP_5 = 0x55,         // implemented, tested, added to interpret_script
+    OP_6 = 0x56,         // implemented, tested, added to interpret_script
+    OP_7 = 0x57,         // implemented, tested, added to interpret_script
+    OP_8 = 0x58,         // implemented, tested, added to interpret_script
+    OP_9 = 0x59,         // implemented, tested, added to interpret_script
+    OP_10 = 0x5a,        // implemented, tested, added to interpret_script
+    OP_11 = 0x5b,        // implemented, tested, added to interpret_script
+    OP_12 = 0x5c,        // implemented, tested, added to interpret_script
+    OP_13 = 0x5d,        // implemented, tested, added to interpret_script
+    OP_14 = 0x5e,        // implemented, tested, added to interpret_script
+    OP_15 = 0x5f,        // implemented, tested, added to interpret_script
+    OP_16 = 0x60,        // implemented, tested, added to interpret_script
 
     // flow control
     OP_NOP = 0x61,
@@ -152,10 +132,18 @@ pub enum OpCodes {
     OP_CHECKMULTISIG = 0xae,
     OP_CHECKMULTISIGVERIFY = 0xaf,
 
-    // expansion
-    OP_NOP1 = 0xb0,
+    // locktime
     OP_CHECKLOCKTIMEVERIFY = 0xb1,
     OP_CHECKSEQUENCEVERIFY = 0xb2,
+
+    // pseudo-words
+    OP_INVALIDOPCODE = 0xff,
+
+    // reserved
+    OP_RESERVED = 0x50,
+    OP_RESERVED1 = 0x89,
+    OP_RESERVED2 = 0x8a,
+    OP_NOP1 = 0xb0,
     OP_NOP4 = 0xb3,
     OP_NOP5 = 0xb4,
     OP_NOP6 = 0xb5,
@@ -163,11 +151,6 @@ pub enum OpCodes {
     OP_NOP8 = 0xb7,
     OP_NOP9 = 0xb8,
     OP_NOP10 = 0xb9,
-
-    // reserved
-    OP_RESERVED = 0x50,
-    OP_RESERVED1 = 0x89,
-    OP_RESERVED2 = 0x8a,
 
     // data
     OP_CREATE = 0xc0,
@@ -178,8 +161,6 @@ pub enum OpCodes {
     // support for temporary address scheme used on wallet
     // TODO: Deprecate after addresses retire
     OP_HASH256_TEMP = 0xc2,
-
-    OP_INVALIDOPCODE = 0xff,
 }
 
 impl OpCodes {
