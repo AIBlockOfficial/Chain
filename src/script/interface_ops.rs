@@ -1,5 +1,4 @@
 #![allow(unused)]
-
 use crate::constants::*;
 use crate::crypto::sha3_256;
 use crate::crypto::sign_ed25519 as sign;
@@ -8,6 +7,7 @@ use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
+use crate::utils::error_utils::*;
 use crate::utils::transaction_utils::{construct_address, construct_address_for};
 use bincode::serialize;
 use bytes::Bytes;

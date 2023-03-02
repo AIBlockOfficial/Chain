@@ -1,5 +1,4 @@
 use crate::script::OpCodes;
-use tracing::{error, trace};
 
 /*------- TRANSACTION CONSTANTS -------*/
 
@@ -91,10 +90,6 @@ pub const FIFTEEN: usize = 15;
 pub const SIXTEEN: usize = 16;
 
 /*------- TRACE MESSAGES -------*/
-
-pub fn trace(op: &str, desc: &str) {
-    trace!("{}: {}", op, desc)
-}
 
 // constants
 pub const OP0: &str = "OP_0";
@@ -272,50 +267,6 @@ pub const OPMAX_DESC: &str =
 pub const OPWITHIN_DESC: &str = "Substitutes the top three items on the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item, with ZERO otherwise";
 
 /*------- ERROR MESSAGES -------*/
-
-pub fn error_num_items(opcode: &str) {
-    error!("{}: {}", opcode, ERROR_NUM_ITEMS)
-}
-
-pub fn error_item_type(opcode: &str) {
-    error!("{}: {}", opcode, ERROR_ITEM_TYPE)
-}
-
-pub fn error_item_index(opcode: &str) {
-    error!("{}: {}", opcode, ERROR_ITEM_INDEX)
-}
-
-pub fn error_item_size(opcode: &str) {
-    error!("{}: {}", opcode, ERROR_ITEM_SIZE)
-}
-
-pub fn error_not_equal_items(opcode: &str) {
-    error!("{}: {}", opcode, ERROR_NOT_EQUAL_ITEMS)
-}
-
-pub fn error_overflow(opcode: &str) {
-    error!("{}: {}", opcode, ERROR_OVERFLOW)
-}
-
-pub fn error_div_zero(opcode: &str) {
-    error!("{}: {}", opcode, ERROR_DIV_ZERO)
-}
-
-pub fn error_max_script_size() {
-    error!("{}", ERROR_MAX_SCRIPT_SIZE)
-}
-
-pub fn error_max_stack_size() {
-    error!("{}", ERROR_MAX_STACK_SIZE)
-}
-
-pub fn error_max_ops_script() {
-    error!("{}", ERROR_MAX_OPS_SCRIPT)
-}
-
-pub fn error_unknown_operation() {
-    error!("{}", ERROR_UNKWON_OPERATION)
-}
 
 // opcodes
 pub const ERROR_NUM_ITEMS: &str = "Not enough items on the stack";
