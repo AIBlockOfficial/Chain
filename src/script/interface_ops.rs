@@ -556,8 +556,12 @@ pub fn op_pick(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -584,8 +588,12 @@ pub fn op_roll(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -673,15 +681,23 @@ pub fn op_cat(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let s2 = match interpreter_stack.pop() {
         Some(StackEntry::Bytes(s)) => s,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let s1 = match interpreter_stack.pop() {
         Some(StackEntry::Bytes(s)) => s,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -706,22 +722,34 @@ pub fn op_substr(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let s = match interpreter_stack.pop() {
         Some(StackEntry::Bytes(s)) => s,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -755,15 +783,23 @@ pub fn op_left(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let s = match interpreter_stack.pop() {
         Some(StackEntry::Bytes(s)) => s,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -789,15 +825,23 @@ pub fn op_right(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let s = match interpreter_stack.pop() {
         Some(StackEntry::Bytes(s)) => s,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -822,8 +866,12 @@ pub fn op_size(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let s = match interpreter_stack.last().cloned() {
         Some(StackEntry::Bytes(s)) => s,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -845,8 +893,12 @@ pub fn op_invert(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -866,15 +918,23 @@ pub fn op_and(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -894,15 +954,23 @@ pub fn op_or(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -922,15 +990,23 @@ pub fn op_xor(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1017,8 +1093,12 @@ pub fn op_1add(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1044,8 +1124,12 @@ pub fn op_1sub(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1071,8 +1155,12 @@ pub fn op_2mul(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1098,8 +1186,12 @@ pub fn op_2div(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1121,8 +1213,12 @@ pub fn op_not(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1148,8 +1244,12 @@ pub fn op_0notequal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1173,15 +1273,23 @@ pub fn op_add(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1207,15 +1315,23 @@ pub fn op_sub(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1241,15 +1357,23 @@ pub fn op_mul(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1275,15 +1399,23 @@ pub fn op_div(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1309,15 +1441,23 @@ pub fn op_mod(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1343,15 +1483,23 @@ pub fn op_lshift(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1377,15 +1525,23 @@ pub fn op_rshift(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1412,15 +1568,23 @@ pub fn op_booland(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1445,15 +1609,23 @@ pub fn op_boolor(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1478,15 +1650,23 @@ pub fn op_numequal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1511,15 +1691,23 @@ pub fn op_numequalverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1543,15 +1731,23 @@ pub fn op_numnotequal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1576,15 +1772,23 @@ pub fn op_lessthan(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1609,15 +1813,23 @@ pub fn op_greaterthan(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1642,15 +1854,23 @@ pub fn op_lessthanorequal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1675,15 +1895,23 @@ pub fn op_greaterthanorequal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1708,15 +1936,23 @@ pub fn op_min(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1737,15 +1973,23 @@ pub fn op_max(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
@@ -1767,22 +2011,34 @@ pub fn op_within(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     trace(op, desc);
     let n3 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n2 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
     let n1 = match interpreter_stack.pop() {
         Some(StackEntry::Num(n)) => n,
-        _ => {
+        Some(_) => {
             error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
             return false;
         }
     };
