@@ -270,13 +270,18 @@ pub const OPWITHIN_DESC: &str = "Substitutes the top three items on the stack wi
 pub const OPHASH256: &str = "OP_HASH256";
 pub const OPHASH256V0: &str = "OP_HASH256_V0";
 pub const OPHASH256TEMP: &str = "OP_HASH256_TEMP";
+pub const OPCHECKSIG: &str = "OP_CHECKSIG";
+pub const OPCHECKSIGVERIFY: &str = "OP_CHECKSIGVERIFY";
 
 pub const OPHASH256_DESC: &str =
-    "Creates address from public key and address version, and pushes it onto the stack";
+    "Creates standard address from public key and pushes it onto the stack";
 pub const OPHASH256V0_DESC: &str =
-    "Creates address from public key and address version, and pushes it onto the stack";
+    "Creates v0 address from public key and pushes it onto the stack";
 pub const OPHASH256TEMP_DESC: &str =
-    "Creates address from public key and address version, and pushes it onto the stack";
+    "Creates temporary address from public key and pushes it onto the stack";
+pub const OPCHECKSIG_DESC: &str =
+    "Pushes ONE onto the stack if the signature is valid, ZERO otherwise";
+pub const OPCHECKSIGVERIFY_DESC: &str = "Runs OP_CHECKSIG and OP_VERIFY in sequence";
 
 /*------- ERROR MESSAGES -------*/
 
@@ -288,6 +293,7 @@ pub const ERROR_ITEM_SIZE: &str = "Item size exceeds MAX_SCRIPT_ITEM_SIZE-byte l
 pub const ERROR_NOT_EQUAL_ITEMS: &str = "The two top items are not equal";
 pub const ERROR_OVERFLOW: &str = "Attempt to overflow";
 pub const ERROR_DIV_ZERO: &str = "Attempt to divide by ZERO";
+pub const ERROR_INVALID_SIGNATURE: &str = "Signature is not valid";
 
 // script
 pub const ERROR_MAX_SCRIPT_SIZE: &str = "Script size exceeds MAX_SCRIPT_SIZE-byte limit";
