@@ -52,7 +52,7 @@ pub fn member_multisig_is_valid(script: Script) -> bool {
 /// Verifies that all incoming transactions are allowed to be spent. Returns false if a single
 /// transaction doesn't verify
 ///
-/// TODO: Currently assumes p2pkh, abstract to all tx types
+/// TODO: Currently assumes p2pkh and p2sh, abstract to all tx types
 ///
 /// ### Arguments
 ///
@@ -339,7 +339,7 @@ fn push_entry_to_stack(stack_entry: &StackEntry, interpreter_stack: &mut Vec<Sta
     true
 }
 
-/// Interpretes and executes a script. Returns a bool.
+/// Interprets and executes a script. Returns a bool.
 ///
 /// ### Arguments
 ///
@@ -540,22 +540,16 @@ fn interpret_script(script: &Script) -> bool {
                 StackEntry::Op(OpCodes::OP_WITHIN) => {
                     test_for_return &= interface_ops::op_within(&mut interpreter_stack);
                 }
-                StackEntry::Op(OpCodes::OP_CREATE) => {
-                    interpreter_stack.pop();
-                }
+                StackEntry::Op(OpCodes::OP_CREATE) => (),
                 // crypto
                 StackEntry::Op(OpCodes::OP_HASH256) => {
-                    test_for_return &= interface_ops::op_hash256(&mut interpreter_stack, None);
+                    test_for_return &= interface_ops::op_hash256(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_HASH256_V0) => {
-                    test_for_return &=
-                        interface_ops::op_hash256(&mut interpreter_stack, Some(NETWORK_VERSION_V0));
+                    test_for_return &= interface_ops::op_hash256_v0(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_HASH256_TEMP) => {
-                    test_for_return &= interface_ops::op_hash256(
-                        &mut interpreter_stack,
-                        Some(NETWORK_VERSION_TEMP),
-                    );
+                    test_for_return &= interface_ops::op_hash256_temp(&mut interpreter_stack);
                 }
                 StackEntry::Op(OpCodes::OP_CHECKSIG) => {
                     test_for_return &= interface_ops::op_checksig(&mut interpreter_stack);
@@ -578,7 +572,7 @@ fn interpret_script(script: &Script) -> bool {
             return false;
         }
     }
-    test_for_return && interpreter_stack.is_empty()
+    test_for_return && interpreter_stack.last().cloned() != Some(StackEntry::Num(ZERO))
 }
 
 /// Does pairwise validation of signatures against public keys

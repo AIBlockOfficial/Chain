@@ -54,7 +54,7 @@ pub fn construct_address(pub_key: &PublicKey) -> String {
 /// ### Arguments
 ///
 /// * `pub_key` - A public key to build an address from
-fn construct_address_v0(pub_key: &PublicKey) -> String {
+pub fn construct_address_v0(pub_key: &PublicKey) -> String {
     let first_pubkey_bytes = {
         // We used sodiumoxide serialization before with a 64 bit length prefix.
         // Make clear what we are using as this was not intended.
@@ -72,7 +72,7 @@ fn construct_address_v0(pub_key: &PublicKey) -> String {
 /// Builds an address from a public key using the
 /// temporary address scheme present on the wallet
 ///
-/// TODO: Depreciate after addresses retire
+/// TODO: Deprecate after addresses retire
 ///
 /// ### Arguments
 ///
@@ -88,7 +88,7 @@ pub fn construct_address_temp(pub_key: &PublicKey) -> String {
 /// first character. If the decoding up to the first character fails, a default value of 0
 /// is used.
 ///
-/// TODO: Depreciate after addresses retire
+/// TODO: Deprecate after addresses retire
 ///
 /// ### Arguments
 ///

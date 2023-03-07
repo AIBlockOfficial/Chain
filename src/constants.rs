@@ -67,7 +67,7 @@ pub const P2SH_PREPEND: u8 = b'H';
 pub const NETWORK_VERSION_V0: u64 = 0;
 
 // Network version to support temporary address structure on wallet
-// TODO: Depreciate after addresses retire
+// TODO: Deprecate after addresses retire
 pub const NETWORK_VERSION_TEMP: u64 = 99999;
 
 /*------- NUMBERS -------*/
@@ -265,6 +265,18 @@ pub const OPMIN_DESC: &str =
 pub const OPMAX_DESC: &str =
     "Substitutes the top two items on the stack with the maximum between the two";
 pub const OPWITHIN_DESC: &str = "Substitutes the top three items on the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item, with ZERO otherwise";
+
+// crypto
+pub const OPHASH256: &str = "OP_HASH256";
+pub const OPHASH256V0: &str = "OP_HASH256_V0";
+pub const OPHASH256TEMP: &str = "OP_HASH256_TEMP";
+
+pub const OPHASH256_DESC: &str =
+    "Creates address from public key and address version, and pushes it onto the stack";
+pub const OPHASH256V0_DESC: &str =
+    "Creates address from public key and address version, and pushes it onto the stack";
+pub const OPHASH256TEMP_DESC: &str =
+    "Creates address from public key and address version, and pushes it onto the stack";
 
 /*------- ERROR MESSAGES -------*/
 
