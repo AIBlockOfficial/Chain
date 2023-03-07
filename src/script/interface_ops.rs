@@ -8,7 +8,9 @@ use crate::primitives::transaction::*;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::error_utils::*;
-use crate::utils::transaction_utils::{construct_address, construct_address_for};
+use crate::utils::transaction_utils::{
+    construct_address, construct_address_temp, construct_address_v0,
+};
 use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
@@ -25,8 +27,8 @@ use tracing::{debug, error, info, trace};
 ///
 /// * `interpreter_stack`  - mutable reference to the interpreter stack
 pub fn op_0(interpreter_stack: &mut Vec<StackEntry>) -> bool {
-    let (op, desc) = (OP0, OP0_DESC);
-    trace(op, desc);
+    let (op, burgir) = (OP0, OP0_DESC);
+    trace(op, burgir);
     interpreter_stack.push(StackEntry::Num(ZERO));
     true
 }
@@ -2052,21 +2054,81 @@ pub fn op_within(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 
 /*---- CRYPTO OPS ----*/
 
-/// Handles the execution for the hash256 op. Returns a bool.
+/// OP_HASH256: Creates address from public key and pushes it onto the stack. Returns a bool.
+///
+/// Example: OP_HASH256([pk]) -> [addr]
 ///
 /// ### Arguments
 ///
 /// * `interpreter_stack`  - mutable reference to the interpreter stack
-pub fn op_hash256(interpreter_stack: &mut Vec<StackEntry>, address_version: Option<u64>) -> bool {
-    trace!("OP_HASH256: creating address from public key and address version");
-    let last_entry = interpreter_stack.pop().unwrap();
-    let pub_key = match last_entry {
-        StackEntry::PubKey(v) => v,
-        _ => return false,
+pub fn op_hash256(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPHASH256, OPHASH256_DESC);
+    trace(op, desc);
+    let pk = match interpreter_stack.pop() {
+        Some(StackEntry::PubKey(pk)) => pk,
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
     };
+    let addr = construct_address(&pk);
+    interpreter_stack.push(StackEntry::PubKeyHash(addr));
+    true
+}
 
-    let new_entry = construct_address_for(&pub_key, address_version);
-    interpreter_stack.push(StackEntry::PubKeyHash(new_entry));
+/// OP_HASH256_V0: Creates address from public key and pushes it onto the stack. Returns a bool.
+///
+/// Example:
+///
+/// ### Arguments
+///
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_hash256_v0(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPHASH256V0, OPHASH256V0_DESC);
+    trace(op, desc);
+    let pk = match interpreter_stack.pop() {
+        Some(StackEntry::PubKey(pk)) => pk,
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
+    };
+    let addr = construct_address_v0(&pk);
+    interpreter_stack.push(StackEntry::PubKeyHash(addr));
+    true
+}
+
+/// OP_HASH256_TEMP: Creates address from public key and pushes it onto the stack. Returns a bool.
+///
+/// Example:
+///
+/// ### Arguments
+///
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_hash256_temp(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPHASH256TEMP, OPHASH256TEMP_DESC);
+    trace(op, desc);
+    let pk = match interpreter_stack.pop() {
+        Some(StackEntry::PubKey(pk)) => pk,
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
+    };
+    let addr = construct_address_temp(&pk);
+    interpreter_stack.push(StackEntry::PubKeyHash(addr));
     true
 }
 
@@ -2091,11 +2153,16 @@ pub fn op_checksig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
         StackEntry::Bytes(check_data) => check_data,
         _ => panic!("Check data bytes not present to verify transaction"),
     };
-
     if (!sign::verify_detached(&sig, check_data.as_bytes(), &pub_key)) {
+        interpreter_stack.push(StackEntry::Num(ZERO));
+    } else {
+        interpreter_stack.push(StackEntry::Num(ONE));
+    }
+
+    /*if (!sign::verify_detached(&sig, check_data.as_bytes(), &pub_key)) {
         error!("Signature not valid. Transaction input invalid");
         return false;
-    }
+    }*/
     true
 }
 
@@ -3676,6 +3743,53 @@ mod tests {
             interpreter_stack.push(StackEntry::Num(i));
         }
         let b = op_within(&mut interpreter_stack);
+        assert!(!b)
+    }
+
+    /*---- CRYPTO OPS ----*/
+
+    #[test]
+    /// Test OP_HASH256
+    fn test_hash256() {
+        /// op_hash256([pk]) -> [addr]
+        let (pk, sk) = sign::gen_keypair();
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::PubKey(pk)];
+        let mut v: Vec<StackEntry> = vec![StackEntry::PubKeyHash(construct_address(&pk))];
+        op_hash256(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
+        /// op_hash256([]) -> fail
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_hash256(&mut interpreter_stack);
+        assert!(!b)
+    }
+
+    #[test]
+    /// Test OP_HASH256_V0
+    fn test_hash256_v0() {
+        /// op_hash256_v0([pk]) -> [addr]
+        let (pk, sk) = sign::gen_keypair();
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::PubKey(pk)];
+        let mut v: Vec<StackEntry> = vec![StackEntry::PubKeyHash(construct_address_v0(&pk))];
+        op_hash256_v0(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
+        /// op_hash256([]) -> fail
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_hash256_v0(&mut interpreter_stack);
+        assert!(!b)
+    }
+
+    #[test]
+    /// Test OP_HASH256_TEMP
+    fn test_hash256_temp() {
+        /// op_hash256_temp([pk]) -> [addr]
+        let (pk, sk) = sign::gen_keypair();
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::PubKey(pk)];
+        let mut v: Vec<StackEntry> = vec![StackEntry::PubKeyHash(construct_address_temp(&pk))];
+        op_hash256_temp(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
+        /// op_hash256([]) -> fail
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_hash256_temp(&mut interpreter_stack);
         assert!(!b)
     }
 }
