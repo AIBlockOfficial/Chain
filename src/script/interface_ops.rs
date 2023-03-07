@@ -2054,7 +2054,7 @@ pub fn op_within(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 
 /*---- CRYPTO OPS ----*/
 
-/// OP_HASH256: Creates address from public key and pushes it onto the stack. Returns a bool.
+/// OP_HASH256: Creates standard address from public key and pushes it onto the stack. Returns a bool.
 ///
 /// Example: OP_HASH256([pk]) -> [addr]
 ///
@@ -2080,9 +2080,9 @@ pub fn op_hash256(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_HASH256_V0: Creates address from public key and pushes it onto the stack. Returns a bool.
+/// OP_HASH256_V0: Creates v0 address from public key and pushes it onto the stack. Returns a bool.
 ///
-/// Example:
+/// Example: OP_HASH256_V0([pk]) -> [addr_v0]
 ///
 /// ### Arguments
 ///
@@ -2106,9 +2106,9 @@ pub fn op_hash256_v0(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_HASH256_TEMP: Creates address from public key and pushes it onto the stack. Returns a bool.
+/// OP_HASH256_TEMP: Creates temporary address from public key and pushes it onto the stack. Returns a bool.
 ///
-/// Example:
+/// Example: OP_HASH256_TEMP([pk]) -> [addr_temp]
 ///
 /// ### Arguments
 ///
@@ -2132,37 +2132,106 @@ pub fn op_hash256_temp(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// Handles the execution for the checksig op_code. Returns a bool.
+/// OP_CHECKSIG: Pushes ONE onto the stack if the signature is valid, ZERO otherwise. Returns a bool.
+///
+/// Example: OP_CHECKSIG([m, sig, pk]) -> [1] if Verify(pk, m, sig) == 1
+///          OP_CHECKSIG([m, sig, pk]) -> [0] if Verify(pk, m, sig) == 0
 ///
 /// ### Arguments
 ///
 /// * `interpreter_stack`  - mutable reference to the interpreter stack
 pub fn op_checksig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("Checking p2pkh signature");
-    let pub_key: PublicKey = match interpreter_stack.pop().unwrap() {
-        StackEntry::PubKey(pub_key) => pub_key,
-        _ => panic!("Public key not present to verify transaction"),
+    let (op, desc) = (OPCHECKSIG, OPCHECKSIG_DESC);
+    trace(op, desc);
+    let pk = match interpreter_stack.pop() {
+        Some(StackEntry::PubKey(pk)) => pk,
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
     };
-
-    let sig: Signature = match interpreter_stack.pop().unwrap() {
-        StackEntry::Signature(sig) => sig,
-        _ => panic!("Signature not present to verify transaction"),
+    let sig = match interpreter_stack.pop() {
+        Some(StackEntry::Signature(sig)) => sig,
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
     };
-
-    let check_data = match interpreter_stack.pop().unwrap() {
-        StackEntry::Bytes(check_data) => check_data,
-        _ => panic!("Check data bytes not present to verify transaction"),
+    let m = match interpreter_stack.pop() {
+        Some(StackEntry::Bytes(m)) => m,
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
     };
-    if (!sign::verify_detached(&sig, check_data.as_bytes(), &pub_key)) {
+    if (!sign::verify_detached(&sig, m.as_bytes(), &pk)) {
         interpreter_stack.push(StackEntry::Num(ZERO));
     } else {
         interpreter_stack.push(StackEntry::Num(ONE));
     }
+    true
+}
 
-    /*if (!sign::verify_detached(&sig, check_data.as_bytes(), &pub_key)) {
-        error!("Signature not valid. Transaction input invalid");
+/// OP_CHECKSIGVERIFY: Runs OP_CHECKSIG and OP_VERIFY in sequence. Returns a bool.
+///
+/// Example: OP_CHECKSIGVERIFY([m, sig, pk]) -> []   if Verify(pk, m, sig) == 1
+///          OP_CHECKSIGVERIFY([m, sig, pk]) -> fail if Verify(pk, m, sig) == 0
+///
+/// ### Arguments
+///
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_checksigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPCHECKSIGVERIFY, OPCHECKSIGVERIFY_DESC);
+    trace(op, desc);
+    let pk = match interpreter_stack.pop() {
+        Some(StackEntry::PubKey(pk)) => pk,
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
+    };
+    let sig = match interpreter_stack.pop() {
+        Some(StackEntry::Signature(sig)) => sig,
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
+    };
+    let m = match interpreter_stack.pop() {
+        Some(StackEntry::Bytes(m)) => m,
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
+    };
+    if (!sign::verify_detached(&sig, m.as_bytes(), &pk)) {
+        error_invalid_signature(op);
         return false;
-    }*/
+    }
     true
 }
 
@@ -3790,6 +3859,67 @@ mod tests {
         /// op_hash256([]) -> fail
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         let b = op_hash256_temp(&mut interpreter_stack);
+        assert!(!b)
+    }
+
+    #[test]
+    /// Test OP_CHECKSIG
+    fn test_checksig() {
+        /// op_checksig([m,sig(m),pk]) -> [1]
+        let (pk, sk) = sign::gen_keypair();
+        let m = hex::encode(vec![0, 0, 0]);
+        let sig = sign::sign_detached(m.as_bytes(), &sk);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        interpreter_stack.push(StackEntry::Bytes(m));
+        interpreter_stack.push(StackEntry::Signature(sig));
+        interpreter_stack.push(StackEntry::PubKey(pk));
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        op_checksig(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
+        /// op_checksig([m',sig(m),pk]) -> [0]
+        let m = hex::encode(vec![0, 0, 1]);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        interpreter_stack.push(StackEntry::Bytes(m));
+        interpreter_stack.push(StackEntry::Signature(sig));
+        interpreter_stack.push(StackEntry::PubKey(pk));
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
+        op_checksig(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
+        /// op_checksig([sig(m),pk]) -> fail
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        interpreter_stack.push(StackEntry::Signature(sig));
+        interpreter_stack.push(StackEntry::PubKey(pk));
+        let b = op_checksig(&mut interpreter_stack);
+        assert!(!b)
+    }
+
+    #[test]
+    /// Test OP_CHECKSIGVERIFY
+    fn test_checksigverify() {
+        /// op_checksigverify([m,sig(m),pk]) -> []
+        let (pk, sk) = sign::gen_keypair();
+        let m = hex::encode(vec![0, 0, 0]);
+        let sig = sign::sign_detached(m.as_bytes(), &sk);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        interpreter_stack.push(StackEntry::Bytes(m));
+        interpreter_stack.push(StackEntry::Signature(sig));
+        interpreter_stack.push(StackEntry::PubKey(pk));
+        let mut v: Vec<StackEntry> = vec![];
+        op_checksigverify(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
+        /// op_checksigverify([m',sig(m),pk]) -> fail
+        let m = hex::encode(vec![0, 0, 1]);
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        interpreter_stack.push(StackEntry::Bytes(m));
+        interpreter_stack.push(StackEntry::Signature(sig));
+        interpreter_stack.push(StackEntry::PubKey(pk));
+        let b = op_checksigverify(&mut interpreter_stack);
+        assert!(!b);
+        /// op_checksigverify([sig(m),pk]) -> fail
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        interpreter_stack.push(StackEntry::Signature(sig));
+        interpreter_stack.push(StackEntry::PubKey(pk));
+        let b = op_checksigverify(&mut interpreter_stack);
         assert!(!b)
     }
 }
