@@ -89,8 +89,8 @@ impl Script {
         let new_key = construct_address_for(&pub_key, address_version);
 
         let op_hash_256 = match address_version {
-            Some(NETWORK_VERSION_V0) => OpCodes::OP_HASH256_V0,
-            Some(NETWORK_VERSION_TEMP) => OpCodes::OP_HASH256_TEMP,
+            Some(NETWORK_VERSION_V0) => OpCodes::OP_HASH256V0,
+            Some(NETWORK_VERSION_TEMP) => OpCodes::OP_HASH256TEMP,
             _ => OpCodes::OP_HASH256,
         };
 

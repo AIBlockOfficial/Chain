@@ -2054,6 +2054,34 @@ pub fn op_within(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 
 /*---- CRYPTO OPS ----*/
 
+/// OP_SHA3: Hashes the top item on the stack using SHA3-256. Returns a bool.
+///
+/// Example: OP_SHA3([m]) -> [SHA3-256(m)]
+///
+/// ### Arguments
+///
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_sha3(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPSHA3, OPSHA3_DESC);
+    trace(op, desc);
+    let data = match interpreter_stack.pop() {
+        Some(StackEntry::Signature(sig)) => sig.as_ref().to_owned(),
+        Some(StackEntry::PubKey(pk)) => pk.as_ref().to_owned(),
+        Some(StackEntry::PubKeyHash(s)) | Some(StackEntry::Bytes(s)) => s.as_bytes().to_owned(),
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
+    };
+    let hash = hex::encode(sha3_256::digest(&data));
+    interpreter_stack.push(StackEntry::Bytes(hash));
+    true
+}
+
 /// OP_HASH256: Creates standard address from public key and pushes it onto the stack. Returns a bool.
 ///
 /// Example: OP_HASH256([pk]) -> [addr]
@@ -2080,14 +2108,14 @@ pub fn op_hash256(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_HASH256_V0: Creates v0 address from public key and pushes it onto the stack. Returns a bool.
+/// OP_HASH256V0: Creates v0 address from public key and pushes it onto the stack. Returns a bool.
 ///
-/// Example: OP_HASH256_V0([pk]) -> [addr_v0]
+/// Example: OP_HASH256V0([pk]) -> [addr_v0]
 ///
 /// ### Arguments
 ///
 /// * `interpreter_stack`  - mutable reference to the interpreter stack
-pub fn op_hash256_v0(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+pub fn op_hash256v0(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     let (op, desc) = (OPHASH256V0, OPHASH256V0_DESC);
     trace(op, desc);
     let pk = match interpreter_stack.pop() {
@@ -2106,14 +2134,14 @@ pub fn op_hash256_v0(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_HASH256_TEMP: Creates temporary address from public key and pushes it onto the stack. Returns a bool.
+/// OP_HASH256TEMP: Creates temporary address from public key and pushes it onto the stack. Returns a bool.
 ///
-/// Example: OP_HASH256_TEMP([pk]) -> [addr_temp]
+/// Example: OP_HASH256TEMP([pk]) -> [addr_temp]
 ///
 /// ### Arguments
 ///
 /// * `interpreter_stack`  - mutable reference to the interpreter stack
-pub fn op_hash256_temp(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+pub fn op_hash256temp(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     let (op, desc) = (OPHASH256TEMP, OPHASH256TEMP_DESC);
     trace(op, desc);
     let pk = match interpreter_stack.pop() {
@@ -3818,6 +3846,22 @@ mod tests {
     /*---- CRYPTO OPS ----*/
 
     #[test]
+    /// Test OP_SHA3
+    fn test_sha3() {
+        /// op_sha3(["hello"]) -> [sha3_256("hello")]
+        let s = "hello".to_string();
+        let h = hex::encode(sha3_256::digest(s.as_bytes()));
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes(s)];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes(h)];
+        op_sha3(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
+        /// op_sha3([]) -> fail
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_sha3(&mut interpreter_stack);
+        assert!(!b)
+    }
+
+    #[test]
     /// Test OP_HASH256
     fn test_hash256() {
         /// op_hash256([pk]) -> [addr]
@@ -3839,11 +3883,11 @@ mod tests {
         let (pk, sk) = sign::gen_keypair();
         let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::PubKey(pk)];
         let mut v: Vec<StackEntry> = vec![StackEntry::PubKeyHash(construct_address_v0(&pk))];
-        op_hash256_v0(&mut interpreter_stack);
+        op_hash256v0(&mut interpreter_stack);
         assert_eq!(interpreter_stack, v);
         /// op_hash256([]) -> fail
         let mut interpreter_stack: Vec<StackEntry> = vec![];
-        let b = op_hash256_v0(&mut interpreter_stack);
+        let b = op_hash256v0(&mut interpreter_stack);
         assert!(!b)
     }
 
@@ -3854,11 +3898,11 @@ mod tests {
         let (pk, sk) = sign::gen_keypair();
         let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::PubKey(pk)];
         let mut v: Vec<StackEntry> = vec![StackEntry::PubKeyHash(construct_address_temp(&pk))];
-        op_hash256_temp(&mut interpreter_stack);
+        op_hash256temp(&mut interpreter_stack);
         assert_eq!(interpreter_stack, v);
         /// op_hash256([]) -> fail
         let mut interpreter_stack: Vec<StackEntry> = vec![];
-        let b = op_hash256_temp(&mut interpreter_stack);
+        let b = op_hash256temp(&mut interpreter_stack);
         assert!(!b)
     }
 

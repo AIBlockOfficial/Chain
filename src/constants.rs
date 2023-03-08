@@ -267,12 +267,14 @@ pub const OPMAX_DESC: &str =
 pub const OPWITHIN_DESC: &str = "Substitutes the top three items on the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item, with ZERO otherwise";
 
 // crypto
+pub const OPSHA3: &str = "OP_SHA3";
 pub const OPHASH256: &str = "OP_HASH256";
-pub const OPHASH256V0: &str = "OP_HASH256_V0";
-pub const OPHASH256TEMP: &str = "OP_HASH256_TEMP";
+pub const OPHASH256V0: &str = "OP_HASH256V0";
+pub const OPHASH256TEMP: &str = "OP_HASH256TEMP";
 pub const OPCHECKSIG: &str = "OP_CHECKSIG";
 pub const OPCHECKSIGVERIFY: &str = "OP_CHECKSIGVERIFY";
 
+pub const OPSHA3_DESC: &str = "Hashes the top item on the stack using SHA3-256";
 pub const OPHASH256_DESC: &str =
     "Creates standard address from public key and pushes it onto the stack";
 pub const OPHASH256V0_DESC: &str =
