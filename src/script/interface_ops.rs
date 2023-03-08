@@ -2181,7 +2181,6 @@ pub fn op_hash256temp(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 pub fn op_checksig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     let (op, desc) = (OPCHECKSIG, OPCHECKSIG_DESC);
     trace(op, desc);
-    sign::veri
     let pk = match interpreter_stack.pop() {
         Some(StackEntry::PubKey(pk)) => pk,
         Some(_) => {
@@ -2227,6 +2226,8 @@ pub fn op_checksig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// Example: OP_CHECKSIGVERIFY([m, sig, pk]) -> []   if Verify(sig, m, pk) == 1
 ///          OP_CHECKSIGVERIFY([m, sig, pk]) -> fail if Verify(sig, m, pk) == 0
+/// 
+/// Info: It allows signature verification on arbitrary messsages, not only transactions.
 ///
 /// ### Arguments
 ///

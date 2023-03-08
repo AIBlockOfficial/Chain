@@ -302,13 +302,14 @@ fn is_valid_script(script: &Script) -> bool {
     true
 }
 
-/// Checks if an interpreter stack is valid. Returns a bool.
+/// Checks if both the stack and the alt stack are valid. Returns a bool.
 ///
 /// ### Arguments
 ///
 /// * `interpreter_stack`  - mutable reference to the interpreter stack
-fn is_valid_stack(interpreter_stack: &Vec<StackEntry>) -> bool {
-    if interpreter_stack.len() > MAX_STACK_SIZE as usize {
+/// * `interpreter_alt_stack`  - mutable reference to the interpreter alt stack
+fn is_valid_stack(interpreter_stack: &Vec<StackEntry>, interpreter_alt_stack: &Vec<StackEntry>) -> bool {
+    if interpreter_stack.len() + interpreter_alt_stack.len() > MAX_STACK_SIZE as usize {
         error_max_stack_size();
         return false;
     }
@@ -350,7 +351,7 @@ fn interpret_script(script: &Script) -> bool {
     let mut interpreter_alt_stack: Vec<StackEntry> = Vec::with_capacity(MAX_STACK_SIZE as usize);
     let mut test_for_return = true;
     for stack_entry in &script.stack {
-        if !is_valid_stack(&interpreter_stack) {
+        if !is_valid_stack(&interpreter_stack, &interpreter_alt_stack) {
             return false;
         }
         if test_for_return {
