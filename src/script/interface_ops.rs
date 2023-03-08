@@ -2111,6 +2111,10 @@ pub fn op_hash256(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 /// OP_HASH256V0: Creates v0 address from public key and pushes it onto the stack. Returns a bool.
 ///
 /// Example: OP_HASH256V0([pk]) -> [addr_v0]
+/// 
+/// Info: Support for old 32-byte addresses.
+/// 
+/// TODO: Deprecate after addresses retire.
 ///
 /// ### Arguments
 ///
@@ -2137,6 +2141,10 @@ pub fn op_hash256v0(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 /// OP_HASH256TEMP: Creates temporary address from public key and pushes it onto the stack. Returns a bool.
 ///
 /// Example: OP_HASH256TEMP([pk]) -> [addr_temp]
+/// 
+/// Info: Support for temporary address scheme used in wallet.
+/// 
+/// TODO: Deprecate after addresses retire.
 ///
 /// ### Arguments
 ///
@@ -2164,6 +2172,8 @@ pub fn op_hash256temp(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// Example: OP_CHECKSIG([m, sig, pk]) -> [1] if Verify(pk, m, sig) == 1
 ///          OP_CHECKSIG([m, sig, pk]) -> [0] if Verify(pk, m, sig) == 0
+/// 
+/// Info: It allows signature verification on arbitrary messsages, not only transactions.
 ///
 /// ### Arguments
 ///
