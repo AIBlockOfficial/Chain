@@ -123,13 +123,15 @@ pub enum OpCodes {
     OP_WITHIN = 0xa5,             // implemented, tested, added to interpret_script
 
     // crypto
-    OP_SHA256 = 0xa8,
-    OP_HASH160 = 0xa9,
+    OP_RIPEMD160 = 0xa6,      // not implemented: we do not need it
+    OP_SHA1 = 0xa7,           // not implemented: we do not need it
+    OP_SHA256 = 0xa8,         // not implemented: we do not need it
+    OP_SHA3 = 0xa9,           // implemented, tested, added to interpret_script
     OP_HASH256 = 0xaa,        // implemented, tested, added to interpret_script
-    OP_HASH256_V0 = 0xc1, // implemented, tested, added to interpret_script (support for old 32-byte address structures)
-    OP_HASH256_TEMP = 0xc2, // implemented, tested, added to interpret_script (support for temporary address scheme used in wallet, TODO: Deprecate after addresses retire)
-    OP_CODESEPARATOR = 0xab, // not implemented: we do not need it
-    OP_CHECKSIG = 0xac,     // implemented, tested, added to interpret_script
+    OP_HASH256V0 = 0xc1,      // implemented, tested, added to interpret_script
+    OP_HASH256TEMP = 0xc2,    // implemented, tested, added to interpret_script
+    OP_CODESEPARATOR = 0xab,  // not implemented: we do not need it
+    OP_CHECKSIG = 0xac,       // implemented, tested, added to interpret_script
     OP_CHECKSIGVERIFY = 0xad, // implemented, tested, added to interpret_script
     OP_CHECKMULTISIG = 0xae,
     OP_CHECKMULTISIGVERIFY = 0xaf,
