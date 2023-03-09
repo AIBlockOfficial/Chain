@@ -43,6 +43,18 @@ pub fn error_invalid_signature(op: &str) {
     error!("{}: {}", op, ERROR_INVALID_SIGNATURE)
 }
 
+pub fn error_invalid_multisignature(op: &str) {
+    error!("{}: {}", op, ERROR_INVALID_MULTISIGNATURE)
+}
+
+pub fn error_num_pubkeys(op: &str) {
+    error!("{}: {}", op, ERROR_NUM_PUBKEYS)
+}
+
+pub fn error_num_signatures(op: &str) {
+    error!("{}: {}", op, ERROR_NUM_SIGNATURES)
+}
+
 // script
 
 pub fn error_max_script_size() {

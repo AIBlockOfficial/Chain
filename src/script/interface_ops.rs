@@ -2111,9 +2111,9 @@ pub fn op_hash256(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 /// OP_HASH256V0: Creates v0 address from public key and pushes it onto the stack. Returns a bool.
 ///
 /// Example: OP_HASH256V0([pk]) -> [addr_v0]
-/// 
+///
 /// Info: Support for old 32-byte addresses.
-/// 
+///
 /// TODO: Deprecate after addresses retire.
 ///
 /// ### Arguments
@@ -2141,9 +2141,9 @@ pub fn op_hash256v0(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 /// OP_HASH256TEMP: Creates temporary address from public key and pushes it onto the stack. Returns a bool.
 ///
 /// Example: OP_HASH256TEMP([pk]) -> [addr_temp]
-/// 
+///
 /// Info: Support for temporary address scheme used in wallet.
-/// 
+///
 /// TODO: Deprecate after addresses retire.
 ///
 /// ### Arguments
@@ -2170,9 +2170,9 @@ pub fn op_hash256temp(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_CHECKSIG: Pushes ONE onto the stack if the signature is valid, ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_CHECKSIG([m, sig, pk]) -> [1] if Verify(sig, m, pk) == 1
-///          OP_CHECKSIG([m, sig, pk]) -> [0] if Verify(sig, m, pk) == 0
-/// 
+/// Example: OP_CHECKSIG([msg, sig, pk]) -> [1] if Verify(sig, msg, pk) == 1
+///          OP_CHECKSIG([msg, sig, pk]) -> [0] if Verify(sig, msg, pk) == 0
+///
 /// Info: It allows signature verification on arbitrary messsages, not only transactions.
 ///
 /// ### Arguments
@@ -2203,8 +2203,8 @@ pub fn op_checksig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    let m = match interpreter_stack.pop() {
-        Some(StackEntry::Bytes(m)) => m,
+    let msg = match interpreter_stack.pop() {
+        Some(StackEntry::Bytes(s)) => s,
         Some(_) => {
             error_item_type(op);
             return false;
@@ -2214,7 +2214,7 @@ pub fn op_checksig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    if (!sign::verify_detached(&sig, m.as_bytes(), &pk)) {
+    if (!sign::verify_detached(&sig, msg.as_bytes(), &pk)) {
         interpreter_stack.push(StackEntry::Num(ZERO));
     } else {
         interpreter_stack.push(StackEntry::Num(ONE));
@@ -2224,9 +2224,9 @@ pub fn op_checksig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_CHECKSIGVERIFY: Runs OP_CHECKSIG and OP_VERIFY in sequence. Returns a bool.
 ///
-/// Example: OP_CHECKSIGVERIFY([m, sig, pk]) -> []   if Verify(sig, m, pk) == 1
-///          OP_CHECKSIGVERIFY([m, sig, pk]) -> fail if Verify(sig, m, pk) == 0
-/// 
+/// Example: OP_CHECKSIGVERIFY([msg, sig, pk]) -> []   if Verify(sig, msg, pk) == 1
+///          OP_CHECKSIGVERIFY([msg, sig, pk]) -> fail if Verify(sig, msg, pk) == 0
+///
 /// Info: It allows signature verification on arbitrary messsages, not only transactions.
 ///
 /// ### Arguments
@@ -2257,8 +2257,8 @@ pub fn op_checksigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    let m = match interpreter_stack.pop() {
-        Some(StackEntry::Bytes(m)) => m,
+    let msg = match interpreter_stack.pop() {
+        Some(StackEntry::Bytes(s)) => s,
         Some(_) => {
             error_item_type(op);
             return false;
@@ -2268,28 +2268,28 @@ pub fn op_checksigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    if (!sign::verify_detached(&sig, m.as_bytes(), &pk)) {
+    if (!sign::verify_detached(&sig, msg.as_bytes(), &pk)) {
         error_invalid_signature(op);
         return false;
     }
     true
 }
 
-/// OP_CHECKMULTISIG: Pushes ONE onto the stack if the multi-signature is valid, ZERO otherwise. Returns a bool.
-/// 
-/// Example: OP_CHECKMULTISIG([m, sig1, sig2, n1, pk1, pk2, pk3, n2]) -> [1]  
-///          OP_CHECKMULTISIG([m, sig1, sig2, n1, pk1, pk2, pk3, n2]) -> [0]
-/// 
-/// Info: It allows signature verification on arbitrary messsages, not only transactions.
+/// OP_CHECKMULTISIG: Pushes ONE onto the stack if the m-of-n multi-signature is valid, ZERO otherwise. Returns a bool.
+///
+/// Example: OP_CHECKMULTISIG([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> [1] if Verify(msg, sig1, sig2, pk1, pk2, pk3, m) == 1
+///          OP_CHECKMULTISIG([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> [0] if Verify(msg, sig1, sig2, pk1, pk2, pk3, m) == 0
+///
+/// Info: It allows multi-signature verification on arbitrary messsages, not only transactions.
 ///
 /// ### Arguments
 ///
 /// * `interpreter_stack`  - mutable reference to the interpreter stack
 pub fn op_checkmultisig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
-    let mut pub_keys = Vec::new();
-    let mut signatures = Vec::new();
-    let n2 = match interpreter_stack.pop() {
-        Some(StackEntry::PubKey(pk)) => pk,
+    let (op, desc) = (OPCHECKMULTISIG, OPCHECKMULTISIG_DESC);
+    trace(op, desc);
+    let n = match interpreter_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
         Some(_) => {
             error_item_type(op);
             return false;
@@ -2299,46 +2299,124 @@ pub fn op_checkmultisig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-
-    while let StackEntry::PubKey(_pk) = interpreter_stack[interpreter_stack.len() - 1] {
-        let next_key = interpreter_stack.pop();
-
-        if let Some(StackEntry::PubKey(pub_key)) = next_key {
-            pub_keys.push(pub_key);
+    let mut pks = Vec::new();
+    while let Some(StackEntry::PubKey(_)) = interpreter_stack.last().cloned() {
+        if let Some(StackEntry::PubKey(pk)) = interpreter_stack.pop() {
+            pks.push(pk);
         }
     }
-
-    // If there are too few public keys
-    if pub_keys.len() < n {
-        error!("Too few public keys provided");
+    if pks.len() != n {
+        error_num_pubkeys(op);
         return false;
     }
-
-    let m = match interpreter_stack.pop().unwrap() {
-        StackEntry::Num(m) => m,
-        _ => panic!("No m value of keys for multisig present"),
+    let m = match interpreter_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
     };
-
-    // If there are more keys required than available
-    if m > n || m > pub_keys.len() {
-        error!("Number of keys required is greater than the number available");
+    if m > n {
+        error_num_signatures(op);
         return false;
     }
-
-    while let StackEntry::Signature(_sig) = interpreter_stack[interpreter_stack.len() - 1] {
-        let next_key = interpreter_stack.pop();
-
-        if let Some(StackEntry::Signature(sig)) = next_key {
-            signatures.push(sig);
+    let mut sigs = Vec::new();
+    while let Some(StackEntry::Signature(_)) = interpreter_stack.last().cloned() {
+        if let Some(StackEntry::Signature(sig)) = interpreter_stack.pop() {
+            sigs.push(sig);
         }
     }
-
-    let check_data = match interpreter_stack.pop().unwrap() {
-        StackEntry::Bytes(check_data) => check_data,
-        _ => panic!("Check data for validation not present"),
+    let msg = match interpreter_stack.pop() {
+        Some(StackEntry::Bytes(s)) => s,
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
     };
+    if !match_on_multisig_to_pubkey(msg, sigs, pks, m) {
+        interpreter_stack.push(StackEntry::Num(ZERO));
+    } else {
+        interpreter_stack.push(StackEntry::Num(ONE));
+    }
+    true
+}
 
-    if !match_on_multisig_to_pubkey(check_data, signatures, pub_keys, m) {
+/// OP_CHECKMULTISIGVERIFY: Runs OP_CHECKMULTISIG and OP_VERIFY in sequence. Returns a bool.
+///
+/// Example: OP_CHECKMULTISIGVERIFY([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> []   if Verify(msg, sig1, sig2, pk1, pk2, pk3, m) == 1
+///          OP_CHECKMULTISIGVERIFY([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> fail if Verify(msg, sig1, sig2, pk1, pk2, pk3, m) == 0
+///
+/// Info: It allows multi-signature verification on arbitrary messsages, not only transactions.
+///
+/// ### Arguments
+///
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_checkmultisigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPCHECKMULTISIG, OPCHECKMULTISIG_DESC);
+    trace(op, desc);
+    let n = match interpreter_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
+    };
+    let mut pks = Vec::new();
+    while let Some(StackEntry::PubKey(_)) = interpreter_stack.last().cloned() {
+        if let Some(StackEntry::PubKey(pk)) = interpreter_stack.pop() {
+            pks.push(pk);
+        }
+    }
+    if pks.len() != n {
+        error_num_pubkeys(op);
+        return false;
+    }
+    let m = match interpreter_stack.pop() {
+        Some(StackEntry::Num(n)) => n,
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
+    };
+    if m > n {
+        error_num_signatures(op);
+        return false;
+    }
+    let mut sigs = Vec::new();
+    while let Some(StackEntry::Signature(_)) = interpreter_stack.last().cloned() {
+        if let Some(StackEntry::Signature(sig)) = interpreter_stack.pop() {
+            sigs.push(sig);
+        }
+    }
+    let msg = match interpreter_stack.pop() {
+        Some(StackEntry::Bytes(s)) => s,
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
+    };
+    if !match_on_multisig_to_pubkey(msg, sigs, pks, m) {
+        error_invalid_multisignature(op);
         return false;
     }
     true
@@ -2348,27 +2426,25 @@ pub fn op_checkmultisig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `check_data`  - Data to verify against
-/// * `signatures`  - Signatures to check
-/// * `pub_keys`    - Public keys to check
-/// * `m`           - Number of keys required
+/// * `msg`  - Data to verify against
+/// * `sigs` - Signatures to check
+/// * `pks`  - Public keys to check
+/// * `m`    - Number of keys required
 fn match_on_multisig_to_pubkey(
-    check_data: String,
-    signatures: Vec<Signature>,
-    pub_keys: Vec<PublicKey>,
+    msg: String,
+    sigs: Vec<Signature>,
+    pks: Vec<PublicKey>,
     m: usize,
 ) -> bool {
-    let mut counter = 0;
-
-    'outer: for sig in signatures {
-        'inner: for pub_key in &pub_keys {
-            if sign::verify_detached(&sig, check_data.as_bytes(), pub_key) {
+    let mut counter = ZERO;
+    'outer: for sig in sigs {
+        'inner: for pub_key in &pks {
+            if sign::verify_detached(&sig, msg.as_bytes(), pub_key) {
                 counter += 1;
                 break 'inner;
             }
         }
     }
-
     counter >= m
 }
 
