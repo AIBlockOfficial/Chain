@@ -2453,19 +2453,20 @@ fn verify_multisig(
     m: usize,
 ) -> bool {
     let mut pub_keys = pks;
-    let mut counter = ZERO;
-    'outer: for sig in &sigs {
-        'inner: for pk in &pub_keys {
-            if sign::verify_detached(sig, msg.as_bytes(), pk) {
-                counter += ONE;
-                if let Some(index) = pub_keys.iter().position(|x| *x == pk.clone()) {
-                    pub_keys.remove(index);
-                }
-                break 'inner;
+    let mut num_valid_sigs = ZERO; 
+    for index_sig in ZERO..sigs.len() {
+        if num_valid_sigs < index_sig { // sigs[index_sig-1] did not match any pk
+            return false;
+        }
+        for index_pk in ZERO..pub_keys.len() {
+            if sign::verify_detached(&sigs[index_sig], msg.as_bytes(), &pub_keys[index_pk]) {
+                num_valid_sigs += ONE;
+                pub_keys.remove(index_pk);
+                break;
             }
         }
     }
-    counter == m
+    num_valid_sigs == m
 }
 
 /*---- TESTS ----*/
@@ -4003,7 +4004,7 @@ mod tests {
     #[test]
     /// Test OP_CHECKSIG
     fn test_checksig() {
-        /// op_checksig([msg,sig(msg),pk]) -> [1]
+        /// op_checksig([msg,sig,pk]) -> [1]
         let (pk, sk) = sign::gen_keypair();
         let msg = hex::encode(vec![0, 0, 0]);
         let sig = sign::sign_detached(msg.as_bytes(), &sk);
@@ -4014,7 +4015,7 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
         op_checksig(&mut interpreter_stack);
         assert_eq!(interpreter_stack, v);
-        /// op_checksig([msg',sig(msg),pk]) -> [0]
+        /// op_checksig([msg',sig,pk]) -> [0]
         let msg = hex::encode(vec![0, 0, 1]);
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         interpreter_stack.push(StackEntry::Bytes(msg));
@@ -4023,7 +4024,7 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
         op_checksig(&mut interpreter_stack);
         assert_eq!(interpreter_stack, v);
-        /// op_checksig([sig(msg),pk]) -> fail
+        /// op_checksig([sig,pk]) -> fail
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         interpreter_stack.push(StackEntry::Signature(sig));
         interpreter_stack.push(StackEntry::PubKey(pk));
@@ -4034,7 +4035,7 @@ mod tests {
     #[test]
     /// Test OP_CHECKSIGVERIFY
     fn test_checksigverify() {
-        /// op_checksigverify([msg,sig(msg),pk]) -> []
+        /// op_checksigverify([msg,sig,pk]) -> []
         let (pk, sk) = sign::gen_keypair();
         let msg = hex::encode(vec![0, 0, 0]);
         let sig = sign::sign_detached(msg.as_bytes(), &sk);
@@ -4045,7 +4046,7 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![];
         op_checksigverify(&mut interpreter_stack);
         assert_eq!(interpreter_stack, v);
-        /// op_checksigverify([msg',sig(msg),pk]) -> fail
+        /// op_checksigverify([msg',sig,pk]) -> fail
         let msg = hex::encode(vec![0, 0, 1]);
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         interpreter_stack.push(StackEntry::Bytes(msg));
@@ -4053,7 +4054,7 @@ mod tests {
         interpreter_stack.push(StackEntry::PubKey(pk));
         let b = op_checksigverify(&mut interpreter_stack);
         assert!(!b);
-        /// op_checksigverify([sig(msg),pk]) -> fail
+        /// op_checksigverify([sig,pk]) -> fail
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         interpreter_stack.push(StackEntry::Signature(sig));
         interpreter_stack.push(StackEntry::PubKey(pk));
