@@ -2275,47 +2275,29 @@ pub fn op_checksigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// Handles the execution for the checksig op_code when checking a member of a multisig. Returns a bool.
+/// OP_CHECKMULTISIG: Pushes ONE onto the stack if the multi-signature is valid, ZERO otherwise. Returns a bool.
+/// 
+/// Example: OP_CHECKMULTISIG([m, sig1, sig2, n1, pk1, pk2, pk3, n2]) -> [1]  
+///          OP_CHECKMULTISIG([m, sig1, sig2, n1, pk1, pk2, pk3, n2]) -> [0]
+/// 
+/// Info: It allows signature verification on arbitrary messsages, not only transactions.
 ///
 /// ### Arguments
 ///
 /// * `interpreter_stack`  - mutable reference to the interpreter stack
-pub fn op_checkmultisigmem(interpreter_stack: &mut Vec<StackEntry>) -> bool {
-    trace!("Checking signature matches public key for multisig member");
-    let pub_key: PublicKey = match interpreter_stack.pop().unwrap() {
-        StackEntry::PubKey(pub_key) => pub_key,
-        _ => panic!("Public key not present to verify transaction"),
-    };
-
-    let sig: Signature = match interpreter_stack.pop().unwrap() {
-        StackEntry::Signature(sig) => sig,
-        _ => panic!("Signature not present to verify transaction"),
-    };
-
-    let check_data = match interpreter_stack.pop().unwrap() {
-        StackEntry::Bytes(check_data) => check_data,
-        _ => panic!("Check data bytes not present to verify transaction"),
-    };
-
-    if (!sign::verify_detached(&sig, check_data.as_bytes(), &pub_key)) {
-        error!("Signature not valid. Member multisig input invalid");
-        return false;
-    }
-    true
-}
-
-/// Handles the execution for the multisig op_code. Returns a bool.
-///
-/// ### Arguments
-///
-/// * `interpreter_stack`  - mutable reference to the interpreter stack
-pub fn op_multisig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+pub fn op_checkmultisig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     let mut pub_keys = Vec::new();
     let mut signatures = Vec::new();
-    let mut last_val = StackEntry::Op(OpCodes::OP_0);
-    let n = match interpreter_stack.pop().unwrap() {
-        StackEntry::Num(n) => n,
-        _ => panic!("No n value of keys for multisig present"),
+    let n2 = match interpreter_stack.pop() {
+        Some(StackEntry::PubKey(pk)) => pk,
+        Some(_) => {
+            error_item_type(op);
+            return false;
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
     };
 
     while let StackEntry::PubKey(_pk) = interpreter_stack[interpreter_stack.len() - 1] {

@@ -273,6 +273,8 @@ pub const OPHASH256V0: &str = "OP_HASH256V0";
 pub const OPHASH256TEMP: &str = "OP_HASH256TEMP";
 pub const OPCHECKSIG: &str = "OP_CHECKSIG";
 pub const OPCHECKSIGVERIFY: &str = "OP_CHECKSIGVERIFY";
+pub const OPCHECKMULTISIG: &str = "OP_CHECKMULTISIG";
+pub const OPCHECKMULTISIGVERIFY: &str = "OP_CHECKMULTISIGVERIFY";
 
 pub const OPSHA3_DESC: &str = "Hashes the top item on the stack using SHA3-256";
 pub const OPHASH256_DESC: &str =
@@ -284,6 +286,9 @@ pub const OPHASH256TEMP_DESC: &str =
 pub const OPCHECKSIG_DESC: &str =
     "Pushes ONE onto the stack if the signature is valid, ZERO otherwise";
 pub const OPCHECKSIGVERIFY_DESC: &str = "Runs OP_CHECKSIG and OP_VERIFY in sequence";
+pub const OPCHECKMULTISIG_DESC: &str =
+    "Pushes ONE onto the stack if the multi-signature is valid, ZERO otherwise";
+    pub const OPCHECKMULTISIGVERIFY_DESC: &str = "Runs OP_CHECKMULTISIG and OP_VERIFY in sequence";
 
 /*------- ERROR MESSAGES -------*/
 
