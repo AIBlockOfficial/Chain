@@ -2441,8 +2441,8 @@ pub fn op_checkmultisigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 /// ### Arguments
 ///
 /// * `msg`  - Data to verify against
-/// * `sigs` - Signatures to check
-/// * `pks`  - Public keys to check
+/// * `sigs` - Signatures to verify
+/// * `pks`  - Public keys to verify against
 fn verify_multisig(
     msg: String,
     sigs: Vec<Signature>,
