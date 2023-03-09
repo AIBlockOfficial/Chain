@@ -537,34 +537,6 @@ fn interpret_script(script: &Script) -> bool {
     test_for_return && interpreter_stack.last().cloned() != Some(StackEntry::Num(ZERO))
 }
 
-/// Does pairwise validation of signatures against public keys
-///
-/// ### Arguments
-///
-/// * `check_data`  - Data to verify against
-/// * `signatures`  - Signatures to check
-/// * `pub_keys`    - Public keys to check
-/// * `m`           - Number of keys required
-fn match_on_multisig_to_pubkey(
-    check_data: String,
-    signatures: Vec<Signature>,
-    pub_keys: Vec<PublicKey>,
-    m: usize,
-) -> bool {
-    let mut counter = 0;
-
-    'outer: for sig in signatures {
-        'inner: for pub_key in &pub_keys {
-            if sign::verify_detached(&sig, check_data.as_bytes(), pub_key) {
-                counter += 1;
-                break 'inner;
-            }
-        }
-    }
-
-    counter >= m
-}
-
 /// Checks that a receipt's metadata conforms to the network size constraint
 ///
 /// ### Arguments
@@ -968,11 +940,10 @@ mod tests {
         let m = 2;
         let first_sig = sign::sign_detached(check_data.as_bytes(), &first_sk);
         let second_sig = sign::sign_detached(check_data.as_bytes(), &second_sk);
-        let third_sig = sign::sign_detached(check_data.as_bytes(), &third_sk);
 
         let tx_const = TxConstructor {
             previous_out: OutPoint::new(check_data, 0),
-            signatures: vec![first_sig, second_sig, third_sig],
+            signatures: vec![first_sig, second_sig],
             pub_keys: vec![first_pk, second_pk, third_pk],
             address_version,
         };
@@ -980,27 +951,6 @@ mod tests {
         let tx_ins = create_multisig_tx_ins(vec![tx_const], m);
 
         assert!(interpret_script(&tx_ins[0].script_signature));
-    }
-
-    #[test]
-    /// Ensures that enough pubkey-sigs are provided to complete the multisig
-    fn test_pass_sig_pub_keypairs_for_multisig_valid() {
-        let (first_pk, first_sk) = sign::gen_keypair();
-        let (second_pk, second_sk) = sign::gen_keypair();
-        let (third_pk, third_sk) = sign::gen_keypair();
-        let check_data = hex::encode(vec![0, 0, 0]);
-
-        let m = 2;
-        let first_sig = sign::sign_detached(check_data.as_bytes(), &first_sk);
-        let second_sig = sign::sign_detached(check_data.as_bytes(), &second_sk);
-        let third_sig = sign::sign_detached(check_data.as_bytes(), &third_sk);
-
-        assert!(match_on_multisig_to_pubkey(
-            check_data,
-            vec![first_sig, second_sig, third_sig],
-            vec![first_pk, second_pk, third_pk],
-            m
-        ));
     }
 
     #[test]
