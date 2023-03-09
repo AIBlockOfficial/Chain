@@ -256,7 +256,10 @@ fn is_valid_script(script: &Script) -> bool {
 ///
 /// * `interpreter_stack`  - mutable reference to the interpreter stack
 /// * `interpreter_alt_stack`  - mutable reference to the interpreter alt stack
-fn is_valid_stack(interpreter_stack: &Vec<StackEntry>, interpreter_alt_stack: &Vec<StackEntry>) -> bool {
+fn is_valid_stack(
+    interpreter_stack: &Vec<StackEntry>,
+    interpreter_alt_stack: &Vec<StackEntry>,
+) -> bool {
     if interpreter_stack.len() + interpreter_alt_stack.len() > MAX_STACK_SIZE as usize {
         error_max_stack_size();
         return false;
@@ -509,6 +512,9 @@ fn interpret_script(script: &Script) -> bool {
                 }
                 StackEntry::Op(OpCodes::OP_CHECKMULTISIG) => {
                     test_for_return &= interface_ops::op_checkmultisig(&mut interpreter_stack)
+                }
+                StackEntry::Op(OpCodes::OP_CHECKMULTISIGVERIFY) => {
+                    test_for_return &= interface_ops::op_checkmultisigverify(&mut interpreter_stack)
                 }
                 /*---- SIGNATURE | PUBKEY | PUBKEYHASH | NUM | BYTES ----*/
                 StackEntry::Signature(_)

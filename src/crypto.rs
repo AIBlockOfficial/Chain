@@ -79,14 +79,14 @@ pub mod sign_ed25519 {
         }
     }
 
-    pub fn verify_detached(sig: &Signature, m: &[u8], pk: &PublicKey) -> bool {
+    pub fn verify_detached(sig: &Signature, msg: &[u8], pk: &PublicKey) -> bool {
         let upk = UnparsedPublicKey::new(&ED25519, pk);
-        upk.verify(m, sig.as_ref()).is_ok()
+        upk.verify(msg, sig.as_ref()).is_ok()
     }
 
-    pub fn sign_detached(m: &[u8], sk: &SecretKey) -> Signature {
+    pub fn sign_detached(msg: &[u8], sk: &SecretKey) -> Signature {
         let secret = SecretKeyBase::from_pkcs8(sk.as_ref()).unwrap();
-        Signature(secret.sign(m).as_ref().try_into().unwrap())
+        Signature(secret.sign(msg).as_ref().try_into().unwrap())
     }
 
     pub fn verify_append(sm: &[u8], pk: &PublicKey) -> bool {
@@ -100,9 +100,9 @@ pub mod sign_ed25519 {
         }
     }
 
-    pub fn sign_append(m: &[u8], sk: &SecretKey) -> Vec<u8> {
-        let sig = sign_detached(m, sk);
-        let mut sm = m.to_vec();
+    pub fn sign_append(msg: &[u8], sk: &SecretKey) -> Vec<u8> {
+        let sig = sign_detached(msg, sk);
+        let mut sm = msg.to_vec();
         sm.extend_from_slice(sig.as_ref());
         sm
     }
