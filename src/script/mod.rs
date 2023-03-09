@@ -18,7 +18,7 @@ pub enum StackEntry {
     Bytes(String),
 }
 
-/// Ops code for stack scripts
+/// Opcodes enum
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub enum OpCodes {
