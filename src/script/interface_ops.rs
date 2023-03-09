@@ -2455,15 +2455,15 @@ fn verify_multisig(
     let mut pub_keys = pks;
     let mut num_valid_sigs = ZERO; 
     for index_sig in ZERO..sigs.len() {
-        if num_valid_sigs < index_sig { // sigs[index_sig-1] did not match any pk
-            return false;
-        }
         for index_pk in ZERO..pub_keys.len() {
             if sign::verify_detached(&sigs[index_sig], msg.as_bytes(), &pub_keys[index_pk]) {
                 num_valid_sigs += ONE;
                 pub_keys.remove(index_pk);
                 break;
             }
+        }
+        if num_valid_sigs == index_sig { // sigs[index_sig] did not match any pk
+            return false;
         }
     }
     num_valid_sigs == m
