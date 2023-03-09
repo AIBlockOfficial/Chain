@@ -545,10 +545,10 @@ pub fn op_over(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_PICK: Copies the nth-to-top item to the top of the stack,
+/// OP_PICK: Copies the (n+1)th-to-top item to the top of the stack,
 ///          where n is the top item on the stack. Returns a bool.
 ///
-/// Example: OP_PICK([x, x2, x3, x4, 3]) -> [x, x2, x3, x4, x]
+/// Example: OP_PICK([x, x2, x1, x0, 3]) -> [x, x2, x1, x0, x]
 ///
 /// ### Arguments
 ///
@@ -577,10 +577,10 @@ pub fn op_pick(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_ROLL: Moves the nth-to-top item to the top of the stack,
+/// OP_ROLL: Moves the (n+1)th-to-top item to the top of the stack,
 ///          where n is the top item on the stack. Returns a bool.
 ///
-/// Example: OP_ROLL([x, x2, x3, x4, 3]) -> [x2, x3, x4, x]
+/// Example: OP_ROLL([x, x2, x1, x0, 3]) -> [x2, x1, x0, x]
 ///
 /// ### Arguments
 ///
@@ -2133,8 +2133,8 @@ pub fn op_hash256v0(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    let addr = construct_address_v0(&pk);
-    interpreter_stack.push(StackEntry::PubKeyHash(addr));
+    let addr_v0 = construct_address_v0(&pk);
+    interpreter_stack.push(StackEntry::PubKeyHash(addr_v0));
     true
 }
 
@@ -2163,8 +2163,8 @@ pub fn op_hash256temp(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    let addr = construct_address_temp(&pk);
-    interpreter_stack.push(StackEntry::PubKeyHash(addr));
+    let addr_temp = construct_address_temp(&pk);
+    interpreter_stack.push(StackEntry::PubKeyHash(addr_temp));
     true
 }
 
@@ -3867,6 +3867,10 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes(h)];
         op_sha3(&mut interpreter_stack);
         assert_eq!(interpreter_stack, v);
+        /// op_sha3([1]) -> fail
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_sha3(&mut interpreter_stack);
+        assert!(!b);
         /// op_sha3([]) -> fail
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         let b = op_sha3(&mut interpreter_stack);
@@ -3891,7 +3895,7 @@ mod tests {
     #[test]
     /// Test OP_HASH256_V0
     fn test_hash256_v0() {
-        /// op_hash256_v0([pk]) -> [addr]
+        /// op_hash256_v0([pk]) -> [addr_v0]
         let (pk, sk) = sign::gen_keypair();
         let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::PubKey(pk)];
         let mut v: Vec<StackEntry> = vec![StackEntry::PubKeyHash(construct_address_v0(&pk))];
@@ -3906,7 +3910,7 @@ mod tests {
     #[test]
     /// Test OP_HASH256_TEMP
     fn test_hash256_temp() {
-        /// op_hash256_temp([pk]) -> [addr]
+        /// op_hash256_temp([pk]) -> [addr_temp]
         let (pk, sk) = sign::gen_keypair();
         let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::PubKey(pk)];
         let mut v: Vec<StackEntry> = vec![StackEntry::PubKeyHash(construct_address_temp(&pk))];
