@@ -23,32 +23,6 @@ use tracing::{debug, error, info, trace};
 
 use super::transaction_utils::construct_p2sh_address;
 
-/// Verifies that a member of a multisig tx script is valid
-///
-/// ### Arguments
-///
-/// * `script`  - Script to verify
-pub fn member_multisig_is_valid(script: Script) -> bool {
-    let mut interpreter_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
-    let mut test_for_return = true;
-    for stack_entry in script.stack {
-        if test_for_return {
-            match stack_entry {
-                StackEntry::Op(OpCodes::OP_CHECKSIG) => {
-                    test_for_return &= interface_ops::op_checkmultisigmem(&mut interpreter_stack);
-                }
-                _ => {
-                    push_entry_to_stack(&stack_entry, &mut interpreter_stack);
-                }
-            }
-        } else {
-            return false;
-        }
-    }
-
-    test_for_return
-}
-
 /// Verifies that all incoming transactions are allowed to be spent. Returns false if a single
 /// transaction doesn't verify
 ///
@@ -131,32 +105,6 @@ pub fn tx_outs_are_valid(tx_outs: &[TxOut], tx_ins_spent: AssetValues) -> bool {
 
     // Ensure that the `TxIn`s correlate with the `TxOut`s
     tx_outs_spent.is_equal(&tx_ins_spent)
-}
-
-/// Checks whether a complete validation multisig transaction is in fact valid
-///
-/// ### Arguments
-///
-/// * `script`  - `Script` to validate
-fn tx_has_valid_multsig_validation(script: &Script) -> bool {
-    let mut interpreter_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
-    let mut test_for_return = true;
-    for stack_entry in &script.stack {
-        if test_for_return {
-            match stack_entry {
-                StackEntry::Op(OpCodes::OP_CHECKMULTISIG) => {
-                    test_for_return &= interface_ops::op_multisig(&mut interpreter_stack);
-                }
-                _ => {
-                    test_for_return &= push_entry_to_stack(stack_entry, &mut interpreter_stack);
-                }
-            }
-        } else {
-            return false;
-        }
-    }
-
-    test_for_return
 }
 
 /// Checks whether a create transaction has a valid input script
@@ -559,6 +507,9 @@ fn interpret_script(script: &Script) -> bool {
                 StackEntry::Op(OpCodes::OP_CHECKSIGVERIFY) => {
                     test_for_return &= interface_ops::op_checksigverify(&mut interpreter_stack)
                 }
+                StackEntry::Op(OpCodes::OP_CHECKMULTISIG) => {
+                    test_for_return &= interface_ops::op_checkmultisig(&mut interpreter_stack)
+                }
                 /*---- SIGNATURE | PUBKEY | PUBKEYHASH | NUM | BYTES ----*/
                 StackEntry::Signature(_)
                 | StackEntry::PubKey(_)
@@ -748,7 +699,7 @@ mod tests {
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
 
-        assert!(member_multisig_is_valid(tx_ins[0].clone().script_signature));
+        assert!(interpret_script(&tx_ins[0].clone().script_signature));
     }
 
     #[test]
@@ -784,9 +735,7 @@ mod tests {
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
 
-        assert!(!member_multisig_is_valid(
-            tx_ins[0].clone().script_signature
-        ));
+        assert!(!interpret_script(&tx_ins[0].clone().script_signature));
     }
 
     #[test]
@@ -1024,7 +973,7 @@ mod tests {
 
         let tx_ins = create_multisig_tx_ins(vec![tx_const], m);
 
-        assert!(tx_has_valid_multsig_validation(&tx_ins[0].script_signature));
+        assert!(interpret_script(&tx_ins[0].script_signature));
     }
 
     #[test]

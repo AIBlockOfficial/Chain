@@ -226,24 +226,4 @@ impl Script {
 
         new_script
     }
-
-    /// Checks whether all ops codes within script are valid
-    pub fn has_valid_ops(&self) -> bool {
-        warn!("has_valid_ops not implemented");
-        for entry in &self.stack {
-            // TODO
-        }
-
-        true
-    }
-
-    /// Gets the op_code for a specific data entry, if it exists
-    pub fn get_op_code(&self, entry: &u8) -> Option<u8> {
-        let mut op_code = OpCodes::OP_INVALIDOPCODE as u8;
-        warn!("get_op_code not implemented");
-
-        // TODO
-
-        Some(op_code)
-    }
 }
