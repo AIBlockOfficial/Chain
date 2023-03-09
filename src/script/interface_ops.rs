@@ -2281,6 +2281,7 @@ pub fn op_checksigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 ///          OP_CHECKMULTISIG([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> [0] if Verify(msg, sig1, sig2, pk1, pk2, pk3, m) == 0
 ///
 /// Info: It allows multi-signature verification on arbitrary messsages, not only transactions.
+///       Ordering of signatures and public keys is not relevant.
 ///
 /// ### Arguments
 ///
@@ -2309,7 +2310,6 @@ pub fn op_checkmultisig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             pks.push(pk);
         }
     }
-    pks.reverse();
     if pks.len() != n {
         error_num_pubkeys(op);
         return false;
@@ -2335,7 +2335,6 @@ pub fn op_checkmultisig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             sigs.push(sig);
         }
     }
-    sigs.reverse();
     if sigs.len() != m {
         error_num_signatures(op);
         return false;
@@ -2351,7 +2350,7 @@ pub fn op_checkmultisig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    if !verify_multisig(msg, sigs, pks, m) {
+    if !verify_multisig(msg, sigs, pks) {
         interpreter_stack.push(StackEntry::Num(ZERO));
     } else {
         interpreter_stack.push(StackEntry::Num(ONE));
@@ -2365,6 +2364,7 @@ pub fn op_checkmultisig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 ///          OP_CHECKMULTISIGVERIFY([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> fail if Verify(msg, sig1, sig2, pk1, pk2, pk3, m) == 0
 ///
 /// Info: It allows multi-signature verification on arbitrary messsages, not only transactions.
+///       Ordering of signatures and public keys is not relevant.
 ///
 /// ### Arguments
 ///
@@ -2393,7 +2393,6 @@ pub fn op_checkmultisigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             pks.push(pk);
         }
     }
-    pks.reverse();
     if pks.len() != n {
         error_num_pubkeys(op);
         return false;
@@ -2419,7 +2418,6 @@ pub fn op_checkmultisigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             sigs.push(sig);
         }
     }
-    sigs.reverse();
     let msg = match interpreter_stack.pop() {
         Some(StackEntry::Bytes(s)) => s,
         Some(_) => {
@@ -2431,7 +2429,7 @@ pub fn op_checkmultisigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    if !verify_multisig(msg, sigs, pks, m) {
+    if !verify_multisig(msg, sigs, pks) {
         error_invalid_multisignature(op);
         return false;
     }
@@ -2445,28 +2443,26 @@ pub fn op_checkmultisigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 /// * `msg`  - Data to verify against
 /// * `sigs` - Signatures to check
 /// * `pks`  - Public keys to check
-/// * `m`    - Number of valid signatures required
 fn verify_multisig(
     msg: String,
     sigs: Vec<Signature>,
-    pks: Vec<PublicKey>,
-    m: usize,
+    pks: Vec<PublicKey>
 ) -> bool {
-    let mut pub_keys = pks;
+    let mut pks = pks;
     let mut num_valid_sigs = ZERO; 
     for index_sig in ZERO..sigs.len() {
-        for index_pk in ZERO..pub_keys.len() {
-            if sign::verify_detached(&sigs[index_sig], msg.as_bytes(), &pub_keys[index_pk]) {
+        for index_pk in ZERO..pks.len() {
+            if sign::verify_detached(&sigs[index_sig], msg.as_bytes(), &pks[index_pk]) {
                 num_valid_sigs += ONE;
-                pub_keys.remove(index_pk);
+                pks.remove(index_pk);
                 break;
             }
         }
-        if num_valid_sigs == index_sig { // sigs[index_sig] did not match any pk
+        if num_valid_sigs != index_sig + ONE { // sigs[index_sig] did not match any pk
             return false;
         }
     }
-    num_valid_sigs == m
+    num_valid_sigs == sigs.len()
 }
 
 /*---- TESTS ----*/
