@@ -2455,7 +2455,7 @@ fn verify_multisig(sigs: Vec<Signature>, msg: String, pks: Vec<PublicKey>) -> bo
             }
         }
         if num_valid_sigs != index_sig + ONE {
-            // sigs[index_sig] did not match any pk
+            // sig did not match any pk
             return false;
         }
     }
