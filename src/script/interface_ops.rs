@@ -2448,10 +2448,9 @@ fn verify_multisig(
     msg: String,
     pks: Vec<PublicKey>
 ) -> bool {
-    let m = sigs.len();
     let mut pks = pks;
     let mut num_valid_sigs = ZERO; 
-    for index_sig in ZERO..m {
+    for index_sig in ZERO..sigs.len() {
         for index_pk in ZERO..pks.len() {
             if sign::verify_detached(&sigs[index_sig], msg.as_bytes(), &pks[index_pk]) {
                 num_valid_sigs += ONE;
@@ -2463,7 +2462,7 @@ fn verify_multisig(
             return false;
         }
     }
-    num_valid_sigs == m // all sigs matched a pk
+    true // all sigs matched a pk
 }
 
 /*---- TESTS ----*/
