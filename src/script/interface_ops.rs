@@ -2300,7 +2300,7 @@ pub fn op_checkmultisig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    if n > MAX_PUB_KEYS_PER_MULTISIG as usize{
+    if n > MAX_PUB_KEYS_PER_MULTISIG as usize {
         error_num_pubkeys(op);
         return false;
     }
@@ -2383,7 +2383,7 @@ pub fn op_checkmultisigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    if n > MAX_PUB_KEYS_PER_MULTISIG as usize{
+    if n > MAX_PUB_KEYS_PER_MULTISIG as usize {
         error_num_pubkeys(op);
         return false;
     }
@@ -2439,26 +2439,23 @@ pub fn op_checkmultisigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 /// Verifies an m-of-n multisignature. Returns a bool.
 ///
 /// ### Arguments
-/// 
+///
 /// * `sigs` - signatures to verify
 /// * `msg`  - data to verify against
 /// * `pks`  - public keys to match against
-fn verify_multisig(
-    sigs: Vec<Signature>,
-    msg: String,
-    pks: Vec<PublicKey>
-) -> bool {
+fn verify_multisig(sigs: Vec<Signature>, msg: String, pks: Vec<PublicKey>) -> bool {
     let mut pks = pks;
-    let mut num_valid_sigs = ZERO; 
-    for index_sig in ZERO..sigs.len() {
-        for index_pk in ZERO..pks.len() {
-            if sign::verify_detached(&sigs[index_sig], msg.as_bytes(), &pks[index_pk]) {
+    let mut num_valid_sigs = ZERO;
+    for (index_sig, sig) in sigs.iter().enumerate() {
+        for (index_pk, pk) in pks.iter().enumerate() {
+            if sign::verify_detached(sig, msg.as_bytes(), pk) {
                 num_valid_sigs += ONE;
                 pks.remove(index_pk);
                 break;
             }
         }
-        if num_valid_sigs != index_sig + ONE { // sigs[index_sig] did not match any pk
+        if num_valid_sigs != index_sig + ONE {
+            // sigs[index_sig] did not match any pk
             return false;
         }
     }
