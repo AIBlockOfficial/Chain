@@ -27,8 +27,8 @@ use tracing::{debug, error, info, trace};
 ///
 /// * `interpreter_stack`  - mutable reference to the interpreter stack
 pub fn op_0(interpreter_stack: &mut Vec<StackEntry>) -> bool {
-    let (op, burgir) = (OP0, OP0_DESC);
-    trace(op, burgir);
+    let (op, desc) = (OP0, OP0_DESC);
+    trace(op, desc);
     interpreter_stack.push(StackEntry::Num(ZERO));
     true
 }
