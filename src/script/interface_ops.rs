@@ -4114,6 +4114,27 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
         op_checkmultisig(&mut interpreter_stack);
         assert_eq!(interpreter_stack, v);
+        /// op_checkmultisig([msg,0,pk1,pk2,pk3,3]) -> [1]
+        let msg = hex::encode(vec![0, 0, 0]);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes(msg)];
+        interpreter_stack.push(StackEntry::Num(0));
+        interpreter_stack.push(StackEntry::PubKey(pk1));
+        interpreter_stack.push(StackEntry::PubKey(pk2));
+        interpreter_stack.push(StackEntry::PubKey(pk3));
+        interpreter_stack.push(StackEntry::Num(3));
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        op_checkmultisig(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
+        /// op_checkmultisig([msg,sig1,1,pk1,1]) -> [1]
+        let msg = hex::encode(vec![0, 0, 0]);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes(msg)];
+        interpreter_stack.push(StackEntry::Signature(sig1));
+        interpreter_stack.push(StackEntry::Num(1));
+        interpreter_stack.push(StackEntry::PubKey(pk1));
+        interpreter_stack.push(StackEntry::Num(1));
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        op_checkmultisig(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
         /// op_checkmultisig([msg,sig3,sig1,2,pk2,pk3,pk1,3]) -> [1]
         let msg = hex::encode(vec![0, 0, 0]);
         let sig3 = sign::sign_detached(msg.as_bytes(), &sk3);
@@ -4202,6 +4223,27 @@ mod tests {
         interpreter_stack.push(StackEntry::PubKey(pk2));
         interpreter_stack.push(StackEntry::PubKey(pk3));
         interpreter_stack.push(StackEntry::Num(3));
+        let mut v: Vec<StackEntry> = vec![];
+        op_checkmultisigverify(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
+        /// op_checkmultisigverify([msg,0,pk1,pk2,pk3,3]) -> [1]
+        let msg = hex::encode(vec![0, 0, 0]);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes(msg)];
+        interpreter_stack.push(StackEntry::Num(0));
+        interpreter_stack.push(StackEntry::PubKey(pk1));
+        interpreter_stack.push(StackEntry::PubKey(pk2));
+        interpreter_stack.push(StackEntry::PubKey(pk3));
+        interpreter_stack.push(StackEntry::Num(3));
+        let mut v: Vec<StackEntry> = vec![];
+        op_checkmultisigverify(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
+        /// op_checkmultisigverify([msg,sig1,1,pk1,1]) -> [1]
+        let msg = hex::encode(vec![0, 0, 0]);
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Bytes(msg)];
+        interpreter_stack.push(StackEntry::Signature(sig1));
+        interpreter_stack.push(StackEntry::Num(1));
+        interpreter_stack.push(StackEntry::PubKey(pk1));
+        interpreter_stack.push(StackEntry::Num(1));
         let mut v: Vec<StackEntry> = vec![];
         op_checkmultisigverify(&mut interpreter_stack);
         assert_eq!(interpreter_stack, v);
