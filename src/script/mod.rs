@@ -55,7 +55,7 @@ pub enum OpCodes {
     OP_ELSE = 0x67,
     OP_ENDIF = 0x68,
     OP_VERIFY = 0x69, // implemented, tested, added to interpret_script
-    OP_RETURN = 0x6a,
+    OP_RETURN = 0x6a, // implemented, tested, added to interpret_script
 
     // stack
     OP_TOALTSTACK = 0x6b,   // implemented, tested, added to interpret_script
