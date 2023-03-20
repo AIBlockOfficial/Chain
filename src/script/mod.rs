@@ -47,14 +47,14 @@ pub enum OpCodes {
 
     // flow control
     OP_NOP = 0x61, // implemented, tested, added to interpret_script
-    OP_VER = 0x62,
+    OP_VER = 0x62, // not implemented: we do not need it
     OP_IF = 0x63,
     OP_NOTIF = 0x64,
-    OP_VERIF = 0x65,
-    OP_VERNOTIF = 0x66,
+    OP_VERIF = 0x65,    // not implemented: we do not need it
+    OP_VERNOTIF = 0x66, // not implemented: we do not need it
     OP_ELSE = 0x67,
     OP_ENDIF = 0x68,
-    OP_VERIFY = 0x69,
+    OP_VERIFY = 0x69, // implemented, tested, added to interpret_script
     OP_RETURN = 0x6a,
 
     // stack

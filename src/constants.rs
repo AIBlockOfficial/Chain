@@ -130,8 +130,11 @@ pub const OP16_DESC: &str = "Pushes the number SIXTEEN onto the stack";
 
 // control flow
 pub const OPNOP: &str = "OP_NOP";
+pub const OPVERIFY: &str = "OP_VERIFY";
 
 pub const OPNOP_DESC: &str = "Does nothing";
+pub const OPVERIFY_DESC: &str =
+    "Removes the top item from the stack and marks the transaction as invalid if it is ZERO";
 
 // stack
 pub const OPTOALTSTACK: &str = "OP_TOALTSTACK";
@@ -298,6 +301,7 @@ pub const OPCHECKMULTISIGVERIFY_DESC: &str = "Runs OP_CHECKMULTISIG and OP_VERIF
 /*------- ERROR MESSAGES -------*/
 
 // opcodes
+pub const ERROR_VERIFY: &str = "The top item on the stack is ZERO";
 pub const ERROR_NUM_ITEMS: &str = "Not enough items on the stack";
 pub const ERROR_ITEM_TYPE: &str = "Item type is not correct";
 pub const ERROR_ITEM_INDEX: &str = "Index is out of bound";

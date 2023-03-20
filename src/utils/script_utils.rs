@@ -364,6 +364,9 @@ fn interpret_script(script: &Script) -> bool {
                 StackEntry::Op(OpCodes::OP_NOP) => {
                     test_for_return &= interface_ops::op_nop(&mut interpreter_stack)
                 }
+                StackEntry::Op(OpCodes::OP_VERIFY) => {
+                    test_for_return &= interface_ops::op_verify(&mut interpreter_stack)
+                }
                 // stack
                 StackEntry::Op(OpCodes::OP_TOALTSTACK) => {
                     test_for_return &= interface_ops::op_toaltstack(
