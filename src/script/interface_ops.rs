@@ -272,7 +272,7 @@ pub fn op_nop(interpreter_stack: &mut [StackEntry]) -> bool {
     true
 }
 
-/// OP_VERIFY: Removes the top item from the stack and marks the transaction as invalid if it is ZERO. Returns a bool.
+/// OP_VERIFY: Removes the top item from the stack and terminates the execution if it is ZERO. Returns a bool.
 ///
 /// Example: OP_VERIFY([x]) -> []   if x != 0
 ///          OP_VERIFY([x]) -> fail if x == 0
@@ -296,6 +296,20 @@ pub fn op_verify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
         }
     };
     true
+}
+
+/// OP_RETURN: Terminates the execution. Returns a bool.
+///
+/// Example: OP_RETURN([x]) -> fail
+///
+/// ### Arguments
+///
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_return(interpreter_stack: &mut [StackEntry]) -> bool {
+    let (op, desc) = (OPRETURN, OPRETURN_DESC);
+    trace(op, desc);
+    error_return(op);
+    false
 }
 
 /*---- STACK OPS ----*/
@@ -2686,7 +2700,7 @@ mod tests {
     #[test]
     /// Test OP_NOP
     fn test_nop() {
-        /// op_nop([]) -> []
+        /// op_nop([1]) -> [1]
         let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
         op_nop(&mut interpreter_stack);
@@ -2708,6 +2722,19 @@ mod tests {
         /// op_verify([]) -> fail
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         let b = op_verify(&mut interpreter_stack);
+        assert!(!b)
+    }
+
+    #[test]
+    /// Test OP_RETURN
+    fn test_return() {
+        /// op_return([1]) -> fail
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let b = op_return(&mut interpreter_stack);
+        assert!(!b);
+        /// op_return([]) -> fail
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_return(&mut interpreter_stack);
         assert!(!b)
     }
 
