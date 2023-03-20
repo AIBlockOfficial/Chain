@@ -266,9 +266,35 @@ pub fn op_16(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 /// ### Arguments
 ///
 /// * `interpreter_stack`  - mutable reference to the interpreter stack
-pub fn op_nop(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+pub fn op_nop(interpreter_stack: &mut [StackEntry]) -> bool {
     let (op, desc) = (OPNOP, OPNOP_DESC);
     trace(op, desc);
+    true
+}
+
+/// OP_VERIFY: Removes the top item from the stack and marks the transaction as invalid if it is ZERO. Returns a bool.
+///
+/// Example: OP_VERIFY([x]) -> []   if x != 0
+///          OP_VERIFY([x]) -> fail if x == 0
+///
+/// ### Arguments
+///
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_verify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPVERIFY, OPVERIFY_DESC);
+    trace(op, desc);
+    match interpreter_stack.pop() {
+        Some(x) => {
+            if x == StackEntry::Num(ZERO) {
+                error_verify(op);
+                return false;
+            }
+        }
+        _ => {
+            error_num_items(op);
+            return false;
+        }
+    };
     true
 }
 
@@ -2665,6 +2691,24 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
         op_nop(&mut interpreter_stack);
         assert_eq!(interpreter_stack, v)
+    }
+
+    #[test]
+    /// Test OP_VERIFY
+    fn test_verify() {
+        /// op_verify([1]) -> []
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let mut v: Vec<StackEntry> = vec![];
+        op_verify(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
+        /// op_verify([0]) -> fail
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(0)];
+        let b = op_verify(&mut interpreter_stack);
+        assert!(!b);
+        /// op_verify([]) -> fail
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let b = op_verify(&mut interpreter_stack);
+        assert!(!b)
     }
 
     /*---- STACK OPS ----*/

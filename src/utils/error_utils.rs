@@ -11,6 +11,10 @@ pub fn trace(op: &str, desc: &str) {
 
 // opcodes
 
+pub fn error_verify(op: &str) {
+    error!("{}: {}", op, ERROR_VERIFY)
+}
+
 pub fn error_num_items(op: &str) {
     error!("{}: {}", op, ERROR_NUM_ITEMS)
 }
