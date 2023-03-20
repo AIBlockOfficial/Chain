@@ -46,7 +46,7 @@ pub enum OpCodes {
     OP_16 = 0x60,        // implemented, tested, added to interpret_script
 
     // flow control
-    OP_NOP = 0x61,
+    OP_NOP = 0x61, // implemented, tested, added to interpret_script
     OP_VER = 0x62,
     OP_IF = 0x63,
     OP_NOTIF = 0x64,

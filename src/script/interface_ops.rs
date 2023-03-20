@@ -259,6 +259,19 @@ pub fn op_16(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 
 /*---- FLOW CONTROL OPS ----*/
 
+/// OP_NOP: Does nothing. Returns a bool.
+///
+/// Example: OP_NOP([x]) -> [x]
+///
+/// ### Arguments
+///
+/// * `interpreter_stack`  - mutable reference to the interpreter stack
+pub fn op_nop(interpreter_stack: &mut Vec<StackEntry>) -> bool {
+    let (op, desc) = (OPNOP, OPNOP_DESC);
+    trace(op, desc);
+    true
+}
+
 /*---- STACK OPS ----*/
 
 /// OP_TOALTSTACK: Moves the top item from the main stack to the top of the alt stack. Returns a bool.
@@ -2639,6 +2652,18 @@ mod tests {
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(16)];
         op_16(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v)
+    }
+
+    /*---- FLOW CONTROL OPS ----*/
+
+    #[test]
+    /// Test OP_NOP
+    fn test_nop() {
+        /// op_nop([]) -> []
+        let mut interpreter_stack: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        op_nop(&mut interpreter_stack);
         assert_eq!(interpreter_stack, v)
     }
 

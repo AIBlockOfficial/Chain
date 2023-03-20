@@ -128,6 +128,11 @@ pub const OP14_DESC: &str = "Pushes the number FOURTEEN onto the stack";
 pub const OP15_DESC: &str = "Pushes the number FIFTEEN onto the stack";
 pub const OP16_DESC: &str = "Pushes the number SIXTEEN onto the stack";
 
+// control flow
+pub const OPNOP: &str = "OP_NOP";
+
+pub const OPNOP_DESC: &str = "Does nothing";
+
 // stack
 pub const OPTOALTSTACK: &str = "OP_TOALTSTACK";
 pub const OPFROMALTSTACK: &str = "OP_FROMALTSTACK";
