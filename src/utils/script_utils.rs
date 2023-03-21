@@ -579,6 +579,61 @@ mod tests {
     use crate::utils::transaction_utils::*;
 
     #[test]
+    fn test_is_valid_script() {
+        // empty script
+        let mut script = Script::new();
+        assert!(is_valid_script(&script));
+        // OP_0
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_0));
+        assert!(is_valid_script(&script));
+        // OP_1
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        assert!(is_valid_script(&script));
+        // OP_1 OP_2 OP_ADD OP_3 OP_EQUAL
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        script.stack.push(StackEntry::Op(OpCodes::OP_2));
+        script.stack.push(StackEntry::Op(OpCodes::OP_ADD));
+        script.stack.push(StackEntry::Op(OpCodes::OP_3));
+        script.stack.push(StackEntry::Op(OpCodes::OP_EQUAL));
+        assert!(is_valid_script(&script));
+        // script length <= 10000 bytes
+        let mut script = Script::new();
+        let mut s = String::new();
+        for _ in 0..500 {
+            s.push('a');
+        }
+        for _ in 0..20 {
+            script.stack.push(StackEntry::Bytes(s.clone()));
+        }
+        assert!(is_valid_script(&script));
+        // script length > 10000 bytes
+        let mut script = Script::new();
+        let mut s = String::new();
+        for _ in 0..501 {
+            s.push('a');
+        }
+        for _ in 0..20 {
+            script.stack.push(StackEntry::Bytes(s.clone()));
+        }
+        assert!(!is_valid_script(&script));
+        // # opcodes <= 201
+        let mut script = Script::new();
+        for _ in 0..MAX_OPS_PER_SCRIPT {
+            script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        }
+        assert!(is_valid_script(&script));
+        // # opcodes > 201
+        let mut script = Script::new();
+        for _ in 0..=MAX_OPS_PER_SCRIPT {
+            script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        }
+        assert!(!is_valid_script(&script));
+    }
+
+    #[test]
     fn test_interpret_script() {
         // empty script
         let mut script = Script::new();
@@ -598,6 +653,28 @@ mod tests {
         script.stack.push(StackEntry::Op(OpCodes::OP_ADD));
         script.stack.push(StackEntry::Op(OpCodes::OP_3));
         script.stack.push(StackEntry::Op(OpCodes::OP_EQUAL));
+        assert!(interpret_script(&script));
+        // script length > 10000 bytes
+        let mut script = Script::new();
+        let mut s = String::new();
+        for _ in 0..501 {
+            s.push('a');
+        }
+        for _ in 0..20 {
+            script.stack.push(StackEntry::Bytes(s.clone()));
+        }
+        assert!(!interpret_script(&script));
+        // # opcodes > 201
+        let mut script = Script::new();
+        for _ in 0..=MAX_OPS_PER_SCRIPT {
+            script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        }
+        assert!(!interpret_script(&script));
+        // # items on the interpreter stack > 1000
+        let mut script = Script::new();
+        for _ in 0..=MAX_STACK_SIZE {
+            script.stack.push(StackEntry::Num(1));
+        }
         assert!(interpret_script(&script));
     }
 
