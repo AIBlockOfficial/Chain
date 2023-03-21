@@ -601,10 +601,7 @@ mod tests {
         assert!(is_valid_script(&script));
         // script length <= 10000 bytes
         let mut script = Script::new();
-        let mut s = String::new();
-        for _ in 0..500 {
-            s.push('a');
-        }
+        let s = "a".repeat(500);
         for _ in 0..20 {
             script.stack.push(StackEntry::Bytes(s.clone()));
         }
@@ -612,9 +609,7 @@ mod tests {
         // script length > 10000 bytes
         let mut script = Script::new();
         let mut s = String::new();
-        for _ in 0..501 {
-            s.push('a');
-        }
+        let s = "a".repeat(501);
         for _ in 0..20 {
             script.stack.push(StackEntry::Bytes(s.clone()));
         }
@@ -639,21 +634,21 @@ mod tests {
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut interpreter_alt_stack: Vec<StackEntry> = vec![];
         assert!(is_valid_stack(&interpreter_stack, &interpreter_alt_stack));
-        // stack length <= 1000
+        // # items on interpreter stack <= 1000
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut interpreter_alt_stack: Vec<StackEntry> = vec![];
         for _ in 0..MAX_STACK_SIZE {
             interpreter_stack.push(StackEntry::Num(1));
         }
         assert!(is_valid_stack(&interpreter_stack, &interpreter_alt_stack));
-        // stack length > 1000
+        // # items on interpreter stack > 1000
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut interpreter_alt_stack: Vec<StackEntry> = vec![];
         for _ in 0..=MAX_STACK_SIZE {
             interpreter_stack.push(StackEntry::Num(1));
         }
         assert!(!is_valid_stack(&interpreter_stack, &interpreter_alt_stack));
-        // combined lenght of stack and alt stack > 1000
+        // # items on interpreter stack and interpreter alt stack > 1000
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         let mut interpreter_alt_stack: Vec<StackEntry> = vec![];
         for _ in 0..500 {
@@ -663,6 +658,57 @@ mod tests {
             interpreter_alt_stack.push(StackEntry::Num(1));
         }
         assert!(!is_valid_stack(&interpreter_stack, &interpreter_alt_stack));
+    }
+
+    #[test]
+    fn test_push_entry_to_stack() {
+        // opcode
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let stack_entry = StackEntry::Op(OpCodes::OP_1);
+        let mut v = vec![];
+        assert!(!push_entry_to_stack(&stack_entry, &mut interpreter_stack));
+        assert_eq!(interpreter_stack, v);
+        // signature
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let (pk, sk) = sign::gen_keypair();
+        let msg = hex::encode(vec![0, 0, 0]);
+        let sig = sign::sign_detached(msg.as_bytes(), &sk);
+        let stack_entry = StackEntry::Signature(sig);
+        let mut v = vec![];
+        v.push(stack_entry.clone());
+        assert!(push_entry_to_stack(&stack_entry, &mut interpreter_stack));
+        assert_eq!(interpreter_stack, v);
+        // public key
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let (pk, sk) = sign::gen_keypair();
+        let stack_entry = StackEntry::PubKey(pk);
+        let mut v = vec![];
+        v.push(stack_entry.clone());
+        assert!(push_entry_to_stack(&stack_entry, &mut interpreter_stack));
+        assert_eq!(interpreter_stack, v);
+        // public key hash
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let s = "a".repeat(20);
+        let stack_entry = StackEntry::PubKeyHash(s);
+        let mut v = vec![];
+        v.push(stack_entry.clone());
+        assert!(push_entry_to_stack(&stack_entry, &mut interpreter_stack));
+        assert_eq!(interpreter_stack, v);
+        // bytes
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let s = "a".repeat(520);
+        let stack_entry = StackEntry::Bytes(s);
+        let mut v = vec![];
+        v.push(stack_entry.clone());
+        assert!(push_entry_to_stack(&stack_entry, &mut interpreter_stack));
+        assert_eq!(interpreter_stack, v);
+        // bytes > 520
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let s = "a".repeat(521);
+        let stack_entry = StackEntry::Bytes(s);
+        let mut v = vec![];
+        assert!(!push_entry_to_stack(&stack_entry, &mut interpreter_stack));
+        assert_eq!(interpreter_stack, v);
     }
 
     #[test]
