@@ -556,7 +556,6 @@ fn receipt_has_valid_size(receipt: &ReceiptAsset) -> bool {
     if let Some(metadata) = &receipt.metadata {
         return metadata.len() <= MAX_METADATA_BYTES;
     }
-
     true
 }
 
@@ -578,6 +577,29 @@ mod tests {
     use crate::primitives::transaction::OutPoint;
     use crate::utils::test_utils::generate_tx_with_ins_and_outs_assets;
     use crate::utils::transaction_utils::*;
+
+    #[test]
+    fn test_interpret_script() {
+        // empty script
+        let mut script = Script::new();
+        assert!(interpret_script(&script));
+        // OP_0
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_0));
+        assert!(!interpret_script(&script));
+        // OP_1
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        assert!(interpret_script(&script));
+        // OP_1 OP_2 OP_ADD OP_3 OP_EQUAL
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        script.stack.push(StackEntry::Op(OpCodes::OP_2));
+        script.stack.push(StackEntry::Op(OpCodes::OP_ADD));
+        script.stack.push(StackEntry::Op(OpCodes::OP_3));
+        script.stack.push(StackEntry::Op(OpCodes::OP_EQUAL));
+        assert!(interpret_script(&script));
+    }
 
     /// Util function to create p2pkh TxIns
     fn create_multisig_tx_ins(tx_values: Vec<TxConstructor>, m: usize) -> Vec<TxIn> {

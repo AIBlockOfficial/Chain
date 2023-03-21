@@ -71,8 +71,6 @@ impl Script {
 
     /// Constructs a pay to public key hash script
     ///
-    /// TODO: Function will need to take network version
-    ///
     /// ### Arguments
     ///
     /// * `check_data`  - Check data to provide signature
