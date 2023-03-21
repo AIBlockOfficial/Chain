@@ -46,16 +46,16 @@ pub enum OpCodes {
     OP_16 = 0x60,        // implemented, tested, added to interpret_script
 
     // flow control
-    OP_NOP = 0x61, // implemented, tested, added to interpret_script
-    OP_VER = 0x62, // not implemented: we do not need it
-    OP_IF = 0x63,
-    OP_NOTIF = 0x64,
+    OP_NOP = 0x61,      // implemented, tested, added to interpret_script
+    OP_VER = 0x62,      // not implemented: we do not need it
+    OP_IF = 0x63,       // TODO
+    OP_NOTIF = 0x64,    // TODO
     OP_VERIF = 0x65,    // not implemented: we do not need it
     OP_VERNOTIF = 0x66, // not implemented: we do not need it
-    OP_ELSE = 0x67,
-    OP_ENDIF = 0x68,
-    OP_VERIFY = 0x69, // implemented, tested, added to interpret_script
-    OP_RETURN = 0x6a, // implemented, tested, added to interpret_script
+    OP_ELSE = 0x67,     // TODO
+    OP_ENDIF = 0x68,    // TODO
+    OP_VERIFY = 0x69,   // implemented, tested, added to interpret_script
+    OP_RETURN = 0x6a,   // implemented, tested, added to interpret_script
 
     // stack
     OP_TOALTSTACK = 0x6b,   // implemented, tested, added to interpret_script
@@ -137,27 +137,27 @@ pub enum OpCodes {
     OP_CHECKMULTISIGVERIFY = 0xaf, // implemented, tested, added to interpret_script
 
     // locktime
-    OP_CHECKLOCKTIMEVERIFY = 0xb1,
-    OP_CHECKSEQUENCEVERIFY = 0xb2,
+    OP_CHECKLOCKTIMEVERIFY = 0xb1, // TODO
+    OP_CHECKSEQUENCEVERIFY = 0xb2, // TODO
 
     // pseudo-words
-    OP_INVALIDOPCODE = 0xff,
+    OP_INVALIDOPCODE = 0xff, // not implemented
 
     // reserved
-    OP_RESERVED = 0x50,
-    OP_RESERVED1 = 0x89,
-    OP_RESERVED2 = 0x8a,
-    OP_NOP1 = 0xb0,
-    OP_NOP4 = 0xb3,
-    OP_NOP5 = 0xb4,
-    OP_NOP6 = 0xb5,
-    OP_NOP7 = 0xb6,
-    OP_NOP8 = 0xb7,
-    OP_NOP9 = 0xb8,
-    OP_NOP10 = 0xb9,
+    OP_RESERVED = 0x50,  // not implemented
+    OP_RESERVED1 = 0x89, // not implemented
+    OP_RESERVED2 = 0x8a, // not implemented
+    OP_NOP1 = 0xb0,      // not implemented
+    OP_NOP4 = 0xb3,      // not implemented
+    OP_NOP5 = 0xb4,      // not implemented
+    OP_NOP6 = 0xb5,      // not implemented
+    OP_NOP7 = 0xb6,      // not implemented
+    OP_NOP8 = 0xb7,      // not implemented
+    OP_NOP9 = 0xb8,      // not implemented
+    OP_NOP10 = 0xb9,     // not implemented
 
     // data
-    OP_CREATE = 0xc0,
+    OP_CREATE = 0xc0, // implemented, tested, added to interpret_script
 }
 
 impl OpCodes {
