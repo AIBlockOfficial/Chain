@@ -225,7 +225,7 @@ pub fn tx_has_valid_p2sh_script(script: &Script, address: &str) -> bool {
 ///
 /// * `script`  - mutable reference to the script
 fn is_valid_script(script: &Script) -> bool {
-    let mut len = ZERO; // script lenght in bytes
+    let mut len = ZERO; // script length in bytes
     let mut ops_count = ZERO; // number of opcodes in script
     for entry in &script.stack {
         match entry {
