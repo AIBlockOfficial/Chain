@@ -634,6 +634,38 @@ mod tests {
     }
 
     #[test]
+    fn test_is_valid_stack() {
+        // empty stack
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_alt_stack: Vec<StackEntry> = vec![];
+        assert!(is_valid_stack(&interpreter_stack, &interpreter_alt_stack));
+        // stack length <= 1000
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_alt_stack: Vec<StackEntry> = vec![];
+        for _ in 0..MAX_STACK_SIZE {
+            interpreter_stack.push(StackEntry::Num(1));
+        }
+        assert!(is_valid_stack(&interpreter_stack, &interpreter_alt_stack));
+        // stack length > 1000
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_alt_stack: Vec<StackEntry> = vec![];
+        for _ in 0..=MAX_STACK_SIZE {
+            interpreter_stack.push(StackEntry::Num(1));
+        }
+        assert!(!is_valid_stack(&interpreter_stack, &interpreter_alt_stack));
+        // combined lenght of stack and alt stack > 1000
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        let mut interpreter_alt_stack: Vec<StackEntry> = vec![];
+        for _ in 0..500 {
+            interpreter_stack.push(StackEntry::Num(1));
+        }
+        for _ in 0..501 {
+            interpreter_alt_stack.push(StackEntry::Num(1));
+        }
+        assert!(!is_valid_stack(&interpreter_stack, &interpreter_alt_stack));
+    }
+
+    #[test]
     fn test_interpret_script() {
         // empty script
         let mut script = Script::new();
