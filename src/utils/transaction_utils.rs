@@ -1,4 +1,4 @@
-use crate::constants::{NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TX_PREPEND};
+use crate::constants::{COINBASE_MATURITY, NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TX_PREPEND};
 use crate::crypto::sha3_256;
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, SecretKey};
 use crate::primitives::asset::{Asset, DataAsset, TokenAmount};
@@ -290,6 +290,7 @@ pub fn construct_coinbase_tx(b_num: u64, amount: TokenAmount, address: String) -
     let tx_out = TxOut {
         value: Asset::Token(amount),
         script_public_key: Some(address),
+        locktime: b_num + COINBASE_MATURITY,
         ..Default::default()
     };
 
