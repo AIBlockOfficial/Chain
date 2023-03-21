@@ -322,4 +322,4 @@ pub const ERROR_MAX_SCRIPT_SIZE: &str = "Script size exceeds MAX_SCRIPT_SIZE-byt
 pub const ERROR_MAX_STACK_SIZE: &str = "Stack size exceeds MAX_STACK_SIZE limit";
 pub const ERROR_MAX_OPS_SCRIPT: &str =
     "Number of opcodes in script exceeds MAX_OPS_PER_SCRIPT limit";
-pub const ERROR_UNKWON_OPERATION: &str = "Attempt to perform unknown operation";
+pub const ERROR_INVALID_OPCODE: &str = "Attempt to execute invalid opcode";
