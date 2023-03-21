@@ -302,9 +302,6 @@ fn interpret_script(script: &Script) -> bool {
     let mut interpreter_alt_stack: Vec<StackEntry> = Vec::with_capacity(MAX_STACK_SIZE as usize);
     let mut test_for_return = true;
     for stack_entry in &script.stack {
-        if !test_for_return || !is_valid_stack(&interpreter_stack, &interpreter_alt_stack) {
-            return false;
-        }
         match stack_entry {
             /*---- OPCODE ----*/
             // constants
@@ -537,6 +534,9 @@ fn interpret_script(script: &Script) -> bool {
                 return false;
             }
         }
+        if !test_for_return || !is_valid_stack(&interpreter_stack, &interpreter_alt_stack) {
+            return false;
+        }
     }
     test_for_return && interpreter_stack.last().cloned() != Some(StackEntry::Num(ZERO))
 }
@@ -680,7 +680,7 @@ mod tests {
         v.push(stack_entry.clone());
         assert!(push_entry_to_stack(&stack_entry, &mut interpreter_stack));
         assert_eq!(interpreter_stack, v);
-        // pubkey hash
+        // pubkeyhash
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         let s = "a".repeat(20);
         let stack_entry = StackEntry::PubKeyHash(s);
@@ -703,7 +703,7 @@ mod tests {
         v.push(stack_entry.clone());
         assert!(push_entry_to_stack(&stack_entry, &mut interpreter_stack));
         assert_eq!(interpreter_stack, v);
-        // bytes > 520
+        // item size > 520 bytes
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         let s = "a".repeat(521);
         let stack_entry = StackEntry::Bytes(s);
@@ -733,6 +733,12 @@ mod tests {
         script.stack.push(StackEntry::Op(OpCodes::OP_3));
         script.stack.push(StackEntry::Op(OpCodes::OP_EQUAL));
         assert!(interpret_script(&script));
+        // script length <= 10000 bytes
+        let mut script = Script::new();
+        let s = "a".repeat(500);
+        for _ in 0..20 {
+            script.stack.push(StackEntry::Bytes(s.clone()));
+        }
         // script length > 10000 bytes
         let mut script = Script::new();
         let mut s = String::new();
@@ -743,13 +749,29 @@ mod tests {
             script.stack.push(StackEntry::Bytes(s.clone()));
         }
         assert!(!interpret_script(&script));
+        // # opcodes <= 201
+        let mut script = Script::new();
+        for _ in 0..MAX_OPS_PER_SCRIPT {
+            script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        }
         // # opcodes > 201
         let mut script = Script::new();
         for _ in 0..=MAX_OPS_PER_SCRIPT {
             script.stack.push(StackEntry::Op(OpCodes::OP_1));
         }
         assert!(!interpret_script(&script));
-        // unknown opcode
+        // # items on interpreter stack <= 1000
+        let mut script = Script::new();
+        for _ in 0..MAX_STACK_SIZE {
+            script.stack.push(StackEntry::Num(1));
+        }
+        assert!(interpret_script(&script));
+        // # items on interpreter stack > 1000
+        let mut script = Script::new();
+        for _ in 0..=MAX_STACK_SIZE {
+            script.stack.push(StackEntry::Num(1));
+        }
+        // invalid opcode
         let mut script = Script::new();
         script.stack.push(StackEntry::Op(OpCodes::OP_CAT));
         assert!(!interpret_script(&script));
