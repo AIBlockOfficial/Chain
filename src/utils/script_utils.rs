@@ -668,39 +668,34 @@ mod tests {
         let msg = hex::encode(vec![0, 0, 0]);
         let sig = sign::sign_detached(msg.as_bytes(), &sk);
         let stack_entry = StackEntry::Signature(sig);
-        let mut v = vec![];
-        v.push(stack_entry.clone());
+        let mut v = vec![stack_entry.clone()];
         assert!(push_entry_to_stack(&stack_entry, &mut interpreter_stack));
         assert_eq!(interpreter_stack, v);
         // pubkey
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         let (pk, sk) = sign::gen_keypair();
         let stack_entry = StackEntry::PubKey(pk);
-        let mut v = vec![];
-        v.push(stack_entry.clone());
+        let mut v = vec![stack_entry.clone()];
         assert!(push_entry_to_stack(&stack_entry, &mut interpreter_stack));
         assert_eq!(interpreter_stack, v);
         // pubkeyhash
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         let s = "a".repeat(20);
         let stack_entry = StackEntry::PubKeyHash(s);
-        let mut v = vec![];
-        v.push(stack_entry.clone());
+        let mut v = vec![stack_entry.clone()];
         assert!(push_entry_to_stack(&stack_entry, &mut interpreter_stack));
         assert_eq!(interpreter_stack, v);
         // num
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         let stack_entry = StackEntry::Num(1);
-        let mut v = vec![];
-        v.push(stack_entry.clone());
+        let mut v = vec![stack_entry.clone()];
         assert!(push_entry_to_stack(&stack_entry, &mut interpreter_stack));
         assert_eq!(interpreter_stack, v);
         // bytes
         let mut interpreter_stack: Vec<StackEntry> = vec![];
         let s = "a".repeat(520);
         let stack_entry = StackEntry::Bytes(s);
-        let mut v = vec![];
-        v.push(stack_entry.clone());
+        let mut v = vec![stack_entry.clone()];
         assert!(push_entry_to_stack(&stack_entry, &mut interpreter_stack));
         assert_eq!(interpreter_stack, v);
         // item size > 520 bytes
