@@ -18,7 +18,7 @@ pub enum StackEntry {
     Bytes(String),
 }
 
-/// Ops code for stack scripts
+/// Opcodes enum
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub enum OpCodes {
@@ -46,16 +46,16 @@ pub enum OpCodes {
     OP_16 = 0x60,        // implemented, tested, added to interpret_script
 
     // flow control
-    OP_NOP = 0x61,
-    OP_VER = 0x62,
-    OP_IF = 0x63,
-    OP_NOTIF = 0x64,
-    OP_VERIF = 0x65,
-    OP_VERNOTIF = 0x66,
-    OP_ELSE = 0x67,
-    OP_ENDIF = 0x68,
-    OP_VERIFY = 0x69,
-    OP_RETURN = 0x6a,
+    OP_NOP = 0x61,      // implemented, tested, added to interpret_script
+    OP_VER = 0x62,      // not implemented: we do not need it
+    OP_IF = 0x63,       // TODO
+    OP_NOTIF = 0x64,    // TODO
+    OP_VERIF = 0x65,    // not implemented: we do not need it
+    OP_VERNOTIF = 0x66, // not implemented: we do not need it
+    OP_ELSE = 0x67,     // TODO
+    OP_ENDIF = 0x68,    // TODO
+    OP_VERIFY = 0x69,   // implemented, tested, added to interpret_script
+    OP_RETURN = 0x6a,   // implemented, tested, added to interpret_script
 
     // stack
     OP_TOALTSTACK = 0x6b,   // implemented, tested, added to interpret_script
@@ -123,44 +123,41 @@ pub enum OpCodes {
     OP_WITHIN = 0xa5,             // implemented, tested, added to interpret_script
 
     // crypto
-    OP_SHA256 = 0xa8,
-    OP_HASH160 = 0xa9,
-    OP_HASH256 = 0xaa,
-    OP_CODESEPARATOR = 0xab,
-    OP_CHECKSIG = 0xac,
-    OP_CHECKSIGVERIFY = 0xad,
-    OP_CHECKMULTISIG = 0xae,
-    OP_CHECKMULTISIGVERIFY = 0xaf,
+    OP_RIPEMD160 = 0xa6,           // not implemented: we do not need it
+    OP_SHA1 = 0xa7,                // not implemented: we do not need it
+    OP_SHA256 = 0xa8,              // not implemented: we do not need it
+    OP_SHA3 = 0xa9,                // implemented, tested, added to interpret_script
+    OP_HASH256 = 0xaa,             // implemented, tested, added to interpret_script
+    OP_HASH256V0 = 0xc1,           // implemented, tested, added to interpret_script
+    OP_HASH256TEMP = 0xc2,         // implemented, tested, added to interpret_script
+    OP_CODESEPARATOR = 0xab,       // not implemented: we do not need it
+    OP_CHECKSIG = 0xac,            // implemented, tested, added to interpret_script
+    OP_CHECKSIGVERIFY = 0xad,      // implemented, tested, added to interpret_script
+    OP_CHECKMULTISIG = 0xae,       // implemented, tested, added to interpret_script
+    OP_CHECKMULTISIGVERIFY = 0xaf, // implemented, tested, added to interpret_script
 
     // locktime
-    OP_CHECKLOCKTIMEVERIFY = 0xb1,
-    OP_CHECKSEQUENCEVERIFY = 0xb2,
+    OP_CHECKLOCKTIMEVERIFY = 0xb1, // TODO
+    OP_CHECKSEQUENCEVERIFY = 0xb2, // TODO
 
     // pseudo-words
-    OP_INVALIDOPCODE = 0xff,
+    OP_INVALIDOPCODE = 0xff, // not implemented
 
     // reserved
-    OP_RESERVED = 0x50,
-    OP_RESERVED1 = 0x89,
-    OP_RESERVED2 = 0x8a,
-    OP_NOP1 = 0xb0,
-    OP_NOP4 = 0xb3,
-    OP_NOP5 = 0xb4,
-    OP_NOP6 = 0xb5,
-    OP_NOP7 = 0xb6,
-    OP_NOP8 = 0xb7,
-    OP_NOP9 = 0xb8,
-    OP_NOP10 = 0xb9,
+    OP_RESERVED = 0x50,  // not implemented
+    OP_RESERVED1 = 0x89, // not implemented
+    OP_RESERVED2 = 0x8a, // not implemented
+    OP_NOP1 = 0xb0,      // not implemented
+    OP_NOP4 = 0xb3,      // not implemented
+    OP_NOP5 = 0xb4,      // not implemented
+    OP_NOP6 = 0xb5,      // not implemented
+    OP_NOP7 = 0xb6,      // not implemented
+    OP_NOP8 = 0xb7,      // not implemented
+    OP_NOP9 = 0xb8,      // not implemented
+    OP_NOP10 = 0xb9,     // not implemented
 
     // data
-    OP_CREATE = 0xc0,
-
-    // support for old (32 byte) address structures
-    OP_HASH256_V0 = 0xc1,
-
-    // support for temporary address scheme used on wallet
-    // TODO: Deprecate after addresses retire
-    OP_HASH256_TEMP = 0xc2,
+    OP_CREATE = 0xc0, // implemented, tested, added to interpret_script
 }
 
 impl OpCodes {

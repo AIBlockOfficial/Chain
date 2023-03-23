@@ -67,7 +67,7 @@ pub const P2SH_PREPEND: u8 = b'H';
 pub const NETWORK_VERSION_V0: u64 = 0;
 
 // Network version to support temporary address structure on wallet
-// TODO: Depreciate after addresses retire
+// TODO: Deprecate after addresses retire
 pub const NETWORK_VERSION_TEMP: u64 = 99999;
 
 /*------- NUMBERS -------*/
@@ -127,6 +127,16 @@ pub const OP13_DESC: &str = "Pushes the number THIRTEEN onto the stack";
 pub const OP14_DESC: &str = "Pushes the number FOURTEEN onto the stack";
 pub const OP15_DESC: &str = "Pushes the number FIFTEEN onto the stack";
 pub const OP16_DESC: &str = "Pushes the number SIXTEEN onto the stack";
+
+// control flow
+pub const OPNOP: &str = "OP_NOP";
+pub const OPVERIFY: &str = "OP_VERIFY";
+pub const OPRETURN: &str = "OP_RETURN";
+
+pub const OPNOP_DESC: &str = "Does nothing";
+pub const OPVERIFY_DESC: &str =
+    "Removes the top item from the stack and terminates the execution if it is ZERO";
+pub const OPRETURN_DESC: &str = "Terminates the execution";
 
 // stack
 pub const OPTOALTSTACK: &str = "OP_TOALTSTACK";
@@ -266,9 +276,35 @@ pub const OPMAX_DESC: &str =
     "Substitutes the top two items on the stack with the maximum between the two";
 pub const OPWITHIN_DESC: &str = "Substitutes the top three items on the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item, with ZERO otherwise";
 
+// crypto
+pub const OPSHA3: &str = "OP_SHA3";
+pub const OPHASH256: &str = "OP_HASH256";
+pub const OPHASH256V0: &str = "OP_HASH256V0";
+pub const OPHASH256TEMP: &str = "OP_HASH256TEMP";
+pub const OPCHECKSIG: &str = "OP_CHECKSIG";
+pub const OPCHECKSIGVERIFY: &str = "OP_CHECKSIGVERIFY";
+pub const OPCHECKMULTISIG: &str = "OP_CHECKMULTISIG";
+pub const OPCHECKMULTISIGVERIFY: &str = "OP_CHECKMULTISIGVERIFY";
+
+pub const OPSHA3_DESC: &str = "Hashes the top item on the stack using SHA3-256";
+pub const OPHASH256_DESC: &str =
+    "Creates standard address from public key and pushes it onto the stack";
+pub const OPHASH256V0_DESC: &str =
+    "Creates v0 address from public key and pushes it onto the stack";
+pub const OPHASH256TEMP_DESC: &str =
+    "Creates temporary address from public key and pushes it onto the stack";
+pub const OPCHECKSIG_DESC: &str =
+    "Pushes ONE onto the stack if the signature is valid, ZERO otherwise";
+pub const OPCHECKSIGVERIFY_DESC: &str = "Runs OP_CHECKSIG and OP_VERIFY in sequence";
+pub const OPCHECKMULTISIG_DESC: &str =
+    "Pushes ONE onto the stack if the m-of-n multi-signature is valid, ZERO otherwise";
+pub const OPCHECKMULTISIGVERIFY_DESC: &str = "Runs OP_CHECKMULTISIG and OP_VERIFY in sequence";
+
 /*------- ERROR MESSAGES -------*/
 
 // opcodes
+pub const ERROR_VERIFY: &str = "The top item on the stack is ZERO";
+pub const ERROR_RETURN: &str = "OP_RETURN executed";
 pub const ERROR_NUM_ITEMS: &str = "Not enough items on the stack";
 pub const ERROR_ITEM_TYPE: &str = "Item type is not correct";
 pub const ERROR_ITEM_INDEX: &str = "Index is out of bound";
@@ -276,10 +312,14 @@ pub const ERROR_ITEM_SIZE: &str = "Item size exceeds MAX_SCRIPT_ITEM_SIZE-byte l
 pub const ERROR_NOT_EQUAL_ITEMS: &str = "The two top items are not equal";
 pub const ERROR_OVERFLOW: &str = "Attempt to overflow";
 pub const ERROR_DIV_ZERO: &str = "Attempt to divide by ZERO";
+pub const ERROR_INVALID_SIGNATURE: &str = "Signature is not valid";
+pub const ERROR_INVALID_MULTISIGNATURE: &str = "Multi-signature is not valid";
+pub const ERROR_NUM_PUBKEYS: &str = "Number of public keys provided is not correct";
+pub const ERROR_NUM_SIGNATURES: &str = "Number of signatures provided is not correct";
 
 // script
 pub const ERROR_MAX_SCRIPT_SIZE: &str = "Script size exceeds MAX_SCRIPT_SIZE-byte limit";
 pub const ERROR_MAX_STACK_SIZE: &str = "Stack size exceeds MAX_STACK_SIZE limit";
 pub const ERROR_MAX_OPS_SCRIPT: &str =
     "Number of opcodes in script exceeds MAX_OPS_PER_SCRIPT limit";
-pub const ERROR_UNKWON_OPERATION: &str = "Attempt to perform unknown operation";
+pub const ERROR_INVALID_OPCODE: &str = "Attempt to execute invalid opcode";

@@ -71,8 +71,6 @@ impl Script {
 
     /// Constructs a pay to public key hash script
     ///
-    /// TODO: Function will need to take network version
-    ///
     /// ### Arguments
     ///
     /// * `check_data`  - Check data to provide signature
@@ -89,8 +87,8 @@ impl Script {
         let new_key = construct_address_for(&pub_key, address_version);
 
         let op_hash_256 = match address_version {
-            Some(NETWORK_VERSION_V0) => OpCodes::OP_HASH256_V0,
-            Some(NETWORK_VERSION_TEMP) => OpCodes::OP_HASH256_TEMP,
+            Some(NETWORK_VERSION_V0) => OpCodes::OP_HASH256V0,
+            Some(NETWORK_VERSION_TEMP) => OpCodes::OP_HASH256TEMP,
             _ => OpCodes::OP_HASH256,
         };
 
@@ -225,25 +223,5 @@ impl Script {
         }
 
         new_script
-    }
-
-    /// Checks whether all ops codes within script are valid
-    pub fn has_valid_ops(&self) -> bool {
-        warn!("has_valid_ops not implemented");
-        for entry in &self.stack {
-            // TODO
-        }
-
-        true
-    }
-
-    /// Gets the op_code for a specific data entry, if it exists
-    pub fn get_op_code(&self, entry: &u8) -> Option<u8> {
-        let mut op_code = OpCodes::OP_INVALIDOPCODE as u8;
-        warn!("get_op_code not implemented");
-
-        // TODO
-
-        Some(op_code)
     }
 }
