@@ -1,4 +1,6 @@
-use crate::constants::{COINBASE_MATURITY, NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TX_PREPEND, P2SH_PREPEND};
+use crate::constants::{
+    COINBASE_MATURITY, NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, P2SH_PREPEND, TX_PREPEND,
+};
 use crate::crypto::sha3_256;
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, SecretKey};
 use crate::primitives::asset::{Asset, DataAsset, TokenAmount};

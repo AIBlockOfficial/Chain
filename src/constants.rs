@@ -280,8 +280,8 @@ pub const OPWITHIN_DESC: &str = "Substitutes the top three items on the stack wi
 // crypto
 pub const OPSHA3: &str = "OP_SHA3";
 pub const OPHASH256: &str = "OP_HASH256";
-pub const OPHASH256V0: &str = "OP_HASH256V0";
-pub const OPHASH256TEMP: &str = "OP_HASH256TEMP";
+pub const OPHASH256V0: &str = "OP_HASH256_V0";
+pub const OPHASH256TEMP: &str = "OP_HASH256_TEMP";
 pub const OPCHECKSIG: &str = "OP_CHECKSIG";
 pub const OPCHECKSIGVERIFY: &str = "OP_CHECKSIGVERIFY";
 pub const OPCHECKMULTISIG: &str = "OP_CHECKMULTISIG";
