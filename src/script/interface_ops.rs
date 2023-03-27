@@ -2332,8 +2332,8 @@ pub fn op_checksigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_CHECKMULTISIG: Pushes ONE onto the stack if the m-of-n multi-signature is valid, ZERO otherwise. Returns a bool.
 ///
-/// Example: OP_CHECKMULTISIG([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> [1] if Verify(msg, sig1, sig2, pk1, pk2, pk3, m) == 1
-///          OP_CHECKMULTISIG([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> [0] if Verify(msg, sig1, sig2, pk1, pk2, pk3, m) == 0
+/// Example: OP_CHECKMULTISIG([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> [1] if Verify(sig1, sig2, msg, pk1, pk2, pk3) == 1
+///          OP_CHECKMULTISIG([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> [0] if Verify(sig1, sig2, msg, pk1, pk2, pk3) == 0
 ///
 /// Info: It allows multi-signature verification on arbitrary messsages, not only transactions.
 ///       Ordering of signatures and public keys is not relevant.
@@ -2415,8 +2415,8 @@ pub fn op_checkmultisig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_CHECKMULTISIGVERIFY: Runs OP_CHECKMULTISIG and OP_VERIFY in sequence. Returns a bool.
 ///
-/// Example: OP_CHECKMULTISIGVERIFY([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> []   if Verify(msg, sig1, sig2, pk1, pk2, pk3, m) == 1
-///          OP_CHECKMULTISIGVERIFY([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> fail if Verify(msg, sig1, sig2, pk1, pk2, pk3, m) == 0
+/// Example: OP_CHECKMULTISIGVERIFY([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> []   if Verify(sig1, sig2, msg, pk1, pk2, pk3) == 1
+///          OP_CHECKMULTISIGVERIFY([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> fail if Verify(sig1, sig2, msg, pk1, pk2, pk3) == 0
 ///
 /// Info: It allows multi-signature verification on arbitrary messsages, not only transactions.
 ///       Ordering of signatures and public keys is not relevant.
