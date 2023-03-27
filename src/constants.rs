@@ -4,6 +4,7 @@ use crate::script::OpCodes;
 
 pub const RECEIPT_DEFAULT_DRS_TX_HASH: &str = "default_drs_tx_hash";
 pub const MAX_METADATA_BYTES: usize = 800;
+pub const COINBASE_MATURITY: u64 = 100;
 
 /*------- NETWORK CONSTANTS --------*/
 
@@ -279,8 +280,8 @@ pub const OPWITHIN_DESC: &str = "Substitutes the top three items on the stack wi
 // crypto
 pub const OPSHA3: &str = "OP_SHA3";
 pub const OPHASH256: &str = "OP_HASH256";
-pub const OPHASH256V0: &str = "OP_HASH256V0";
-pub const OPHASH256TEMP: &str = "OP_HASH256TEMP";
+pub const OPHASH256V0: &str = "OP_HASH256_V0";
+pub const OPHASH256TEMP: &str = "OP_HASH256_TEMP";
 pub const OPCHECKSIG: &str = "OP_CHECKSIG";
 pub const OPCHECKSIGVERIFY: &str = "OP_CHECKSIGVERIFY";
 pub const OPCHECKMULTISIG: &str = "OP_CHECKMULTISIG";
