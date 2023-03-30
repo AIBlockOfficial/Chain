@@ -704,7 +704,7 @@ pub fn op_swap(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_TUCK: Copies the top item before the second-to-top item on the stack. Returns a bool.
+/// OP_TUCK: Copies the top item behind the second-to-top item on the stack. Returns a bool.
 ///
 /// Example: OP_TUCK([x1, x2]) -> [x2, x1, x2]
 ///
@@ -726,7 +726,7 @@ pub fn op_tuck(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 
 /*---- SPLICE OPS ----*/
 
-/// OP_CAT: Concatenates the second-to-top item and the top item on the stack. Returns a bool.
+/// OP_CAT: Concatenates the two strings on top of the stack. Returns a bool.
 ///
 /// Example: OP_CAT([s1, s2]) -> [s1s2]
 ///
@@ -911,7 +911,7 @@ pub fn op_right(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_SIZE: Computes the size in bytes of the top item on the stack. Returns a bool.
+/// OP_SIZE: Computes the size in bytes of the string on top of the stack. Returns a bool.
 ///
 /// Example: OP_SIZE([s]) -> [s, len(s)]
 ///
@@ -2111,7 +2111,7 @@ pub fn op_within(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 
 /// OP_SHA3: Hashes the top item on the stack using SHA3-256. Returns a bool.
 ///
-/// Example: OP_SHA3([m]) -> [SHA3-256(m)]
+/// Example: OP_SHA3([x]) -> [SHA3-256(x)]
 ///
 /// ### Arguments
 ///
@@ -2499,7 +2499,7 @@ pub fn op_checkmultisigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 /// * `msg`  - data to verify against
 /// * `pks`  - public keys to match against
 fn verify_multisig(sigs: Vec<Signature>, msg: String, pks: Vec<PublicKey>) -> bool {
-    let mut pks = pks;
+    let mut pks = pks.clone();
     let mut num_valid_sigs = ZERO;
     for (index_sig, sig) in sigs.iter().enumerate() {
         for (index_pk, pk) in pks.iter().enumerate() {

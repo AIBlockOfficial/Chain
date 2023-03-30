@@ -181,7 +181,7 @@ pub const OPROLL_DESC: &str =
     "Moves the nth-to-top item to the top of the stack, where n is the top item on the stack";
 pub const OPROT_DESC: &str = "Moves the third-to-top item to the top of the stack";
 pub const OPSWAP_DESC: &str = "Swaps the top two items on the stack";
-pub const OPTUCK_DESC: &str = "Copies the top item before the second-to-top item on the stack";
+pub const OPTUCK_DESC: &str = "Copies the top item behind the second-to-top item on the stack";
 
 // splice
 pub const OPCAT: &str = "OP_CAT";
@@ -190,12 +190,12 @@ pub const OPLEFT: &str = "OP_LEFT";
 pub const OPRIGHT: &str = "OP_RIGHT";
 pub const OPSIZE: &str = "OP_SIZE";
 
-pub const OPCAT_DESC: &str = "Concatenates the second-to-top item and the top item on the stack";
+pub const OPCAT_DESC: &str = "Concatenates the two strings on top of the stack";
 pub const OPSUBSTR_DESC: &str = "Extracts a substring from the third-to-top item on the stack";
 pub const OPLEFT_DESC: &str = "Extracts a left substring from the second-to-top item on the stack";
 pub const OPRIGHT_DESC: &str =
     "Extracts a right substring from the second-to-top item on the stack";
-pub const OPSIZE_DESC: &str = "Computes the size in bytes of the top item on the stack";
+pub const OPSIZE_DESC: &str = "Computes the size in bytes of the string on top of the stack";
 
 // bitwise logic
 pub const OPINVERT: &str = "OP_INVERT";

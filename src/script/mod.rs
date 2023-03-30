@@ -15,7 +15,7 @@ pub enum StackEntry {
     PubKey(PublicKey),
     PubKeyHash(String),
     Num(usize),
-    Bytes(String),
+    Bytes(String)
 }
 
 /// Opcodes enum
@@ -156,7 +156,7 @@ pub enum OpCodes {
     OP_NOP9 = 0xb8,      // not implemented
     OP_NOP10 = 0xb9,     // not implemented
 
-    // data
+    // smart data
     OP_CREATE = 0xc0, // implemented, tested, added to interpret_script
 }
 
