@@ -8,7 +8,7 @@
     <img src="https://github.com/Zenotta/ZenottaJS/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
   </a> -->
 
-  <h3 align="center">Notarised Append Only Memory (NAOM)</h3>
+  <h2 align="center">Notarised Append Only Memory (NAOM)</h2>
 
   <div>
   <img src="https://img.shields.io/github/actions/workflow/status/Zenotta/NAOM/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
@@ -45,3 +45,10 @@ cargo test
 Running `cargo run --bin main` will currently list all assets on the local instance. NAOM is not generally intended to be
 used directly, and is instead intended to be used from other programs that require access to the blockchain data 
 structure.
+
+..
+
+## References
+
+- [BitML for Zenotta](https://github.com/Zenotta/NAOM/blob/main/docs/BitML_for_Zenotta.pdf)
+- [ZScript Opcodes Reference](https://github.com/Zenotta/NAOM/blob/main/docs/ZScript_Opcodes_Reference.pdf)
