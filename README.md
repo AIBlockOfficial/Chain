@@ -1,12 +1,30 @@
-# Notarised Append Only Memory (NAOM)
+<div id="top"></div>
 
-The NAOM repo contains all the code needed to set up and interact with a local instance of the Zenotta blockchain. 
-Other language options can be found here:
+<!-- PROJECT LOGO -->
+<br />
 
-- [Française](https://gitlab.com/zenotta/naom/-/blob/main/README.fr.md)
-- [Afrikaans](https://gitlab.com/zenotta/naom/-/blob/main/README.af.md)
+<div align="center">
+  <!-- <a>
+    <img src="https://github.com/Zenotta/ZenottaJS/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
+  </a> -->
 
-If you'd like to help with translations, or spot a mistake, feel free to open a new merge request.
+  <h2 align="center">Notarised Append Only Memory (NAOM)</h2>
+
+  <div>
+  <img src="https://img.shields.io/github/actions/workflow/status/Zenotta/NAOM/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
+  </div>
+
+  <p align="center">
+    The OG dual double entry blockchain
+    <br />
+    <br />
+    <a href="https://zenotta.io"><strong>Official documentation »</strong></a>
+    <br />
+    <br />
+  </p>
+</div>
+
+The NAOM repo contains all the code needed to set up and interact with a local instance of the Zenotta blockchain.
 
 ..
 
@@ -27,3 +45,10 @@ cargo test
 Running `cargo run --bin main` will currently list all assets on the local instance. NAOM is not generally intended to be
 used directly, and is instead intended to be used from other programs that require access to the blockchain data 
 structure.
+
+..
+
+## References
+
+- [BitML for Zenotta](https://github.com/Zenotta/NAOM/blob/main/docs/BitML_for_Zenotta.pdf)
+- [ZScript Opcodes Reference](https://github.com/Zenotta/NAOM/blob/main/docs/ZScript_Opcodes_Reference.pdf)
