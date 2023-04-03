@@ -19,7 +19,7 @@ use tracing::{debug, error, info, trace};
 
 /*---- CONSTANTS OPS ----*/
 
-/// OP_0: Pushes the number ZERO onto the stack. Returns a bool.
+/// OP_0: Pushes number ZERO onto the stack. Returns a bool.
 ///
 /// Example: OP_0([]) -> [0]
 ///
@@ -33,7 +33,7 @@ pub fn op_0(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_1: Pushes the number ONE onto the stack. Returns a bool.
+/// OP_1: Pushes number ONE onto the stack. Returns a bool.
 ///
 /// Example: OP_1([]) -> [1]
 ///
@@ -47,7 +47,7 @@ pub fn op_1(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_2: Pushes the number TWO onto the stack. Returns a bool.
+/// OP_2: Pushes number TWO onto the stack. Returns a bool.
 ///
 /// Example: OP_2([]) -> [2]
 ///
@@ -61,7 +61,7 @@ pub fn op_2(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_3: Pushes the number THREE onto the stack. Returns a bool.
+/// OP_3: Pushes number THREE onto the stack. Returns a bool.
 ///
 /// Example: OP_3([]) -> [3]
 ///
@@ -75,7 +75,7 @@ pub fn op_3(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_4: Pushes the number FOUR onto the stack. Returns a bool.
+/// OP_4: Pushes number FOUR onto the stack. Returns a bool.
 ///
 /// Example: OP_4([]) -> [4]
 ///
@@ -89,7 +89,7 @@ pub fn op_4(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_5: Pushes the number FIVE onto the stack. Returns a bool.
+/// OP_5: Pushes number FIVE onto the stack. Returns a bool.
 ///
 /// Example: OP_5([]) -> [5]
 ///
@@ -103,7 +103,7 @@ pub fn op_5(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_6: Pushes the number SIX onto the stack. Returns a bool.
+/// OP_6: Pushes number SIX onto the stack. Returns a bool.
 ///
 /// Example: OP_6([]) -> [6]
 ///
@@ -117,7 +117,7 @@ pub fn op_6(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_7: Pushes the number SEVEN onto the stack. Returns a bool.
+/// OP_7: Pushes number SEVEN onto the stack. Returns a bool.
 ///
 /// Example: OP_7([]) -> [7]
 ///
@@ -131,7 +131,7 @@ pub fn op_7(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_8: Pushes the number EIGHT onto the stack. Returns a bool.
+/// OP_8: Pushes number EIGHT onto the stack. Returns a bool.
 ///
 /// Example: OP_8([]) -> [8]
 ///
@@ -145,7 +145,7 @@ pub fn op_8(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_9: Pushes the number NINE onto the stack. Returns a bool.
+/// OP_9: Pushes number NINE onto the stack. Returns a bool.
 ///
 /// Example: OP_9([]) -> [9]
 ///
@@ -159,7 +159,7 @@ pub fn op_9(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_10: Pushes the number TEN onto the stack. Returns a bool.
+/// OP_10: Pushes number TEN onto the stack. Returns a bool.
 ///
 /// Example: OP_10([]) -> [10]
 ///
@@ -173,7 +173,7 @@ pub fn op_10(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_11: Pushes the number ELEVEN onto the stack. Returns a bool.
+/// OP_11: Pushes number ELEVEN onto the stack. Returns a bool.
 ///
 /// Example: OP_11([]) -> [11]
 ///
@@ -187,7 +187,7 @@ pub fn op_11(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_12: Pushes the number TWELVE onto the stack. Returns a bool.
+/// OP_12: Pushes number TWELVE onto the stack. Returns a bool.
 ///
 /// Example: OP_12([]) -> [12]
 ///
@@ -201,7 +201,7 @@ pub fn op_12(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_13: Pushes the number THIRTEEN onto the stack. Returns a bool.
+/// OP_13: Pushes number THIRTEEN onto the stack. Returns a bool.
 ///
 /// Example: OP_13([]) -> [13]
 ///
@@ -215,7 +215,7 @@ pub fn op_13(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_14: Pushes the number FOURTEEN onto the stack. Returns a bool.
+/// OP_14: Pushes number FOURTEEN onto the stack. Returns a bool.
 ///
 /// Example: OP_14([]) -> [14]
 ///
@@ -229,7 +229,7 @@ pub fn op_14(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_15: Pushes the number FIFTEEN onto the stack. Returns a bool.
+/// OP_15: Pushes number FIFTEEN onto the stack. Returns a bool.
 ///
 /// Example: OP_15([]) -> [15]
 ///
@@ -243,7 +243,7 @@ pub fn op_15(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_16: Pushes the number SIXTEEN onto the stack. Returns a bool.
+/// OP_16: Pushes number SIXTEEN onto the stack. Returns a bool.
 ///
 /// Example: OP_16([]) -> [16]
 ///
@@ -272,7 +272,7 @@ pub fn op_nop(interpreter_stack: &mut [StackEntry]) -> bool {
     true
 }
 
-/// OP_VERIFY: Removes the top item from the stack and terminates the execution if it is ZERO. Returns a bool.
+/// OP_VERIFY: Removes the top item from the stack and ends execution with an error if it is ZERO. Returns a bool.
 ///
 /// Example: OP_VERIFY([x]) -> []   if x != 0
 ///          OP_VERIFY([x]) -> fail if x == 0
@@ -298,7 +298,7 @@ pub fn op_verify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_RETURN: Terminates the execution. Returns a bool.
+/// OP_RETURN: Ends execution with an error. Returns a bool.
 ///
 /// Example: OP_RETURN([x]) -> fail
 ///
@@ -2405,7 +2405,7 @@ pub fn op_checkmultisig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    if !verify_multisig(sigs, msg, pks) {
+    if !verify_multisig(&sigs, &msg, &mut pks) {
         interpreter_stack.push(StackEntry::Num(ZERO));
     } else {
         interpreter_stack.push(StackEntry::Num(ONE));
@@ -2484,7 +2484,7 @@ pub fn op_checkmultisigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
             return false;
         }
     };
-    if !verify_multisig(sigs, msg, pks) {
+    if !verify_multisig(&sigs, &msg, &mut pks) {
         error_invalid_multisignature(op);
         return false;
     }
@@ -2498,8 +2498,7 @@ pub fn op_checkmultisigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 /// * `sigs` - signatures to verify
 /// * `msg`  - data to verify against
 /// * `pks`  - public keys to match against
-fn verify_multisig(sigs: Vec<Signature>, msg: String, pks: Vec<PublicKey>) -> bool {
-    let mut pks = pks.clone();
+fn verify_multisig(sigs: &Vec<Signature>, msg: &String, pks: &mut Vec<PublicKey>) -> bool {
     let mut num_valid_sigs = ZERO;
     for (index_sig, sig) in sigs.iter().enumerate() {
         for (index_pk, pk) in pks.iter().enumerate() {

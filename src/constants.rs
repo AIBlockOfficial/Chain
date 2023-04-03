@@ -111,23 +111,23 @@ pub const OP14: &str = "OP_14";
 pub const OP15: &str = "OP_15";
 pub const OP16: &str = "OP_16";
 
-pub const OP0_DESC: &str = "Pushes the number ZERO onto the stack";
-pub const OP1_DESC: &str = "Pushes the number ONE onto the stack";
-pub const OP2_DESC: &str = "Pushes the number TWO onto the stack";
-pub const OP3_DESC: &str = "Pushes the number THREE onto the stack";
-pub const OP4_DESC: &str = "Pushes the number FOUR onto the stack";
-pub const OP5_DESC: &str = "Pushes the number FIVE onto the stack";
-pub const OP6_DESC: &str = "Pushes the number SIX onto the stack";
-pub const OP7_DESC: &str = "Pushes the number SEVEN onto the stack";
-pub const OP8_DESC: &str = "Pushes the number EIGHT onto the stack";
-pub const OP9_DESC: &str = "Pushes the number NINE onto the stack";
-pub const OP10_DESC: &str = "Pushes the number TEN onto the stack";
-pub const OP11_DESC: &str = "Pushes the number ELEVEN onto the stack";
-pub const OP12_DESC: &str = "Pushes the number TWELVE onto the stack";
-pub const OP13_DESC: &str = "Pushes the number THIRTEEN onto the stack";
-pub const OP14_DESC: &str = "Pushes the number FOURTEEN onto the stack";
-pub const OP15_DESC: &str = "Pushes the number FIFTEEN onto the stack";
-pub const OP16_DESC: &str = "Pushes the number SIXTEEN onto the stack";
+pub const OP0_DESC: &str = "Pushes number ZERO onto the stack";
+pub const OP1_DESC: &str = "Pushes number ONE onto the stack";
+pub const OP2_DESC: &str = "Pushes number TWO onto the stack";
+pub const OP3_DESC: &str = "Pushes number THREE onto the stack";
+pub const OP4_DESC: &str = "Pushes number FOUR onto the stack";
+pub const OP5_DESC: &str = "Pushes number FIVE onto the stack";
+pub const OP6_DESC: &str = "Pushes number SIX onto the stack";
+pub const OP7_DESC: &str = "Pushes number SEVEN onto the stack";
+pub const OP8_DESC: &str = "Pushes number EIGHT onto the stack";
+pub const OP9_DESC: &str = "Pushes number NINE onto the stack";
+pub const OP10_DESC: &str = "Pushes number TEN onto the stack";
+pub const OP11_DESC: &str = "Pushes number ELEVEN onto the stack";
+pub const OP12_DESC: &str = "Pushes number TWELVE onto the stack";
+pub const OP13_DESC: &str = "Pushes number THIRTEEN onto the stack";
+pub const OP14_DESC: &str = "Pushes number FOURTEEN onto the stack";
+pub const OP15_DESC: &str = "Pushes number FIFTEEN onto the stack";
+pub const OP16_DESC: &str = "Pushes number SIXTEEN onto the stack";
 
 // control flow
 pub const OPNOP: &str = "OP_NOP";
@@ -136,8 +136,8 @@ pub const OPRETURN: &str = "OP_RETURN";
 
 pub const OPNOP_DESC: &str = "Does nothing";
 pub const OPVERIFY_DESC: &str =
-    "Removes the top item from the stack and terminates the execution if it is ZERO";
-pub const OPRETURN_DESC: &str = "Terminates the execution";
+    "Removes the top item from the stack and ends execution with an error if it is ZERO";
+pub const OPRETURN_DESC: &str = "Ends execution with an error";
 
 // stack
 pub const OPTOALTSTACK: &str = "OP_TOALTSTACK";
@@ -314,7 +314,7 @@ pub const ERROR_NOT_EQUAL_ITEMS: &str = "The two top items are not equal";
 pub const ERROR_OVERFLOW: &str = "Attempt to overflow";
 pub const ERROR_DIV_ZERO: &str = "Attempt to divide by ZERO";
 pub const ERROR_INVALID_SIGNATURE: &str = "Signature is not valid";
-pub const ERROR_INVALID_MULTISIGNATURE: &str = "Multi-signature is not valid";
+pub const ERROR_INVALID_MULTISIGNATURE: &str = "Multisignature is not valid";
 pub const ERROR_NUM_PUBKEYS: &str = "Number of public keys provided is not correct";
 pub const ERROR_NUM_SIGNATURES: &str = "Number of signatures provided is not correct";
 
