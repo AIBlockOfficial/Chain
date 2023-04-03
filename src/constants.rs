@@ -314,7 +314,7 @@ pub const ERROR_NOT_EQUAL_ITEMS: &str = "The two top items are not equal";
 pub const ERROR_OVERFLOW: &str = "Attempt to overflow";
 pub const ERROR_DIV_ZERO: &str = "Attempt to divide by ZERO";
 pub const ERROR_INVALID_SIGNATURE: &str = "Signature is not valid";
-pub const ERROR_INVALID_MULTISIGNATURE: &str = "Multisignature is not valid";
+pub const ERROR_INVALID_MULTISIGNATURE: &str = "Multi-signature is not valid";
 pub const ERROR_NUM_PUBKEYS: &str = "Number of public keys provided is not correct";
 pub const ERROR_NUM_SIGNATURES: &str = "Number of signatures provided is not correct";
 

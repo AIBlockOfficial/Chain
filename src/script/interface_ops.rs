@@ -2282,8 +2282,6 @@ pub fn op_checksig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 /// Example: OP_CHECKSIGVERIFY([msg, sig, pk]) -> []   if Verify(sig, msg, pk) == 1
 ///          OP_CHECKSIGVERIFY([msg, sig, pk]) -> fail if Verify(sig, msg, pk) == 0
 ///
-/// Info: It allows signature verification on arbitrary messsages, not only transactions.
-///
 /// ### Arguments
 ///
 /// * `interpreter_stack`  - mutable reference to the interpreter stack
@@ -2418,9 +2416,6 @@ pub fn op_checkmultisig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 /// Example: OP_CHECKMULTISIGVERIFY([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> []   if Verify(sig1, sig2, msg, pk1, pk2, pk3) == 1
 ///          OP_CHECKMULTISIGVERIFY([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> fail if Verify(sig1, sig2, msg, pk1, pk2, pk3) == 0
 ///
-/// Info: It allows multi-signature verification on arbitrary messsages, not only transactions.
-///       Ordering of signatures and public keys is not relevant.
-///
 /// ### Arguments
 ///
 /// * `interpreter_stack`  - mutable reference to the interpreter stack
@@ -2491,7 +2486,7 @@ pub fn op_checkmultisigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// Verifies an m-of-n multisignature. Returns a bool.
+/// Verifies an m-of-n multi-signature. Returns a bool.
 ///
 /// ### Arguments
 ///
@@ -3435,6 +3430,14 @@ mod tests {
             interpreter_stack.push(StackEntry::Num(i));
         }
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(3)];
+        op_xor(&mut interpreter_stack);
+        assert_eq!(interpreter_stack, v);
+        /// op_xor([1,1]) -> [0]
+        let mut interpreter_stack: Vec<StackEntry> = vec![];
+        for i in 1..=2 {
+            interpreter_stack.push(StackEntry::Num(1));
+        }
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
         op_xor(&mut interpreter_stack);
         assert_eq!(interpreter_stack, v);
         /// op_xor([1]) -> fail
