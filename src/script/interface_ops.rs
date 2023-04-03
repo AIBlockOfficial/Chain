@@ -2493,7 +2493,7 @@ pub fn op_checkmultisigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 /// * `sigs` - signatures to verify
 /// * `msg`  - data to verify against
 /// * `pks`  - public keys to match against
-fn verify_multisig(sigs: &Vec<Signature>, msg: &String, pks: &mut Vec<PublicKey>) -> bool {
+fn verify_multisig(sigs: &[Signature], msg: &String, pks: &mut Vec<PublicKey>) -> bool {
     let mut num_valid_sigs = ZERO;
     for (index_sig, sig) in sigs.iter().enumerate() {
         for (index_pk, pk) in pks.iter().enumerate() {
