@@ -26,6 +26,8 @@
 
 The NAOM repo contains all the code needed to set up and interact with a local instance of the Zenotta blockchain.
 
+[简体中文](https://github.com/Zenotta/NAOM/blob/develop/readmes/README.zhs.md) | [Español](https://github.com/Zenotta/NAOM/blob/develop/readmes/README.es.md) | [عربي ](https://github.com/Zenotta/NAOM/blob/develop/readmes/README.ar.md)| [Deutsch](https://github.com/Zenotta/NAOM/blob/develop/readmes/README.de.md) | [Français](https://github.com/Zenotta/NAOM/blob/develop/readmes/README.fr.md)
+
 ..
 
 ## Getting Started
