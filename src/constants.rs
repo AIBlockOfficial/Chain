@@ -207,12 +207,9 @@ pub const OPEQUAL: &str = "OP_EQUAL";
 pub const OPEQUALVERIFY: &str = "OP_EQUALVERIFY";
 
 pub const OPINVERT_DESC: &str = "Computes bitwise NOT of the number on top of the stack";
-pub const OPAND_DESC: &str =
-    "Computes bitwise AND between the two numbers on top of the stack";
-pub const OPOR_DESC: &str =
-    "Computes bitwise OR between the two numbers on top of the stack";
-pub const OPXOR_DESC: &str =
-    "Computes bitwise XOR between the two numbers on top of the stack";
+pub const OPAND_DESC: &str = "Computes bitwise AND between the two numbers on top of the stack";
+pub const OPOR_DESC: &str = "Computes bitwise OR between the two numbers on top of the stack";
+pub const OPXOR_DESC: &str = "Computes bitwise XOR between the two numbers on top of the stack";
 pub const OPEQUAL_DESC: &str =
     "Substitutes the top two items on the stack with ONE if they are equal, with ZERO otherwise";
 pub const OPEQUALVERIFY_DESC: &str = "Computes OP_EQUAL and OP_VERIFY in sequence";
@@ -253,8 +250,10 @@ pub const OPNOT_DESC: &str =
 pub const OP0NOTEQUAL_DESC: &str =
     "Substitutes the number on top of the stack with ONE if it is not equal to ZERO, with ZERO otherwise";
 pub const OPADD_DESC: &str = "Adds the two numbers on top of the stack";
-pub const OPSUB_DESC: &str = "Subtracts the number on top of the stack from the second-to-top number on the stack";
-pub const OPMUL_DESC: &str = "Multiplies the second-to-top number by the number on top of the stack";
+pub const OPSUB_DESC: &str =
+    "Subtracts the number on top of the stack from the second-to-top number on the stack";
+pub const OPMUL_DESC: &str =
+    "Multiplies the second-to-top number by the number on top of the stack";
 pub const OPDIV_DESC: &str = "Divides the second-to-top number by the number on top of the stack";
 pub const OPMOD_DESC: &str =
     "Computes the remainder of the division of the second-to-top number by the number on top of the stack";
