@@ -167,7 +167,9 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
         Some(StackEntry::Signature(_)),
         Some(StackEntry::PubKey(_)),
         Some(StackEntry::Op(OpCodes::OP_DUP)),
-        Some(StackEntry::Op(OpCodes::OP_HASH256 | OpCodes::OP_HASH256V0 | OpCodes::OP_HASH256TEMP)),
+        Some(StackEntry::Op(
+            OpCodes::OP_HASH256 | OpCodes::OP_HASH256_V0 | OpCodes::OP_HASH256_TEMP,
+        )),
         Some(StackEntry::PubKeyHash(h)),
         Some(StackEntry::Op(OpCodes::OP_EQUALVERIFY)),
         Some(StackEntry::Op(OpCodes::OP_CHECKSIG)),
@@ -502,11 +504,11 @@ fn interpret_script(script: &Script) -> bool {
             StackEntry::Op(OpCodes::OP_HASH256) => {
                 test_for_return &= interface_ops::op_hash256(&mut interpreter_stack)
             }
-            StackEntry::Op(OpCodes::OP_HASH256V0) => {
-                test_for_return &= interface_ops::op_hash256v0(&mut interpreter_stack)
+            StackEntry::Op(OpCodes::OP_HASH256_V0) => {
+                test_for_return &= interface_ops::op_hash256_v0(&mut interpreter_stack)
             }
-            StackEntry::Op(OpCodes::OP_HASH256TEMP) => {
-                test_for_return &= interface_ops::op_hash256temp(&mut interpreter_stack)
+            StackEntry::Op(OpCodes::OP_HASH256_TEMP) => {
+                test_for_return &= interface_ops::op_hash256_temp(&mut interpreter_stack)
             }
             StackEntry::Op(OpCodes::OP_CHECKSIG) => {
                 test_for_return &= interface_ops::op_checksig(&mut interpreter_stack)
@@ -1165,13 +1167,13 @@ mod tests {
     #[test]
     /// Validate tx_is_valid for multiple TxIn configurations
     fn test_tx_is_valid_v0() {
-        test_tx_is_valid_common(Some(NETWORK_VERSION_V0), OpCodes::OP_HASH256V0);
+        test_tx_is_valid_common(Some(NETWORK_VERSION_V0), OpCodes::OP_HASH256_V0);
     }
 
     #[test]
     /// Validate tx_is_valid for multiple TxIn configurations
     fn test_tx_is_valid_temp() {
-        test_tx_is_valid_common(Some(NETWORK_VERSION_TEMP), OpCodes::OP_HASH256TEMP);
+        test_tx_is_valid_common(Some(NETWORK_VERSION_TEMP), OpCodes::OP_HASH256_TEMP);
     }
 
     fn test_tx_is_valid_common(address_version: Option<u64>, op_hash256: OpCodes) {
