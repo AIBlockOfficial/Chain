@@ -19,7 +19,7 @@ use tracing::{debug, error, info, trace};
 
 /*---- CONSTANTS OPS ----*/
 
-/// OP_0: Pushes number ZERO onto the stack. Returns a bool.
+/// OP_0: Pushes number ZERO onto the stack. 
 ///
 /// Example: OP_0([]) -> [0]
 ///
@@ -33,7 +33,7 @@ pub fn op_0(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_1: Pushes number ONE onto the stack. Returns a bool.
+/// OP_1: Pushes number ONE onto the stack. 
 ///
 /// Example: OP_1([]) -> [1]
 ///
@@ -47,7 +47,7 @@ pub fn op_1(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_2: Pushes number TWO onto the stack. Returns a bool.
+/// OP_2: Pushes number TWO onto the stack. 
 ///
 /// Example: OP_2([]) -> [2]
 ///
@@ -61,7 +61,7 @@ pub fn op_2(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_3: Pushes number THREE onto the stack. Returns a bool.
+/// OP_3: Pushes number THREE onto the stack. 
 ///
 /// Example: OP_3([]) -> [3]
 ///
@@ -75,7 +75,7 @@ pub fn op_3(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_4: Pushes number FOUR onto the stack. Returns a bool.
+/// OP_4: Pushes number FOUR onto the stack. 
 ///
 /// Example: OP_4([]) -> [4]
 ///
@@ -89,7 +89,7 @@ pub fn op_4(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_5: Pushes number FIVE onto the stack. Returns a bool.
+/// OP_5: Pushes number FIVE onto the stack. 
 ///
 /// Example: OP_5([]) -> [5]
 ///
@@ -103,7 +103,7 @@ pub fn op_5(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_6: Pushes number SIX onto the stack. Returns a bool.
+/// OP_6: Pushes number SIX onto the stack. 
 ///
 /// Example: OP_6([]) -> [6]
 ///
@@ -117,7 +117,7 @@ pub fn op_6(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_7: Pushes number SEVEN onto the stack. Returns a bool.
+/// OP_7: Pushes number SEVEN onto the stack. 
 ///
 /// Example: OP_7([]) -> [7]
 ///
@@ -131,7 +131,7 @@ pub fn op_7(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_8: Pushes number EIGHT onto the stack. Returns a bool.
+/// OP_8: Pushes number EIGHT onto the stack. 
 ///
 /// Example: OP_8([]) -> [8]
 ///
@@ -145,7 +145,7 @@ pub fn op_8(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_9: Pushes number NINE onto the stack. Returns a bool.
+/// OP_9: Pushes number NINE onto the stack. 
 ///
 /// Example: OP_9([]) -> [9]
 ///
@@ -159,7 +159,7 @@ pub fn op_9(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_10: Pushes number TEN onto the stack. Returns a bool.
+/// OP_10: Pushes number TEN onto the stack. 
 ///
 /// Example: OP_10([]) -> [10]
 ///
@@ -173,7 +173,7 @@ pub fn op_10(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_11: Pushes number ELEVEN onto the stack. Returns a bool.
+/// OP_11: Pushes number ELEVEN onto the stack. 
 ///
 /// Example: OP_11([]) -> [11]
 ///
@@ -187,7 +187,7 @@ pub fn op_11(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_12: Pushes number TWELVE onto the stack. Returns a bool.
+/// OP_12: Pushes number TWELVE onto the stack. 
 ///
 /// Example: OP_12([]) -> [12]
 ///
@@ -201,7 +201,7 @@ pub fn op_12(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_13: Pushes number THIRTEEN onto the stack. Returns a bool.
+/// OP_13: Pushes number THIRTEEN onto the stack. 
 ///
 /// Example: OP_13([]) -> [13]
 ///
@@ -215,7 +215,7 @@ pub fn op_13(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_14: Pushes number FOURTEEN onto the stack. Returns a bool.
+/// OP_14: Pushes number FOURTEEN onto the stack. 
 ///
 /// Example: OP_14([]) -> [14]
 ///
@@ -229,7 +229,7 @@ pub fn op_14(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_15: Pushes number FIFTEEN onto the stack. Returns a bool.
+/// OP_15: Pushes number FIFTEEN onto the stack. 
 ///
 /// Example: OP_15([]) -> [15]
 ///
@@ -243,7 +243,7 @@ pub fn op_15(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_16: Pushes number SIXTEEN onto the stack. Returns a bool.
+/// OP_16: Pushes number SIXTEEN onto the stack. 
 ///
 /// Example: OP_16([]) -> [16]
 ///
@@ -259,7 +259,7 @@ pub fn op_16(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 
 /*---- FLOW CONTROL OPS ----*/
 
-/// OP_NOP: Does nothing. Returns a bool.
+/// OP_NOP: Does nothing. 
 ///
 /// Example: OP_NOP([x]) -> [x]
 ///
@@ -272,7 +272,7 @@ pub fn op_nop(interpreter_stack: &mut [StackEntry]) -> bool {
     true
 }
 
-/// OP_VERIFY: Removes the top item from the stack and ends execution with an error if it is ZERO. Returns a bool.
+/// OP_VERIFY: Removes the top item from the stack and ends execution with an error if it is ZERO. 
 ///
 /// Example: OP_VERIFY([x]) -> []   if x != 0
 ///          OP_VERIFY([x]) -> fail if x == 0
@@ -298,7 +298,7 @@ pub fn op_verify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_RETURN: Ends execution with an error. Returns a bool.
+/// OP_RETURN: Ends execution with an error. 
 ///
 /// Example: OP_RETURN([x]) -> fail
 ///
@@ -314,7 +314,8 @@ pub fn op_return(interpreter_stack: &mut [StackEntry]) -> bool {
 
 /*---- STACK OPS ----*/
 
-/// OP_TOALTSTACK: Moves the top item from the main stack to the top of the alt stack. Returns a bool.
+/// OP_TOALTSTACK: Moves the top item from the main stack to the top of the alt stack. 
+///                
 ///
 /// Example: OP_TOALTSTACK([x], []) -> [], [x]
 ///
@@ -338,7 +339,8 @@ pub fn op_toaltstack(
     true
 }
 
-/// OP_FROMALTSTACK: Moves the top item from the alt stack to the top of the main stack. Returns a bool.
+/// OP_FROMALTSTACK: Moves the top item from the alt stack to the top of the main stack. 
+///                  
 ///
 /// Example: OP_FROMALTSTACK([], [x]) -> [x], []
 ///
@@ -362,7 +364,7 @@ pub fn op_fromaltstack(
     true
 }
 
-/// OP_2DROP: Removes the top two items from the stack. Returns a bool.
+/// OP_2DROP: Removes the top two items from the stack. 
 ///
 /// Example: OP_2DROP([x1, x2]) -> []
 ///
@@ -381,7 +383,7 @@ pub fn op_2drop(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_2DUP: Duplicates the top two items on the stack. Returns a bool.
+/// OP_2DUP: Duplicates the top two items on the stack. 
 ///
 /// Example: OP_2DUP([x1, x2]) -> [x1, x2, x1, x2]
 ///
@@ -401,7 +403,7 @@ pub fn op_2dup(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_3DUP: Duplicates the top three items on the stack. Returns a bool.
+/// OP_3DUP: Duplicates the top three items on the stack. 
 ///
 /// Example: OP_3DUP([x1, x2, x3]) -> [x1, x2, x3, x1, x2, x3]
 ///
@@ -421,7 +423,8 @@ pub fn op_3dup(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_2OVER: Copies the second-to-top pair of items to the top of the stack. Returns a bool.
+/// OP_2OVER: Copies the second-to-top pair of items to the top of the stack. 
+///           
 ///
 /// Example: OP_2OVER([x1, x2, x3, x4]) -> [x1, x2, x3, x4, x1, x2]
 ///
@@ -441,7 +444,8 @@ pub fn op_2over(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_2ROT: Moves the third-to-top pair of items to the top of the stack. Returns a bool.
+/// OP_2ROT: Moves the third-to-top pair of items to the top of the stack. 
+///          
 ///
 /// Example: OP_2ROT([x1, x2, x3, x4, x5, x6]) -> [x3, x4, x5, x6, x1, x2]
 ///
@@ -462,7 +466,7 @@ pub fn op_2rot(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_2SWAP: Swaps the top two pairs of items on the stack. Returns a bool.
+/// OP_2SWAP: Swaps the top two pairs of items on the stack. 
 ///
 /// Example: OP_2SWAP([x1, x2, x3, x4]) -> [x3, x4, x1, x2]
 ///
@@ -482,7 +486,8 @@ pub fn op_2swap(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_IFDUP: Duplicates the top item on the stack if it is not ZERO. Returns a bool.
+/// OP_IFDUP: Duplicates the top item on the stack if it is not ZERO. 
+///           
 ///
 /// Example: OP_IFDUP([x]) -> [x, x] if x != 0
 ///          OP_IFDUP([x]) -> [x]    if x == 0
@@ -507,7 +512,7 @@ pub fn op_ifdup(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_DEPTH: Pushes the stack size onto the stack. Returns a bool.
+/// OP_DEPTH: Pushes the stack size onto the stack. 
 ///
 /// Example: OP_DEPTH([x1, x2, x3, x4]) -> [x1, x2, x3, x4, 4]
 ///
@@ -521,7 +526,7 @@ pub fn op_depth(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_DROP: Removes the top item from the stack. Returns a bool.
+/// OP_DROP: Removes the top item from the stack. 
 ///
 /// Example: OP_DROP([x]) -> []
 ///
@@ -541,7 +546,7 @@ pub fn op_drop(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_DUP: Duplicates the top item on the stack. Returns a bool.
+/// OP_DUP: Duplicates the top item on the stack. 
 ///
 /// Example: OP_DUP([x]) -> [x, x]
 ///
@@ -561,7 +566,7 @@ pub fn op_dup(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_NIP: Removes the second-to-top item from the stack. Returns a bool.
+/// OP_NIP: Removes the second-to-top item from the stack. 
 ///
 /// Example: OP_NIP([x1, x2]) -> [x2]
 ///
@@ -580,7 +585,7 @@ pub fn op_nip(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_OVER: Copies the second-to-top item to the top of the stack. Returns a bool.
+/// OP_OVER: Copies the second-to-top item to the top of the stack. 
 ///
 /// Example: OP_OVER([x1, x2]) -> [x1, x2, x1]
 ///
@@ -600,8 +605,7 @@ pub fn op_over(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_PICK: Copies the (n+1)th-to-top item to the top of the stack,
-///          where n is the top item on the stack. Returns a bool.
+/// OP_PICK: Copies the (n+1)th-to-top item to the top of the stack, where n is the top item on the stack. 
 ///
 /// Example: OP_PICK([x, x2, x1, x0, 3]) -> [x, x2, x1, x0, x]
 ///
@@ -632,8 +636,7 @@ pub fn op_pick(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_ROLL: Moves the (n+1)th-to-top item to the top of the stack,
-///          where n is the top item on the stack. Returns a bool.
+/// OP_ROLL: Moves the (n+1)th-to-top item to the top of the stack, where n is the top item on the stack. 
 ///
 /// Example: OP_ROLL([x, x2, x1, x0, 3]) -> [x2, x1, x0, x]
 ///
@@ -665,7 +668,7 @@ pub fn op_roll(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_ROT: Moves the third-to-top item to the top of the stack. Returns a bool.
+/// OP_ROT: Moves the third-to-top item to the top of the stack. 
 ///
 /// Example: OP_ROT([x1, x2, x3]) -> [x2, x3, x1]
 ///
@@ -685,7 +688,7 @@ pub fn op_rot(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_SWAP: Swaps the top two items on the stack. Returns a bool.
+/// OP_SWAP: Swaps the top two items on the stack. 
 ///
 /// Example: OP_SWAP([x1, x2]) -> [x2, x1]
 ///
@@ -704,7 +707,7 @@ pub fn op_swap(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_TUCK: Copies the top item behind the second-to-top item on the stack. Returns a bool.
+/// OP_TUCK: Copies the top item behind the second-to-top item on the stack. 
 ///
 /// Example: OP_TUCK([x1, x2]) -> [x2, x1, x2]
 ///
@@ -726,7 +729,7 @@ pub fn op_tuck(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 
 /*---- SPLICE OPS ----*/
 
-/// OP_CAT: Concatenates the two strings on top of the stack. Returns a bool.
+/// OP_CAT: Concatenates the two strings on top of the stack. 
 ///
 /// Example: OP_CAT([s1, s2]) -> [s1s2]
 ///
@@ -767,7 +770,7 @@ pub fn op_cat(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_SUBSTR: Extracts a substring from the third-to-top item on the stack. Returns a bool.
+/// OP_SUBSTR: Extracts a substring from the third-to-top item on the stack. 
 ///
 /// Example: OP_SUBSTR([s, n1, n2]) -> [s[n1..n1+n2-1]]
 ///
@@ -827,7 +830,7 @@ pub fn op_substr(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_LEFT: Extracts a left substring from the second-to-top item on the stack. Returns a bool.
+/// OP_LEFT: Extracts a left substring from the second-to-top item on the stack. 
 ///
 /// Example: OP_LEFT([s, n]) -> [s[..n-1]] if n < len(s)
 ///          OP_LEFT([s, n]) -> [s]        if n >= len(s)
@@ -869,7 +872,7 @@ pub fn op_left(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_RIGHT: Extracts a right substring from the second-to-top item on the stack. Returns a bool.
+/// OP_RIGHT: Extracts a right substring from the second-to-top item on the stack. 
 ///
 /// Example: OP_RIGHT([s, n]) -> [s[n..]] if n < len(s)
 ///          OP_RIGHT([s, n]) -> [""]     if n >= len(s)
@@ -911,7 +914,7 @@ pub fn op_right(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_SIZE: Computes the size in bytes of the string on top of the stack. Returns a bool.
+/// OP_SIZE: Computes the size in bytes of the string on top of the stack. 
 ///
 /// Example: OP_SIZE([s]) -> [s, len(s)]
 ///
@@ -938,7 +941,7 @@ pub fn op_size(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 
 /*---- BITWISE LOGIC OPS ----*/
 
-/// OP_INVERT: Computes bitwise NOT of the top item on the stack. Returns a bool.
+/// OP_INVERT: Computes bitwise NOT of the number on top of the stack. 
 ///
 /// Example: OP_INVERT([n]) -> [!n]
 ///
@@ -963,7 +966,7 @@ pub fn op_invert(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_AND: Computes bitwise AND between the second-to-top and the top item on the stack. Returns a bool.
+/// OP_AND: Computes bitwise AND between the two numbers on top of the stack. 
 ///
 /// Example: OP_AND([n1, n2]) -> [n1&n2]
 ///
@@ -999,7 +1002,7 @@ pub fn op_and(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_OR: Computes bitwise OR between the second-to-top and the top item on the stack. Returns a bool.
+/// OP_OR: Computes bitwise OR between the two numbers on top of the stack. 
 ///
 /// Example: OP_OR([n1, n2]) -> [n1|n2]
 ///
@@ -1035,7 +1038,7 @@ pub fn op_or(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_XOR: Computes bitwise XOR between the second-to-top and the top item on the stack. Returns a bool.
+/// OP_XOR: Computes bitwise XOR between the two numbers on top of the stack. 
 ///
 /// Example: OP_XOR([n1, n2]) -> [n1^n2]
 ///
@@ -1071,7 +1074,7 @@ pub fn op_xor(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_EQUAL: Substitutes the top two items on the stack with ONE if they are equal, with ZERO otherwise. Returns a bool.
+/// OP_EQUAL: Substitutes the top two items on the stack with ONE if they are equal, with ZERO otherwise. 
 ///
 /// Example: OP_EQUAL([x1, x2]) -> [1] if x1 == x2
 ///          OP_EQUAL([x1, x2]) -> [0] if x1 != x2
@@ -1104,7 +1107,7 @@ pub fn op_equal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_EQUALVERIFY: Computes OP_EQUAL and OP_VERIFY in sequence. Returns a bool.
+/// OP_EQUALVERIFY: Computes OP_EQUAL and OP_VERIFY in sequence. 
 ///
 /// Example: OP_EQUALVERIFY([x1, x2]) -> []   if x1 == x2
 ///          OP_EQUALVERIFY([x1, x2]) -> fail if x1 != x2
@@ -1138,7 +1141,7 @@ pub fn op_equalverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 
 /*---- ARITHMETIC OPS ----*/
 
-/// OP_1ADD: Adds ONE to the top item on the stack. Returns a bool.
+/// OP_1ADD: Adds ONE to the number on top of the stack. 
 ///
 /// Example: OP_1ADD([n]) -> [n+1]
 ///
@@ -1169,7 +1172,7 @@ pub fn op_1add(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_1SUB: Subtracts ONE from the top item on the stack. Returns a bool.
+/// OP_1SUB: Subtracts ONE from the number on top of the stack. 
 ///
 /// Example: OP_1SUB([n]) -> [n-1]
 ///
@@ -1200,7 +1203,7 @@ pub fn op_1sub(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_2MUL: Multiplies by TWO the top item on the stack. Returns a bool.
+/// OP_2MUL: Multiplies by TWO the number on top of the stack. 
 ///
 /// Example: OP_2MUL([n]) -> [n*2]
 ///
@@ -1231,7 +1234,7 @@ pub fn op_2mul(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_2DIV: Divides by TWO the top item on the stack. Returns a bool.
+/// OP_2DIV: Divides by TWO the number on top of the stack. 
 ///
 /// Example: OP_2DIV([n]) -> [n/2]
 ///
@@ -1256,8 +1259,7 @@ pub fn op_2div(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_NOT: Substitutes the top item on the stack with ONE if it is equal to ZERO,
-///         with ZERO otherwise. Returns a bool.
+/// OP_NOT: Substitutes the number on top of the stack with ONE if it is equal to ZERO, with ZERO otherwise. 
 ///
 /// Example: OP_NOT([n]) -> [1] if n == 0
 ///          OP_NOT([n]) -> [0] if n != 0
@@ -1287,8 +1289,7 @@ pub fn op_not(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_0NOTEQUAL: Substitutes the top item on the stack with ONE if it is not equal to ZERO,
-///               with ZERO otherwise. Returns a bool.
+/// OP_0NOTEQUAL: Substitutes the number on top of the stack with ONE if it is not equal to ZERO, with ZERO otherwise. 
 ///
 /// Example: OP_0NOTEQUAL([n]) -> [1] if n != 0
 ///          OP_0NOTEQUAL([n]) -> [0] if n == 0
@@ -1318,7 +1319,7 @@ pub fn op_0notequal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_ADD: Adds the top item to the second-to-top item on the stack. Returns a bool.
+/// OP_ADD: Adds the two numbers on top of the stack. 
 ///
 /// Example: OP_ADD([n1, n2]) -> [n1+n2]
 ///
@@ -1360,7 +1361,7 @@ pub fn op_add(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_SUB: Subtracts the top item from the second-to-top item on the stack. Returns a bool.
+/// OP_SUB: Subtracts the number on top of the stack from the second-to-top number on the stack. 
 ///
 /// Example: OP_SUB([n1, n2]) -> [n1-n2]
 ///
@@ -1402,7 +1403,7 @@ pub fn op_sub(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_MUL: Multiplies the second-to-top item by the top item on the stack. Returns a bool.
+/// OP_MUL: Multiplies the second-to-top number by the number on top of the stack. 
 ///
 /// Example: OP_MUL([n1, n2]) -> [n1*n2]
 ///
@@ -1444,7 +1445,7 @@ pub fn op_mul(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_DIV: Divides the second-to-top item by the top item on the stack. Returns a bool.
+/// OP_DIV: Divides the second-to-top number by the number on top of the stack. 
 ///
 /// Example: OP_DIV([n1, n2]) -> [n1/n2]
 ///
@@ -1486,7 +1487,7 @@ pub fn op_div(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_MOD: Computes the remainder of the division of the second-to-top item by the top item on the stack. Returns a bool.
+/// OP_MOD: Computes the remainder of the division of the second-to-top number by the number on top of the stack. 
 ///
 /// Example: OP_MOD([n1, n2]) -> [n1%n2]
 ///
@@ -1528,7 +1529,7 @@ pub fn op_mod(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_LSHIFT: Computes the left shift of the second-to-top item by the top item on the stack. Returns a bool.
+/// OP_LSHIFT: Computes the left shift of the second-to-top number by the number on top of the stack. 
 ///
 /// Example: OP_LSHIFT([n1, n2]) -> [n1<<n2]
 ///
@@ -1570,7 +1571,7 @@ pub fn op_lshift(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_RSHIFT: Computes the right shift of the second-to-top item by the top item on the stack. Returns a bool.
+/// OP_RSHIFT: Computes the right shift of the second-to-top number by the number on top of the stack. 
 ///
 /// Example: OP_RSHIFT([n1, n2]) -> [n1>>n2]
 ///
@@ -1612,7 +1613,7 @@ pub fn op_rshift(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_BOOLAND: Substitutes the top two items on the stack with ONE if they are both non-ZERO, with ZERO otherwise. Returns a bool.
+/// OP_BOOLAND: Substitutes the two numbers on top of the stack with ONE if they are both non-zero, with ZERO otherwise. 
 ///
 /// Example: OP_BOOLAND([n1, n2]) -> [1] if n1 != 0 and n2 != 0
 ///          OP_BOOLAND([n1, n2]) -> [0] if n1 == 0 or n2 == 0
@@ -1653,7 +1654,7 @@ pub fn op_booland(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_BOOLOR: Substitutes the top two items on the stack with ONE if they are not both ZERO, with ZERO otherwise. Returns a bool.
+/// OP_BOOLOR: Substitutes the two numbers on top of the stack with ONE if they are not both ZERO, with ZERO otherwise. 
 ///
 /// Example: OP_BOOLOR([n1, n2]) -> [1] if n1 != 0 or n2 != 0
 ///          OP_BOOLOR([n1, n2]) -> [0] if n1 == 0 and n2 == 0
@@ -1694,7 +1695,7 @@ pub fn op_boolor(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_NUMEQUAL: Substitutes the top two items on the stack with ONE if they are equal as numbers, with ZERO otherwise. Returns a bool.
+/// OP_NUMEQUAL: Substitutes the two numbers on top of the stack with ONE if they are equal, with ZERO otherwise. 
 ///
 /// Example: OP_NUMEQUAL([n1, n2]) -> [1] if n1 == n2
 ///          OP_NUMEQUAL([n1, n2]) -> [0] if n1 != n2
@@ -1735,7 +1736,7 @@ pub fn op_numequal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_NUMEQUALVERIFY: Computes OP_NUMEQUAL and OP_VERIFY in sequence. Returns a bool.
+/// OP_NUMEQUALVERIFY: Computes OP_NUMEQUAL and OP_VERIFY in sequence. 
 ///
 /// Example: OP_NUMEQUALVERIFY([n1, n2]) -> []   if n1 == n2
 ///          OP_NUMEQUALVERIFY([n1, n2]) -> fail if n1 != n2
@@ -1775,7 +1776,7 @@ pub fn op_numequalverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_NUMNOTEQUAL: Substitutes the top two items on the stack with ONE if they are not equal, with ZERO otherwise. Returns a bool.
+/// OP_NUMNOTEQUAL: Substitutes the two numbers on top of the stack with ONE if they are not equal, with ZERO otherwise. 
 ///
 /// Example: OP_NUMNOTEQUAL([n1, n2]) -> [1] if n1 != n2
 ///          OP_NUMNOTEQUAL([n1, n2]) -> [0] if n1 == n2
@@ -1816,7 +1817,7 @@ pub fn op_numnotequal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_LESSTHAN: Substitutes the top two items on the stack with ONE if the second-to-top is less than the top item, with ZERO otherwise. Returns a bool.
+/// OP_LESSTHAN: Substitutes the two numbers on top of the stack with ONE if the second-to-top is less than the top item, with ZERO otherwise. 
 ///
 /// Example: OP_LESSTHAN([n1, n2]) -> [1] if n1 < n2
 ///          OP_LESSTHAN([n1, n2]) -> [0] if n1 >= n2
@@ -1857,7 +1858,7 @@ pub fn op_lessthan(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_GREATERTHAN: Substitutes the top two items on the stack with ONE if the second-to-top is greater than the top item, with ZERO otherwise. Returns a bool.
+/// OP_GREATERTHAN: Substitutes the two numbers on top of the stack with ONE if the second-to-top is greater than the top item, with ZERO otherwise. 
 ///
 /// Example: OP_GREATERTHAN([n1, n2]) -> [1] if n1 > n2
 ///          OP_GREATERTHAN([n1, n2]) -> [0] if n1 <= n2
@@ -1898,7 +1899,7 @@ pub fn op_greaterthan(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_LESSTHANOREQUAL: Substitutes the top two items on the stack with ONE if the second-to-top is less than or equal to the top item, with ZERO otherwise. Returns a bool.
+/// OP_LESSTHANOREQUAL: Substitutes the two numbers on top of the stack with ONE if the second-to-top is less than or equal to the top item, with ZERO otherwise. 
 ///
 /// Example: OP_LESSTHANOREQUAL([n1, n2]) -> [1] if n1 <= n2
 ///          OP_LESSTHANOREQUAL([n1, n2]) -> [0] if n1 > n2
@@ -1939,7 +1940,7 @@ pub fn op_lessthanorequal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_GREATERTHANOREQUAL: Substitutes the top two items on the stack with ONE if the second-to-top is greater than or equal to the top item, with ZERO otherwise. Returns a bool.
+/// OP_GREATERTHANOREQUAL: Substitutes the two numbers on top of the stack with ONE if the second-to-top is greater than or equal to the top item, with ZERO otherwise. 
 ///
 /// Example: OP_GREATERTHANOREQUAL([n1, n2]) -> [1] if n1 >= n2
 ///          OP_GREATERTHANOREQUAL([n1, n2]) -> [0] if n1 < n2
@@ -1980,7 +1981,7 @@ pub fn op_greaterthanorequal(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_MIN: Substitutes the top two items on the stack with the minimum between the two. Returns a bool.
+/// OP_MIN: Substitutes the two numbers on top of the stack with the minimum between the two. 
 ///
 /// Example: OP_MIN([n1, n2]) -> [n1] if n1 <= n2
 ///          OP_MIN([n1, n2]) -> [n2] if n1 > n2
@@ -2017,7 +2018,7 @@ pub fn op_min(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_MAX: Substitutes the top two items on the stack with the maximum between the two. Returns a bool.
+/// OP_MAX: Substitutes the two numbers on top of the stack with the maximum between the two. 
 ///
 /// Example: OP_MAX([n1, n2]) -> [n1] if n1 >= n2
 ///          OP_MAX([n1, n2]) -> [n2] if n1 < n2
@@ -2054,8 +2055,7 @@ pub fn op_max(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_WITHIN: Substitutes the top three items on the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item,
-///            with ZERO otherwise. Returns a bool.
+/// OP_WITHIN: Substitutes the three numbers on top of the the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item, with ZERO otherwise. 
 ///
 /// Example: OP_WITHIN([n1, n2, n3]) -> [1] if n1 >= n2 and n1 < n3
 ///          OP_WITHIN([n1, n2, n3]) -> [0] if n1 < n2 or n1 >= n3
@@ -2109,7 +2109,7 @@ pub fn op_within(interpreter_stack: &mut Vec<StackEntry>) -> bool {
 
 /*---- CRYPTO OPS ----*/
 
-/// OP_SHA3: Hashes the top item on the stack using SHA3-256. Returns a bool.
+/// OP_SHA3: Hashes the top item on the stack using SHA3-256. 
 ///
 /// Example: OP_SHA3([x]) -> [SHA3-256(x)]
 ///
@@ -2137,7 +2137,7 @@ pub fn op_sha3(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_HASH256: Creates standard address from public key and pushes it onto the stack. Returns a bool.
+/// OP_HASH256: Creates standard address from public key and pushes it onto the stack. 
 ///
 /// Example: OP_HASH256([pk]) -> [addr]
 ///
@@ -2163,7 +2163,7 @@ pub fn op_hash256(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_HASH256_V0: Creates v0 address from public key and pushes it onto the stack. Returns a bool.
+/// OP_HASH256_V0: Creates v0 address from public key and pushes it onto the stack. 
 ///
 /// Example: OP_HASH256_V0([pk]) -> [addr_v0]
 ///
@@ -2193,7 +2193,7 @@ pub fn op_hash256_v0(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_HASH256_TEMP: Creates temporary address from public key and pushes it onto the stack. Returns a bool.
+/// OP_HASH256_TEMP: Creates temporary address from public key and pushes it onto the stack. 
 ///
 /// Example: OP_HASH256_TEMP([pk]) -> [addr_temp]
 ///
@@ -2223,7 +2223,7 @@ pub fn op_hash256_temp(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_CHECKSIG: Pushes ONE onto the stack if the signature is valid, ZERO otherwise. Returns a bool.
+/// OP_CHECKSIG: Pushes ONE onto the stack if the signature is valid, ZERO otherwise. 
 ///
 /// Example: OP_CHECKSIG([msg, sig, pk]) -> [1] if Verify(sig, msg, pk) == 1
 ///          OP_CHECKSIG([msg, sig, pk]) -> [0] if Verify(sig, msg, pk) == 0
@@ -2277,7 +2277,7 @@ pub fn op_checksig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_CHECKSIGVERIFY: Runs OP_CHECKSIG and OP_VERIFY in sequence. Returns a bool.
+/// OP_CHECKSIGVERIFY: Runs OP_CHECKSIG and OP_VERIFY in sequence. 
 ///
 /// Example: OP_CHECKSIGVERIFY([msg, sig, pk]) -> []   if Verify(sig, msg, pk) == 1
 ///          OP_CHECKSIGVERIFY([msg, sig, pk]) -> fail if Verify(sig, msg, pk) == 0
@@ -2328,7 +2328,7 @@ pub fn op_checksigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_CHECKMULTISIG: Pushes ONE onto the stack if the m-of-n multi-signature is valid, ZERO otherwise. Returns a bool.
+/// OP_CHECKMULTISIG: Pushes ONE onto the stack if the m-of-n multi-signature is valid, ZERO otherwise. 
 ///
 /// Example: OP_CHECKMULTISIG([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> [1] if Verify(sig1, sig2, msg, pk1, pk2, pk3) == 1
 ///          OP_CHECKMULTISIG([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> [0] if Verify(sig1, sig2, msg, pk1, pk2, pk3) == 0
@@ -2411,7 +2411,7 @@ pub fn op_checkmultisig(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// OP_CHECKMULTISIGVERIFY: Runs OP_CHECKMULTISIG and OP_VERIFY in sequence. Returns a bool.
+/// OP_CHECKMULTISIGVERIFY: Runs OP_CHECKMULTISIG and OP_VERIFY in sequence. 
 ///
 /// Example: OP_CHECKMULTISIGVERIFY([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> []   if Verify(sig1, sig2, msg, pk1, pk2, pk3) == 1
 ///          OP_CHECKMULTISIGVERIFY([msg, sig1, sig2, m, pk1, pk2, pk3, n]) -> fail if Verify(sig1, sig2, msg, pk1, pk2, pk3) == 0
@@ -2486,7 +2486,7 @@ pub fn op_checkmultisigverify(interpreter_stack: &mut Vec<StackEntry>) -> bool {
     true
 }
 
-/// Verifies an m-of-n multi-signature. Returns a bool.
+/// Verifies an m-of-n multi-signature. 
 ///
 /// ### Arguments
 ///

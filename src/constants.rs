@@ -206,13 +206,13 @@ pub const OPXOR: &str = "OP_XOR";
 pub const OPEQUAL: &str = "OP_EQUAL";
 pub const OPEQUALVERIFY: &str = "OP_EQUALVERIFY";
 
-pub const OPINVERT_DESC: &str = "Computes bitwise NOT of the top item on the stack";
+pub const OPINVERT_DESC: &str = "Computes bitwise NOT of the number on top of the stack";
 pub const OPAND_DESC: &str =
-    "Computes bitwise AND between the second-to-top and the top item on the stack";
+    "Computes bitwise AND between the two numbers on top of the stack";
 pub const OPOR_DESC: &str =
-    "Computes bitwise OR between the second-to-top and the top item on the stack";
+    "Computes bitwise OR between the two numbers on top of the stack";
 pub const OPXOR_DESC: &str =
-    "Computes bitwise XOR between the second-to-top and the top item on the stack";
+    "Computes bitwise XOR between the two numbers on top of the stack";
 pub const OPEQUAL_DESC: &str =
     "Substitutes the top two items on the stack with ONE if they are equal, with ZERO otherwise";
 pub const OPEQUALVERIFY_DESC: &str = "Computes OP_EQUAL and OP_VERIFY in sequence";
@@ -244,38 +244,38 @@ pub const OPMIN: &str = "OP_MIN";
 pub const OPMAX: &str = "OP_MAX";
 pub const OPWITHIN: &str = "OP_WITHIN";
 
-pub const OP1ADD_DESC: &str = "Adds ONE to the top item on the stack";
-pub const OP1SUB_DESC: &str = "Subtracts ONE from the top item on the stack";
-pub const OP2MUL_DESC: &str = "Multiplies by TWO the top item on the stack";
-pub const OP2DIV_DESC: &str = "Divides by TWO the top item on the stack";
+pub const OP1ADD_DESC: &str = "Adds ONE to the number on top of the stack";
+pub const OP1SUB_DESC: &str = "Subtracts ONE from the number on top of the stack";
+pub const OP2MUL_DESC: &str = "Multiplies by TWO the number on top of the stack";
+pub const OP2DIV_DESC: &str = "Divides by TWO the number on top of the stack";
 pub const OPNOT_DESC: &str =
-    "Substitutes the top item on the stack with ONE if it is equal to ZERO, with ZERO otherwise";
+    "Substitutes the number on top of the stack with ONE if it is equal to ZERO, with ZERO otherwise";
 pub const OP0NOTEQUAL_DESC: &str =
-    "Substitutes the top item on the stack with ONE if it is not equal to ZERO, with ZERO otherwise";
-pub const OPADD_DESC: &str = "Adds the top item to the second-to-top item on the stack";
-pub const OPSUB_DESC: &str = "Subtracts the top item from the second-to-top item on the stack";
-pub const OPMUL_DESC: &str = "Multiplies the second-to-top item by the top item on the stack";
-pub const OPDIV_DESC: &str = "Divides the second-to-top item by the top item on the stack";
+    "Substitutes the number on top of the stack with ONE if it is not equal to ZERO, with ZERO otherwise";
+pub const OPADD_DESC: &str = "Adds the two numbers on top of the stack";
+pub const OPSUB_DESC: &str = "Subtracts the number on top of the stack from the second-to-top number on the stack";
+pub const OPMUL_DESC: &str = "Multiplies the second-to-top number by the number on top of the stack";
+pub const OPDIV_DESC: &str = "Divides the second-to-top number by the number on top of the stack";
 pub const OPMOD_DESC: &str =
-    "Computes the remainder of the division of the second-to-top item by the top item on the stack";
+    "Computes the remainder of the division of the second-to-top number by the number on top of the stack";
 pub const OPLSHIFT_DESC: &str =
-    "Computes the left shift of the second-to-top item by the top item on the stack";
+    "Computes the left shift of the second-to-top number by the number on top of the stack";
 pub const OPRSHIFT_DESC: &str =
-    "Computes the right shift of the second-to-top item by the top item on the stack";
-pub const OPBOOLAND_DESC: &str = "Substitutes the top two items on the stack with ONE if they are both non-ZERO, with ZERO otherwise";
-pub const OPBOOLOR_DESC: &str = "Substitutes the top two items on the stack with ONE if they are not both ZERO, with ZERO otherwise";
-pub const OPNUMEQUAL_DESC: &str = "Substitutes the top two items on the stack with ONE if they are equal as numbers, with ZERO otherwise";
+    "Computes the right shift of the second-to-top number by the number on top of the stack";
+pub const OPBOOLAND_DESC: &str = "Substitutes the two numbers on top of the stack with ONE if they are both non-zero, with ZERO otherwise";
+pub const OPBOOLOR_DESC: &str = "Substitutes the two numbers on top of the stack with ONE if they are not both ZERO, with ZERO otherwise";
+pub const OPNUMEQUAL_DESC: &str = "Substitutes the two numbers on top of the stack with ONE if they are equal, with ZERO otherwise";
 pub const OPNUMEQUALVERIFY_DESC: &str = "Computes OP_NUMEQUAL and OP_VERIFY in sequence";
-pub const OPNUMNOTEQUAL_DESC: &str = "Substitutes the top two items on the stack with ONE if they are not equal, with ZERO otherwise";
-pub const OPLESSTHAN_DESC: &str = "Substitutes the top two items on the stack with ONE if the second-to-top is less than the top item, with ZERO otherwise";
-pub const OPGREATERTHAN_DESC: &str = "Substitutes the top two items on the stack with ONE if the second-to-top is greater than the top item, with ZERO otherwise";
-pub const OPLESSTHANOREQUAL_DESC: &str = "Substitutes the top two items on the stack with ONE if the second-to-top is less than or equal to the top item, with ZERO otherwise";
-pub const OPGREATERTHANOREQUAL_DESC: &str = "Substitutes the top two items on the stack with ONE if the second-to-top is greater than or equal to the top item, with ZERO otherwise";
+pub const OPNUMNOTEQUAL_DESC: &str = "Substitutes the two numbers on top of the stack with ONE if they are not equal, with ZERO otherwise";
+pub const OPLESSTHAN_DESC: &str = "Substitutes the two numbers on top of the stack with ONE if the second-to-top is less than the top item, with ZERO otherwise";
+pub const OPGREATERTHAN_DESC: &str = "Substitutes the two numbers on top of the stack with ONE if the second-to-top is greater than the top item, with ZERO otherwise";
+pub const OPLESSTHANOREQUAL_DESC: &str = "Substitutes the two numbers on top of the stack with ONE if the second-to-top is less than or equal to the top item, with ZERO otherwise";
+pub const OPGREATERTHANOREQUAL_DESC: &str = "Substitutes the two numbers on top of the stack with ONE if the second-to-top is greater than or equal to the top item, with ZERO otherwise";
 pub const OPMIN_DESC: &str =
-    "Substitutes the top two items on the stack with the minimum between the two";
+    "Substitutes the two numbers on top of the stack with the minimum between the two";
 pub const OPMAX_DESC: &str =
-    "Substitutes the top two items on the stack with the maximum between the two";
-pub const OPWITHIN_DESC: &str = "Substitutes the top three items on the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item, with ZERO otherwise";
+    "Substitutes the two numbers on top of the stack with the maximum between the two";
+pub const OPWITHIN_DESC: &str = "Substitutes the three numbers on top of the the stack with ONE if the third-to-top is greater or equal to the second-to-top and less than the top item, with ZERO otherwise";
 
 // crypto
 pub const OPSHA3: &str = "OP_SHA3";
