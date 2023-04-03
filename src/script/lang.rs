@@ -14,7 +14,7 @@ use tracing::{error, warn};
 /// NOTE: A tuple struct could probably work here as well
 #[derive(Clone, Debug, PartialOrd, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Script {
-    pub stack: Vec<StackEntry>
+    pub stack: Vec<StackEntry>,
 }
 
 impl Default for Script {

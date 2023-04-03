@@ -15,7 +15,7 @@ pub enum StackEntry {
     PubKey(PublicKey),
     PubKeyHash(String),
     Num(usize),
-    Bytes(String)
+    Bytes(String),
 }
 
 /// Opcodes enum
