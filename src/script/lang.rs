@@ -1,9 +1,10 @@
 #![allow(unused)]
-use crate::constants::{NETWORK_VERSION_TEMP, NETWORK_VERSION_V0};
+use crate::constants::*;
 use crate::crypto::sha3_256;
-use crate::crypto::sign_ed25519::{PublicKey, Signature};
+use crate::crypto::sign_ed25519::{PublicKey, Signature, ED25519_SIGNATURE_LEN, ED25519_PUBLIC_KEY_LEN};
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::transaction_utils::{construct_address, construct_address_for};
+use crate::utils::error_utils::*;
 use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
@@ -14,7 +15,7 @@ use tracing::{error, warn};
 /// NOTE: A tuple struct could probably work here as well
 #[derive(Clone, Debug, PartialOrd, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Script {
-    pub stack: Vec<StackEntry>,
+    pub stack: Vec<StackEntry>
 }
 
 impl Default for Script {
@@ -27,6 +28,33 @@ impl Script {
     /// Constructs a new script
     pub fn new() -> Script {
         Script { stack: Vec::new() }
+    }
+
+    /// Checks if a script is valid
+    pub fn is_valid_script(&self) -> bool {
+        let mut len = ZERO; // script length in bytes
+        let mut ops_count = ZERO; // number of opcodes in script
+        for entry in &self.stack {
+            match entry {
+                StackEntry::Op(_) => {
+                    len += ONE;
+                    ops_count += ONE;
+                }
+                StackEntry::Signature(_) => len += ED25519_SIGNATURE_LEN,
+                StackEntry::PubKey(_) => len += ED25519_PUBLIC_KEY_LEN,
+                StackEntry::PubKeyHash(s) | StackEntry::Bytes(s) => len += s.len(),
+                StackEntry::Num(_) => len += usize::BITS as usize / EIGHT,
+            };
+        }
+        if len > MAX_SCRIPT_SIZE as usize {
+            error_max_script_size();
+            return false;
+        }
+        if ops_count > MAX_OPS_PER_SCRIPT as usize {
+            error_max_ops_script();
+            return false;
+        }
+        true
     }
 
     /// Constructs a new script for coinbase
