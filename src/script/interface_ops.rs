@@ -5,7 +5,7 @@ use crate::crypto::sign_ed25519 as sign;
 use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::transaction::*;
-use crate::script::lang::Script;
+use crate::script::lang::{Script, Stack};
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::error_utils::*;
 use crate::utils::transaction_utils::{
@@ -16,8 +16,6 @@ use bytes::Bytes;
 use hex::encode;
 use std::collections::BTreeMap;
 use tracing::{debug, error, info, trace};
-
-use super::lang::Stack;
 
 /*---- CONSTANTS OPS ----*/
 

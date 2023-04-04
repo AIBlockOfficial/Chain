@@ -14,7 +14,7 @@ use hex::encode;
 use serde::{Deserialize, Serialize};
 use tracing::{error, warn};
 
-/// Stack to execute scripts
+/// Stack for script execution
 #[derive(Clone, Debug, PartialOrd, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Stack {
     pub interpreter_stack: Vec<StackEntry>,
@@ -28,14 +28,15 @@ impl Default for Stack {
 }
 
 impl Stack {
-    pub fn new() -> Stack {
-        Stack {
+    /// Creates a new stack
+    pub fn new() -> Self {
+        Self {
             interpreter_stack: Vec::with_capacity(MAX_STACK_SIZE as usize),
             interpreter_alt_stack: Vec::with_capacity(MAX_STACK_SIZE as usize),
         }
     }
 
-    /// Checks if both the stack and the alt stack are valid
+    /// Checks if the stack is valid
     pub fn is_valid_stack(&self) -> bool {
         if self.interpreter_stack.len() + self.interpreter_alt_stack.len() > MAX_STACK_SIZE as usize
         {
@@ -73,6 +74,29 @@ impl Stack {
     }
 }
 
+/// Stack for conditionals
+#[derive(Clone, Debug, PartialOrd, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ConditionStack {
+    pub size: usize,
+    pub first_false_pos: Option<usize>,
+}
+
+impl Default for ConditionStack {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl ConditionStack {
+    /// Creates a new stack for conditionals
+    pub fn new() -> Self {
+        Self {
+            size: ZERO,
+            first_false_pos: None,
+        }
+    }
+}
+
 /// Scripts are defined as a sequence of stack entries
 /// NOTE: A tuple struct could probably work here as well
 #[derive(Clone, Debug, PartialOrd, Eq, PartialEq, Serialize, Deserialize)]
@@ -88,8 +112,8 @@ impl Default for Script {
 
 impl Script {
     /// Constructs a new script
-    pub fn new() -> Script {
-        Script { stack: Vec::new() }
+    pub fn new() -> Self {
+        Self { stack: Vec::new() }
     }
 
     /// Checks if a script is valid
@@ -258,8 +282,8 @@ impl Script {
     /// ### Arguments
     ///
     /// * `block_number`  - The block time to push
-    pub fn new_for_coinbase(block_number: u64) -> Script {
-        Script {
+    pub fn new_for_coinbase(block_number: u64) -> Self {
+        Self {
             stack: vec![StackEntry::Num(block_number as usize)],
         }
     }
@@ -277,7 +301,7 @@ impl Script {
         asset_hash: String,
         signature: Signature,
         pub_key: PublicKey,
-    ) -> Script {
+    ) -> Self {
         let mut new_script = Script::new();
 
         new_script.stack.push(StackEntry::Op(OpCodes::OP_CREATE));
@@ -305,7 +329,7 @@ impl Script {
         signature: Signature,
         pub_key: PublicKey,
         address_version: Option<u64>,
-    ) -> Script {
+    ) -> Self {
         let mut new_script = Script::new();
         let pub_key_stack_entry = StackEntry::PubKey(pub_key);
         let new_key = construct_address_for(&pub_key, address_version);
@@ -337,7 +361,7 @@ impl Script {
     /// * `check_data`  - Data to be signed for verification
     /// * `pub_key`     - Public key of this party
     /// * `signature`   - Signature of this party
-    pub fn member_multisig(check_data: String, pub_key: PublicKey, signature: Signature) -> Script {
+    pub fn member_multisig(check_data: String, pub_key: PublicKey, signature: Signature) -> Self {
         let mut new_script = Script::new();
 
         new_script.stack.push(StackEntry::Bytes(check_data));
@@ -356,12 +380,7 @@ impl Script {
     /// * `n`           - Number of valid signatures total
     /// * `check_data`  - Data to have checked against signatures
     /// * `pub_keys`    - The constituent public keys
-    pub fn multisig_lock(
-        m: usize,
-        n: usize,
-        check_data: String,
-        pub_keys: Vec<PublicKey>,
-    ) -> Script {
+    pub fn multisig_lock(m: usize, n: usize, check_data: String, pub_keys: Vec<PublicKey>) -> Self {
         let mut new_script = Script::new();
 
         if n > pub_keys.len() || m > pub_keys.len() {
@@ -389,7 +408,7 @@ impl Script {
     ///
     /// * `check_data`  - Data to have signed
     /// * `signatures`  - Signatures to unlock with
-    pub fn multisig_unlock(check_data: String, signatures: Vec<Signature>) -> Script {
+    pub fn multisig_unlock(check_data: String, signatures: Vec<Signature>) -> Self {
         let mut new_script = Script::new();
         new_script.stack = vec![StackEntry::Bytes(check_data)];
         new_script.stack.append(
@@ -416,7 +435,7 @@ impl Script {
         check_data: String,
         signatures: Vec<Signature>,
         pub_keys: Vec<PublicKey>,
-    ) -> Script {
+    ) -> Self {
         let mut new_script = Script::new();
 
         if n > pub_keys.len() || m > pub_keys.len() {
