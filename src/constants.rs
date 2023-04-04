@@ -4,7 +4,6 @@ use crate::script::OpCodes;
 
 pub const RECEIPT_DEFAULT_DRS_TX_HASH: &str = "default_drs_tx_hash";
 pub const MAX_METADATA_BYTES: usize = 800;
-pub const COINBASE_MATURITY: u64 = 100;
 
 /*------- NETWORK CONSTANTS --------*/
 
