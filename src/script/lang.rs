@@ -17,8 +17,8 @@ use tracing::{error, warn};
 /// Stack for script execution
 #[derive(Clone, Debug, PartialOrd, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Stack {
-    pub interpreter_stack: Vec<StackEntry>,
-    pub interpreter_alt_stack: Vec<StackEntry>,
+    pub main_stack: Vec<StackEntry>,
+    pub alt_stack: Vec<StackEntry>,
 }
 
 impl Default for Stack {
@@ -31,15 +31,14 @@ impl Stack {
     /// Creates a new stack
     pub fn new() -> Self {
         Self {
-            interpreter_stack: Vec::with_capacity(MAX_STACK_SIZE as usize),
-            interpreter_alt_stack: Vec::with_capacity(MAX_STACK_SIZE as usize),
+            main_stack: Vec::with_capacity(MAX_STACK_SIZE as usize),
+            alt_stack: Vec::with_capacity(MAX_STACK_SIZE as usize),
         }
     }
 
     /// Checks if the stack is valid
     pub fn is_valid_stack(&self) -> bool {
-        if self.interpreter_stack.len() + self.interpreter_alt_stack.len() > MAX_STACK_SIZE as usize
-        {
+        if self.main_stack.len() + self.alt_stack.len() > MAX_STACK_SIZE as usize {
             error_max_stack_size();
             return false;
         }
@@ -48,17 +47,17 @@ impl Stack {
 
     /// Returns and removes the top item on the stack
     pub fn pop(&mut self) -> Option<StackEntry> {
-        self.interpreter_stack.pop()
+        self.main_stack.pop()
     }
 
     /// Returns the top item on the stack
     pub fn last(&self) -> Option<StackEntry> {
-        self.interpreter_stack.last().cloned()
+        self.main_stack.last().cloned()
     }
 
     /// Pushes a new entry onto the stack
-    pub fn push(&mut self, stack_entry: &StackEntry) -> bool {
-        match stack_entry {
+    pub fn push(&mut self, stack_entry: StackEntry) -> bool {
+        match stack_entry.clone() {
             StackEntry::Op(_) => {
                 return false;
             }
@@ -69,7 +68,7 @@ impl Stack {
             }
             _ => (),
         }
-        self.interpreter_stack.push(stack_entry.clone());
+        self.main_stack.push(stack_entry);
         true
     }
 }
@@ -263,7 +262,7 @@ impl Script {
                 | StackEntry::PubKey(_)
                 | StackEntry::PubKeyHash(_)
                 | StackEntry::Num(_)
-                | StackEntry::Bytes(_) => test_for_return &= stack.push(stack_entry),
+                | StackEntry::Bytes(_) => test_for_return &= stack.push(stack_entry.clone()),
                 /*---- INVALID OPCODE ----*/
                 _ => {
                     error_invalid_opcode();

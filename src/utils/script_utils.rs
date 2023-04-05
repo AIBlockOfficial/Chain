@@ -311,22 +311,22 @@ mod tests {
         // # items on interpreter stack <= 1000
         let mut stack = Stack::new();
         for _ in 0..MAX_STACK_SIZE {
-            stack.push(&StackEntry::Num(1));
+            stack.push(StackEntry::Num(1));
         }
         assert!(stack.is_valid_stack());
         // # items on interpreter stack > 1000
         let mut stack = Stack::new();
         for _ in 0..=MAX_STACK_SIZE {
-            stack.push(&StackEntry::Num(1));
+            stack.push(StackEntry::Num(1));
         }
         assert!(!stack.is_valid_stack());
         // # items on interpreter stack and interpreter alt stack > 1000
         let mut stack = Stack::new();
         for _ in 0..500 {
-            stack.push(&StackEntry::Num(1));
+            stack.push(StackEntry::Num(1));
         }
         for _ in 0..501 {
-            stack.push(&StackEntry::Num(1));
+            stack.push(StackEntry::Num(1));
         }
         assert!(!stack.is_valid_stack());
     }
