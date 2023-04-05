@@ -148,7 +148,7 @@ impl Script {
             return false;
         }
         let mut stack = Stack::new();
-        let mut condition_stack: Vec<bool> = Vec::new();
+        let mut condition_stack = ConditionStack::new();
         let mut test_for_return = true;
         for stack_entry in &self.stack {
             match stack_entry {
