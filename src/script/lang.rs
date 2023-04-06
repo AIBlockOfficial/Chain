@@ -37,7 +37,7 @@ impl Stack {
     }
 
     /// Checks if the stack is valid
-    pub fn is_valid_stack(&self) -> bool {
+    pub fn is_valid(&self) -> bool {
         if self.main_stack.len() + self.alt_stack.len() > MAX_STACK_SIZE as usize {
             error_max_stack_size();
             return false;
@@ -116,7 +116,7 @@ impl Script {
     }
 
     /// Checks if a script is valid
-    pub fn is_valid_script(&self) -> bool {
+    pub fn is_valid(&self) -> bool {
         let mut len = ZERO; // script length in bytes
         let mut ops_count = ZERO; // number of opcodes in script
         for entry in &self.stack {
@@ -143,8 +143,8 @@ impl Script {
     }
 
     /// Interprets and executes a script
-    pub fn interpret_script(&self) -> bool {
-        if !self.is_valid_script() {
+    pub fn interpret(&self) -> bool {
+        if !self.is_valid() {
             return false;
         }
         let mut stack = Stack::new();
@@ -269,7 +269,7 @@ impl Script {
                     return false;
                 }
             }
-            if !test_for_return || !stack.is_valid_stack() {
+            if !test_for_return || !stack.is_valid() {
                 return false;
             }
         }
