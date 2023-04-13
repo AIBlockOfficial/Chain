@@ -143,7 +143,7 @@ pub fn tx_has_valid_create_script(script: &Script, asset: &Asset) -> bool {
         it.next(),
         it.next(),
     ) {
-        if b == &asset_hash && script.interpret_script() {
+        if b == &asset_hash && script.interpret() {
             return true;
         }
     }
@@ -185,7 +185,7 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
         it.next(),
         it.next(),
     ) {
-        if h == tx_out_pub_key && b == outpoint_hash && script.interpret_script() {
+        if h == tx_out_pub_key && b == outpoint_hash && script.interpret() {
             return true;
         }
     }
@@ -209,7 +209,7 @@ pub fn tx_has_valid_p2sh_script(script: &Script, address: &str) -> bool {
     let p2sh_address = construct_p2sh_address(script);
 
     if p2sh_address == address {
-        return script.interpret_script();
+        return script.interpret();
     }
 
     trace!(
@@ -257,15 +257,15 @@ mod tests {
     fn test_is_valid_script() {
         // empty script
         let mut script = Script::new();
-        assert!(script.is_valid_script());
+        assert!(script.is_valid());
         // OP_0
         let mut script = Script::new();
         script.stack.push(StackEntry::Op(OpCodes::OP_0));
-        assert!(script.is_valid_script());
+        assert!(script.is_valid());
         // OP_1
         let mut script = Script::new();
         script.stack.push(StackEntry::Op(OpCodes::OP_1));
-        assert!(script.is_valid_script());
+        assert!(script.is_valid());
         // OP_1 OP_2 OP_ADD OP_3 OP_EQUAL
         let mut script = Script::new();
         script.stack.push(StackEntry::Op(OpCodes::OP_1));
@@ -273,14 +273,14 @@ mod tests {
         script.stack.push(StackEntry::Op(OpCodes::OP_ADD));
         script.stack.push(StackEntry::Op(OpCodes::OP_3));
         script.stack.push(StackEntry::Op(OpCodes::OP_EQUAL));
-        assert!(script.is_valid_script());
+        assert!(script.is_valid());
         // script length <= 10000 bytes
         let mut script = Script::new();
         let s = "a".repeat(500);
         for _ in 0..20 {
             script.stack.push(StackEntry::Bytes(s.clone()));
         }
-        assert!(script.is_valid_script());
+        assert!(script.is_valid());
         // script length > 10000 bytes
         let mut script = Script::new();
         let mut s = String::new();
@@ -288,38 +288,38 @@ mod tests {
         for _ in 0..20 {
             script.stack.push(StackEntry::Bytes(s.clone()));
         }
-        assert!(!script.is_valid_script());
+        assert!(!script.is_valid());
         // # opcodes <= 201
         let mut script = Script::new();
         for _ in 0..MAX_OPS_PER_SCRIPT {
             script.stack.push(StackEntry::Op(OpCodes::OP_1));
         }
-        assert!(script.is_valid_script());
+        assert!(script.is_valid());
         // # opcodes > 201
         let mut script = Script::new();
         for _ in 0..=MAX_OPS_PER_SCRIPT {
             script.stack.push(StackEntry::Op(OpCodes::OP_1));
         }
-        assert!(!script.is_valid_script());
+        assert!(!script.is_valid());
     }
 
     #[test]
     fn test_is_valid_stack() {
         // empty stack
         let mut stack = Stack::new();
-        assert!(stack.is_valid_stack());
+        assert!(stack.is_valid());
         // # items on interpreter stack <= 1000
         let mut stack = Stack::new();
         for _ in 0..MAX_STACK_SIZE {
             stack.push(StackEntry::Num(1));
         }
-        assert!(stack.is_valid_stack());
+        assert!(stack.is_valid());
         // # items on interpreter stack > 1000
         let mut stack = Stack::new();
         for _ in 0..=MAX_STACK_SIZE {
             stack.push(StackEntry::Num(1));
         }
-        assert!(!stack.is_valid_stack());
+        assert!(!stack.is_valid());
         // # items on interpreter stack and interpreter alt stack > 1000
         let mut stack = Stack::new();
         for _ in 0..500 {
@@ -328,22 +328,22 @@ mod tests {
         for _ in 0..501 {
             stack.push(StackEntry::Num(1));
         }
-        assert!(!stack.is_valid_stack());
+        assert!(!stack.is_valid());
     }
 
     #[test]
     fn test_interpret_script() {
         // empty script
         let mut script = Script::new();
-        assert!(script.interpret_script());
+        assert!(script.interpret());
         // OP_0
         let mut script = Script::new();
         script.stack.push(StackEntry::Op(OpCodes::OP_0));
-        assert!(!script.interpret_script());
+        assert!(!script.interpret());
         // OP_1
         let mut script = Script::new();
         script.stack.push(StackEntry::Op(OpCodes::OP_1));
-        assert!(script.interpret_script());
+        assert!(script.interpret());
         // OP_1 OP_2 OP_ADD OP_3 OP_EQUAL
         let mut script = Script::new();
         script.stack.push(StackEntry::Op(OpCodes::OP_1));
@@ -351,7 +351,7 @@ mod tests {
         script.stack.push(StackEntry::Op(OpCodes::OP_ADD));
         script.stack.push(StackEntry::Op(OpCodes::OP_3));
         script.stack.push(StackEntry::Op(OpCodes::OP_EQUAL));
-        assert!(script.interpret_script());
+        assert!(script.interpret());
         // script length <= 10000 bytes
         let mut script = Script::new();
         let s = "a".repeat(500);
@@ -367,7 +367,7 @@ mod tests {
         for _ in 0..20 {
             script.stack.push(StackEntry::Bytes(s.clone()));
         }
-        assert!(!script.interpret_script());
+        assert!(!script.interpret());
         // # opcodes <= 201
         let mut script = Script::new();
         for _ in 0..MAX_OPS_PER_SCRIPT {
@@ -378,13 +378,13 @@ mod tests {
         for _ in 0..=MAX_OPS_PER_SCRIPT {
             script.stack.push(StackEntry::Op(OpCodes::OP_1));
         }
-        assert!(!script.interpret_script());
+        assert!(!script.interpret());
         // # items on interpreter stack <= 1000
         let mut script = Script::new();
         for _ in 0..MAX_STACK_SIZE {
             script.stack.push(StackEntry::Num(1));
         }
-        assert!(script.interpret_script());
+        assert!(script.interpret());
         // # items on interpreter stack > 1000
         let mut script = Script::new();
         for _ in 0..=MAX_STACK_SIZE {
@@ -393,7 +393,7 @@ mod tests {
         // invalid opcode
         let mut script = Script::new();
         script.stack.push(StackEntry::Op(OpCodes::OP_CAT));
-        assert!(!script.interpret_script());
+        assert!(!script.interpret());
     }
 
     /// Util function to create p2pkh TxIns
@@ -504,7 +504,7 @@ mod tests {
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
 
-        assert!(&tx_ins[0].clone().script_signature.interpret_script());
+        assert!(&tx_ins[0].clone().script_signature.interpret());
     }
 
     #[test]
@@ -540,7 +540,7 @@ mod tests {
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
 
-        assert!(!&tx_ins[0].clone().script_signature.interpret_script());
+        assert!(!&tx_ins[0].clone().script_signature.interpret());
     }
 
     #[test]
@@ -777,7 +777,7 @@ mod tests {
 
         let tx_ins = create_multisig_tx_ins(vec![tx_const], m);
 
-        assert!(&tx_ins[0].script_signature.interpret_script());
+        assert!(&tx_ins[0].script_signature.interpret());
     }
 
     #[test]
@@ -1054,7 +1054,7 @@ mod tests {
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
 
-        assert!(!&tx_ins[0].clone().script_signature.interpret_script());
+        assert!(!&tx_ins[0].clone().script_signature.interpret());
     }
 
     #[test]
@@ -1089,6 +1089,6 @@ mod tests {
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
 
-        assert!(&tx_ins[0].clone().script_signature.interpret_script());
+        assert!(&tx_ins[0].clone().script_signature.interpret());
     }
 }
