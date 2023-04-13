@@ -4,9 +4,9 @@
 <br />
 
 <div align="center">
-  <!-- <a>
-    <img src="https://github.com/Zenotta/ZenottaJS/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
-  </a> -->
+  <a>
+    <img src="https://github.com/Zenotta/NAOM/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
+  </a>
 
   <h2 align="center">Notarised Append Only Memory (NAOM)</h2>
 

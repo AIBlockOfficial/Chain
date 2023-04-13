@@ -1,7 +1,7 @@
 <div align="center">
-  <!-- <a>
+  <a>
     <img src="https://github.com/Zenotta/ZenottaJS/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
-  </a> -->
+  </a>
 
   <h2 align="center">公证追加存储器（Notarised Append Only Memory，NAOM）</h2>
 
