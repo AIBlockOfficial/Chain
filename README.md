@@ -8,7 +8,7 @@
     <img src="https://github.com/Zenotta/NAOM/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
   </a>
 
-  <h2 align="center">Notarised Append Only Memory (NAOM)</h2>
+  <h2 align="center">Notarised Append Only Memory (NAOM)</h2> <div style="height:30px"></div>
 
   <div>
   <img src="https://img.shields.io/github/actions/workflow/status/Zenotta/NAOM/rust.yml" alt="Pipeline Status" style="display:inline-block"/>

@@ -1,9 +1,9 @@
 <div align="center">
   <a>
-    <img src="https://github.com/Zenotta/ZenottaJS/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
+    <img src="https://github.com/Zenotta/NAOM/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
   </a>
 
-  <h2 align="center">公证追加存储器（Notarised Append Only Memory，NAOM）</h2>
+  <h2 align="center">公证追加存储器（Notarised Append Only Memory，NAOM）</h2> <div style="height:30px"></div>
 
   <div>
   <img src="https://img.shields.io/github/actions/workflow/status/Zenotta/NAOM/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
