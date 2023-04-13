@@ -1,15 +1,16 @@
 #![allow(unused)]
-use crate::constants::{
-    MAX_METADATA_BYTES, NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TOTAL_TOKENS,
-};
+use crate::constants::*;
 use crate::crypto::sha3_256;
-use crate::crypto::sign_ed25519::{self as sign, PublicKey, Signature};
+use crate::crypto::sign_ed25519::{
+    self as sign, PublicKey, Signature, ED25519_PUBLIC_KEY_LEN, ED25519_SIGNATURE_LEN,
+};
 use crate::primitives::asset::{Asset, AssetValues, ReceiptAsset, TokenAmount};
 use crate::primitives::druid::DruidExpectation;
 use crate::primitives::transaction::*;
 use crate::script::interface_ops;
-use crate::script::lang::Script;
+use crate::script::lang::{Script, Stack};
 use crate::script::{OpCodes, StackEntry};
+use crate::utils::error_utils::*;
 use crate::utils::transaction_utils::{
     construct_address, construct_tx_in_signable_asset_hash, construct_tx_in_signable_hash,
 };
@@ -17,38 +18,15 @@ use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
 use std::collections::{BTreeMap, BTreeSet};
+use std::thread::current;
 use tracing::{debug, error, info, trace};
 
-/// Verifies that a member of a multisig tx script is valid
-///
-/// ### Arguments
-///
-/// * `script`  - Script to verify
-pub fn member_multisig_is_valid(script: Script) -> bool {
-    let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
-    let mut test_for_return = true;
-    for stack_entry in script.stack {
-        if test_for_return {
-            match stack_entry {
-                StackEntry::Op(OpCodes::OP_CHECKSIG) => {
-                    test_for_return &= interface_ops::op_checkmultisigmem(&mut current_stack);
-                }
-                _ => {
-                    interface_ops::op_else(stack_entry, &mut current_stack);
-                }
-            }
-        } else {
-            return false;
-        }
-    }
-
-    test_for_return
-}
+use super::transaction_utils::construct_p2sh_address;
 
 /// Verifies that all incoming transactions are allowed to be spent. Returns false if a single
 /// transaction doesn't verify
 ///
-/// TODO: Currently assumes p2pkh, abstract to all tx types
+/// TODO: Currently assumes p2pkh and p2sh, abstract to all tx types
 ///
 /// ### Arguments
 ///
@@ -85,7 +63,9 @@ pub fn tx_is_valid<'a>(
 
         if let Some(pk) = tx_out_pk {
             // Check will need to include other signature types here
-            if !tx_has_valid_p2pkh_sig(&tx_in.script_signature, &tx_out_hash, pk) {
+            if !tx_has_valid_p2pkh_sig(&tx_in.script_signature, &tx_out_hash, pk)
+                && !tx_has_valid_p2sh_script(&tx_in.script_signature, pk)
+            {
                 return false;
             }
         } else {
@@ -127,32 +107,6 @@ pub fn tx_outs_are_valid(tx_outs: &[TxOut], tx_ins_spent: AssetValues) -> bool {
     tx_outs_spent.is_equal(&tx_ins_spent)
 }
 
-/// Checks whether a complete validation multisig transaction is in fact valid
-///
-/// ### Arguments
-///
-/// * `script`  - `Script` to validate
-fn tx_has_valid_multsig_validation(script: &Script) -> bool {
-    let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
-    let mut test_for_return = true;
-    for stack_entry in &script.stack {
-        if test_for_return {
-            match stack_entry {
-                StackEntry::Op(OpCodes::OP_CHECKMULTISIG) => {
-                    test_for_return &= interface_ops::op_multisig(&mut current_stack);
-                }
-                _ => {
-                    test_for_return &= interface_ops::op_else_ref(stack_entry, &mut current_stack);
-                }
-            }
-        } else {
-            return false;
-        }
-    }
-
-    test_for_return
-}
-
 /// Checks whether a create transaction has a valid input script
 ///
 /// ### Arguments
@@ -173,6 +127,7 @@ pub fn tx_has_valid_create_script(script: &Script, asset: &Asset) -> bool {
     if let (
         Some(StackEntry::Op(OpCodes::OP_CREATE)),
         Some(StackEntry::Num(_)),
+        Some(StackEntry::Op(OpCodes::OP_DROP)),
         Some(StackEntry::Bytes(b)),
         Some(StackEntry::Signature(_)),
         Some(StackEntry::PubKey(_)),
@@ -186,8 +141,9 @@ pub fn tx_has_valid_create_script(script: &Script, asset: &Asset) -> bool {
         it.next(),
         it.next(),
         it.next(),
+        it.next(),
     ) {
-        if b == &asset_hash && interpret_script(script) {
+        if b == &asset_hash && script.interpret() {
             return true;
         }
     }
@@ -229,13 +185,13 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
         it.next(),
         it.next(),
     ) {
-        if h == tx_out_pub_key && b == outpoint_hash && interpret_script(script) {
+        if h == tx_out_pub_key && b == outpoint_hash && script.interpret() {
             return true;
         }
     }
 
     trace!(
-        "Invalid script: {:?} tx_out_pub_key: {}",
+        "Invalid P2PKH script: {:?} tx_out_pub_key: {}",
         script.stack,
         tx_out_pub_key
     );
@@ -243,75 +199,26 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
     false
 }
 
-/// Handles the byte code unwrap and execution for transaction scripts
+/// Checks whether a transaction to spend tokens in P2SH has a valid hash and executing script
 ///
 /// ### Arguments
 ///
-/// * `script`  - Script to unwrap and execute
-fn interpret_script(script: &Script) -> bool {
-    let mut current_stack: Vec<StackEntry> = Vec::with_capacity(script.stack.len());
-    let mut test_for_return = true;
-    for stack_entry in &script.stack {
-        if test_for_return {
-            match stack_entry {
-                StackEntry::Op(OpCodes::OP_DUP) => {
-                    test_for_return &= interface_ops::op_dup(&mut current_stack);
-                }
-                StackEntry::Op(OpCodes::OP_HASH256) => {
-                    test_for_return &= interface_ops::op_hash256(&mut current_stack, None);
-                }
-                StackEntry::Op(OpCodes::OP_HASH256_V0) => {
-                    test_for_return &=
-                        interface_ops::op_hash256(&mut current_stack, Some(NETWORK_VERSION_V0));
-                }
-                StackEntry::Op(OpCodes::OP_HASH256_TEMP) => {
-                    test_for_return &=
-                        interface_ops::op_hash256(&mut current_stack, Some(NETWORK_VERSION_TEMP));
-                }
-                StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
-                    test_for_return &= interface_ops::op_equalverify(&mut current_stack);
-                }
-                StackEntry::Op(OpCodes::OP_CHECKSIG) => {
-                    test_for_return &= interface_ops::op_checksig(&mut current_stack);
-                }
-                _ => {
-                    test_for_return &= interface_ops::op_else_ref(stack_entry, &mut current_stack);
-                }
-            }
-        } else {
-            return false;
-        }
+/// * `script`          - Script to validate
+/// * `address`         - Address of the P2SH transaction
+pub fn tx_has_valid_p2sh_script(script: &Script, address: &str) -> bool {
+    let p2sh_address = construct_p2sh_address(script);
+
+    if p2sh_address == address {
+        return script.interpret();
     }
 
-    test_for_return
-}
+    trace!(
+        "Invalid P2SH script: {:?}, address: {}",
+        script.stack,
+        address
+    );
 
-/// Does pairwise validation of signatures against public keys
-///
-/// ### Arguments
-///
-/// * `check_data`  - Data to verify against
-/// * `signatures`  - Signatures to check
-/// * `pub_keys`    - Public keys to check
-/// * `m`           - Number of keys required
-fn match_on_multisig_to_pubkey(
-    check_data: String,
-    signatures: Vec<Signature>,
-    pub_keys: Vec<PublicKey>,
-    m: usize,
-) -> bool {
-    let mut counter = 0;
-
-    'outer: for sig in signatures {
-        'inner: for pub_key in &pub_keys {
-            if sign::verify_detached(&sig, check_data.as_bytes(), pub_key) {
-                counter += 1;
-                break 'inner;
-            }
-        }
-    }
-
-    counter >= m
+    false
 }
 
 /// Checks that a receipt's metadata conforms to the network size constraint
@@ -323,7 +230,6 @@ fn receipt_has_valid_size(receipt: &ReceiptAsset) -> bool {
     if let Some(metadata) = &receipt.metadata {
         return metadata.len() <= MAX_METADATA_BYTES;
     }
-
     true
 }
 
@@ -343,8 +249,152 @@ mod tests {
     use crate::primitives::asset::{Asset, DataAsset};
     use crate::primitives::druid::DdeValues;
     use crate::primitives::transaction::OutPoint;
+    use crate::script::lang::Stack;
     use crate::utils::test_utils::generate_tx_with_ins_and_outs_assets;
     use crate::utils::transaction_utils::*;
+
+    #[test]
+    fn test_is_valid_script() {
+        // empty script
+        let mut script = Script::new();
+        assert!(script.is_valid());
+        // OP_0
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_0));
+        assert!(script.is_valid());
+        // OP_1
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        assert!(script.is_valid());
+        // OP_1 OP_2 OP_ADD OP_3 OP_EQUAL
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        script.stack.push(StackEntry::Op(OpCodes::OP_2));
+        script.stack.push(StackEntry::Op(OpCodes::OP_ADD));
+        script.stack.push(StackEntry::Op(OpCodes::OP_3));
+        script.stack.push(StackEntry::Op(OpCodes::OP_EQUAL));
+        assert!(script.is_valid());
+        // script length <= 10000 bytes
+        let mut script = Script::new();
+        let s = "a".repeat(500);
+        for _ in 0..20 {
+            script.stack.push(StackEntry::Bytes(s.clone()));
+        }
+        assert!(script.is_valid());
+        // script length > 10000 bytes
+        let mut script = Script::new();
+        let mut s = String::new();
+        let s = "a".repeat(501);
+        for _ in 0..20 {
+            script.stack.push(StackEntry::Bytes(s.clone()));
+        }
+        assert!(!script.is_valid());
+        // # opcodes <= 201
+        let mut script = Script::new();
+        for _ in 0..MAX_OPS_PER_SCRIPT {
+            script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        }
+        assert!(script.is_valid());
+        // # opcodes > 201
+        let mut script = Script::new();
+        for _ in 0..=MAX_OPS_PER_SCRIPT {
+            script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        }
+        assert!(!script.is_valid());
+    }
+
+    #[test]
+    fn test_is_valid_stack() {
+        // empty stack
+        let mut stack = Stack::new();
+        assert!(stack.is_valid());
+        // # items on interpreter stack <= 1000
+        let mut stack = Stack::new();
+        for _ in 0..MAX_STACK_SIZE {
+            stack.push(StackEntry::Num(1));
+        }
+        assert!(stack.is_valid());
+        // # items on interpreter stack > 1000
+        let mut stack = Stack::new();
+        for _ in 0..=MAX_STACK_SIZE {
+            stack.push(StackEntry::Num(1));
+        }
+        assert!(!stack.is_valid());
+        // # items on interpreter stack and interpreter alt stack > 1000
+        let mut stack = Stack::new();
+        for _ in 0..500 {
+            stack.push(StackEntry::Num(1));
+        }
+        for _ in 0..501 {
+            stack.push(StackEntry::Num(1));
+        }
+        assert!(!stack.is_valid());
+    }
+
+    #[test]
+    fn test_interpret_script() {
+        // empty script
+        let mut script = Script::new();
+        assert!(script.interpret());
+        // OP_0
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_0));
+        assert!(!script.interpret());
+        // OP_1
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        assert!(script.interpret());
+        // OP_1 OP_2 OP_ADD OP_3 OP_EQUAL
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        script.stack.push(StackEntry::Op(OpCodes::OP_2));
+        script.stack.push(StackEntry::Op(OpCodes::OP_ADD));
+        script.stack.push(StackEntry::Op(OpCodes::OP_3));
+        script.stack.push(StackEntry::Op(OpCodes::OP_EQUAL));
+        assert!(script.interpret());
+        // script length <= 10000 bytes
+        let mut script = Script::new();
+        let s = "a".repeat(500);
+        for _ in 0..20 {
+            script.stack.push(StackEntry::Bytes(s.clone()));
+        }
+        // script length > 10000 bytes
+        let mut script = Script::new();
+        let mut s = String::new();
+        for _ in 0..501 {
+            s.push('a');
+        }
+        for _ in 0..20 {
+            script.stack.push(StackEntry::Bytes(s.clone()));
+        }
+        assert!(!script.interpret());
+        // # opcodes <= 201
+        let mut script = Script::new();
+        for _ in 0..MAX_OPS_PER_SCRIPT {
+            script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        }
+        // # opcodes > 201
+        let mut script = Script::new();
+        for _ in 0..=MAX_OPS_PER_SCRIPT {
+            script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        }
+        assert!(!script.interpret());
+        // # items on interpreter stack <= 1000
+        let mut script = Script::new();
+        for _ in 0..MAX_STACK_SIZE {
+            script.stack.push(StackEntry::Num(1));
+        }
+        assert!(script.interpret());
+        // # items on interpreter stack > 1000
+        let mut script = Script::new();
+        for _ in 0..=MAX_STACK_SIZE {
+            script.stack.push(StackEntry::Num(1));
+        }
+        // invalid opcode
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_CAT));
+        assert!(!script.interpret());
+    }
 
     /// Util function to create p2pkh TxIns
     fn create_multisig_tx_ins(tx_values: Vec<TxConstructor>, m: usize) -> Vec<TxIn> {
@@ -454,7 +504,7 @@ mod tests {
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
 
-        assert!(member_multisig_is_valid(tx_ins[0].clone().script_signature));
+        assert!(&tx_ins[0].clone().script_signature.interpret());
     }
 
     #[test]
@@ -490,9 +540,7 @@ mod tests {
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
 
-        assert!(!member_multisig_is_valid(
-            tx_ins[0].clone().script_signature
-        ));
+        assert!(!&tx_ins[0].clone().script_signature.interpret());
     }
 
     #[test]
@@ -719,39 +767,17 @@ mod tests {
         let m = 2;
         let first_sig = sign::sign_detached(check_data.as_bytes(), &first_sk);
         let second_sig = sign::sign_detached(check_data.as_bytes(), &second_sk);
-        let third_sig = sign::sign_detached(check_data.as_bytes(), &third_sk);
 
         let tx_const = TxConstructor {
             previous_out: OutPoint::new(check_data, 0),
-            signatures: vec![first_sig, second_sig, third_sig],
+            signatures: vec![first_sig, second_sig],
             pub_keys: vec![first_pk, second_pk, third_pk],
             address_version,
         };
 
         let tx_ins = create_multisig_tx_ins(vec![tx_const], m);
 
-        assert!(tx_has_valid_multsig_validation(&tx_ins[0].script_signature));
-    }
-
-    #[test]
-    /// Ensures that enough pubkey-sigs are provided to complete the multisig
-    fn test_pass_sig_pub_keypairs_for_multisig_valid() {
-        let (first_pk, first_sk) = sign::gen_keypair();
-        let (second_pk, second_sk) = sign::gen_keypair();
-        let (third_pk, third_sk) = sign::gen_keypair();
-        let check_data = hex::encode(vec![0, 0, 0]);
-
-        let m = 2;
-        let first_sig = sign::sign_detached(check_data.as_bytes(), &first_sk);
-        let second_sig = sign::sign_detached(check_data.as_bytes(), &second_sk);
-        let third_sig = sign::sign_detached(check_data.as_bytes(), &third_sk);
-
-        assert!(match_on_multisig_to_pubkey(
-            check_data,
-            vec![first_sig, second_sig, third_sig],
-            vec![first_pk, second_pk, third_pk],
-            m
-        ));
+        assert!(&tx_ins[0].script_signature.interpret());
     }
 
     #[test]
@@ -1028,7 +1054,7 @@ mod tests {
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
 
-        assert!(!interpret_script(&(tx_ins[0].clone().script_signature)));
+        assert!(!&tx_ins[0].clone().script_signature.interpret());
     }
 
     #[test]
@@ -1063,6 +1089,6 @@ mod tests {
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
 
-        assert!(interpret_script(&(tx_ins[0].clone().script_signature)));
+        assert!(&tx_ins[0].clone().script_signature.interpret());
     }
 }

@@ -1,4 +1,4 @@
-use crate::constants::{NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, TX_PREPEND};
+use crate::constants::{NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, P2SH_PREPEND, TX_PREPEND};
 use crate::crypto::sha3_256;
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, SecretKey};
 use crate::primitives::asset::{Asset, DataAsset, TokenAmount};
@@ -9,6 +9,22 @@ use crate::script::StackEntry;
 use bincode::serialize;
 use bytes::Bytes;
 use std::collections::BTreeMap;
+
+/// Builds an address for a P2SH transaction
+///
+/// ### Arguments
+///
+/// * `script` - Script to build address for
+pub fn construct_p2sh_address(script: &Script) -> String {
+    let script_bytes = Bytes::from(serialize(script).unwrap());
+    let script_raw_h = sha3_256::digest(&script_bytes).to_vec();
+    let mut hash = hex::encode(script_raw_h);
+
+    hash.insert(0, P2SH_PREPEND as char);
+    hash.truncate(32);
+
+    hash
+}
 
 /// Builds an address from a public key and a specified network version
 ///
@@ -30,7 +46,7 @@ pub fn construct_address_for(pub_key: &PublicKey, address_version: Option<u64>) 
 /// * `pub_key` - A public key to build an address from
 pub fn construct_address(pub_key: &PublicKey) -> String {
     let pub_key_hash = sha3_256::digest(pub_key.as_ref());
-    hex::encode(&pub_key_hash)
+    hex::encode(pub_key_hash)
 }
 
 /// Builds an old (network version 0) address from a public key
@@ -38,7 +54,7 @@ pub fn construct_address(pub_key: &PublicKey) -> String {
 /// ### Arguments
 ///
 /// * `pub_key` - A public key to build an address from
-fn construct_address_v0(pub_key: &PublicKey) -> String {
+pub fn construct_address_v0(pub_key: &PublicKey) -> String {
     let first_pubkey_bytes = {
         // We used sodiumoxide serialization before with a 64 bit length prefix.
         // Make clear what we are using as this was not intended.
@@ -56,7 +72,7 @@ fn construct_address_v0(pub_key: &PublicKey) -> String {
 /// Builds an address from a public key using the
 /// temporary address scheme present on the wallet
 ///
-/// TODO: Depreciate after addresses retire
+/// TODO: Deprecate after addresses retire
 ///
 /// ### Arguments
 ///
@@ -72,7 +88,7 @@ pub fn construct_address_temp(pub_key: &PublicKey) -> String {
 /// first character. If the decoding up to the first character fails, a default value of 0
 /// is used.
 ///
-/// TODO: Depreciate after addresses retire
+/// TODO: Deprecate after addresses retire
 ///
 /// ### Arguments
 ///
@@ -144,14 +160,14 @@ pub fn construct_tx_in_signable_asset_hash(asset: &Asset) -> String {
 /// * `entry`   - StackEntry to obtain signable string for
 pub fn get_stack_entry_signable_string(entry: &StackEntry) -> String {
     match entry {
-        StackEntry::Op(op) => format!("Op:{}", op),
+        StackEntry::Op(op) => format!("Op:{op}"),
         StackEntry::Signature(signature) => {
             format!("Signature:{}", hex::encode(signature.as_ref()))
         }
         StackEntry::PubKey(pub_key) => format!("PubKey:{}", hex::encode(pub_key.as_ref())),
-        StackEntry::PubKeyHash(pub_key_hash) => format!("PubKeyHash:{}", pub_key_hash),
-        StackEntry::Num(num) => format!("Num:{}", num),
-        StackEntry::Bytes(bytes) => format!("Bytes:{}", bytes),
+        StackEntry::PubKeyHash(pub_key_hash) => format!("PubKeyHash:{pub_key_hash}"),
+        StackEntry::Num(num) => format!("Num:{num}"),
+        StackEntry::Bytes(bytes) => format!("Bytes:{bytes}"),
     }
 }
 
@@ -181,7 +197,7 @@ pub fn get_tx_in_address_signable_string(tx_in: &TxIn) -> String {
         None => "null".to_owned(),
     };
     let script_signable_string = get_script_signable_string(&tx_in.script_signature.stack);
-    format!("{}-{}", out_point_signable_string, script_signable_string)
+    format!("{out_point_signable_string}-{script_signable_string}")
 }
 
 /// Constructs address a TxIn collection
@@ -274,26 +290,6 @@ pub fn update_utxo_set(current_utxo: &mut BTreeMap<OutPoint, Transaction>) {
     value_set.iter().for_each(move |t_hash| {
         current_utxo.remove(t_hash);
     });
-}
-
-/// Constructs a coinbase transaction
-/// TODO: Adding block number to coinbase construction non-ideal. Consider moving to Compute
-/// construction or mining later
-///
-/// ### Arguments
-///
-/// * `b_num`       - Block number for the current coinbase block
-/// * `amount`      - Amount of tokens allowed in coinbase
-/// * `address`     - Address to send the coinbase amount to
-pub fn construct_coinbase_tx(b_num: u64, amount: TokenAmount, address: String) -> Transaction {
-    let tx_in = TxIn::new_from_script(Script::new_for_coinbase(b_num));
-    let tx_out = TxOut {
-        value: Asset::Token(amount),
-        script_public_key: Some(address),
-        ..Default::default()
-    };
-
-    construct_tx_core(vec![tx_in], vec![tx_out])
 }
 
 /// Constructs a search-valid hash for a transaction to be added to the blockchain
@@ -402,7 +398,7 @@ pub fn construct_receipt_create_tx(
 ///
 /// ### Arguments
 ///
-/// * `tx_ins`              - Address/es to pay from
+/// * `tx_ins`              - Input/s to pay from
 /// * `receiver_address`    - Address to send to
 /// * `drs_block_hash`      - Hash of the block containing the original DRS. Only for data trades
 /// * `asset`               - Asset to send
@@ -418,6 +414,34 @@ pub fn construct_payment_tx(
         value: asset,
         locktime,
         script_public_key: Some(receiver_address),
+        drs_block_hash,
+    };
+
+    construct_tx_core(tx_ins, vec![tx_out])
+}
+
+/// Constructs a P2SH transaction to pay a receiver
+///
+/// ### Arguments
+///
+/// * `tx_ins`              - Input/s to pay from
+/// * `script`              - Script to validate
+/// * `drs_block_hash`      - Hash of the block containing the original DRS. Only for data trades
+/// * `asset`               - Asset to send
+/// * `locktime`            - Block height below which the payment is restricted. "0" means no locktime
+pub fn construct_p2sh_tx(
+    tx_ins: Vec<TxIn>,
+    script: &Script,
+    drs_block_hash: Option<String>,
+    asset: Asset,
+    locktime: u64,
+) -> Transaction {
+    let script_hash = construct_p2sh_address(script);
+
+    let tx_out = TxOut {
+        value: asset,
+        locktime,
+        script_public_key: Some(script_hash),
         drs_block_hash,
     };
 
@@ -556,6 +580,25 @@ pub fn construct_payment_tx_ins(tx_values: Vec<TxConstructor>) -> Vec<TxIn> {
     tx_ins
 }
 
+/// Constructs the TxIn for a P2SH redemption. The redeemer must supply a script that
+/// matches the scriptPubKey of the output being spent.
+///
+/// ### Arguments
+///
+/// * `tx_values`   - Series of values required for TxIn construction
+/// * `script`      - Script to be used in the scriptSig
+pub fn construct_p2sh_redeem_tx_ins(tx_values: TxConstructor, script: Script) -> Vec<TxIn> {
+    let mut tx_ins = Vec::new();
+    let previous_out = Some(tx_values.previous_out);
+
+    tx_ins.push(TxIn {
+        previous_out,
+        script_signature: script,
+    });
+
+    tx_ins
+}
+
 /// Constructs a dual double entry tx
 ///
 /// ### Arguments
@@ -590,7 +633,8 @@ mod tests {
     use super::*;
     use crate::crypto::sign_ed25519::{self as sign, Signature};
     use crate::primitives::asset::{AssetValues, ReceiptAsset};
-    use crate::utils::script_utils::tx_outs_are_valid;
+    use crate::script::OpCodes;
+    use crate::utils::script_utils::{tx_has_valid_p2sh_script, tx_outs_are_valid};
 
     #[test]
     // Creates a valid creation transaction
@@ -631,7 +675,7 @@ mod tests {
         test_construct_a_valid_payment_tx_common(Some(NETWORK_VERSION_TEMP));
     }
 
-    fn test_construct_a_valid_payment_tx_common(address_version: Option<u64>) {
+    fn test_construct_valid_inputs(address_version: Option<u64>) -> (Vec<TxIn>, String) {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
         let t_hash = vec![0, 0, 0];
@@ -645,8 +689,60 @@ mod tests {
             address_version,
         };
 
-        let token_amount = TokenAmount(400000);
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
+
+        (tx_ins, drs_block_hash)
+    }
+
+    #[test]
+    fn test_construct_a_valid_p2sh_tx() {
+        let token_amount = TokenAmount(400000);
+        let (tx_ins, drs_block_hash) = test_construct_valid_inputs(Some(NETWORK_VERSION_V0));
+        let mut script = Script::new_for_coinbase(10);
+        script.stack.push(StackEntry::Op(OpCodes::OP_DROP));
+
+        let p2sh_tx = construct_p2sh_tx(
+            tx_ins,
+            &script,
+            Some(drs_block_hash.clone()),
+            Asset::Token(token_amount),
+            0,
+        );
+
+        let spending_tx_hash = construct_tx_hash(&p2sh_tx);
+
+        let tx_const = TxConstructor {
+            previous_out: OutPoint::new(spending_tx_hash, 0),
+            signatures: vec![],
+            pub_keys: vec![],
+            address_version: Some(NETWORK_VERSION_V0),
+        };
+
+        let redeeming_tx_ins = construct_p2sh_redeem_tx_ins(tx_const, script.clone());
+        let redeeming_tx = construct_payment_tx(
+            redeeming_tx_ins,
+            hex::encode(vec![0; 32]),
+            Some(drs_block_hash),
+            Asset::Token(token_amount),
+            0,
+        );
+        let p2sh_script_pub_key = p2sh_tx.outputs[0].script_public_key.as_ref().unwrap();
+
+        assert_eq!(Asset::Token(token_amount), p2sh_tx.outputs[0].value);
+        assert_eq!(p2sh_script_pub_key.as_bytes()[0], P2SH_PREPEND);
+        assert_eq!(p2sh_script_pub_key.len(), 32);
+        assert!(tx_has_valid_p2sh_script(
+            &redeeming_tx.inputs[0].script_signature,
+            p2sh_tx.outputs[0].script_public_key.as_ref().unwrap()
+        ));
+
+        // TODO: Add assertion for full tx validity
+    }
+
+    fn test_construct_a_valid_payment_tx_common(address_version: Option<u64>) {
+        let (tx_ins, drs_block_hash) = test_construct_valid_inputs(address_version);
+
+        let token_amount = TokenAmount(400000);
         let payment_tx = construct_payment_tx(
             tx_ins,
             hex::encode(vec![0; 32]),
