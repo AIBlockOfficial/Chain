@@ -7,6 +7,7 @@
 
   <div>
   <img src="https://img.shields.io/github/actions/workflow/status/Zenotta/NAOM/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
+  <img src="https://img.shields.io/crates/v/naom" alt="Cargo Crates Version" style="display:inline-block" />
   </div>
 
   <p align="center">
@@ -37,7 +38,20 @@ cargo test
 
 ## 使用
 
-运行 `cargo run --bin main` 将列出本地实例上的所有资产。NAOM 通常不打算直接使用，而是打算被其他需要访问区块链数据结构的程序使用。
+您可以通过在 `Cargo.toml` 文件中添加以下内容将NAOM作为依赖项添加到您的项目中：
+
+```toml
+[dependencies]
+naom = "0.1.0"
+```
+
+或者，通过命令行：
+
+```
+cargo add naom
+```
+
+从repo clone运行 `cargo run --bin main` 目前将列出本地实例中的所有资产。但NAOM通常不会直接使用，而是旨在用于需要访问区块链数据结构的其他程序中
 
 ..
 

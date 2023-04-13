@@ -7,6 +7,8 @@
 
   <div>
   <img src="https://img.shields.io/github/actions/workflow/status/Zenotta/NAOM/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
+
+  <img src="https://img.shields.io/crates/v/naom" alt="Cargo Crates Version" style="display:inline-block" />
   </div>
 
   <p align="center">
@@ -37,7 +39,20 @@ cargo test
 
 ## Utilisation
 
-L'exécution de `cargo run --bin main` listera actuellement tous les actifs sur l'instance locale. NAOM n'est généralement pas destiné à être utilisé directement, mais plutôt à être utilisé par d'autres programmes qui nécessitent un accès à la structure de données blockchain.
+NAOM peut être ajouté à votre projet en tant que dépendance en ajoutant ce qui suit à votre fichier `Cargo.toml`:
+
+```toml
+[dependencies]
+naom = "0.1.0"
+```
+
+Ou bien, via la ligne de commande :
+
+```
+cargo add naom
+```
+
+L'exécution de `cargo run --bin main` à partir d'un clone de référentiel répertorie actuellement tous les actifs de l'instance locale. Cependant, NAOM n'est généralement pas destiné à être utilisé directement, mais plutôt à être utilisé à partir d'autres programmes qui nécessitent l'accès à la structure de données de la blockchain.
 
 ..
 

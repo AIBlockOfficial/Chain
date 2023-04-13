@@ -7,6 +7,7 @@
 
   <div>
   <img src="https://img.shields.io/github/actions/workflow/status/Zenotta/NAOM/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
+  <img src="https://img.shields.io/crates/v/naom" alt="Cargo Crates Version" style="display:inline-block" />
   </div>
 
   <p align="center">
@@ -37,7 +38,20 @@ cargo test
 
 ## الاستخدام
 
-يتم تشغيل `cargo run --bin main` حاليًا لإدراج جميع الأصول على النسخة المحلية. لا يُقصد استخدام NAOM مباشرةً ، وإنما يُقصد استخدامها من برامج أخرى تتطلب الوصول إلى بنية البيانات لسلسلة الكتل.
+يمكن إضافة NAOM إلى مشروعك كتبعيّنة عن طريق إضافة ما يلي إلى ملف `Cargo.toml` الخاص بك:
+
+```toml
+[dependencies]
+naom = "0.1.0"
+```
+
+أو بديلًا ، عبر سطر الأوامر:
+
+```
+cargo add naom
+```
+
+تشغيل `cargo run --bin main` من استنساخ مستودع سيستعرض حاليًا جميع الأصول الموجودة في النسخة المحلية. لا يتم تصميم NAOM بشكل عام للاستخدام مباشرة ، ولكن من المقصود استخدامه من خلال برامج أخرى تتطلب الوصول إلى بنية بيانات سلسلة الكتل.
 
 ..
 

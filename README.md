@@ -45,8 +45,21 @@ cargo test
 
 ## Use
 
-Running `cargo run --bin main` will currently list all assets on the local instance. NAOM is not generally intended to be
-used directly, and is instead intended to be used from other programs that require access to the blockchain data 
+NAOM can be added to your project as a dependency by adding the following to your `Cargo.toml` file:
+
+```toml
+[dependencies]
+naom = "0.1.0"
+```
+
+Or alternatively, via command line:
+
+```
+cargo add naom
+```
+
+Running `cargo run --bin main` from a repo clone will currently list all assets on the local instance. NAOM is not generally intended to be
+used directly though, and is instead intended to be used from other programs that require access to the blockchain data 
 structure.
 
 ..
