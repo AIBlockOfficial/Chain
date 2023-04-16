@@ -29,8 +29,7 @@ use tracing::{debug, error, info, trace};
 pub fn op_0(stack: &mut Stack) -> bool {
     let (op, desc) = (OP0, OP0_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(ZERO));
-    true
+    stack.push(StackEntry::Num(ZERO))
 }
 
 /// OP_1: Pushes number ONE onto the stack
@@ -43,8 +42,7 @@ pub fn op_0(stack: &mut Stack) -> bool {
 pub fn op_1(stack: &mut Stack) -> bool {
     let (op, desc) = (OP1, OP1_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(ONE));
-    true
+    stack.push(StackEntry::Num(ONE))
 }
 
 /// OP_2: Pushes number TWO onto the stack
@@ -57,8 +55,7 @@ pub fn op_1(stack: &mut Stack) -> bool {
 pub fn op_2(stack: &mut Stack) -> bool {
     let (op, desc) = (OP2, OP2_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(TWO));
-    true
+    stack.push(StackEntry::Num(TWO))
 }
 
 /// OP_3: Pushes number THREE onto the stack
@@ -71,8 +68,7 @@ pub fn op_2(stack: &mut Stack) -> bool {
 pub fn op_3(stack: &mut Stack) -> bool {
     let (op, desc) = (OP3, OP3_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(THREE));
-    true
+    stack.push(StackEntry::Num(THREE))
 }
 
 /// OP_4: Pushes number FOUR onto the stack
@@ -85,8 +81,7 @@ pub fn op_3(stack: &mut Stack) -> bool {
 pub fn op_4(stack: &mut Stack) -> bool {
     let (op, desc) = (OP4, OP4_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(FOUR));
-    true
+    stack.push(StackEntry::Num(FOUR))
 }
 
 /// OP_5: Pushes number FIVE onto the stack
@@ -99,8 +94,7 @@ pub fn op_4(stack: &mut Stack) -> bool {
 pub fn op_5(stack: &mut Stack) -> bool {
     let (op, desc) = (OP5, OP5_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(FIVE));
-    true
+    stack.push(StackEntry::Num(FIVE))
 }
 
 /// OP_6: Pushes number SIX onto the stack
@@ -113,8 +107,7 @@ pub fn op_5(stack: &mut Stack) -> bool {
 pub fn op_6(stack: &mut Stack) -> bool {
     let (op, desc) = (OP6, OP6_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(SIX));
-    true
+    stack.push(StackEntry::Num(SIX))
 }
 
 /// OP_7: Pushes number SEVEN onto the stack
@@ -127,8 +120,7 @@ pub fn op_6(stack: &mut Stack) -> bool {
 pub fn op_7(stack: &mut Stack) -> bool {
     let (op, desc) = (OP7, OP7_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(SEVEN));
-    true
+    stack.push(StackEntry::Num(SEVEN))
 }
 
 /// OP_8: Pushes number EIGHT onto the stack
@@ -141,8 +133,7 @@ pub fn op_7(stack: &mut Stack) -> bool {
 pub fn op_8(stack: &mut Stack) -> bool {
     let (op, desc) = (OP8, OP8_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(EIGHT));
-    true
+    stack.push(StackEntry::Num(EIGHT))
 }
 
 /// OP_9: Pushes number NINE onto the stack
@@ -155,8 +146,7 @@ pub fn op_8(stack: &mut Stack) -> bool {
 pub fn op_9(stack: &mut Stack) -> bool {
     let (op, desc) = (OP9, OP9_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(NINE));
-    true
+    stack.push(StackEntry::Num(NINE))
 }
 
 /// OP_10: Pushes number TEN onto the stack
@@ -169,8 +159,7 @@ pub fn op_9(stack: &mut Stack) -> bool {
 pub fn op_10(stack: &mut Stack) -> bool {
     let (op, desc) = (OP10, OP10_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(TEN));
-    true
+    stack.push(StackEntry::Num(TEN))
 }
 
 /// OP_11: Pushes number ELEVEN onto the stack
@@ -183,8 +172,7 @@ pub fn op_10(stack: &mut Stack) -> bool {
 pub fn op_11(stack: &mut Stack) -> bool {
     let (op, desc) = (OP11, OP11_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(ELEVEN));
-    true
+    stack.push(StackEntry::Num(ELEVEN))
 }
 
 /// OP_12: Pushes number TWELVE onto the stack
@@ -197,8 +185,7 @@ pub fn op_11(stack: &mut Stack) -> bool {
 pub fn op_12(stack: &mut Stack) -> bool {
     let (op, desc) = (OP12, OP12_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(TWELVE));
-    true
+    stack.push(StackEntry::Num(TWELVE))
 }
 
 /// OP_13: Pushes number THIRTEEN onto the stack
@@ -211,8 +198,7 @@ pub fn op_12(stack: &mut Stack) -> bool {
 pub fn op_13(stack: &mut Stack) -> bool {
     let (op, desc) = (OP13, OP13_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(THIRTEEN));
-    true
+    stack.push(StackEntry::Num(THIRTEEN))
 }
 
 /// OP_14: Pushes number FOURTEEN onto the stack
@@ -225,8 +211,7 @@ pub fn op_13(stack: &mut Stack) -> bool {
 pub fn op_14(stack: &mut Stack) -> bool {
     let (op, desc) = (OP14, OP14_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(FOURTEEN));
-    true
+    stack.push(StackEntry::Num(FOURTEEN))
 }
 
 /// OP_15: Pushes number FIFTEEN onto the stack
@@ -239,8 +224,7 @@ pub fn op_14(stack: &mut Stack) -> bool {
 pub fn op_15(stack: &mut Stack) -> bool {
     let (op, desc) = (OP15, OP15_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(FIFTEEN));
-    true
+    stack.push(StackEntry::Num(FIFTEEN))
 }
 
 /// OP_16: Pushes number SIXTEEN onto the stack
@@ -253,8 +237,7 @@ pub fn op_15(stack: &mut Stack) -> bool {
 pub fn op_16(stack: &mut Stack) -> bool {
     let (op, desc) = (OP16, OP16_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(SIXTEEN));
-    true
+    stack.push(StackEntry::Num(SIXTEEN))
 }
 
 /*---- FLOW CONTROL OPS ----*/
@@ -554,8 +537,7 @@ pub fn op_ifdup(stack: &mut Stack) -> bool {
 pub fn op_depth(stack: &mut Stack) -> bool {
     let (op, desc) = (OPDEPTH, OPDEPTH_DESC);
     trace(op, desc);
-    stack.push(StackEntry::Num(stack.main_stack.len()));
-    true
+    stack.push(StackEntry::Num(stack.main_stack.len()))
 }
 
 /// OP_DROP: Removes the top item from the stack
@@ -633,8 +615,7 @@ pub fn op_over(stack: &mut Stack) -> bool {
         return false;
     }
     let x1 = stack.main_stack[len - TWO].clone();
-    stack.push(x1);
-    true
+    stack.push(x1)
 }
 
 /// OP_PICK: Copies the (n+1)th-to-top item to the top of the stack, where n is the top item on the stack
@@ -664,8 +645,7 @@ pub fn op_pick(stack: &mut Stack) -> bool {
         return false;
     }
     let x = stack.main_stack[len - ONE - n].clone();
-    stack.push(x);
-    true
+    stack.push(x)
 }
 
 /// OP_ROLL: Moves the (n+1)th-to-top item to the top of the stack, where n is the top item on the stack
@@ -696,8 +676,7 @@ pub fn op_roll(stack: &mut Stack) -> bool {
     }
     let x = stack.main_stack[len - ONE - n].clone();
     stack.main_stack.remove(len - ONE - n);
-    stack.push(x);
-    true
+    stack.push(x)
 }
 
 /// OP_ROT: Moves the third-to-top item to the top of the stack
