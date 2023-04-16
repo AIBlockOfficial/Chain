@@ -132,8 +132,6 @@ pub enum OpCodes {
 }
 
 impl OpCodes {
-    pub const OP_NOP2: OpCodes = OpCodes::OP_CHECKLOCKTIMEVERIFY;
-    pub const OP_NOP3: OpCodes = OpCodes::OP_CHECKSEQUENCEVERIFY;
     pub const MAX_OPCODE: OpCodes = OpCodes::OP_CREATE;
 }
 
