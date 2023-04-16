@@ -198,112 +198,106 @@ impl Script {
             match stack_entry.clone() {
                 /*---- OPCODE ----*/
                 StackEntry::Op(opcode) => {
-                    
-
-                }
-                // constants
-                StackEntry::Op(OpCodes::OP_0) => test_for_return &= op_0(&mut stack),
-                StackEntry::Op(OpCodes::OP_1) => test_for_return &= op_1(&mut stack),
-                StackEntry::Op(OpCodes::OP_2) => test_for_return &= op_2(&mut stack),
-                StackEntry::Op(OpCodes::OP_3) => test_for_return &= op_3(&mut stack),
-                StackEntry::Op(OpCodes::OP_4) => test_for_return &= op_4(&mut stack),
-                StackEntry::Op(OpCodes::OP_5) => test_for_return &= op_5(&mut stack),
-                StackEntry::Op(OpCodes::OP_6) => test_for_return &= op_6(&mut stack),
-                StackEntry::Op(OpCodes::OP_7) => test_for_return &= op_7(&mut stack),
-                StackEntry::Op(OpCodes::OP_8) => test_for_return &= op_8(&mut stack),
-                StackEntry::Op(OpCodes::OP_9) => test_for_return &= op_9(&mut stack),
-                StackEntry::Op(OpCodes::OP_10) => test_for_return &= op_10(&mut stack),
-                StackEntry::Op(OpCodes::OP_11) => test_for_return &= op_11(&mut stack),
-                StackEntry::Op(OpCodes::OP_12) => test_for_return &= op_12(&mut stack),
-                StackEntry::Op(OpCodes::OP_13) => test_for_return &= op_13(&mut stack),
-                StackEntry::Op(OpCodes::OP_14) => test_for_return &= op_14(&mut stack),
-                StackEntry::Op(OpCodes::OP_15) => test_for_return &= op_15(&mut stack),
-                StackEntry::Op(OpCodes::OP_16) => test_for_return &= op_16(&mut stack),
-                // flow control
-                StackEntry::Op(OpCodes::OP_NOP) => test_for_return &= op_nop(&mut stack),
-                StackEntry::Op(OpCodes::OP_VERIFY) => test_for_return &= op_verify(&mut stack),
-                StackEntry::Op(OpCodes::OP_RETURN) => test_for_return &= op_return(&mut stack),
-                // stack
-                StackEntry::Op(OpCodes::OP_TOALTSTACK) => {
-                    test_for_return &= op_toaltstack(&mut stack)
-                }
-                StackEntry::Op(OpCodes::OP_FROMALTSTACK) => {
-                    test_for_return &= op_fromaltstack(&mut stack)
-                }
-                StackEntry::Op(OpCodes::OP_2DROP) => test_for_return &= op_2drop(&mut stack),
-                StackEntry::Op(OpCodes::OP_2DUP) => test_for_return &= op_2dup(&mut stack),
-                StackEntry::Op(OpCodes::OP_3DUP) => test_for_return &= op_3dup(&mut stack),
-                StackEntry::Op(OpCodes::OP_2OVER) => test_for_return &= op_2over(&mut stack),
-                StackEntry::Op(OpCodes::OP_2ROT) => test_for_return &= op_2rot(&mut stack),
-                StackEntry::Op(OpCodes::OP_2SWAP) => test_for_return &= op_2swap(&mut stack),
-                StackEntry::Op(OpCodes::OP_IFDUP) => test_for_return &= op_ifdup(&mut stack),
-                StackEntry::Op(OpCodes::OP_DEPTH) => test_for_return &= op_depth(&mut stack),
-                StackEntry::Op(OpCodes::OP_DROP) => test_for_return &= op_drop(&mut stack),
-                StackEntry::Op(OpCodes::OP_DUP) => test_for_return &= op_dup(&mut stack),
-                StackEntry::Op(OpCodes::OP_NIP) => test_for_return &= op_nip(&mut stack),
-                StackEntry::Op(OpCodes::OP_OVER) => test_for_return &= op_over(&mut stack),
-                StackEntry::Op(OpCodes::OP_PICK) => test_for_return &= op_pick(&mut stack),
-                StackEntry::Op(OpCodes::OP_ROLL) => test_for_return &= op_roll(&mut stack),
-                StackEntry::Op(OpCodes::OP_ROT) => test_for_return &= op_rot(&mut stack),
-                StackEntry::Op(OpCodes::OP_SWAP) => test_for_return &= op_swap(&mut stack),
-                StackEntry::Op(OpCodes::OP_TUCK) => test_for_return &= op_tuck(&mut stack),
-                // splice
-                StackEntry::Op(OpCodes::OP_SIZE) => test_for_return &= op_size(&mut stack),
-                // bitwise logic
-                StackEntry::Op(OpCodes::OP_EQUAL) => test_for_return &= op_equal(&mut stack),
-                StackEntry::Op(OpCodes::OP_EQUALVERIFY) => {
-                    test_for_return &= op_equalverify(&mut stack)
-                }
-                // arithmetic
-                StackEntry::Op(OpCodes::OP_1ADD) => test_for_return &= op_1add(&mut stack),
-                StackEntry::Op(OpCodes::OP_1SUB) => test_for_return &= op_1sub(&mut stack),
-                StackEntry::Op(OpCodes::OP_NOT) => test_for_return &= op_not(&mut stack),
-                StackEntry::Op(OpCodes::OP_0NOTEQUAL) => {
-                    test_for_return &= op_0notequal(&mut stack)
-                }
-                StackEntry::Op(OpCodes::OP_ADD) => test_for_return &= op_add(&mut stack),
-                StackEntry::Op(OpCodes::OP_SUB) => test_for_return &= op_sub(&mut stack),
-                StackEntry::Op(OpCodes::OP_BOOLAND) => test_for_return &= op_booland(&mut stack),
-                StackEntry::Op(OpCodes::OP_BOOLOR) => test_for_return &= op_boolor(&mut stack),
-                StackEntry::Op(OpCodes::OP_NUMEQUAL) => test_for_return &= op_numequal(&mut stack),
-                StackEntry::Op(OpCodes::OP_NUMEQUALVERIFY) => {
-                    test_for_return &= op_numequalverify(&mut stack)
-                }
-                StackEntry::Op(OpCodes::OP_NUMNOTEQUAL) => {
-                    test_for_return &= op_numnotequal(&mut stack)
-                }
-                StackEntry::Op(OpCodes::OP_LESSTHAN) => test_for_return &= op_lessthan(&mut stack),
-                StackEntry::Op(OpCodes::OP_GREATERTHAN) => {
-                    test_for_return &= op_greaterthan(&mut stack)
-                }
-                StackEntry::Op(OpCodes::OP_LESSTHANOREQUAL) => {
-                    test_for_return &= op_lessthanorequal(&mut stack)
-                }
-                StackEntry::Op(OpCodes::OP_GREATERTHANOREQUAL) => {
-                    test_for_return &= op_greaterthanorequal(&mut stack)
-                }
-                StackEntry::Op(OpCodes::OP_MIN) => test_for_return &= op_min(&mut stack),
-                StackEntry::Op(OpCodes::OP_MAX) => test_for_return &= op_max(&mut stack),
-                StackEntry::Op(OpCodes::OP_WITHIN) => test_for_return &= op_within(&mut stack),
-                StackEntry::Op(OpCodes::OP_CREATE) => (),
-                // crypto
-                StackEntry::Op(OpCodes::OP_SHA3) => test_for_return &= op_sha3(&mut stack),
-                StackEntry::Op(OpCodes::OP_HASH256) => test_for_return &= op_hash256(&mut stack),
-                StackEntry::Op(OpCodes::OP_HASH256_V0) => {
-                    test_for_return &= op_hash256_v0(&mut stack)
-                }
-                StackEntry::Op(OpCodes::OP_HASH256_TEMP) => {
-                    test_for_return &= op_hash256_temp(&mut stack)
-                }
-                StackEntry::Op(OpCodes::OP_CHECKSIG) => test_for_return &= op_checksig(&mut stack),
-                StackEntry::Op(OpCodes::OP_CHECKSIGVERIFY) => {
-                    test_for_return &= op_checksigverify(&mut stack)
-                }
-                StackEntry::Op(OpCodes::OP_CHECKMULTISIG) => {
-                    test_for_return &= op_checkmultisig(&mut stack)
-                }
-                StackEntry::Op(OpCodes::OP_CHECKMULTISIGVERIFY) => {
-                    test_for_return &= op_checkmultisigverify(&mut stack)
+                    if !condition_stack.all_true() && !opcode.is_conditional() {
+                        // skip this opcode if the latest condition check failed
+                        continue;
+                    }
+                    match opcode {
+                        // constants
+                        OpCodes::OP_0 => test_for_return &= op_0(&mut stack),
+                        OpCodes::OP_1 => test_for_return &= op_1(&mut stack),
+                        OpCodes::OP_2 => test_for_return &= op_2(&mut stack),
+                        OpCodes::OP_3 => test_for_return &= op_3(&mut stack),
+                        OpCodes::OP_4 => test_for_return &= op_4(&mut stack),
+                        OpCodes::OP_5 => test_for_return &= op_5(&mut stack),
+                        OpCodes::OP_6 => test_for_return &= op_6(&mut stack),
+                        OpCodes::OP_7 => test_for_return &= op_7(&mut stack),
+                        OpCodes::OP_8 => test_for_return &= op_8(&mut stack),
+                        OpCodes::OP_9 => test_for_return &= op_9(&mut stack),
+                        OpCodes::OP_10 => test_for_return &= op_10(&mut stack),
+                        OpCodes::OP_11 => test_for_return &= op_11(&mut stack),
+                        OpCodes::OP_12 => test_for_return &= op_12(&mut stack),
+                        OpCodes::OP_13 => test_for_return &= op_13(&mut stack),
+                        OpCodes::OP_14 => test_for_return &= op_14(&mut stack),
+                        OpCodes::OP_15 => test_for_return &= op_15(&mut stack),
+                        OpCodes::OP_16 => test_for_return &= op_16(&mut stack),
+                        // flow control
+                        OpCodes::OP_NOP => test_for_return &= op_nop(&mut stack),
+                        OpCodes::OP_VERIFY => test_for_return &= op_verify(&mut stack),
+                        OpCodes::OP_RETURN => test_for_return &= op_return(&mut stack),
+                        // stack
+                        OpCodes::OP_TOALTSTACK => test_for_return &= op_toaltstack(&mut stack),
+                        OpCodes::OP_FROMALTSTACK => test_for_return &= op_fromaltstack(&mut stack),
+                        OpCodes::OP_2DROP => test_for_return &= op_2drop(&mut stack),
+                        OpCodes::OP_2DUP => test_for_return &= op_2dup(&mut stack),
+                        OpCodes::OP_3DUP => test_for_return &= op_3dup(&mut stack),
+                        OpCodes::OP_2OVER => test_for_return &= op_2over(&mut stack),
+                        OpCodes::OP_2ROT => test_for_return &= op_2rot(&mut stack),
+                        OpCodes::OP_2SWAP => test_for_return &= op_2swap(&mut stack),
+                        OpCodes::OP_IFDUP => test_for_return &= op_ifdup(&mut stack),
+                        OpCodes::OP_DEPTH => test_for_return &= op_depth(&mut stack),
+                        OpCodes::OP_DROP => test_for_return &= op_drop(&mut stack),
+                        OpCodes::OP_DUP => test_for_return &= op_dup(&mut stack),
+                        OpCodes::OP_NIP => test_for_return &= op_nip(&mut stack),
+                        OpCodes::OP_OVER => test_for_return &= op_over(&mut stack),
+                        OpCodes::OP_PICK => test_for_return &= op_pick(&mut stack),
+                        OpCodes::OP_ROLL => test_for_return &= op_roll(&mut stack),
+                        OpCodes::OP_ROT => test_for_return &= op_rot(&mut stack),
+                        OpCodes::OP_SWAP => test_for_return &= op_swap(&mut stack),
+                        OpCodes::OP_TUCK => test_for_return &= op_tuck(&mut stack),
+                        // splice
+                        OpCodes::OP_SIZE => test_for_return &= op_size(&mut stack),
+                        // bitwise logic
+                        OpCodes::OP_EQUAL => test_for_return &= op_equal(&mut stack),
+                        OpCodes::OP_EQUALVERIFY => test_for_return &= op_equalverify(&mut stack),
+                        // arithmetic
+                        OpCodes::OP_1ADD => test_for_return &= op_1add(&mut stack),
+                        OpCodes::OP_1SUB => test_for_return &= op_1sub(&mut stack),
+                        OpCodes::OP_NOT => test_for_return &= op_not(&mut stack),
+                        OpCodes::OP_0NOTEQUAL => test_for_return &= op_0notequal(&mut stack),
+                        OpCodes::OP_ADD => test_for_return &= op_add(&mut stack),
+                        OpCodes::OP_SUB => test_for_return &= op_sub(&mut stack),
+                        OpCodes::OP_BOOLAND => test_for_return &= op_booland(&mut stack),
+                        OpCodes::OP_BOOLOR => test_for_return &= op_boolor(&mut stack),
+                        OpCodes::OP_NUMEQUAL => test_for_return &= op_numequal(&mut stack),
+                        OpCodes::OP_NUMEQUALVERIFY => {
+                            test_for_return &= op_numequalverify(&mut stack)
+                        }
+                        OpCodes::OP_NUMNOTEQUAL => test_for_return &= op_numnotequal(&mut stack),
+                        OpCodes::OP_LESSTHAN => test_for_return &= op_lessthan(&mut stack),
+                        OpCodes::OP_GREATERTHAN => test_for_return &= op_greaterthan(&mut stack),
+                        OpCodes::OP_LESSTHANOREQUAL => {
+                            test_for_return &= op_lessthanorequal(&mut stack)
+                        }
+                        OpCodes::OP_GREATERTHANOREQUAL => {
+                            test_for_return &= op_greaterthanorequal(&mut stack)
+                        }
+                        OpCodes::OP_MIN => test_for_return &= op_min(&mut stack),
+                        OpCodes::OP_MAX => test_for_return &= op_max(&mut stack),
+                        OpCodes::OP_WITHIN => test_for_return &= op_within(&mut stack),
+                        // crypto
+                        OpCodes::OP_SHA3 => test_for_return &= op_sha3(&mut stack),
+                        OpCodes::OP_HASH256 => test_for_return &= op_hash256(&mut stack),
+                        OpCodes::OP_HASH256_V0 => test_for_return &= op_hash256_v0(&mut stack),
+                        OpCodes::OP_HASH256_TEMP => test_for_return &= op_hash256_temp(&mut stack),
+                        OpCodes::OP_CHECKSIG => test_for_return &= op_checksig(&mut stack),
+                        OpCodes::OP_CHECKSIGVERIFY => {
+                            test_for_return &= op_checksigverify(&mut stack)
+                        }
+                        OpCodes::OP_CHECKMULTISIG => {
+                            test_for_return &= op_checkmultisig(&mut stack)
+                        }
+                        OpCodes::OP_CHECKMULTISIGVERIFY => {
+                            test_for_return &= op_checkmultisigverify(&mut stack)
+                        }
+                        // smart data
+                        OpCodes::OP_CREATE => (),
+                        // invalid opcode
+                        _ => {
+                            error_invalid_opcode();
+                            return false;
+                        }
+                    }
                 }
                 /*---- SIGNATURE | PUBKEY | PUBKEYHASH | NUM | BYTES ----*/
                 StackEntry::Signature(_)
@@ -314,11 +308,6 @@ impl Script {
                     if condition_stack.all_true() {
                         test_for_return &= stack.push(stack_entry.clone())
                     }
-                }
-                /*---- INVALID OPCODE ----*/
-                _ => {
-                    error_invalid_opcode();
-                    return false;
                 }
             }
             if !test_for_return || !stack.is_valid() {

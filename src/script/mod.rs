@@ -133,6 +133,13 @@ pub enum OpCodes {
 
 impl OpCodes {
     pub const MAX_OPCODE: OpCodes = OpCodes::OP_CREATE;
+
+    pub fn is_conditional(&self) -> bool {
+        match self {
+            OpCodes::OP_IF | OpCodes::OP_NOTIF | OpCodes::OP_ELSE | OpCodes::OP_ENDIF => true,
+            _ => false,
+        }
+    }
 }
 
 // Allows for string casting
