@@ -195,8 +195,12 @@ impl Script {
         let mut condition_stack = ConditionStack::new();
         let mut test_for_return = true;
         for stack_entry in &self.stack {
-            match stack_entry {
+            match stack_entry.clone() {
                 /*---- OPCODE ----*/
+                StackEntry::Op(opcode) => {
+                    
+
+                }
                 // constants
                 StackEntry::Op(OpCodes::OP_0) => test_for_return &= op_0(&mut stack),
                 StackEntry::Op(OpCodes::OP_1) => test_for_return &= op_1(&mut stack),
@@ -306,7 +310,11 @@ impl Script {
                 | StackEntry::PubKey(_)
                 | StackEntry::PubKeyHash(_)
                 | StackEntry::Num(_)
-                | StackEntry::Bytes(_) => test_for_return &= stack.push(stack_entry.clone()),
+                | StackEntry::Bytes(_) => {
+                    if condition_stack.all_true() {
+                        test_for_return &= stack.push(stack_entry.clone())
+                    }
+                }
                 /*---- INVALID OPCODE ----*/
                 _ => {
                     error_invalid_opcode();
