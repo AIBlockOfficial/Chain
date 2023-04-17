@@ -199,7 +199,7 @@ impl Script {
                 /*---- OPCODE ----*/
                 StackEntry::Op(opcode) => {
                     if !condition_stack.all_true() && !opcode.is_conditional() {
-                        // skip this opcode if the latest condition check failed
+                        // skip opcode if latest condition check failed
                         continue;
                     }
                     match opcode {
@@ -223,6 +223,10 @@ impl Script {
                         OpCodes::OP_16 => test_for_return &= op_16(&mut stack),
                         // flow control
                         OpCodes::OP_NOP => test_for_return &= op_nop(&mut stack),
+                        OpCodes::OP_IF => test_for_return &= op_if(&mut stack),
+                        OpCodes::OP_NOTIF => test_for_return &= op_notif(&mut stack),
+                        OpCodes::OP_ELSE => test_for_return &= op_else(&mut stack),
+                        OpCodes::OP_ENDIF => test_for_return &= op_endif(&mut stack),
                         OpCodes::OP_VERIFY => test_for_return &= op_verify(&mut stack),
                         OpCodes::OP_RETURN => test_for_return &= op_return(&mut stack),
                         // stack
@@ -289,6 +293,13 @@ impl Script {
                         }
                         OpCodes::OP_CHECKMULTISIGVERIFY => {
                             test_for_return &= op_checkmultisigverify(&mut stack)
+                        }
+                        // locktime
+                        OpCodes::OP_CHECKLOCKTIMEVERIFY => {
+                            test_for_return &= op_checklocktimeverify(&mut stack)
+                        }
+                        OpCodes::OP_CHECKSEQUENCEVERIFY => {
+                            test_for_return &= op_checksequenceverify(&mut stack)
                         }
                         // smart data
                         OpCodes::OP_CREATE => (),

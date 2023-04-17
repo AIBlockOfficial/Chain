@@ -310,6 +310,15 @@ pub const OPCHECKMULTISIG_DESC: &str =
     "Pushes ONE onto the stack if the m-of-n multi-signature is valid, ZERO otherwise";
 pub const OPCHECKMULTISIGVERIFY_DESC: &str = "Runs OP_CHECKMULTISIG and OP_VERIFY in sequence";
 
+// locktime
+pub const OPCHECKLOCKTIMEVERIFY: &str = "OP_CHECKLOCKTIMEVERIFY";
+pub const OPCHECKSEQUENCEVERIFY : &str = "OP_CHECKSEQUENCEVERIFY";
+
+pub const OPCHECKLOCKTIMEVERIFY_DESC: &str =
+    "Checks absolute locktime of the transaction";
+pub const OPCHECKSEQUENCEVERIFY_DESC: &str =
+    "Checks relative locktime of the transaction";
+
 /*------- ERROR MESSAGES -------*/
 
 // opcodes
