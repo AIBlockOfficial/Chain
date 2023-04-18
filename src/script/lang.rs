@@ -536,3 +536,151 @@ impl From<Vec<StackEntry>> for Script {
         Script { stack: script }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_valid_script() {
+        // empty script
+        let mut script = Script::new();
+        assert!(script.is_valid());
+        // OP_0
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_0));
+        assert!(script.is_valid());
+        // OP_1
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        assert!(script.is_valid());
+        // OP_1 OP_2 OP_ADD OP_3 OP_EQUAL
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        script.stack.push(StackEntry::Op(OpCodes::OP_2));
+        script.stack.push(StackEntry::Op(OpCodes::OP_ADD));
+        script.stack.push(StackEntry::Op(OpCodes::OP_3));
+        script.stack.push(StackEntry::Op(OpCodes::OP_EQUAL));
+        assert!(script.is_valid());
+        // script length <= 10000 bytes
+        let mut script = Script::new();
+        let s = "a".repeat(500);
+        for _ in 0..20 {
+            script.stack.push(StackEntry::Bytes(s.clone()));
+        }
+        assert!(script.is_valid());
+        // script length > 10000 bytes
+        let mut script = Script::new();
+        let mut s = String::new();
+        let s = "a".repeat(501);
+        for _ in 0..20 {
+            script.stack.push(StackEntry::Bytes(s.clone()));
+        }
+        assert!(!script.is_valid());
+        // # opcodes <= 201
+        let mut script = Script::new();
+        for _ in 0..MAX_OPS_PER_SCRIPT {
+            script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        }
+        assert!(script.is_valid());
+        // # opcodes > 201
+        let mut script = Script::new();
+        for _ in 0..=MAX_OPS_PER_SCRIPT {
+            script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        }
+        assert!(!script.is_valid());
+    }
+
+    #[test]
+    fn test_is_valid_stack() {
+        // empty stack
+        let mut stack = Stack::new();
+        assert!(stack.is_valid());
+        // # items on interpreter stack <= 1000
+        let mut stack = Stack::new();
+        for _ in 0..MAX_STACK_SIZE {
+            stack.push(StackEntry::Num(1));
+        }
+        assert!(stack.is_valid());
+        // # items on interpreter stack > 1000
+        let mut stack = Stack::new();
+        for _ in 0..=MAX_STACK_SIZE {
+            stack.push(StackEntry::Num(1));
+        }
+        assert!(!stack.is_valid());
+        // # items on interpreter stack and interpreter alt stack > 1000
+        let mut stack = Stack::new();
+        for _ in 0..500 {
+            stack.push(StackEntry::Num(1));
+        }
+        for _ in 0..501 {
+            stack.push(StackEntry::Num(1));
+        }
+        assert!(!stack.is_valid());
+    }
+
+    #[test]
+    fn test_interpret_script() {
+        // empty script
+        let mut script = Script::new();
+        assert!(script.interpret());
+        // OP_0
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_0));
+        assert!(!script.interpret());
+        // OP_1
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        assert!(script.interpret());
+        // OP_1 OP_2 OP_ADD OP_3 OP_EQUAL
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        script.stack.push(StackEntry::Op(OpCodes::OP_2));
+        script.stack.push(StackEntry::Op(OpCodes::OP_ADD));
+        script.stack.push(StackEntry::Op(OpCodes::OP_3));
+        script.stack.push(StackEntry::Op(OpCodes::OP_EQUAL));
+        assert!(script.interpret());
+        // script length <= 10000 bytes
+        let mut script = Script::new();
+        let s = "a".repeat(500);
+        for _ in 0..20 {
+            script.stack.push(StackEntry::Bytes(s.clone()));
+        }
+        // script length > 10000 bytes
+        let mut script = Script::new();
+        let mut s = String::new();
+        for _ in 0..501 {
+            s.push('a');
+        }
+        for _ in 0..20 {
+            script.stack.push(StackEntry::Bytes(s.clone()));
+        }
+        assert!(!script.interpret());
+        // # opcodes <= 201
+        let mut script = Script::new();
+        for _ in 0..MAX_OPS_PER_SCRIPT {
+            script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        }
+        // # opcodes > 201
+        let mut script = Script::new();
+        for _ in 0..=MAX_OPS_PER_SCRIPT {
+            script.stack.push(StackEntry::Op(OpCodes::OP_1));
+        }
+        assert!(!script.interpret());
+        // # items on interpreter stack <= 1000
+        let mut script = Script::new();
+        for _ in 0..MAX_STACK_SIZE {
+            script.stack.push(StackEntry::Num(1));
+        }
+        assert!(script.interpret());
+        // # items on interpreter stack > 1000
+        let mut script = Script::new();
+        for _ in 0..=MAX_STACK_SIZE {
+            script.stack.push(StackEntry::Num(1));
+        }
+        // invalid opcode
+        let mut script = Script::new();
+        script.stack.push(StackEntry::Op(OpCodes::OP_CAT));
+        assert!(!script.interpret());
+    }
+}
