@@ -11,6 +11,10 @@ pub fn trace(op: &str, desc: &str) {
 
 // opcodes
 
+pub fn error_empty_condition(op: &str) {
+    error!("{op}: {ERROR_EMPTY_CONDITION}")
+}
+
 pub fn error_verify(op: &str) {
     error!("{op}: {ERROR_VERIFY}")
 }

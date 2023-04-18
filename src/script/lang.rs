@@ -120,7 +120,7 @@ impl ConditionStack {
         if self.first_false_pos.is_none() && !cond {
             self.first_false_pos = Some(self.size);
         }
-        self.size += 1;
+        self.size += ONE;
     }
 
     /// Pops the top value from the condition stack
@@ -207,12 +207,12 @@ impl Script {
         for stack_entry in &self.stack {
             match stack_entry.clone() {
                 /*---- OPCODE ----*/
-                StackEntry::Op(opcode) => {
-                    if !condition_stack.all_true() && !opcode.is_conditional() {
+                StackEntry::Op(op) => {
+                    if !condition_stack.all_true() && !op.is_conditional() {
                         // skip opcode if latest condition check failed
                         continue;
                     }
-                    match opcode {
+                    match op {
                         // constants
                         OpCodes::OP_0 => test_for_return &= op_0(&mut stack),
                         OpCodes::OP_1 => test_for_return &= op_1(&mut stack),
@@ -233,10 +233,10 @@ impl Script {
                         OpCodes::OP_16 => test_for_return &= op_16(&mut stack),
                         // flow control
                         OpCodes::OP_NOP => test_for_return &= op_nop(&mut stack),
-                        OpCodes::OP_IF => test_for_return &= op_if(&mut stack),
-                        OpCodes::OP_NOTIF => test_for_return &= op_notif(&mut stack),
-                        OpCodes::OP_ELSE => test_for_return &= op_else(&mut stack),
-                        OpCodes::OP_ENDIF => test_for_return &= op_endif(&mut stack),
+                        OpCodes::OP_IF => test_for_return &= op_if(&mut stack, &mut condition_stack),
+                        OpCodes::OP_NOTIF => test_for_return &= op_notif(&mut stack, &mut condition_stack),
+                        OpCodes::OP_ELSE => test_for_return &= op_else(&mut condition_stack),
+                        OpCodes::OP_ENDIF => test_for_return &= op_endif(&mut condition_stack),
                         OpCodes::OP_VERIFY => test_for_return &= op_verify(&mut stack),
                         OpCodes::OP_RETURN => test_for_return &= op_return(&mut stack),
                         // stack

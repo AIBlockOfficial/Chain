@@ -17,6 +17,8 @@ use hex::encode;
 use std::collections::BTreeMap;
 use tracing::{debug, error, info, trace};
 
+use super::lang::ConditionStack;
+
 /*---- CONSTANTS OPS ----*/
 
 /// OP_0: Pushes number ZERO onto the stack
@@ -259,10 +261,27 @@ pub fn op_nop(stack: &mut Stack) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `stack`  - mutable reference to the stack
-pub fn op_if(stack: &mut Stack) -> bool {
+/// * `condition_stack`  - mutable reference to the condition stack
+pub fn op_if(stack: &mut Stack, condition_stack: &mut ConditionStack) -> bool {
     let (op, desc) = (OPIF, OPIF_DESC);
     trace(op, desc);
+    let cond_val = if condition_stack.all_true() {
+        let n = match stack.pop() {
+            Some(StackEntry::Num(n)) => n,
+            Some(_) => {
+                error_item_type(op);
+                return false;
+            }
+            _ => {
+                error_num_items(op);
+                return false;
+            }
+        };
+        n != ZERO
+    } else {
+        false
+    };
+    condition_stack.push(cond_val);
     true
 }
 
@@ -270,10 +289,27 @@ pub fn op_if(stack: &mut Stack) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `stack`  - mutable reference to the stack
-pub fn op_notif(stack: &mut Stack) -> bool {
+/// * `condition_stack`  - mutable reference to the condition stack
+pub fn op_notif(stack: &mut Stack, condition_stack: &mut ConditionStack) -> bool {
     let (op, desc) = (OPNOTIF, OPNOTIF_DESC);
     trace(op, desc);
+    let cond_val = if condition_stack.all_true() {
+        let n = match stack.pop() {
+            Some(StackEntry::Num(n)) => n,
+            Some(_) => {
+                error_item_type(op);
+                return false;
+            }
+            _ => {
+                error_num_items(op);
+                return false;
+            }
+        };
+        n == ZERO
+    } else {
+        false
+    };
+    condition_stack.push(cond_val);
     true
 }
 
@@ -281,10 +317,15 @@ pub fn op_notif(stack: &mut Stack) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `stack`  - mutable reference to the stack
-pub fn op_else(stack: &mut Stack) -> bool {
+/// * `condition_stack`  - mutable reference to the condition stack
+pub fn op_else(condition_stack: &mut ConditionStack) -> bool {
     let (op, desc) = (OPELSE, OPELSE_DESC);
     trace(op, desc);
+    if condition_stack.is_empty() {
+        error_empty_condition(op);
+        return false;
+    }
+    condition_stack.toggle();
     true
 }
 
@@ -292,10 +333,15 @@ pub fn op_else(stack: &mut Stack) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `stack`  - mutable reference to the stack
-pub fn op_endif(stack: &mut Stack) -> bool {
+/// * `condition_stack`  - mutable reference to the condition stack
+pub fn op_endif(condition_stack: &mut ConditionStack) -> bool {
     let (op, desc) = (OPENDIF, OPENDIF_DESC);
     trace(op, desc);
+    if condition_stack.is_empty() {
+        error_empty_condition(op);
+        return false;
+    }
+    condition_stack.pop();
     true
 }
 

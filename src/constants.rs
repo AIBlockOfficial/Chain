@@ -320,6 +320,7 @@ pub const OPCHECKSEQUENCEVERIFY_DESC: &str = "Checks relative locktime of a tran
 /*------- ERROR MESSAGES -------*/
 
 // opcodes
+pub const ERROR_EMPTY_CONDITION: &str = "Condition stack is empty";
 pub const ERROR_VERIFY: &str = "The top item on the stack is ZERO";
 pub const ERROR_RETURN: &str = "OP_RETURN executed";
 pub const ERROR_NUM_ITEMS: &str = "Not enough items on the stack";
