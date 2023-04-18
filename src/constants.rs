@@ -312,12 +312,10 @@ pub const OPCHECKMULTISIGVERIFY_DESC: &str = "Runs OP_CHECKMULTISIG and OP_VERIF
 
 // locktime
 pub const OPCHECKLOCKTIMEVERIFY: &str = "OP_CHECKLOCKTIMEVERIFY";
-pub const OPCHECKSEQUENCEVERIFY : &str = "OP_CHECKSEQUENCEVERIFY";
+pub const OPCHECKSEQUENCEVERIFY: &str = "OP_CHECKSEQUENCEVERIFY";
 
-pub const OPCHECKLOCKTIMEVERIFY_DESC: &str =
-    "Checks absolute locktime of the transaction";
-pub const OPCHECKSEQUENCEVERIFY_DESC: &str =
-    "Checks relative locktime of the transaction";
+pub const OPCHECKLOCKTIMEVERIFY_DESC: &str = "Checks absolute locktime of a transaction";
+pub const OPCHECKSEQUENCEVERIFY_DESC: &str = "Checks relative locktime of a transaction";
 
 /*------- ERROR MESSAGES -------*/
 

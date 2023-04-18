@@ -43,10 +43,10 @@ pub enum OpCodes {
 
     // flow control
     OP_NOP = 0x61,
-    OP_IF = 0x63,    // TODO
-    OP_NOTIF = 0x64, // TODO
-    OP_ELSE = 0x67,  // TODO
-    OP_ENDIF = 0x68, // TODO
+    OP_IF = 0x63,
+    OP_NOTIF = 0x64,
+    OP_ELSE = 0x67,
+    OP_ENDIF = 0x68,
     OP_VERIFY = 0x69,
     OP_RETURN = 0x6a,
 
@@ -134,15 +134,16 @@ pub enum OpCodes {
 impl OpCodes {
     pub const MAX_OPCODE: OpCodes = OpCodes::OP_CREATE;
 
+    /// Returns true if the opcode is a conditional
     pub fn is_conditional(&self) -> bool {
-        match self {
-            OpCodes::OP_IF | OpCodes::OP_NOTIF | OpCodes::OP_ELSE | OpCodes::OP_ENDIF => true,
-            _ => false,
-        }
+        matches!(
+            self,
+            OpCodes::OP_IF | OpCodes::OP_NOTIF | OpCodes::OP_ELSE | OpCodes::OP_ENDIF
+        )
     }
 }
 
-// Allows for string casting
+/// Allows for string casting
 impl fmt::Display for OpCodes {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{self:?}")

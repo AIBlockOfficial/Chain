@@ -73,6 +73,16 @@ impl Stack {
     }
 }
 
+impl From<Vec<StackEntry>> for Stack {
+    /// Creates a new stack with a pre-filled main stack
+    fn from(stack: Vec<StackEntry>) -> Self {
+        Stack {
+            main_stack: stack,
+            alt_stack: Vec::with_capacity(MAX_STACK_SIZE as usize),
+        }
+    }
+}
+
 /// Stack for conditionals
 #[derive(Clone, Debug, PartialOrd, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ConditionStack {
