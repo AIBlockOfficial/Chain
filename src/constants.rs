@@ -128,7 +128,7 @@ pub const OP14_DESC: &str = "Pushes number FOURTEEN onto the stack";
 pub const OP15_DESC: &str = "Pushes number FIFTEEN onto the stack";
 pub const OP16_DESC: &str = "Pushes number SIXTEEN onto the stack";
 
-// control flow
+// flow control
 pub const OPNOP: &str = "OP_NOP";
 pub const OPIF: &str = "OP_IF";
 pub const OPNOTIF: &str = "OP_NOTIF";

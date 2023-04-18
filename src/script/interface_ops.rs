@@ -261,11 +261,11 @@ pub fn op_nop(stack: &mut Stack) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `condition_stack`  - mutable reference to the condition stack
-pub fn op_if(stack: &mut Stack, condition_stack: &mut ConditionStack) -> bool {
+/// * `cond_stack`  - mutable reference to the condition stack
+pub fn op_if(stack: &mut Stack, cond_stack: &mut ConditionStack) -> bool {
     let (op, desc) = (OPIF, OPIF_DESC);
     trace(op, desc);
-    let cond_val = if condition_stack.all_true() {
+    let cond_val = if cond_stack.all_true() {
         let n = match stack.pop() {
             Some(StackEntry::Num(n)) => n,
             Some(_) => {
@@ -281,7 +281,7 @@ pub fn op_if(stack: &mut Stack, condition_stack: &mut ConditionStack) -> bool {
     } else {
         false
     };
-    condition_stack.push(cond_val);
+    cond_stack.push(cond_val);
     true
 }
 
@@ -289,11 +289,11 @@ pub fn op_if(stack: &mut Stack, condition_stack: &mut ConditionStack) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `condition_stack`  - mutable reference to the condition stack
-pub fn op_notif(stack: &mut Stack, condition_stack: &mut ConditionStack) -> bool {
+/// * `cond_stack`  - mutable reference to the condition stack
+pub fn op_notif(stack: &mut Stack, cond_stack: &mut ConditionStack) -> bool {
     let (op, desc) = (OPNOTIF, OPNOTIF_DESC);
     trace(op, desc);
-    let cond_val = if condition_stack.all_true() {
+    let cond_val = if cond_stack.all_true() {
         let n = match stack.pop() {
             Some(StackEntry::Num(n)) => n,
             Some(_) => {
@@ -309,7 +309,7 @@ pub fn op_notif(stack: &mut Stack, condition_stack: &mut ConditionStack) -> bool
     } else {
         false
     };
-    condition_stack.push(cond_val);
+    cond_stack.push(cond_val);
     true
 }
 
@@ -317,15 +317,15 @@ pub fn op_notif(stack: &mut Stack, condition_stack: &mut ConditionStack) -> bool
 ///
 /// ### Arguments
 ///
-/// * `condition_stack`  - mutable reference to the condition stack
-pub fn op_else(condition_stack: &mut ConditionStack) -> bool {
+/// * `cond_stack`  - mutable reference to the condition stack
+pub fn op_else(cond_stack: &mut ConditionStack) -> bool {
     let (op, desc) = (OPELSE, OPELSE_DESC);
     trace(op, desc);
-    if condition_stack.is_empty() {
+    if cond_stack.is_empty() {
         error_empty_condition(op);
         return false;
     }
-    condition_stack.toggle();
+    cond_stack.toggle();
     true
 }
 
@@ -333,15 +333,15 @@ pub fn op_else(condition_stack: &mut ConditionStack) -> bool {
 ///
 /// ### Arguments
 ///
-/// * `condition_stack`  - mutable reference to the condition stack
-pub fn op_endif(condition_stack: &mut ConditionStack) -> bool {
+/// * `cond_stack`  - mutable reference to the condition stack
+pub fn op_endif(cond_stack: &mut ConditionStack) -> bool {
     let (op, desc) = (OPENDIF, OPENDIF_DESC);
     trace(op, desc);
-    if condition_stack.is_empty() {
+    if cond_stack.is_empty() {
         error_empty_condition(op);
         return false;
     }
-    condition_stack.pop();
+    cond_stack.pop();
     true
 }
 
@@ -2746,6 +2746,156 @@ mod tests {
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
         op_nop(&mut stack);
         assert_eq!(stack.main_stack, v)
+    }
+
+    #[test]
+    /// Test OP_IF
+    fn test_if() {
+        /// op_if([1], {0,None}) -> [], {1,None}
+        let mut stack = Stack::new();
+        stack.push(StackEntry::Num(1));
+        let mut cond_stack = ConditionStack::new();
+        let mut v: Vec<StackEntry> = vec![];
+        op_if(&mut stack, &mut cond_stack);
+        assert_eq!(stack.main_stack, v);
+        assert_eq!(cond_stack.size, 1);
+        assert_eq!(cond_stack.first_false_pos, None);
+        /// op_if([0], {0,None}) -> [], {1,0}
+        let mut stack = Stack::new();
+        stack.push(StackEntry::Num(0));
+        let mut cond_stack = ConditionStack::new();
+        let mut v: Vec<StackEntry> = vec![];
+        op_if(&mut stack, &mut cond_stack);
+        assert_eq!(stack.main_stack, v);
+        assert_eq!(cond_stack.size, 1);
+        assert_eq!(cond_stack.first_false_pos, Some(0));
+        /// op_if([1], {1,0}) -> [1], {2,0}
+        let mut stack = Stack::new();
+        stack.push(StackEntry::Num(1));
+        let mut cond_stack = ConditionStack::new();
+        cond_stack.size = 1;
+        cond_stack.first_false_pos = Some(0);
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        op_if(&mut stack, &mut cond_stack);
+        assert_eq!(stack.main_stack, v);
+        assert_eq!(cond_stack.size, 2);
+        assert_eq!(cond_stack.first_false_pos, Some(0));
+        /// error item type
+        let mut stack = Stack::new();
+        stack.push(StackEntry::Bytes(String::new()));
+        let mut cond_stack = ConditionStack::new();
+        let b = op_if(&mut stack, &mut cond_stack);
+        assert!(!b);
+        /// error num items
+        let mut stack = Stack::new();
+        let mut cond_stack = ConditionStack::new();
+        let b = op_if(&mut stack, &mut cond_stack);
+        assert!(!b)
+    }
+
+    #[test]
+    /// Test OP_NOTIF
+    fn test_notif() {
+        /// op_notif([0], {0,None}) -> [], {1,None}
+        let mut stack = Stack::new();
+        stack.push(StackEntry::Num(0));
+        let mut cond_stack = ConditionStack::new();
+        let mut v: Vec<StackEntry> = vec![];
+        op_notif(&mut stack, &mut cond_stack);
+        assert_eq!(stack.main_stack, v);
+        assert_eq!(cond_stack.size, 1);
+        assert_eq!(cond_stack.first_false_pos, None);
+        /// op_notif([1], {0,None}) -> [], {1,0}
+        let mut stack = Stack::new();
+        stack.push(StackEntry::Num(1));
+        let mut cond_stack = ConditionStack::new();
+        let mut v: Vec<StackEntry> = vec![];
+        op_notif(&mut stack, &mut cond_stack);
+        assert_eq!(stack.main_stack, v);
+        assert_eq!(cond_stack.size, 1);
+        assert_eq!(cond_stack.first_false_pos, Some(0));
+        /// op_notif([0], {1,0}) -> [0], {2,0}
+        let mut stack = Stack::new();
+        stack.push(StackEntry::Num(0));
+        let mut cond_stack = ConditionStack::new();
+        cond_stack.size = 1;
+        cond_stack.first_false_pos = Some(0);
+        let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
+        op_notif(&mut stack, &mut cond_stack);
+        assert_eq!(stack.main_stack, v);
+        assert_eq!(cond_stack.size, 2);
+        assert_eq!(cond_stack.first_false_pos, Some(0));
+        /// error item type
+        let mut stack = Stack::new();
+        stack.push(StackEntry::Bytes(String::new()));
+        let mut cond_stack = ConditionStack::new();
+        let b = op_notif(&mut stack, &mut cond_stack);
+        assert!(!b);
+        /// error num items
+        let mut stack = Stack::new();
+        let mut cond_stack = ConditionStack::new();
+        let b = op_notif(&mut stack, &mut cond_stack);
+        assert!(!b)
+    }
+
+    #[test]
+    /// Test OP_ELSE
+    fn test_else() {
+        /// op_else({1,None}) -> {1,0}
+        let mut cond_stack = ConditionStack::new();
+        cond_stack.size = 1;
+        cond_stack.first_false_pos = None;
+        op_else(&mut cond_stack);
+        assert_eq!(cond_stack.size, 1);
+        assert_eq!(cond_stack.first_false_pos, Some(0));
+        /// op_else({1,0}) -> {1,None}
+        let mut cond_stack = ConditionStack::new();
+        cond_stack.size = 1;
+        cond_stack.first_false_pos = Some(0);
+        op_else(&mut cond_stack);
+        assert_eq!(cond_stack.size, 1);
+        assert_eq!(cond_stack.first_false_pos, None);
+        /// op_else({2,0}) -> {2,0}
+        let mut cond_stack = ConditionStack::new();
+        cond_stack.size = 2;
+        cond_stack.first_false_pos = Some(0);
+        op_else(&mut cond_stack);
+        assert_eq!(cond_stack.size, 2);
+        assert_eq!(cond_stack.first_false_pos, Some(0));
+        /// empty condition stack
+        let mut cond_stack = ConditionStack::new();
+        let b = op_else(&mut cond_stack);
+        assert!(!b)
+    }
+
+    #[test]
+    /// Test OP_ENDIF
+    fn test_endif() {
+        /// op_endif({1,None}) -> {0,None}
+        let mut cond_stack = ConditionStack::new();
+        cond_stack.size = 1;
+        cond_stack.first_false_pos = None;
+        op_endif(&mut cond_stack);
+        assert_eq!(cond_stack.size, 0);
+        assert_eq!(cond_stack.first_false_pos, None);
+        /// op_endif({1,0}) -> {0,None}
+        let mut cond_stack = ConditionStack::new();
+        cond_stack.size = 1;
+        cond_stack.first_false_pos = Some(0);
+        op_endif(&mut cond_stack);
+        assert_eq!(cond_stack.size, 0);
+        assert_eq!(cond_stack.first_false_pos, None);
+        /// op_endif({2,0}) -> {1,0}
+        let mut cond_stack = ConditionStack::new();
+        cond_stack.size = 2;
+        cond_stack.first_false_pos = Some(0);
+        op_endif(&mut cond_stack);
+        assert_eq!(cond_stack.size, 1);
+        assert_eq!(cond_stack.first_false_pos, Some(0));
+        /// empty condition stack
+        let mut cond_stack = ConditionStack::new();
+        let b = op_endif(&mut cond_stack);
+        assert!(!b)
     }
 
     #[test]

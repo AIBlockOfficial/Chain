@@ -125,7 +125,6 @@ impl ConditionStack {
 
     /// Pops the top value from the condition stack
     pub fn pop(&mut self) {
-        assert!(self.size > ZERO, "Condition stack is empty");
         self.size -= ONE;
         if let Some(pos) = self.first_false_pos {
             if pos == self.size {
@@ -136,7 +135,6 @@ impl ConditionStack {
 
     /// Toggles the top value on the condition stack
     pub fn toggle(&mut self) {
-        assert!(self.size > ZERO, "Condition stack is empty");
         match self.first_false_pos {
             Some(pos) => {
                 if pos == self.size - ONE {
@@ -202,13 +200,13 @@ impl Script {
             return false;
         }
         let mut stack = Stack::new();
-        let mut condition_stack = ConditionStack::new();
+        let mut cond_stack = ConditionStack::new();
         let mut test_for_return = true;
         for stack_entry in &self.stack {
             match stack_entry.clone() {
                 /*---- OPCODE ----*/
                 StackEntry::Op(op) => {
-                    if !condition_stack.all_true() && !op.is_conditional() {
+                    if !cond_stack.all_true() && !op.is_conditional() {
                         // skip opcode if latest condition check failed
                         continue;
                     }
@@ -233,10 +231,12 @@ impl Script {
                         OpCodes::OP_16 => test_for_return &= op_16(&mut stack),
                         // flow control
                         OpCodes::OP_NOP => test_for_return &= op_nop(&mut stack),
-                        OpCodes::OP_IF => test_for_return &= op_if(&mut stack, &mut condition_stack),
-                        OpCodes::OP_NOTIF => test_for_return &= op_notif(&mut stack, &mut condition_stack),
-                        OpCodes::OP_ELSE => test_for_return &= op_else(&mut condition_stack),
-                        OpCodes::OP_ENDIF => test_for_return &= op_endif(&mut condition_stack),
+                        OpCodes::OP_IF => test_for_return &= op_if(&mut stack, &mut cond_stack),
+                        OpCodes::OP_NOTIF => {
+                            test_for_return &= op_notif(&mut stack, &mut cond_stack)
+                        }
+                        OpCodes::OP_ELSE => test_for_return &= op_else(&mut cond_stack),
+                        OpCodes::OP_ENDIF => test_for_return &= op_endif(&mut cond_stack),
                         OpCodes::OP_VERIFY => test_for_return &= op_verify(&mut stack),
                         OpCodes::OP_RETURN => test_for_return &= op_return(&mut stack),
                         // stack
@@ -326,7 +326,7 @@ impl Script {
                 | StackEntry::PubKeyHash(_)
                 | StackEntry::Num(_)
                 | StackEntry::Bytes(_) => {
-                    if condition_stack.all_true() {
+                    if cond_stack.all_true() {
                         test_for_return &= stack.push(stack_entry.clone())
                     }
                 }
@@ -527,5 +527,12 @@ impl Script {
         }
 
         new_script
+    }
+}
+
+impl From<Vec<StackEntry>> for Script {
+    /// Creates a new script with a pre-filled stack
+    fn from(script: Vec<StackEntry>) -> Self {
+        Script { stack: script }
     }
 }
