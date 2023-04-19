@@ -40,7 +40,6 @@ pub enum OpCodes {
     OP_14 = 0x5e,
     OP_15 = 0x5f,
     OP_16 = 0x60,
-
     // flow control
     OP_NOP = 0x61,
     OP_IF = 0x63,
@@ -49,7 +48,6 @@ pub enum OpCodes {
     OP_ENDIF = 0x68,
     OP_VERIFY = 0x69,
     OP_RETURN = 0x6a,
-
     // stack
     OP_TOALTSTACK = 0x6b,
     OP_FROMALTSTACK = 0x6c,
@@ -70,14 +68,12 @@ pub enum OpCodes {
     OP_ROT = 0x7b,
     OP_SWAP = 0x7c,
     OP_TUCK = 0x7d,
-
     // splice
     OP_CAT = 0x7e,
     OP_SUBSTR = 0x7f,
     OP_LEFT = 0x80,
     OP_RIGHT = 0x81,
     OP_SIZE = 0x82,
-
     // bitwise logic
     OP_INVERT = 0x83,
     OP_AND = 0x84,
@@ -85,7 +81,6 @@ pub enum OpCodes {
     OP_XOR = 0x86,
     OP_EQUAL = 0x87,
     OP_EQUALVERIFY = 0x88,
-
     // arithmetic
     OP_1ADD = 0x8b,
     OP_1SUB = 0x8c,
@@ -112,7 +107,6 @@ pub enum OpCodes {
     OP_MIN = 0xa3,
     OP_MAX = 0xa4,
     OP_WITHIN = 0xa5,
-
     // crypto
     OP_SHA3 = 0xa9,
     OP_HASH256 = 0xaa,
@@ -122,11 +116,9 @@ pub enum OpCodes {
     OP_CHECKSIGVERIFY = 0xad,
     OP_CHECKMULTISIG = 0xae,
     OP_CHECKMULTISIGVERIFY = 0xaf,
-
     // locktime
     OP_CHECKLOCKTIMEVERIFY = 0xb1,
     OP_CHECKSEQUENCEVERIFY = 0xb2,
-
     // smart data
     OP_CREATE = 0xc0,
 }
