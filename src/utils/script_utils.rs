@@ -341,6 +341,124 @@ mod tests {
         let v = vec![StackEntry::Num(1); (MAX_STACK_SIZE + 1) as usize];
         let script = Script::from(v);
         assert!(!script.interpret());
+        // OP_1 OP_IF OP_2 OP_ELSE OP_3 OP_ENDIF
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_1),
+            StackEntry::Op(OpCodes::OP_IF),
+            StackEntry::Op(OpCodes::OP_2),
+            StackEntry::Op(OpCodes::OP_ELSE),
+            StackEntry::Op(OpCodes::OP_3),
+            StackEntry::Op(OpCodes::OP_ENDIF),
+        ];
+        let script = Script::from(v);
+        assert!(script.interpret());
+        // OP_1 OP_IF OP_0 OP_ELSE OP_3 OP_ENDIF
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_1),
+            StackEntry::Op(OpCodes::OP_IF),
+            StackEntry::Op(OpCodes::OP_0),
+            StackEntry::Op(OpCodes::OP_ELSE),
+            StackEntry::Op(OpCodes::OP_3),
+            StackEntry::Op(OpCodes::OP_ENDIF),
+        ];
+        let script = Script::from(v);
+        assert!(!script.interpret());
+        // OP_0 OP_IF OP_2 OP_ELSE OP_3 OP_ENDIF
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_0),
+            StackEntry::Op(OpCodes::OP_IF),
+            StackEntry::Op(OpCodes::OP_2),
+            StackEntry::Op(OpCodes::OP_ELSE),
+            StackEntry::Op(OpCodes::OP_3),
+            StackEntry::Op(OpCodes::OP_ENDIF),
+        ];
+        let script = Script::from(v);
+        assert!(script.interpret());
+        // OP_0 OP_IF OP_2 OP_ELSE OP_0 OP_ENDIF
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_0),
+            StackEntry::Op(OpCodes::OP_IF),
+            StackEntry::Op(OpCodes::OP_2),
+            StackEntry::Op(OpCodes::OP_ELSE),
+            StackEntry::Op(OpCodes::OP_0),
+            StackEntry::Op(OpCodes::OP_ENDIF)
+        ];
+        let script = Script::from(v);
+        assert!(!script.interpret());
+        // OP_0 OP_IF OP_2 OP_ENDIF
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_1),
+            StackEntry::Op(OpCodes::OP_IF),
+            StackEntry::Op(OpCodes::OP_0),
+            StackEntry::Op(OpCodes::OP_ENDIF)
+        ];
+        let script = Script::from(v);
+        assert!(!script.interpret());
+        // OP_1 OP_IF OP_2 OP_IF OP_3 OP_ELSE OP_0 OP_ENDIF OP_ENDIF
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_1),
+            StackEntry::Op(OpCodes::OP_IF),
+            StackEntry::Op(OpCodes::OP_2),
+            StackEntry::Op(OpCodes::OP_IF),
+            StackEntry::Op(OpCodes::OP_3),
+            StackEntry::Op(OpCodes::OP_ELSE),
+            StackEntry::Op(OpCodes::OP_0),
+            StackEntry::Op(OpCodes::OP_ENDIF),
+            StackEntry::Op(OpCodes::OP_ENDIF)
+        ];
+        let script = Script::from(v);
+        assert!(script.interpret());
+        // OP_1 OP_IF OP_0 OP_IF OP_3 OP_ELSE OP_0 OP_ENDIF OP_ENDIF
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_1),
+            StackEntry::Op(OpCodes::OP_IF),
+            StackEntry::Op(OpCodes::OP_0),
+            StackEntry::Op(OpCodes::OP_IF),
+            StackEntry::Op(OpCodes::OP_3),
+            StackEntry::Op(OpCodes::OP_ELSE),
+            StackEntry::Op(OpCodes::OP_0),
+            StackEntry::Op(OpCodes::OP_ENDIF),
+            StackEntry::Op(OpCodes::OP_ENDIF),
+        ];
+        let script = Script::from(v);
+        assert!(!script.interpret());
+        // OP_0 OP_IF OP_2 OP_IF OP_3 OP_ELSE OP_4 OP_ENDIF OP_ELSE OP_0 OP_ENDIF
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_0),
+            StackEntry::Op(OpCodes::OP_IF),
+            StackEntry::Op(OpCodes::OP_2),
+            StackEntry::Op(OpCodes::OP_IF),
+            StackEntry::Op(OpCodes::OP_3),
+            StackEntry::Op(OpCodes::OP_ELSE),
+            StackEntry::Op(OpCodes::OP_4),
+            StackEntry::Op(OpCodes::OP_ENDIF),
+            StackEntry::Op(OpCodes::OP_ELSE),
+            StackEntry::Op(OpCodes::OP_0),
+            StackEntry::Op(OpCodes::OP_ENDIF),
+        ];
+        let script = Script::from(v);
+        assert!(!script.interpret());
+        // OP_2 OP_ELSE OP_3 OP_ENDIF
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_2),
+            StackEntry::Op(OpCodes::OP_ELSE),
+            StackEntry::Op(OpCodes::OP_3),
+            StackEntry::Op(OpCodes::OP_ENDIF),
+        ];
+        let script = Script::from(v);
+        assert!(!script.interpret());
+        // OP_IF
+        let v = vec![StackEntry::Op(OpCodes::OP_IF)];
+        let script = Script::from(v);
+        assert!(!script.interpret());
+        // OP_ELSE
+        let v = vec![StackEntry::Op(OpCodes::OP_ELSE)];
+        let script = Script::from(v);
+        assert!(!script.interpret());
+        // OP_ENDIF
+        let v = vec![StackEntry::Op(OpCodes::OP_ENDIF)];
+        let script = Script::from(v);
+        assert!(!script.interpret());
     }
 
     /// Util function to create p2pkh TxIns
