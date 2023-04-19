@@ -253,6 +253,96 @@ mod tests {
     use crate::utils::test_utils::generate_tx_with_ins_and_outs_assets;
     use crate::utils::transaction_utils::*;
 
+    #[test]
+    fn test_is_valid_script() {
+        // empty script
+        let v = vec![];
+        let script = Script::from(v);
+        assert!(script.is_valid());
+        // script length <= 10000 bytes
+        let v = vec![StackEntry::Bytes("a".repeat(500)); 20];
+        let script = Script::from(v);
+        assert!(script.is_valid());
+        // script length > 10000 bytes
+        let v = vec![StackEntry::Bytes("a".repeat(500)); 21];
+        let script = Script::from(v);
+        assert!(!script.is_valid());
+        // # opcodes <= 201
+        let v = vec![StackEntry::Op(OpCodes::OP_1); MAX_OPS_PER_SCRIPT as usize];
+        let script = Script::from(v);
+        assert!(script.is_valid());
+        // # opcodes > 201
+        let v = vec![StackEntry::Op(OpCodes::OP_1); (MAX_OPS_PER_SCRIPT + 1) as usize];
+        let script = Script::from(v);
+        assert!(!script.is_valid());
+    }
+
+    #[test]
+    fn test_is_valid_stack() {
+        // empty stack
+        let v = vec![];
+        let stack = Stack::from(v);
+        assert!(stack.is_valid());
+        // # items on interpreter stack <= 1000
+        let v = vec![StackEntry::Num(1); MAX_STACK_SIZE as usize];
+        let stack = Stack::from(v);
+        assert!(stack.is_valid());
+        // # items on interpreter stack > 1000
+        let v = vec![StackEntry::Num(1); (MAX_STACK_SIZE + 1) as usize];
+        let stack = Stack::from(v);
+        assert!(!stack.is_valid());
+    }
+
+    #[test]
+    fn test_interpret_script() {
+        // empty script
+        let v = vec![];
+        let script = Script::from(v);
+        assert!(script.interpret());
+        // OP_0
+        let v = vec![StackEntry::Op(OpCodes::OP_0)];
+        let script = Script::from(v);
+        assert!(!script.interpret());
+        // OP_1
+        let v = vec![StackEntry::Op(OpCodes::OP_1)];
+        let script = Script::from(v);
+        assert!(script.interpret());
+        // OP_1 OP_2 OP_ADD OP_3 OP_EQUAL
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_1),
+            StackEntry::Op(OpCodes::OP_2),
+            StackEntry::Op(OpCodes::OP_ADD),
+            StackEntry::Op(OpCodes::OP_3),
+            StackEntry::Op(OpCodes::OP_EQUAL),
+        ];
+        let script = Script::from(v);
+        assert!(script.interpret());
+        // script length <= 10000 bytes
+        let v = vec![StackEntry::Bytes("a".repeat(500)); 20];
+        let script = Script::from(v);
+        assert!(script.interpret());
+        // script length > 10000 bytes
+        let v = vec![StackEntry::Bytes("a".repeat(500)); 21];
+        let script = Script::from(v);
+        assert!(!script.interpret());
+        // # opcodes <= 201
+        let v = vec![StackEntry::Op(OpCodes::OP_1); MAX_OPS_PER_SCRIPT as usize];
+        let script = Script::from(v);
+        assert!(script.interpret());
+        // # opcodes > 201
+        let v = vec![StackEntry::Op(OpCodes::OP_1); (MAX_OPS_PER_SCRIPT + 1) as usize];
+        let script = Script::from(v);
+        assert!(!script.interpret());
+        // # items on interpreter stack <= 1000
+        let v = vec![StackEntry::Num(1); MAX_STACK_SIZE as usize];
+        let script = Script::from(v);
+        assert!(script.interpret());
+        // # items on interpreter stack > 1000
+        let v = vec![StackEntry::Num(1); (MAX_STACK_SIZE + 1) as usize];
+        let script = Script::from(v);
+        assert!(!script.interpret());
+    }
+
     /// Util function to create p2pkh TxIns
     fn create_multisig_tx_ins(tx_values: Vec<TxConstructor>, m: usize) -> Vec<TxIn> {
         let mut tx_ins = Vec::new();
