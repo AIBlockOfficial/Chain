@@ -381,16 +381,27 @@ mod tests {
             StackEntry::Op(OpCodes::OP_2),
             StackEntry::Op(OpCodes::OP_ELSE),
             StackEntry::Op(OpCodes::OP_0),
-            StackEntry::Op(OpCodes::OP_ENDIF)
+            StackEntry::Op(OpCodes::OP_ENDIF),
         ];
         let script = Script::from(v);
         assert!(!script.interpret());
+        // OP_0 OP_NOTIF OP_2 OP_ELSE OP_0 OP_ENDIF
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_0),
+            StackEntry::Op(OpCodes::OP_NOTIF),
+            StackEntry::Op(OpCodes::OP_2),
+            StackEntry::Op(OpCodes::OP_ELSE),
+            StackEntry::Op(OpCodes::OP_0),
+            StackEntry::Op(OpCodes::OP_ENDIF),
+        ];
+        let script = Script::from(v);
+        assert!(script.interpret());
         // OP_0 OP_IF OP_2 OP_ENDIF
         let v = vec![
             StackEntry::Op(OpCodes::OP_1),
             StackEntry::Op(OpCodes::OP_IF),
             StackEntry::Op(OpCodes::OP_0),
-            StackEntry::Op(OpCodes::OP_ENDIF)
+            StackEntry::Op(OpCodes::OP_ENDIF),
         ];
         let script = Script::from(v);
         assert!(!script.interpret());
@@ -404,7 +415,7 @@ mod tests {
             StackEntry::Op(OpCodes::OP_ELSE),
             StackEntry::Op(OpCodes::OP_0),
             StackEntry::Op(OpCodes::OP_ENDIF),
-            StackEntry::Op(OpCodes::OP_ENDIF)
+            StackEntry::Op(OpCodes::OP_ENDIF),
         ];
         let script = Script::from(v);
         assert!(script.interpret());
@@ -438,6 +449,24 @@ mod tests {
         ];
         let script = Script::from(v);
         assert!(!script.interpret());
+        // OP_1 OP_IF OP_1
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_1),
+            StackEntry::Op(OpCodes::OP_IF),
+            StackEntry::Op(OpCodes::OP_1),
+        ];
+        let script = Script::from(v);
+        assert!(!script.interpret());
+        // OP_1 OP_IF OP_1 OP_ELSE OP_3 
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_1),
+            StackEntry::Op(OpCodes::OP_IF),
+            StackEntry::Op(OpCodes::OP_1),
+            StackEntry::Op(OpCodes::OP_ELSE),
+            StackEntry::Op(OpCodes::OP_3)
+        ];
+        let script = Script::from(v);
+        assert!(!script.interpret());
         // OP_2 OP_ELSE OP_3 OP_ENDIF
         let v = vec![
             StackEntry::Op(OpCodes::OP_2),
@@ -449,6 +478,10 @@ mod tests {
         assert!(!script.interpret());
         // OP_IF
         let v = vec![StackEntry::Op(OpCodes::OP_IF)];
+        let script = Script::from(v);
+        assert!(!script.interpret());
+        // OP_NOTIF
+        let v = vec![StackEntry::Op(OpCodes::OP_NOTIF)];
         let script = Script::from(v);
         assert!(!script.interpret());
         // OP_ELSE

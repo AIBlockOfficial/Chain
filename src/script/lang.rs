@@ -345,7 +345,7 @@ impl Script {
                 return false;
             }
         }
-        test_for_return && stack.last() != Some(StackEntry::Num(ZERO))
+        test_for_return && stack.last() != Some(StackEntry::Num(ZERO)) && cond_stack.is_empty()
     }
 
     /// Constructs a new script for coinbase
