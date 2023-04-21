@@ -259,6 +259,7 @@ pub fn op_nop(stack: &mut Stack) -> bool {
 ///
 /// ### Arguments
 ///
+/// * `stack`  - mutable reference to the stack
 /// * `cond_stack`  - mutable reference to the condition stack
 pub fn op_if(stack: &mut Stack, cond_stack: &mut ConditionStack) -> bool {
     let (op, desc) = (OPIF, OPIF_DESC);
@@ -287,6 +288,7 @@ pub fn op_if(stack: &mut Stack, cond_stack: &mut ConditionStack) -> bool {
 ///
 /// ### Arguments
 ///
+/// * `stack`  - mutable reference to the stack
 /// * `cond_stack`  - mutable reference to the condition stack
 pub fn op_notif(stack: &mut Stack, cond_stack: &mut ConditionStack) -> bool {
     let (op, desc) = (OPNOTIF, OPNOTIF_DESC);

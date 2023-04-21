@@ -2568,6 +2568,10 @@ mod tests {
         let v = vec![StackEntry::Num(1); (MAX_STACK_SIZE + 1) as usize];
         let script = Script::from(v);
         assert!(!script.interpret());
+    }
+
+    #[test]
+    fn test_conditionals() {
         // OP_1 OP_IF OP_2 OP_ELSE OP_3 OP_ENDIF
         let v = vec![
             StackEntry::Op(OpCodes::OP_1),
