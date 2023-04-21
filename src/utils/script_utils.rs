@@ -457,13 +457,13 @@ mod tests {
         ];
         let script = Script::from(v);
         assert!(!script.interpret());
-        // OP_1 OP_IF OP_1 OP_ELSE OP_3 
+        // OP_1 OP_IF OP_1 OP_ELSE OP_3
         let v = vec![
             StackEntry::Op(OpCodes::OP_1),
             StackEntry::Op(OpCodes::OP_IF),
             StackEntry::Op(OpCodes::OP_1),
             StackEntry::Op(OpCodes::OP_ELSE),
-            StackEntry::Op(OpCodes::OP_3)
+            StackEntry::Op(OpCodes::OP_3),
         ];
         let script = Script::from(v);
         assert!(!script.interpret());

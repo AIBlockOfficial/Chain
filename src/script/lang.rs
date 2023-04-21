@@ -55,6 +55,11 @@ impl Stack {
         self.main_stack.last().cloned()
     }
 
+    /// Checks if the last item on the stack is not zero
+    pub fn last_non_zero(&self) -> bool {
+        self.last() != Some(StackEntry::Num(ZERO))
+    }
+
     /// Pushes a new entry onto the stack
     pub fn push(&mut self, stack_entry: StackEntry) -> bool {
         match stack_entry.clone() {
@@ -345,7 +350,7 @@ impl Script {
                 return false;
             }
         }
-        test_for_return && stack.last() != Some(StackEntry::Num(ZERO)) && cond_stack.is_empty()
+        test_for_return && stack.last_non_zero() && cond_stack.is_empty()
     }
 
     /// Constructs a new script for coinbase

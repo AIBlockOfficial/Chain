@@ -1,5 +1,3 @@
-use crate::script::OpCodes;
-
 /*------- TRANSACTION CONSTANTS -------*/
 
 pub const RECEIPT_DEFAULT_DRS_TX_HASH: &str = "default_drs_tx_hash";
@@ -50,9 +48,6 @@ pub const MAX_STACK_SIZE: u16 = 1000;
 // Threshold for lock_time: below this value it is interpreted as block number,
 // otherwise as UNIX timestamp.
 pub const LOCKTIME_THRESHOLD: u32 = 500000000; // Tue Nov 5 00:53:20 1985 UTC
-
-// Maximum value that an opcode can be
-pub const MAX_OPCODE: u8 = OpCodes::MAX_OPCODE as u8;
 
 /*------- STORAGE CONSTANTS -------*/
 
@@ -314,8 +309,8 @@ pub const OPCHECKMULTISIGVERIFY_DESC: &str = "Runs OP_CHECKMULTISIG and OP_VERIF
 pub const OPCHECKLOCKTIMEVERIFY: &str = "OP_CHECKLOCKTIMEVERIFY";
 pub const OPCHECKSEQUENCEVERIFY: &str = "OP_CHECKSEQUENCEVERIFY";
 
-pub const OPCHECKLOCKTIMEVERIFY_DESC: &str = "Checks absolute locktime of a transaction";
-pub const OPCHECKSEQUENCEVERIFY_DESC: &str = "Checks relative locktime of a transaction";
+pub const OPCHECKLOCKTIMEVERIFY_DESC: &str = "Checks absolute locktime";
+pub const OPCHECKSEQUENCEVERIFY_DESC: &str = "Checks relative locktime";
 
 /*------- ERROR MESSAGES -------*/
 

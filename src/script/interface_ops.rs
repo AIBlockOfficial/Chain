@@ -5,7 +5,7 @@ use crate::crypto::sign_ed25519 as sign;
 use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use crate::primitives::asset::{Asset, TokenAmount};
 use crate::primitives::transaction::*;
-use crate::script::lang::{Script, Stack};
+use crate::script::lang::{ConditionStack, Script, Stack};
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::error_utils::*;
 use crate::utils::transaction_utils::{
@@ -16,8 +16,6 @@ use bytes::Bytes;
 use hex::encode;
 use std::collections::BTreeMap;
 use tracing::{debug, error, info, trace};
-
-use super::lang::ConditionStack;
 
 /*---- CONSTANTS OPS ----*/
 
@@ -265,7 +263,7 @@ pub fn op_nop(stack: &mut Stack) -> bool {
 pub fn op_if(stack: &mut Stack, cond_stack: &mut ConditionStack) -> bool {
     let (op, desc) = (OPIF, OPIF_DESC);
     trace(op, desc);
-    let cond_val = if cond_stack.all_true() {
+    let cond = if cond_stack.all_true() {
         let n = match stack.pop() {
             Some(StackEntry::Num(n)) => n,
             Some(_) => {
@@ -281,7 +279,7 @@ pub fn op_if(stack: &mut Stack, cond_stack: &mut ConditionStack) -> bool {
     } else {
         false
     };
-    cond_stack.push(cond_val);
+    cond_stack.push(cond);
     true
 }
 
@@ -293,7 +291,7 @@ pub fn op_if(stack: &mut Stack, cond_stack: &mut ConditionStack) -> bool {
 pub fn op_notif(stack: &mut Stack, cond_stack: &mut ConditionStack) -> bool {
     let (op, desc) = (OPNOTIF, OPNOTIF_DESC);
     trace(op, desc);
-    let cond_val = if cond_stack.all_true() {
+    let cond = if cond_stack.all_true() {
         let n = match stack.pop() {
             Some(StackEntry::Num(n)) => n,
             Some(_) => {
@@ -309,7 +307,7 @@ pub fn op_notif(stack: &mut Stack, cond_stack: &mut ConditionStack) -> bool {
     } else {
         false
     };
-    cond_stack.push(cond_val);
+    cond_stack.push(cond);
     true
 }
 
@@ -2529,7 +2527,7 @@ fn verify_multisig(sigs: &[Signature], msg: &String, pks: &mut Vec<PublicKey>) -
 
 /*---- LOCKTIME OPS ----*/
 
-/// OP_CHECKLOCKTIMEVERIFY: Checks absolute locktime of a transaction
+/// OP_CHECKLOCKTIMEVERIFY: Checks absolute locktime
 ///
 /// Example: OP_CHECKLOCKTIMEVERIFY([locktime]) -> []   if locktime <= current block height
 ///          OP_CHECKLOCKTIMEVERIFY([locktime]) -> fail if locktime > current block height
@@ -2543,7 +2541,7 @@ pub fn op_checklocktimeverify(stack: &mut Stack) -> bool {
     true
 }
 
-/// OP_CHECKSEQUENCEVERIFY: Checks relative locktime of a transaction
+/// OP_CHECKSEQUENCEVERIFY: Checks relative locktime
 ///
 /// Example: OP_CHECKSEQUENCEVERIFY([locktime]) -> []   if locktime <= (current block height - parent tx height)
 ///          OP_CHECKSEQUENCEVERIFY([locktime]) -> fail if locktime > (current block height - parent tx height)

@@ -6,8 +6,7 @@ use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// Stack entry enum which embodies the range of possible
-/// operations that could be performed in a Script stack process
+/// Stack entry enum
 #[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum StackEntry {
     Op(OpCodes),
@@ -124,8 +123,6 @@ pub enum OpCodes {
 }
 
 impl OpCodes {
-    pub const MAX_OPCODE: OpCodes = OpCodes::OP_CREATE;
-
     /// Returns true if the opcode is a conditional
     pub fn is_conditional(&self) -> bool {
         matches!(
