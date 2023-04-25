@@ -243,7 +243,7 @@ impl Script {
                         OpCodes::OP_ELSE => test_for_return &= op_else(&mut cond_stack),
                         OpCodes::OP_ENDIF => test_for_return &= op_endif(&mut cond_stack),
                         OpCodes::OP_VERIFY => test_for_return &= op_verify(&mut stack),
-                        OpCodes::OP_RETURN => test_for_return &= op_return(&mut stack),
+                        OpCodes::OP_BURN => test_for_return &= op_burn(&mut stack),
                         // stack
                         OpCodes::OP_TOALTSTACK => test_for_return &= op_toaltstack(&mut stack),
                         OpCodes::OP_FROMALTSTACK => test_for_return &= op_fromaltstack(&mut stack),

@@ -371,17 +371,17 @@ pub fn op_verify(stack: &mut Stack) -> bool {
     true
 }
 
-/// OP_RETURN: Ends execution with an error
+/// OP_BURN: Ends execution with an error
 ///
-/// Example: OP_RETURN([x]) -> fail
+/// Example: OP_BURN([x]) -> fail
 ///
 /// ### Arguments
 ///
 /// * `stack`  - mutable reference to the stack
-pub fn op_return(stack: &mut Stack) -> bool {
-    let (op, desc) = (OPRETURN, OPRETURN_DESC);
+pub fn op_burn(stack: &mut Stack) -> bool {
+    let (op, desc) = (OPBURN, OPBURN_DESC);
     trace(op, desc);
-    error_return(op);
+    error_burn(op);
     false
 }
 

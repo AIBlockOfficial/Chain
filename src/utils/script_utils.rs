@@ -608,16 +608,16 @@ mod tests {
     }
 
     #[test]
-    /// Test OP_RETURN
+    /// Test OP_BURN
     fn test_return() {
-        /// op_return([1]) -> fail
+        /// op_burn([1]) -> fail
         let mut stack = Stack::new();
         stack.push(StackEntry::Num(1));
-        let b = op_return(&mut stack);
+        let b = op_burn(&mut stack);
         assert!(!b);
-        /// op_return([]) -> fail
+        /// op_burn([]) -> fail
         let mut stack = Stack::new();
-        let b = op_return(&mut stack);
+        let b = op_burn(&mut stack);
         assert!(!b)
     }
 
@@ -2721,6 +2721,15 @@ mod tests {
         assert!(!script.interpret());
         // OP_ENDIF
         let v = vec![StackEntry::Op(OpCodes::OP_ENDIF)];
+        let script = Script::from(v);
+        assert!(!script.interpret());
+    }
+
+    #[test]
+    fn test_burn() {
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_BURN),
+        ];
         let script = Script::from(v);
         assert!(!script.interpret());
     }

@@ -130,7 +130,7 @@ pub const OPNOTIF: &str = "OP_NOTIF";
 pub const OPELSE: &str = "OP_ELSE";
 pub const OPENDIF: &str = "OP_ENDIF";
 pub const OPVERIFY: &str = "OP_VERIFY";
-pub const OPRETURN: &str = "OP_RETURN";
+pub const OPBURN: &str = "OP_BURN";
 
 pub const OPNOP_DESC: &str = "Does nothing";
 pub const OPIF_DESC: &str =
@@ -142,7 +142,7 @@ pub const OPELSE_DESC: &str =
 pub const OPENDIF_DESC: &str = "Ends an OP_IF or OP_NOTIF block";
 pub const OPVERIFY_DESC: &str =
     "Removes the top item from the stack and ends execution with an error if it is ZERO";
-pub const OPRETURN_DESC: &str = "Ends execution with an error";
+pub const OPBURN_DESC: &str = "Ends execution with an error";
 
 // stack
 pub const OPTOALTSTACK: &str = "OP_TOALTSTACK";
@@ -317,7 +317,7 @@ pub const OPCHECKSEQUENCEVERIFY_DESC: &str = "Checks relative locktime";
 // opcodes
 pub const ERROR_EMPTY_CONDITION: &str = "Condition stack is empty";
 pub const ERROR_VERIFY: &str = "The top item on the stack is ZERO";
-pub const ERROR_RETURN: &str = "OP_RETURN executed";
+pub const ERROR_BURN: &str = "OP_BURN executed";
 pub const ERROR_NUM_ITEMS: &str = "Not enough items on the stack";
 pub const ERROR_ITEM_TYPE: &str = "Item type is not correct";
 pub const ERROR_ITEM_INDEX: &str = "Index is out of bound";
