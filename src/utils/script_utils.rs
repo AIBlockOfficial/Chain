@@ -609,7 +609,7 @@ mod tests {
 
     #[test]
     /// Test OP_BURN
-    fn test_return() {
+    fn test_burn() {
         /// op_burn([1]) -> fail
         let mut stack = Stack::new();
         stack.push(StackEntry::Num(1));
@@ -2726,10 +2726,8 @@ mod tests {
     }
 
     #[test]
-    fn test_burn() {
-        let v = vec![
-            StackEntry::Op(OpCodes::OP_BURN),
-        ];
+    fn test_burn_script() {
+        let v = vec![StackEntry::Op(OpCodes::OP_BURN)];
         let script = Script::from(v);
         assert!(!script.interpret());
     }
