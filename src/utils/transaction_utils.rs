@@ -785,6 +785,7 @@ mod tests {
             0,
         );
         let p2sh_script_pub_key = p2sh_tx.outputs[0].script_public_key.as_ref().unwrap();
+        println!("{:?}", p2sh_script_pub_key);
 
         assert_eq!(p2sh_script_pub_key.as_bytes()[0], P2SH_PREPEND);
         assert_eq!(p2sh_script_pub_key.len(), 32);
