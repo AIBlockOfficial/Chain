@@ -5,7 +5,7 @@ use crate::primitives::asset::{Asset, DataAsset, TokenAmount};
 use crate::primitives::druid::{DdeValues, DruidExpectation};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
-use crate::script::StackEntry;
+use crate::script::{OpCodes, StackEntry};
 use bincode::serialize;
 use bytes::Bytes;
 use std::collections::BTreeMap;
@@ -448,6 +448,24 @@ pub fn construct_p2sh_tx(
     construct_tx_core(tx_ins, vec![tx_out])
 }
 
+/// Constructs a P2SH transaction to burn tokens
+///
+/// ### Arguments
+///
+/// * `tx_ins`  - Input/s to pay from
+pub fn construct_burn_tx(tx_ins: Vec<TxIn>) -> Transaction {
+    let s = vec![StackEntry::Op(OpCodes::OP_BURN)];
+    let script = Script::from(s);
+    let script_hash = construct_p2sh_address(&script);
+
+    let tx_out = TxOut {
+        script_public_key: Some(script_hash),
+        ..Default::default()
+    };
+
+    construct_tx_core(tx_ins, vec![tx_out])
+}
+
 /// Constructs a transaction to pay a receivers
 /// If TxIn collection does not add up to the exact amount to pay,
 /// payer will always need to provide a return payment in tx_outs,
@@ -732,6 +750,46 @@ mod tests {
         assert_eq!(p2sh_script_pub_key.as_bytes()[0], P2SH_PREPEND);
         assert_eq!(p2sh_script_pub_key.len(), 32);
         assert!(tx_has_valid_p2sh_script(
+            &redeeming_tx.inputs[0].script_signature,
+            p2sh_tx.outputs[0].script_public_key.as_ref().unwrap()
+        ));
+
+        // TODO: Add assertion for full tx validity
+    }
+
+    #[test]
+    fn test_construct_a_valid_burn_tx() {
+        let token_amount = TokenAmount(400000);
+        let (tx_ins, drs_block_hash) = test_construct_valid_inputs(Some(NETWORK_VERSION_V0));
+
+        let p2sh_tx = construct_burn_tx(tx_ins);
+
+        let spending_tx_hash = construct_tx_hash(&p2sh_tx);
+
+        let tx_const = TxConstructor {
+            previous_out: OutPoint::new(spending_tx_hash, 0),
+            signatures: vec![],
+            pub_keys: vec![],
+            address_version: Some(NETWORK_VERSION_V0),
+        };
+
+        let s = vec![StackEntry::Op(OpCodes::OP_BURN)];
+        let script = Script::from(s);
+
+        let redeeming_tx_ins = construct_p2sh_redeem_tx_ins(tx_const, script);
+        let redeeming_tx = construct_payment_tx(
+            redeeming_tx_ins,
+            hex::encode(vec![0; 32]),
+            Some(drs_block_hash),
+            Asset::Token(token_amount),
+            0,
+        );
+        let p2sh_script_pub_key = p2sh_tx.outputs[0].script_public_key.as_ref().unwrap();
+
+        assert_eq!(p2sh_script_pub_key.as_bytes()[0], P2SH_PREPEND);
+        assert_eq!(p2sh_script_pub_key.len(), 32);
+        assert!(!redeeming_tx.inputs[0].script_signature.interpret());
+        assert!(!tx_has_valid_p2sh_script(
             &redeeming_tx.inputs[0].script_signature,
             p2sh_tx.outputs[0].script_public_key.as_ref().unwrap()
         ));
