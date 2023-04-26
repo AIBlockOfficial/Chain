@@ -2526,33 +2526,3 @@ fn verify_multisig(sigs: &[Signature], msg: &String, pks: &mut Vec<PublicKey>) -
     }
     true
 }
-
-/*---- LOCKTIME OPS ----*/
-
-/// OP_CHECKLOCKTIMEVERIFY: Checks absolute locktime
-///
-/// Example: OP_CHECKLOCKTIMEVERIFY([locktime]) -> []   if locktime <= current block height
-///          OP_CHECKLOCKTIMEVERIFY([locktime]) -> fail if locktime > current block height
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_checklocktimeverify(stack: &mut Stack) -> bool {
-    let (op, desc) = (OPCHECKLOCKTIMEVERIFY, OPCHECKLOCKTIMEVERIFY_DESC);
-    trace(op, desc);
-    true
-}
-
-/// OP_CHECKSEQUENCEVERIFY: Checks relative locktime
-///
-/// Example: OP_CHECKSEQUENCEVERIFY([locktime]) -> []   if locktime <= (current block height - parent tx height)
-///          OP_CHECKSEQUENCEVERIFY([locktime]) -> fail if locktime > (current block height - parent tx height)
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_checksequenceverify(stack: &mut Stack) -> bool {
-    let (op, desc) = (OPCHECKSEQUENCEVERIFY, OPCHECKSEQUENCEVERIFY_DESC);
-    trace(op, desc);
-    true
-}

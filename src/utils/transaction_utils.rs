@@ -19,10 +19,10 @@ pub fn construct_p2sh_address(script: &Script) -> String {
         Ok(bytes) => bytes,
         Err(_) => vec![],
     };
-    let mut hash = hex::encode(sha3_256::digest(bytes.as_ref()));
-    hash.insert(ZERO, P2SH_PREPEND as char);
-    hash.truncate(STANDARD_ADDRESS_LENGTH);
-    hash
+    let mut addr = hex::encode(sha3_256::digest(&bytes));
+    addr.insert(ZERO, P2SH_PREPEND as char);
+    addr.truncate(STANDARD_ADDRESS_LENGTH);
+    addr
 }
 
 /// Builds an address from a public key and a specified network version
@@ -44,8 +44,7 @@ pub fn construct_address_for(pub_key: &PublicKey, address_version: Option<u64>) 
 ///
 /// * `pub_key` - A public key to build an address from
 pub fn construct_address(pub_key: &PublicKey) -> String {
-    let pub_key_hash = sha3_256::digest(pub_key.as_ref());
-    hex::encode(pub_key_hash)
+    hex::encode(sha3_256::digest(pub_key.as_ref()))
 }
 
 /// Builds an old (network version 0) address from a public key
@@ -77,8 +76,7 @@ pub fn construct_address_v0(pub_key: &PublicKey) -> String {
 pub fn construct_address_temp(pub_key: &PublicKey) -> String {
     let base64_encoding = base64::encode(pub_key.as_ref());
     let hex_decoded = decode_base64_as_hex(&base64_encoding);
-    let pub_key_hash = sha3_256::digest(&hex_decoded);
-    hex::encode(pub_key_hash)
+    hex::encode(sha3_256::digest(&hex_decoded))
 }
 
 /// Decodes a base64 encoded string as hex, invalid character pairs are decoded up to the
@@ -959,7 +957,7 @@ mod tests {
             script_public_key: Some(to_asset.clone()),
             ..Default::default()
         }];
-        
+
         let bytes = match serialize(&tx_ins) {
             Ok(bytes) => bytes,
             Err(_) => vec![],

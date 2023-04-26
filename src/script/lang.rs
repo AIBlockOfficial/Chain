@@ -324,13 +324,6 @@ impl Script {
                         OpCodes::OP_CHECKMULTISIGVERIFY => {
                             test_for_return &= op_checkmultisigverify(&mut stack)
                         }
-                        // locktime
-                        OpCodes::OP_CHECKLOCKTIMEVERIFY => {
-                            test_for_return &= op_checklocktimeverify(&mut stack)
-                        }
-                        OpCodes::OP_CHECKSEQUENCEVERIFY => {
-                            test_for_return &= op_checksequenceverify(&mut stack)
-                        }
                         // smart data
                         OpCodes::OP_CREATE => (),
                     }

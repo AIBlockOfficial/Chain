@@ -290,13 +290,6 @@ pub const OPCHECKMULTISIG_DESC: &str =
     "Pushes ONE onto the stack if the m-of-n multi-signature is valid, ZERO otherwise";
 pub const OPCHECKMULTISIGVERIFY_DESC: &str = "Runs OP_CHECKMULTISIG and OP_VERIFY in sequence";
 
-// locktime
-pub const OPCHECKLOCKTIMEVERIFY: &str = "OP_CHECKLOCKTIMEVERIFY";
-pub const OPCHECKSEQUENCEVERIFY: &str = "OP_CHECKSEQUENCEVERIFY";
-
-pub const OPCHECKLOCKTIMEVERIFY_DESC: &str = "Checks absolute locktime";
-pub const OPCHECKSEQUENCEVERIFY_DESC: &str = "Checks relative locktime";
-
 /*------- ERROR MESSAGES -------*/
 
 // opcodes
@@ -320,4 +313,3 @@ pub const ERROR_MAX_SCRIPT_SIZE: &str = "Script size exceeds MAX_SCRIPT_SIZE-byt
 pub const ERROR_MAX_STACK_SIZE: &str = "Stack size exceeds MAX_STACK_SIZE limit";
 pub const ERROR_MAX_OPS_SCRIPT: &str =
     "Number of opcodes in script exceeds MAX_OPS_PER_SCRIPT limit";
-pub const ERROR_INVALID_OPCODE: &str = "Attempt to execute invalid opcode";
