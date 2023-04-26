@@ -189,8 +189,11 @@ impl Transaction {
 
     /// Get the total transaction size in bytes
     pub fn get_total_size(&self) -> usize {
-        let data = Bytes::from(serialize(&self).unwrap());
-        data.len()
+        let bytes = match serialize(self) {
+            Ok(bytes) => bytes,
+            Err(_) => vec![],
+        };
+        bytes.len()
     }
 
     /// Gets the create asset assigned to this transaction, if it exists

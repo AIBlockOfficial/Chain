@@ -7,7 +7,6 @@ use crate::primitives::transaction::*;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use bincode::serialize;
-use bytes::Bytes;
 use std::collections::BTreeMap;
 
 /// Builds a P2SH address
@@ -291,9 +290,11 @@ pub fn update_utxo_set(current_utxo: &mut BTreeMap<OutPoint, Transaction>) {
 ///
 /// * `tx`  - Transaction to hash
 pub fn construct_tx_hash(tx: &Transaction) -> String {
-    let tx_bytes = Bytes::from(serialize(tx).unwrap());
-    let tx_raw_h = sha3_256::digest(&tx_bytes).to_vec();
-    let mut hash = hex::encode(tx_raw_h);
+    let bytes = match serialize(tx) {
+        Ok(bytes) => bytes,
+        Err(_) => vec![],
+    };
+    let mut hash = hex::encode(sha3_256::digest(&bytes));
     hash.insert(ZERO, TX_PREPEND as char);
     hash.truncate(TX_HASH_LENGTH);
     hash
@@ -958,8 +959,12 @@ mod tests {
             script_public_key: Some(to_asset.clone()),
             ..Default::default()
         }];
-
-        let from_addr = hex::encode(serialize(&tx_ins).unwrap());
+        
+        let bytes = match serialize(&tx_ins) {
+            Ok(bytes) => bytes,
+            Err(_) => vec![],
+        };
+        let from_addr = hex::encode(bytes);
 
         // DDE params
         let druid = hex::encode(vec![1, 2, 3, 4, 5]);
