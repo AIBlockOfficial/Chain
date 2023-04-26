@@ -10,15 +10,17 @@ use bincode::serialize;
 use bytes::Bytes;
 use std::collections::BTreeMap;
 
-/// Builds an address for a P2SH transaction
+/// Builds a P2SH address
 ///
 /// ### Arguments
 ///
 /// * `script` - Script to build address for
 pub fn construct_p2sh_address(script: &Script) -> String {
-    let script_bytes = Bytes::from(serialize(script).unwrap());
-    let script_raw_h = sha3_256::digest(&script_bytes).to_vec();
-    let mut hash = hex::encode(script_raw_h);
+    let bytes = match serialize(script) {
+        Ok(bytes) => bytes,
+        Err(_) => vec![],
+    };
+    let mut hash = hex::encode(sha3_256::digest(bytes.as_ref()));
     hash.insert(ZERO, P2SH_PREPEND as char);
     hash.truncate(STANDARD_ADDRESS_LENGTH);
     hash
