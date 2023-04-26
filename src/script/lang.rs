@@ -502,7 +502,7 @@ impl Script {
 
 impl From<Vec<StackEntry>> for Script {
     /// Creates a new script with a pre-filled stack
-    fn from(script: Vec<StackEntry>) -> Self {
-        Script { stack: script }
+    fn from(s: Vec<StackEntry>) -> Self {
+        Script { stack: s }
     }
 }
