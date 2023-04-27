@@ -56,7 +56,7 @@ impl Stack {
     }
 
     /// Checks if the last item on the stack is not zero
-    pub fn last_non_zero(&self) -> bool {
+    pub fn is_last_non_zero(&self) -> bool {
         self.last() != Some(StackEntry::Num(ZERO))
     }
 
@@ -343,7 +343,7 @@ impl Script {
                 return false;
             }
         }
-        test_for_return && stack.last_non_zero() && cond_stack.is_empty()
+        test_for_return && stack.is_last_non_zero() && cond_stack.is_empty()
     }
 
     /// Constructs a new script for coinbase
