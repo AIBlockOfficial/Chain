@@ -70,7 +70,6 @@ pub const FIFTEEN: usize = 15;
 pub const SIXTEEN: usize = 16;
 
 /*------- TRACE MESSAGES -------*/
-
 // constants
 pub const OP0: &str = "OP_0";
 pub const OP1: &str = "OP_1";
@@ -291,7 +290,6 @@ pub const OPCHECKMULTISIG_DESC: &str =
 pub const OPCHECKMULTISIGVERIFY_DESC: &str = "Runs OP_CHECKMULTISIG and OP_VERIFY in sequence";
 
 /*------- ERROR MESSAGES -------*/
-
 // opcodes
 pub const ERROR_EMPTY_CONDITION: &str = "Condition stack is empty";
 pub const ERROR_VERIFY: &str = "The top item on the stack is ZERO";
@@ -307,7 +305,6 @@ pub const ERROR_INVALID_SIGNATURE: &str = "Signature is not valid";
 pub const ERROR_INVALID_MULTISIGNATURE: &str = "Multi-signature is not valid";
 pub const ERROR_NUM_PUBKEYS: &str = "Number of public keys provided is not correct";
 pub const ERROR_NUM_SIGNATURES: &str = "Number of signatures provided is not correct";
-
 // script
 pub const ERROR_MAX_SCRIPT_SIZE: &str = "Script size exceeds MAX_SCRIPT_SIZE-byte limit";
 pub const ERROR_MAX_STACK_SIZE: &str = "Stack size exceeds MAX_STACK_SIZE limit";
