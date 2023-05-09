@@ -115,9 +115,6 @@ pub enum OpCodes {
     OP_CHECKSIGVERIFY = 0xad,
     OP_CHECKMULTISIG = 0xae,
     OP_CHECKMULTISIGVERIFY = 0xaf,
-    // locktime
-    OP_CHECKLOCKTIMEVERIFY = 0xb1,
-    OP_CHECKSEQUENCEVERIFY = 0xb2,
     // smart data
     OP_CREATE = 0xc0,
 }

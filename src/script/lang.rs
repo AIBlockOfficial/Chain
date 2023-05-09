@@ -56,7 +56,7 @@ impl Stack {
     }
 
     /// Checks if the last item on the stack is not zero
-    pub fn last_non_zero(&self) -> bool {
+    pub fn is_last_non_zero(&self) -> bool {
         self.last() != Some(StackEntry::Num(ZERO))
     }
 
@@ -324,13 +324,6 @@ impl Script {
                         OpCodes::OP_CHECKMULTISIGVERIFY => {
                             test_for_return &= op_checkmultisigverify(&mut stack)
                         }
-                        // locktime
-                        OpCodes::OP_CHECKLOCKTIMEVERIFY => {
-                            test_for_return &= op_checklocktimeverify(&mut stack)
-                        }
-                        OpCodes::OP_CHECKSEQUENCEVERIFY => {
-                            test_for_return &= op_checksequenceverify(&mut stack)
-                        }
                         // smart data
                         OpCodes::OP_CREATE => (),
                     }
@@ -350,7 +343,7 @@ impl Script {
                 return false;
             }
         }
-        test_for_return && stack.last_non_zero() && cond_stack.is_empty()
+        test_for_return && stack.is_last_non_zero() && cond_stack.is_empty()
     }
 
     /// Constructs a new script for coinbase
@@ -502,7 +495,7 @@ impl Script {
 
 impl From<Vec<StackEntry>> for Script {
     /// Creates a new script with a pre-filled stack
-    fn from(script: Vec<StackEntry>) -> Self {
-        Script { stack: script }
+    fn from(s: Vec<StackEntry>) -> Self {
+        Script { stack: s }
     }
 }

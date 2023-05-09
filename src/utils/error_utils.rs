@@ -80,7 +80,3 @@ pub fn error_max_stack_size() {
 pub fn error_max_ops_script() {
     error!("{ERROR_MAX_OPS_SCRIPT}")
 }
-
-pub fn error_invalid_opcode() {
-    error!("{ERROR_INVALID_OPCODE}")
-}

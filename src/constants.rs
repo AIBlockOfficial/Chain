@@ -1,69 +1,54 @@
 /*------- TRANSACTION CONSTANTS -------*/
-
+pub const TX_PREPEND: u8 = b'g';
 pub const RECEIPT_DEFAULT_DRS_TX_HASH: &str = "default_drs_tx_hash";
 pub const MAX_METADATA_BYTES: usize = 800;
+pub const TX_HASH_LENGTH: usize = 32;
+
+/*------- ADDRESS CONSTANTS -------*/
+pub const V0_ADDRESS_LENGTH: usize = 16;
+pub const STANDARD_ADDRESS_LENGTH: usize = 64;
+// Prepending character for a P2SH address
+pub const P2SH_PREPEND: u8 = b'H';
 
 /*------- NETWORK CONSTANTS --------*/
-
-/// Current network version: Always bump immediately after a version is deployed.
+// Current network version: Always bump immediately after a version is deployed.
 pub const NETWORK_VERSION: u32 = 4;
 pub const NETWORK_VERSION_SERIALIZED: &[u8] = b"4";
+// Network version 0
+pub const NETWORK_VERSION_V0: u64 = 0;
+// Network version to support temporary address structure on wallet
+// TODO: Deprecate after addresses retire
+pub const NETWORK_VERSION_TEMP: u64 = 99999;
 
 /*------- VALUE HANDLING CONSTANTS --------*/
-
 // Number of decimal places to divide to in display
 pub const D_DISPLAY_PLACES_U64: u64 = 25200;
 pub const D_DISPLAY_PLACES: f64 = 25200.0;
-
 // Number of possible tokens in existence (10 billion)
 pub const TOTAL_TOKENS: u64 = D_DISPLAY_PLACES_U64 * 10000000000;
 
 /*------- ASSET CONSTANTS -------*/
-
 // The value to sign/verify for receipt-based payments
 pub const RECEIPT_ACCEPT_VAL: &str = "PAYMENT_ACCEPT";
 
 /*------- BLOCK CONSTANTS --------*/
-
 // Maximum number of bytes that a block can contain
 pub const MAX_BLOCK_SIZE: usize = 1000;
 
 /*------- SCRIPT CONSTANTS -------*/
-
 // Maximum number of bytes pushable to the stack
 pub const MAX_SCRIPT_ITEM_SIZE: u16 = 520;
-
 // Maximum number of non-push operations per script
 pub const MAX_OPS_PER_SCRIPT: u8 = 201;
-
 // Maximum number of public keys per multisig
 pub const MAX_PUB_KEYS_PER_MULTISIG: u8 = 20;
-
 // Maximum script length in bytes
 pub const MAX_SCRIPT_SIZE: u16 = 10000;
-
 // Maximum number of values on script interpreter stack
 pub const MAX_STACK_SIZE: u16 = 1000;
-
 // Threshold for lock_time: below this value it is interpreted as block number,
 // otherwise as UNIX timestamp.
 pub const LOCKTIME_THRESHOLD: u32 = 500000000; // Tue Nov 5 00:53:20 1985 UTC
-
-/*------- STORAGE CONSTANTS -------*/
-
-/// The constant prepending character for a transaction
-pub const TX_PREPEND: u8 = b'g';
-
-pub const P2SH_PREPEND: u8 = b'H';
-
-/*------- PREVIOUS NETWORK VERSIONS -------*/
-
-// Network version 0
-pub const NETWORK_VERSION_V0: u64 = 0;
-
-// Network version to support temporary address structure on wallet
-// TODO: Deprecate after addresses retire
-pub const NETWORK_VERSION_TEMP: u64 = 99999;
 
 /*------- NUMBERS -------*/
 pub const ZERO: usize = 0;
@@ -85,7 +70,6 @@ pub const FIFTEEN: usize = 15;
 pub const SIXTEEN: usize = 16;
 
 /*------- TRACE MESSAGES -------*/
-
 // constants
 pub const OP0: &str = "OP_0";
 pub const OP1: &str = "OP_1";
@@ -305,15 +289,7 @@ pub const OPCHECKMULTISIG_DESC: &str =
     "Pushes ONE onto the stack if the m-of-n multi-signature is valid, ZERO otherwise";
 pub const OPCHECKMULTISIGVERIFY_DESC: &str = "Runs OP_CHECKMULTISIG and OP_VERIFY in sequence";
 
-// locktime
-pub const OPCHECKLOCKTIMEVERIFY: &str = "OP_CHECKLOCKTIMEVERIFY";
-pub const OPCHECKSEQUENCEVERIFY: &str = "OP_CHECKSEQUENCEVERIFY";
-
-pub const OPCHECKLOCKTIMEVERIFY_DESC: &str = "Checks absolute locktime";
-pub const OPCHECKSEQUENCEVERIFY_DESC: &str = "Checks relative locktime";
-
 /*------- ERROR MESSAGES -------*/
-
 // opcodes
 pub const ERROR_EMPTY_CONDITION: &str = "Condition stack is empty";
 pub const ERROR_VERIFY: &str = "The top item on the stack is ZERO";
@@ -329,10 +305,8 @@ pub const ERROR_INVALID_SIGNATURE: &str = "Signature is not valid";
 pub const ERROR_INVALID_MULTISIGNATURE: &str = "Multi-signature is not valid";
 pub const ERROR_NUM_PUBKEYS: &str = "Number of public keys provided is not correct";
 pub const ERROR_NUM_SIGNATURES: &str = "Number of signatures provided is not correct";
-
 // script
 pub const ERROR_MAX_SCRIPT_SIZE: &str = "Script size exceeds MAX_SCRIPT_SIZE-byte limit";
 pub const ERROR_MAX_STACK_SIZE: &str = "Stack size exceeds MAX_STACK_SIZE limit";
 pub const ERROR_MAX_OPS_SCRIPT: &str =
     "Number of opcodes in script exceeds MAX_OPS_PER_SCRIPT limit";
-pub const ERROR_INVALID_OPCODE: &str = "Attempt to execute invalid opcode";

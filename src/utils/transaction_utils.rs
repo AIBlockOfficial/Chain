@@ -1,29 +1,28 @@
-use crate::constants::{NETWORK_VERSION_TEMP, NETWORK_VERSION_V0, P2SH_PREPEND, TX_PREPEND};
+use crate::constants::*;
 use crate::crypto::sha3_256;
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, SecretKey};
 use crate::primitives::asset::{Asset, DataAsset, TokenAmount};
 use crate::primitives::druid::{DdeValues, DruidExpectation};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
-use crate::script::StackEntry;
+use crate::script::{OpCodes, StackEntry};
 use bincode::serialize;
-use bytes::Bytes;
 use std::collections::BTreeMap;
 
-/// Builds an address for a P2SH transaction
+/// Builds a P2SH address
 ///
 /// ### Arguments
 ///
 /// * `script` - Script to build address for
 pub fn construct_p2sh_address(script: &Script) -> String {
-    let script_bytes = Bytes::from(serialize(script).unwrap());
-    let script_raw_h = sha3_256::digest(&script_bytes).to_vec();
-    let mut hash = hex::encode(script_raw_h);
-
-    hash.insert(0, P2SH_PREPEND as char);
-    hash.truncate(32);
-
-    hash
+    let bytes = match serialize(script) {
+        Ok(bytes) => bytes,
+        Err(_) => vec![],
+    };
+    let mut addr = hex::encode(sha3_256::digest(&bytes));
+    addr.insert(ZERO, P2SH_PREPEND as char);
+    addr.truncate(STANDARD_ADDRESS_LENGTH);
+    addr
 }
 
 /// Builds an address from a public key and a specified network version
@@ -45,8 +44,7 @@ pub fn construct_address_for(pub_key: &PublicKey, address_version: Option<u64>) 
 ///
 /// * `pub_key` - A public key to build an address from
 pub fn construct_address(pub_key: &PublicKey) -> String {
-    let pub_key_hash = sha3_256::digest(pub_key.as_ref());
-    hex::encode(pub_key_hash)
+    hex::encode(sha3_256::digest(pub_key.as_ref()))
 }
 
 /// Builds an old (network version 0) address from a public key
@@ -63,9 +61,7 @@ pub fn construct_address_v0(pub_key: &PublicKey) -> String {
         v
     };
     let mut first_hash = sha3_256::digest(&first_pubkey_bytes).to_vec();
-
-    first_hash.truncate(16);
-
+    first_hash.truncate(V0_ADDRESS_LENGTH);
     hex::encode(first_hash)
 }
 
@@ -80,8 +76,7 @@ pub fn construct_address_v0(pub_key: &PublicKey) -> String {
 pub fn construct_address_temp(pub_key: &PublicKey) -> String {
     let base64_encoding = base64::encode(pub_key.as_ref());
     let hex_decoded = decode_base64_as_hex(&base64_encoding);
-    let pub_key_hash = sha3_256::digest(&hex_decoded);
-    hex::encode(pub_key_hash)
+    hex::encode(sha3_256::digest(&hex_decoded))
 }
 
 /// Decodes a base64 encoded string as hex, invalid character pairs are decoded up to the
@@ -94,18 +89,17 @@ pub fn construct_address_temp(pub_key: &PublicKey) -> String {
 ///
 /// * `s`   - Base64 encoded string
 pub fn decode_base64_as_hex(s: &str) -> Vec<u8> {
-    (0..s.len())
-        .step_by(2)
+    (ZERO..s.len())
+        .step_by(TWO)
         .map(|i| {
-            u8::from_str_radix(&s[i..i + 2], 16)
-                .or_else(|_| u8::from_str_radix(&s[i..i + 1], 16))
+            u8::from_str_radix(&s[i..i + TWO], SIXTEEN as u32)
+                .or_else(|_| u8::from_str_radix(&s[i..i + ONE], SIXTEEN as u32))
                 .unwrap_or_default()
         })
         .collect()
 }
 
 /// Constructs signable string for OutPoint
-///
 ///
 /// ### Arguments
 ///
@@ -173,7 +167,6 @@ pub fn get_stack_entry_signable_string(entry: &StackEntry) -> String {
 
 /// Constructs signable string for Script stack
 ///
-///
 /// ### Arguments
 ///
 /// * `stack`   - StackEntry vector
@@ -187,7 +180,6 @@ pub fn get_script_signable_string(stack: &[StackEntry]) -> String {
 
 /// Constructs signable string for TxIn
 ///
-///
 /// ### Arguments
 ///
 /// * `tx_in`   - TxIn value
@@ -200,8 +192,7 @@ pub fn get_tx_in_address_signable_string(tx_in: &TxIn) -> String {
     format!("{out_point_signable_string}-{script_signable_string}")
 }
 
-/// Constructs address a TxIn collection
-///
+/// Constructs address for a TxIn collection
 ///
 /// ### Arguments
 ///
@@ -286,7 +277,6 @@ pub fn update_utxo_set(current_utxo: &mut BTreeMap<OutPoint, Transaction>) {
     let value_set: Vec<OutPoint> = get_inputs_previous_out_point(current_utxo.values())
         .cloned()
         .collect();
-
     value_set.iter().for_each(move |t_hash| {
         current_utxo.remove(t_hash);
     });
@@ -298,13 +288,13 @@ pub fn update_utxo_set(current_utxo: &mut BTreeMap<OutPoint, Transaction>) {
 ///
 /// * `tx`  - Transaction to hash
 pub fn construct_tx_hash(tx: &Transaction) -> String {
-    let tx_bytes = Bytes::from(serialize(tx).unwrap());
-    let tx_raw_h = sha3_256::digest(&tx_bytes).to_vec();
-    let mut hash = hex::encode(tx_raw_h);
-
-    hash.insert(0, TX_PREPEND as char);
-    hash.truncate(32);
-
+    let bytes = match serialize(tx) {
+        Ok(bytes) => bytes,
+        Err(_) => vec![],
+    };
+    let mut hash = hex::encode(sha3_256::digest(&bytes));
+    hash.insert(ZERO, TX_PREPEND as char);
+    hash.truncate(TX_HASH_LENGTH);
     hash
 }
 
@@ -316,7 +306,7 @@ pub fn construct_tx_hash(tx: &Transaction) -> String {
 /// * `asset`       - Asset to create
 /// * `public_key`  - Public key to sign with
 /// * `secret_key`  - Corresponding private key
-fn construct_create_tx_in(
+pub fn construct_create_tx_in(
     block_num: u64,
     asset: &Asset,
     public_key: PublicKey,
@@ -443,6 +433,24 @@ pub fn construct_p2sh_tx(
         locktime,
         script_public_key: Some(script_hash),
         drs_block_hash,
+    };
+
+    construct_tx_core(tx_ins, vec![tx_out])
+}
+
+/// Constructs a P2SH transaction to burn tokens
+///
+/// ### Arguments
+///
+/// * `tx_ins`  - Input/s to pay from
+pub fn construct_burn_tx(tx_ins: Vec<TxIn>) -> Transaction {
+    let s = vec![StackEntry::Op(OpCodes::OP_BURN)];
+    let script = Script::from(s);
+    let script_hash = construct_p2sh_address(&script);
+
+    let tx_out = TxOut {
+        script_public_key: Some(script_hash),
+        ..Default::default()
     };
 
     construct_tx_core(tx_ins, vec![tx_out])
@@ -730,8 +738,49 @@ mod tests {
 
         assert_eq!(Asset::Token(token_amount), p2sh_tx.outputs[0].value);
         assert_eq!(p2sh_script_pub_key.as_bytes()[0], P2SH_PREPEND);
-        assert_eq!(p2sh_script_pub_key.len(), 32);
+        assert_eq!(p2sh_script_pub_key.len(), STANDARD_ADDRESS_LENGTH);
         assert!(tx_has_valid_p2sh_script(
+            &redeeming_tx.inputs[0].script_signature,
+            p2sh_tx.outputs[0].script_public_key.as_ref().unwrap()
+        ));
+
+        // TODO: Add assertion for full tx validity
+    }
+
+    #[test]
+    fn test_construct_a_valid_burn_tx() {
+        let token_amount = TokenAmount(400000);
+        let (tx_ins, drs_block_hash) = test_construct_valid_inputs(Some(NETWORK_VERSION_V0));
+
+        let p2sh_tx = construct_burn_tx(tx_ins);
+
+        let spending_tx_hash = construct_tx_hash(&p2sh_tx);
+
+        let tx_const = TxConstructor {
+            previous_out: OutPoint::new(spending_tx_hash, 0),
+            signatures: vec![],
+            pub_keys: vec![],
+            address_version: Some(NETWORK_VERSION_V0),
+        };
+
+        let s = vec![StackEntry::Op(OpCodes::OP_BURN)];
+        let script = Script::from(s);
+
+        let redeeming_tx_ins = construct_p2sh_redeem_tx_ins(tx_const, script);
+        let redeeming_tx = construct_payment_tx(
+            redeeming_tx_ins,
+            hex::encode(vec![0; 32]),
+            Some(drs_block_hash),
+            Asset::Token(token_amount),
+            0,
+        );
+        let p2sh_script_pub_key = p2sh_tx.outputs[0].script_public_key.as_ref().unwrap();
+        println!("{:?}", p2sh_script_pub_key);
+
+        assert_eq!(p2sh_script_pub_key.as_bytes()[0], P2SH_PREPEND);
+        assert_eq!(p2sh_script_pub_key.len(), STANDARD_ADDRESS_LENGTH);
+        assert!(!redeeming_tx.inputs[0].script_signature.interpret());
+        assert!(!tx_has_valid_p2sh_script(
             &redeeming_tx.inputs[0].script_signature,
             p2sh_tx.outputs[0].script_public_key.as_ref().unwrap()
         ));
@@ -909,7 +958,11 @@ mod tests {
             ..Default::default()
         }];
 
-        let from_addr = hex::encode(serialize(&tx_ins).unwrap());
+        let bytes = match serialize(&tx_ins) {
+            Ok(bytes) => bytes,
+            Err(_) => vec![],
+        };
+        let from_addr = hex::encode(bytes);
 
         // DDE params
         let druid = hex::encode(vec![1, 2, 3, 4, 5]);
