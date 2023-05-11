@@ -298,7 +298,7 @@ pub fn construct_tx_hash(tx: &Transaction) -> String {
     hash
 }
 
-/// Construct a valid TxIn for a new create asset transaction
+/// Constructs a valid TxIn for a new create asset transaction
 ///
 /// ### Arguments
 ///
@@ -456,7 +456,7 @@ pub fn construct_burn_tx(tx_ins: Vec<TxIn>) -> Transaction {
     construct_tx_core(tx_ins, vec![tx_out])
 }
 
-/// Constructs a transaction to pay a receivers
+/// Constructs a transaction to pay a receiver
 /// If TxIn collection does not add up to the exact amount to pay,
 /// payer will always need to provide a return payment in tx_outs,
 /// otherwise the excess will be burnt and unusable.
@@ -752,9 +752,9 @@ mod tests {
         let token_amount = TokenAmount(400000);
         let (tx_ins, drs_block_hash) = test_construct_valid_inputs(Some(NETWORK_VERSION_V0));
 
-        let p2sh_tx = construct_burn_tx(tx_ins);
+        let burn_tx = construct_burn_tx(tx_ins);
 
-        let spending_tx_hash = construct_tx_hash(&p2sh_tx);
+        let spending_tx_hash = construct_tx_hash(&burn_tx);
 
         let tx_const = TxConstructor {
             previous_out: OutPoint::new(spending_tx_hash, 0),
@@ -774,15 +774,15 @@ mod tests {
             Asset::Token(token_amount),
             0,
         );
-        let p2sh_script_pub_key = p2sh_tx.outputs[0].script_public_key.as_ref().unwrap();
-        println!("{:?}", p2sh_script_pub_key);
+        let burn_script_pub_key = burn_tx.outputs[0].script_public_key.as_ref().unwrap();
+        println!("{:?}", burn_script_pub_key);
 
-        assert_eq!(p2sh_script_pub_key.as_bytes()[0], P2SH_PREPEND);
-        assert_eq!(p2sh_script_pub_key.len(), STANDARD_ADDRESS_LENGTH);
+        assert_eq!(burn_script_pub_key.as_bytes()[0], P2SH_PREPEND);
+        assert_eq!(burn_script_pub_key.len(), STANDARD_ADDRESS_LENGTH);
         assert!(!redeeming_tx.inputs[0].script_signature.interpret());
         assert!(!tx_has_valid_p2sh_script(
             &redeeming_tx.inputs[0].script_signature,
-            p2sh_tx.outputs[0].script_public_key.as_ref().unwrap()
+            burn_tx.outputs[0].script_public_key.as_ref().unwrap()
         ));
 
         // TODO: Add assertion for full tx validity
