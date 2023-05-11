@@ -30,9 +30,12 @@ use super::transaction_utils::construct_p2sh_address;
 ///
 /// ### Arguments
 ///
-/// * `tx`  - Transaction to verify
+/// * `tx`                   - Transaction to verify
+/// * `current_block_number` - Current block number
+/// * `is_in_utxo`           - Function to check if a `TxOut` is in the UTXO set
 pub fn tx_is_valid<'a>(
     tx: &Transaction,
+    current_block_number: u64,
     is_in_utxo: impl Fn(&OutPoint) -> Option<&'a TxOut> + 'a,
 ) -> bool {
     let mut tx_ins_spent: AssetValues = Default::default();
@@ -56,6 +59,12 @@ pub fn tx_is_valid<'a>(
             error!("UTXO DOESN'T CONTAIN THIS TX");
             return false;
         };
+
+        // Check locktime
+        if tx_out.locktime > current_block_number {
+            error!("LOCKTIME NOT MET");
+            return false;
+        }
 
         // At this point `TxIn` will be valid
         let tx_out_pk = tx_out.script_public_key.as_ref();
@@ -86,7 +95,7 @@ pub fn tx_is_valid<'a>(
 ///
 /// ### Arguments
 ///
-/// * `tx_outs` - `TxOut`s to verify
+/// * `tx_outs`      - `TxOut`s to verify
 /// * `tx_ins_spent` - Total amount spendable from `TxIn`s
 pub fn tx_outs_are_valid(tx_outs: &[TxOut], tx_ins_spent: AssetValues) -> bool {
     let mut tx_outs_spent: AssetValues = Default::default();
@@ -3191,7 +3200,7 @@ mod tests {
                 ..Default::default()
             };
 
-            let result = tx_is_valid(&tx, |v| {
+            let result = tx_is_valid(&tx, 100, |v| {
                 Some(&tx_in_previous_out).filter(|_| v == &tx_outpoint)
             });
             actual_result.push(result);
@@ -3354,7 +3363,7 @@ mod tests {
         ///
         /// Act
         ///
-        let actual_result = tx_is_valid(&tx, |v| utxo.get(v));
+        let actual_result = tx_is_valid(&tx, 100, |v| utxo.get(v));
 
         ///
         /// Assert

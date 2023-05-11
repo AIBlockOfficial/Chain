@@ -2485,6 +2485,10 @@ pub fn op_checkmultisigverify(stack: &mut Stack) -> bool {
             sigs.push(sig);
         }
     }
+    if sigs.len() != m {
+        error_num_signatures(op);
+        return false;
+    }
     let msg = match stack.pop() {
         Some(StackEntry::Bytes(s)) => s,
         Some(_) => {
@@ -2512,17 +2516,15 @@ pub fn op_checkmultisigverify(stack: &mut Stack) -> bool {
 /// * `pks`  - public keys to match against
 fn verify_multisig(sigs: &[Signature], msg: &String, pks: &mut Vec<PublicKey>) -> bool {
     let mut num_valid_sigs = ZERO;
-    for (index_sig, sig) in sigs.iter().enumerate() {
-        for (index_pk, pk) in pks.iter().enumerate() {
-            if sign::verify_detached(sig, msg.as_bytes(), pk) {
-                num_valid_sigs += ONE;
-                pks.remove(index_pk);
-                break;
-            }
-        }
-        if num_valid_sigs != index_sig + ONE {
-            return false;
+    for sig in sigs {
+        if let Some((index, _)) = pks
+            .iter()
+            .enumerate()
+            .find(|(_, pk)| sign::verify_detached(sig, msg.as_bytes(), pk))
+        {
+            num_valid_sigs += ONE;
+            pks.remove(index);
         }
     }
-    true
+    num_valid_sigs == sigs.len()
 }
