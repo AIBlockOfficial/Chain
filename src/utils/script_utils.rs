@@ -434,6 +434,11 @@ mod tests {
         stack.push(StackEntry::Num(1));
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
         op_nop(&mut stack);
+        assert_eq!(stack.main_stack, v);
+        /// op_nop([]) -> []
+        let mut stack = Stack::new();
+        let mut v: Vec<StackEntry> = vec![];
+        op_nop(&mut stack);
         assert_eq!(stack.main_stack, v)
     }
 

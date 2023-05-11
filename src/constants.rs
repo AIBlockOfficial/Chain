@@ -46,9 +46,6 @@ pub const MAX_PUB_KEYS_PER_MULTISIG: u8 = 20;
 pub const MAX_SCRIPT_SIZE: u16 = 10000;
 // Maximum number of values on script interpreter stack
 pub const MAX_STACK_SIZE: u16 = 1000;
-// Threshold for lock_time: below this value it is interpreted as block number,
-// otherwise as UNIX timestamp.
-pub const LOCKTIME_THRESHOLD: u32 = 500000000; // Tue Nov 5 00:53:20 1985 UTC
 
 /*------- NUMBERS -------*/
 pub const ZERO: usize = 0;
