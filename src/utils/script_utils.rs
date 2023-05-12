@@ -3133,22 +3133,28 @@ mod tests {
     #[test]
     /// Validate tx_is_valid for multiple TxIn configurations
     fn test_tx_is_valid() {
-        test_tx_is_valid_common(None, OpCodes::OP_HASH256);
+        test_tx_is_valid_common(None, OpCodes::OP_HASH256, None);
     }
 
     #[test]
     /// Validate tx_is_valid for multiple TxIn configurations
     fn test_tx_is_valid_v0() {
-        test_tx_is_valid_common(Some(NETWORK_VERSION_V0), OpCodes::OP_HASH256_V0);
+        test_tx_is_valid_common(Some(NETWORK_VERSION_V0), OpCodes::OP_HASH256_V0, None);
     }
 
     #[test]
     /// Validate tx_is_valid for multiple TxIn configurations
     fn test_tx_is_valid_temp() {
-        test_tx_is_valid_common(Some(NETWORK_VERSION_TEMP), OpCodes::OP_HASH256_TEMP);
+        test_tx_is_valid_common(Some(NETWORK_VERSION_TEMP), OpCodes::OP_HASH256_TEMP, None);
     }
 
-    fn test_tx_is_valid_common(address_version: Option<u64>, op_hash256: OpCodes) {
+    #[test]
+    /// Validate tx_is_valid for locktime
+    fn test_tx_is_valid_locktime() {
+        assert!(test_tx_is_valid_common(None, OpCodes::OP_HASH256, Some(99)) && !test_tx_is_valid_common(None, OpCodes::OP_HASH256, Some(1000000000)));
+    }
+
+    fn test_tx_is_valid_common(address_version: Option<u64>, op_hash256: OpCodes, locktime: Option<u64>) -> bool {
         //
         // Arrange
         //
@@ -3156,7 +3162,7 @@ mod tests {
         let tx_hash = hex::encode(vec![0, 0, 0]);
         let tx_outpoint = OutPoint::new(tx_hash, 0);
         let script_public_key = construct_address_for(&pk, address_version);
-        let tx_in_previous_out = TxOut::new_token_amount(script_public_key.clone(), TokenAmount(5));
+        let tx_in_previous_out = TxOut::new_token_amount(script_public_key.clone(), TokenAmount(5), locktime);
         let ongoing_tx_outs = vec![tx_in_previous_out.clone()];
 
         let valid_bytes = construct_tx_in_signable_hash(&tx_outpoint);
@@ -3200,19 +3206,13 @@ mod tests {
                 ..Default::default()
             };
 
-            let result = tx_is_valid(&tx, 100, |v| {
+            let result = tx_is_valid(&tx, 500000000, |v| {
                 Some(&tx_in_previous_out).filter(|_| v == &tx_outpoint)
             });
             actual_result.push(result);
         }
 
-        //
-        // Assert
-        //
-        assert_eq!(
-            actual_result,
-            inputs.iter().map(|(_, e)| *e).collect::<Vec<bool>>(),
-        );
+        actual_result == inputs.iter().map(|(_, e)| *e).collect::<Vec<bool>>()
     }
 
     #[test]
