@@ -67,42 +67,6 @@ pub const FIFTEEN: usize = 15;
 pub const SIXTEEN: usize = 16;
 
 /*------- TRACE MESSAGES -------*/
-// constants
-pub const OP0: &str = "OP_0";
-pub const OP1: &str = "OP_1";
-pub const OP2: &str = "OP_2";
-pub const OP3: &str = "OP_3";
-pub const OP4: &str = "OP_4";
-pub const OP5: &str = "OP_5";
-pub const OP6: &str = "OP_6";
-pub const OP7: &str = "OP_7";
-pub const OP8: &str = "OP_8";
-pub const OP9: &str = "OP_9";
-pub const OP10: &str = "OP_10";
-pub const OP11: &str = "OP_11";
-pub const OP12: &str = "OP_12";
-pub const OP13: &str = "OP_13";
-pub const OP14: &str = "OP_14";
-pub const OP15: &str = "OP_15";
-pub const OP16: &str = "OP_16";
-
-pub const OP0_DESC: &str = "Pushes number ZERO onto the stack";
-pub const OP1_DESC: &str = "Pushes number ONE onto the stack";
-pub const OP2_DESC: &str = "Pushes number TWO onto the stack";
-pub const OP3_DESC: &str = "Pushes number THREE onto the stack";
-pub const OP4_DESC: &str = "Pushes number FOUR onto the stack";
-pub const OP5_DESC: &str = "Pushes number FIVE onto the stack";
-pub const OP6_DESC: &str = "Pushes number SIX onto the stack";
-pub const OP7_DESC: &str = "Pushes number SEVEN onto the stack";
-pub const OP8_DESC: &str = "Pushes number EIGHT onto the stack";
-pub const OP9_DESC: &str = "Pushes number NINE onto the stack";
-pub const OP10_DESC: &str = "Pushes number TEN onto the stack";
-pub const OP11_DESC: &str = "Pushes number ELEVEN onto the stack";
-pub const OP12_DESC: &str = "Pushes number TWELVE onto the stack";
-pub const OP13_DESC: &str = "Pushes number THIRTEEN onto the stack";
-pub const OP14_DESC: &str = "Pushes number FOURTEEN onto the stack";
-pub const OP15_DESC: &str = "Pushes number FIFTEEN onto the stack";
-pub const OP16_DESC: &str = "Pushes number SIXTEEN onto the stack";
 
 // flow control
 pub const OPNOP: &str = "OP_NOP";
