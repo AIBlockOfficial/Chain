@@ -3151,10 +3151,17 @@ mod tests {
     #[test]
     /// Validate tx_is_valid for locktime
     fn test_tx_is_valid_locktime() {
-        assert!(test_tx_is_valid_common(None, OpCodes::OP_HASH256, Some(99)) && !test_tx_is_valid_common(None, OpCodes::OP_HASH256, Some(1000000000)));
+        assert!(
+            test_tx_is_valid_common(None, OpCodes::OP_HASH256, Some(99))
+                && !test_tx_is_valid_common(None, OpCodes::OP_HASH256, Some(1000000000))
+        );
     }
 
-    fn test_tx_is_valid_common(address_version: Option<u64>, op_hash256: OpCodes, locktime: Option<u64>) -> bool {
+    fn test_tx_is_valid_common(
+        address_version: Option<u64>,
+        op_hash256: OpCodes,
+        locktime: Option<u64>,
+    ) -> bool {
         //
         // Arrange
         //
@@ -3162,7 +3169,8 @@ mod tests {
         let tx_hash = hex::encode(vec![0, 0, 0]);
         let tx_outpoint = OutPoint::new(tx_hash, 0);
         let script_public_key = construct_address_for(&pk, address_version);
-        let tx_in_previous_out = TxOut::new_token_amount(script_public_key.clone(), TokenAmount(5), locktime);
+        let tx_in_previous_out =
+            TxOut::new_token_amount(script_public_key.clone(), TokenAmount(5), locktime);
         let ongoing_tx_outs = vec![tx_in_previous_out.clone()];
 
         let valid_bytes = construct_tx_in_signable_hash(&tx_outpoint);

@@ -896,7 +896,7 @@ mod tests {
         let tx_outs = vec![TxOut::new_token_amount(
             hex::encode(vec![0; 32]),
             token_amount,
-            None
+            None,
         )];
         let payment_tx_2 = construct_tx_core(tx_ins_2, tx_outs);
 
@@ -1006,7 +1006,8 @@ mod tests {
                 // constructors with enough money for amount and excess, caller responsibility.
                 construct_payment_tx_ins(vec![])
             };
-            let excess_tx_out = TxOut::new_token_amount(sender_address_excess, amount - payment, None);
+            let excess_tx_out =
+                TxOut::new_token_amount(sender_address_excess, amount - payment, None);
 
             let expectation = DruidExpectation {
                 from: from_addr.clone(),

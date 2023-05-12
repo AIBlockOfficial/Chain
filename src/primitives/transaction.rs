@@ -121,7 +121,11 @@ impl TxOut {
         Default::default()
     }
 
-    pub fn new_token_amount(to_address: String, amount: TokenAmount, locktime: Option<u64>) -> TxOut {
+    pub fn new_token_amount(
+        to_address: String,
+        amount: TokenAmount,
+        locktime: Option<u64>,
+    ) -> TxOut {
         TxOut {
             value: Asset::Token(amount),
             locktime: locktime.unwrap_or(ZERO as u64),
@@ -133,7 +137,11 @@ impl TxOut {
     /// Creates a new TxOut instance for a `Receipt` asset
     ///
     /// **NOTE:** Only create transactions may have `Receipt` assets that have a `None` `drs_tx_hash`
-    pub fn new_receipt_amount(to_address: String, receipt: ReceiptAsset, locktime: Option<u64>) -> TxOut {
+    pub fn new_receipt_amount(
+        to_address: String,
+        receipt: ReceiptAsset,
+        locktime: Option<u64>,
+    ) -> TxOut {
         TxOut {
             value: Asset::Receipt(receipt),
             locktime: locktime.unwrap_or(ZERO as u64),
