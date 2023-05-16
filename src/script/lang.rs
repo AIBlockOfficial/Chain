@@ -323,7 +323,7 @@ impl Script {
                         }
                         OpCodes::OP_CHECKMULTISIGVERIFY => {
                             test_for_return &= op_checkmultisigverify(&mut stack)
-                        }                        
+                        }
                         // smart data
                         OpCodes::OP_CREATE => (),
                         // reserved
