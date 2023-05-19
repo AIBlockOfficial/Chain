@@ -12,8 +12,8 @@ pub const P2SH_PREPEND: u8 = b'H';
 
 /*------- NETWORK CONSTANTS --------*/
 // Current network version: Always bump immediately after a version is deployed.
-pub const NETWORK_VERSION: u32 = 4;
-pub const NETWORK_VERSION_SERIALIZED: &[u8] = b"4";
+pub const NETWORK_VERSION: u32 = 5;
+pub const NETWORK_VERSION_SERIALIZED: &[u8] = b"5";
 // Network version 0
 pub const NETWORK_VERSION_V0: u64 = 0;
 // Network version to support temporary address structure on wallet
