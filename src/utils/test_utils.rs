@@ -40,9 +40,9 @@ pub fn generate_tx_with_ins_and_outs_assets(
         let tx_in_previous_out = match drs_tx_hash {
             Some(drs) => {
                 let receipt = Asset::receipt(*input_amount, Some(drs.to_string()), md.clone());
-                TxOut::new_asset(spk.clone(), receipt)
+                TxOut::new_asset(spk.clone(), receipt, None)
             }
-            None => TxOut::new_token_amount(spk.clone(), TokenAmount(*input_amount)),
+            None => TxOut::new_token_amount(spk.clone(), TokenAmount(*input_amount), None),
         };
         let signable_hash = construct_tx_in_signable_hash(&tx_previous_out);
         let signature = sign::sign_detached(signable_hash.as_bytes(), &sk);
@@ -59,9 +59,9 @@ pub fn generate_tx_with_ins_and_outs_assets(
         let tx_out = match drs_tx_hash {
             Some(drs) => {
                 let receipt = Asset::receipt(*output_amount, Some(drs.to_string()), None);
-                TxOut::new_asset(spk.clone(), receipt)
+                TxOut::new_asset(spk.clone(), receipt, None)
             }
-            None => TxOut::new_token_amount(spk.clone(), TokenAmount(*output_amount)),
+            None => TxOut::new_token_amount(spk.clone(), TokenAmount(*output_amount), None),
         };
         tx.outputs.push(tx_out);
     }
