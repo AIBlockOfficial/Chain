@@ -6,8 +6,7 @@ use crate::crypto::sign_ed25519::{PublicKey, Signature};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// Stack entry enum which embodies the range of possible
-/// operations that could be performed in a Script stack process
+/// Stack entry enum
 #[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum StackEntry {
     Op(OpCodes),
@@ -40,16 +39,14 @@ pub enum OpCodes {
     OP_14 = 0x5e,
     OP_15 = 0x5f,
     OP_16 = 0x60,
-
     // flow control
     OP_NOP = 0x61,
-    OP_IF = 0x63,    // TODO
-    OP_NOTIF = 0x64, // TODO
-    OP_ELSE = 0x67,  // TODO
-    OP_ENDIF = 0x68, // TODO
+    OP_IF = 0x63,
+    OP_NOTIF = 0x64,
+    OP_ELSE = 0x67,
+    OP_ENDIF = 0x68,
     OP_VERIFY = 0x69,
-    OP_RETURN = 0x6a,
-
+    OP_BURN = 0x6a,
     // stack
     OP_TOALTSTACK = 0x6b,
     OP_FROMALTSTACK = 0x6c,
@@ -70,14 +67,12 @@ pub enum OpCodes {
     OP_ROT = 0x7b,
     OP_SWAP = 0x7c,
     OP_TUCK = 0x7d,
-
     // splice
     OP_CAT = 0x7e,
     OP_SUBSTR = 0x7f,
     OP_LEFT = 0x80,
     OP_RIGHT = 0x81,
     OP_SIZE = 0x82,
-
     // bitwise logic
     OP_INVERT = 0x83,
     OP_AND = 0x84,
@@ -85,7 +80,6 @@ pub enum OpCodes {
     OP_XOR = 0x86,
     OP_EQUAL = 0x87,
     OP_EQUALVERIFY = 0x88,
-
     // arithmetic
     OP_1ADD = 0x8b,
     OP_1SUB = 0x8c,
@@ -112,7 +106,6 @@ pub enum OpCodes {
     OP_MIN = 0xa3,
     OP_MAX = 0xa4,
     OP_WITHIN = 0xa5,
-
     // crypto
     OP_SHA3 = 0xa9,
     OP_HASH256 = 0xaa,
@@ -122,35 +115,21 @@ pub enum OpCodes {
     OP_CHECKSIGVERIFY = 0xad,
     OP_CHECKMULTISIG = 0xae,
     OP_CHECKMULTISIGVERIFY = 0xaf,
-
-    // locktime
-    OP_CHECKLOCKTIMEVERIFY = 0xb1, // TODO
-    OP_CHECKSEQUENCEVERIFY = 0xb2, // TODO
-
-    // reserved
-    OP_RESERVED = 0x50,
-    OP_RESERVED1 = 0x89,
-    OP_RESERVED2 = 0x8a,
-    OP_NOP1 = 0xb0,
-    OP_NOP4 = 0xb3,
-    OP_NOP5 = 0xb4,
-    OP_NOP6 = 0xb5,
-    OP_NOP7 = 0xb6,
-    OP_NOP8 = 0xb7,
-    OP_NOP9 = 0xb8,
-    OP_NOP10 = 0xb9,
-
     // smart data
     OP_CREATE = 0xc0,
 }
 
 impl OpCodes {
-    pub const OP_NOP2: OpCodes = OpCodes::OP_CHECKLOCKTIMEVERIFY;
-    pub const OP_NOP3: OpCodes = OpCodes::OP_CHECKSEQUENCEVERIFY;
-    pub const MAX_OPCODE: OpCodes = OpCodes::OP_CREATE;
+    /// Returns true if the opcode is a conditional
+    pub fn is_conditional(&self) -> bool {
+        matches!(
+            self,
+            OpCodes::OP_IF | OpCodes::OP_NOTIF | OpCodes::OP_ELSE | OpCodes::OP_ENDIF
+        )
+    }
 }
 
-// Allows for string casting
+/// Allows for string casting
 impl fmt::Display for OpCodes {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{self:?}")

@@ -11,12 +11,16 @@ pub fn trace(op: &str, desc: &str) {
 
 // opcodes
 
+pub fn error_empty_condition(op: &str) {
+    error!("{op}: {ERROR_EMPTY_CONDITION}")
+}
+
 pub fn error_verify(op: &str) {
     error!("{op}: {ERROR_VERIFY}")
 }
 
-pub fn error_return(op: &str) {
-    error!("{op}: {ERROR_RETURN}")
+pub fn error_burn(op: &str) {
+    error!("{op}: {ERROR_BURN}")
 }
 
 pub fn error_num_items(op: &str) {
@@ -75,8 +79,4 @@ pub fn error_max_stack_size() {
 
 pub fn error_max_ops_script() {
     error!("{ERROR_MAX_OPS_SCRIPT}")
-}
-
-pub fn error_invalid_opcode() {
-    error!("{ERROR_INVALID_OPCODE}")
 }
