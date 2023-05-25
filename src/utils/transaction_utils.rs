@@ -160,7 +160,6 @@ pub fn get_stack_entry_signable_string(entry: &StackEntry) -> String {
             format!("Signature:{}", hex::encode(signature.as_ref()))
         }
         StackEntry::PubKey(pub_key) => format!("PubKey:{}", hex::encode(pub_key.as_ref())),
-        //StackEntry::PubKeyHash(pub_key_hash) => format!("PubKeyHash:{pub_key_hash}"),
         StackEntry::Num(num) => format!("Num:{num}"),
         StackEntry::Bytes(bytes) => format!("Bytes:{bytes}"),
     }

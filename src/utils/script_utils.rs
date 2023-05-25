@@ -179,7 +179,6 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
         Some(StackEntry::Op(
             OpCodes::OP_HASH256 | OpCodes::OP_HASH256_V0 | OpCodes::OP_HASH256_TEMP,
         )),
-        //Some(StackEntry::PubKeyHash(h)),
         Some(StackEntry::Bytes(h)),
         Some(StackEntry::Op(OpCodes::OP_EQUALVERIFY)),
         Some(StackEntry::Op(OpCodes::OP_CHECKSIG)),
@@ -1892,7 +1891,6 @@ mod tests {
         let (pk, sk) = sign::gen_keypair();
         let mut stack = Stack::new();
         stack.push(StackEntry::PubKey(pk));
-        //let mut v: Vec<StackEntry> = vec![StackEntry::PubKeyHash(construct_address(&pk))];
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes(construct_address(&pk))];
         op_hash256(&mut stack);
         assert_eq!(stack.main_stack, v);
@@ -1909,7 +1907,6 @@ mod tests {
         let (pk, sk) = sign::gen_keypair();
         let mut stack = Stack::new();
         stack.push(StackEntry::PubKey(pk));
-        //let mut v: Vec<StackEntry> = vec![StackEntry::PubKeyHash(construct_address_v0(&pk))];
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes(construct_address_v0(&pk))];
         op_hash256_v0(&mut stack);
         assert_eq!(stack.main_stack, v);
@@ -1926,7 +1923,6 @@ mod tests {
         let (pk, sk) = sign::gen_keypair();
         let mut stack = Stack::new();
         stack.push(StackEntry::PubKey(pk));
-        //let mut v: Vec<StackEntry> = vec![StackEntry::PubKeyHash(construct_address_temp(&pk))];
         let mut v: Vec<StackEntry> = vec![StackEntry::Bytes(construct_address_temp(&pk))];
         op_hash256_temp(&mut stack);
         assert_eq!(stack.main_stack, v);
@@ -3031,7 +3027,6 @@ mod tests {
                     StackEntry::PubKey(pk),
                     StackEntry::Op(OpCodes::OP_DUP),
                     StackEntry::Op(op_hash256),
-                    //StackEntry::PubKeyHash(script_public_key),
                     StackEntry::Bytes(script_public_key),
                     StackEntry::Op(OpCodes::OP_EQUALVERIFY),
                     StackEntry::Op(OpCodes::OP_CHECKSIG),

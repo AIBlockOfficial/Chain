@@ -66,7 +66,7 @@ impl Stack {
             StackEntry::Op(_) => {
                 return false;
             }
-            /*StackEntry::PubKeyHash(s) |*/ StackEntry::Bytes(s) => {
+            StackEntry::Bytes(s) => {
                 if s.len() > MAX_SCRIPT_ITEM_SIZE as usize {
                     return false;
                 }
@@ -184,7 +184,7 @@ impl Script {
                 }
                 StackEntry::Signature(_) => len += ED25519_SIGNATURE_LEN,
                 StackEntry::PubKey(_) => len += ED25519_PUBLIC_KEY_LEN,
-                /*StackEntry::PubKeyHash(s) |*/ StackEntry::Bytes(s) => len += s.len(),
+                StackEntry::Bytes(s) => len += s.len(),
                 StackEntry::Num(_) => len += usize::BITS as usize / EIGHT,
             };
         }
@@ -330,10 +330,9 @@ impl Script {
                         _ => (),
                     }
                 }
-                /*---- SIGNATURE | PUBKEY | PUBKEYHASH | NUM | BYTES ----*/
+                /*---- SIGNATURE | PUBKEY | NUM | BYTES ----*/
                 StackEntry::Signature(_)
                 | StackEntry::PubKey(_)
-                /*| StackEntry::PubKeyHash(_)*/
                 | StackEntry::Num(_)
                 | StackEntry::Bytes(_) => {
                     if cond_stack.all_true() {
@@ -409,7 +408,6 @@ impl Script {
             StackEntry::Op(OpCodes::OP_DUP),
             StackEntry::Op(op_hash_256),
             StackEntry::Bytes(construct_address_for(&pub_key, address_version)),
-            //StackEntry::PubKeyHash(construct_address_for(&pub_key, address_version)),
             StackEntry::Op(OpCodes::OP_EQUALVERIFY),
             StackEntry::Op(OpCodes::OP_CHECKSIG),
         ];
