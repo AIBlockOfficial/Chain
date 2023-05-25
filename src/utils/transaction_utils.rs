@@ -30,6 +30,7 @@ pub fn construct_p2sh_address(script: &Script) -> String {
 /// ### Arguments
 ///
 /// * `pub_key` - A public key to build an address from
+/// * `address_version` - Network version to use for the address
 pub fn construct_address_for(pub_key: &PublicKey, address_version: Option<u64>) -> String {
     match address_version {
         Some(NETWORK_VERSION_V0) => construct_address_v0(pub_key),
