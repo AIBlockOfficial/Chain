@@ -12,7 +12,7 @@ pub enum StackEntry {
     Op(OpCodes),
     Signature(Signature),
     PubKey(PublicKey),
-    PubKeyHash(String),
+    //PubKeyHash(String),
     Num(usize),
     Bytes(String),
 }

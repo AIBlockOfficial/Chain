@@ -160,7 +160,7 @@ pub fn get_stack_entry_signable_string(entry: &StackEntry) -> String {
             format!("Signature:{}", hex::encode(signature.as_ref()))
         }
         StackEntry::PubKey(pub_key) => format!("PubKey:{}", hex::encode(pub_key.as_ref())),
-        StackEntry::PubKeyHash(pub_key_hash) => format!("PubKeyHash:{pub_key_hash}"),
+        //StackEntry::PubKeyHash(pub_key_hash) => format!("PubKeyHash:{pub_key_hash}"),
         StackEntry::Num(num) => format!("Num:{num}"),
         StackEntry::Bytes(bytes) => format!("Bytes:{bytes}"),
     }
@@ -1253,7 +1253,7 @@ mod tests {
             .collect();
 
         let expected =
-            "a7b09a0ffc38e41318eb67c781279d4168f6e203810741284c2426b86ed28e3a".to_owned();
+            "c8b62d379f07602956207ea473ce20d9752d24ad6e6cd43cb042d024d7c6a468".to_owned();
         let actual = construct_tx_ins_address(&tx_ins);
 
         //
