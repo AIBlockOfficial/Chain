@@ -2414,6 +2414,19 @@ mod tests {
 
     #[test]
     fn test_conditionals() {
+        // OP_1 OP_IF OP_2 OP_ELSE OP_3 OP_ELSE OP_0 OP_ENDIF
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_1),
+            StackEntry::Op(OpCodes::OP_IF),
+            StackEntry::Op(OpCodes::OP_2),
+            StackEntry::Op(OpCodes::OP_ELSE),
+            StackEntry::Op(OpCodes::OP_3),
+            StackEntry::Op(OpCodes::OP_ELSE),
+            StackEntry::Op(OpCodes::OP_0),
+            StackEntry::Op(OpCodes::OP_ENDIF),
+        ];
+        let script = Script::from(v);
+        assert!(!script.interpret());
         // OP_1 OP_IF OP_2 OP_ELSE OP_3 OP_ENDIF
         let v = vec![
             StackEntry::Op(OpCodes::OP_1),
