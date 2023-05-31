@@ -18,13 +18,13 @@ impl ops::Add for TokenAmount {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
-        Self(self.0 + other.0)
+        Self(self.0.saturating_add(other.0))
     }
 }
 
 impl ops::AddAssign for TokenAmount {
     fn add_assign(&mut self, other: Self) {
-        self.0 += other.0;
+        self.0 = self.0.saturating_add(other.0)
     }
 }
 
@@ -32,27 +32,13 @@ impl ops::Sub for TokenAmount {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self {
-        Self(self.0 - other.0)
+        Self(self.0.saturating_sub(other.0))
     }
 }
 
 impl ops::SubAssign for TokenAmount {
     fn sub_assign(&mut self, other: Self) {
-        self.0 -= other.0;
-    }
-}
-
-impl ops::Div<u64> for TokenAmount {
-    type Output = Self;
-
-    fn div(self, rhs: u64) -> Self {
-        Self(self.0 / rhs)
-    }
-}
-
-impl ops::DivAssign<u64> for TokenAmount {
-    fn div_assign(&mut self, rhs: u64) {
-        self.0 /= rhs;
+        self.0 = self.0.saturating_sub(other.0)
     }
 }
 
@@ -60,13 +46,33 @@ impl ops::Mul<u64> for TokenAmount {
     type Output = Self;
 
     fn mul(self, rhs: u64) -> Self {
-        Self(self.0 * rhs)
+        Self(self.0.saturating_mul(rhs))
     }
 }
 
 impl ops::MulAssign<u64> for TokenAmount {
     fn mul_assign(&mut self, rhs: u64) {
-        self.0 *= rhs;
+        self.0 = self.0.saturating_mul(rhs);
+    }
+}
+
+impl ops::Div<u64> for TokenAmount {
+    type Output = Self;
+
+    fn div(self, rhs: u64) -> Self {
+        match rhs {
+            u64::MIN => Self(u64::MAX),
+            _ => Self(self.0.saturating_div(rhs)),
+        }
+    }
+}
+
+impl ops::DivAssign<u64> for TokenAmount {
+    fn div_assign(&mut self, rhs: u64) {
+        match rhs {
+            u64::MIN => self.0 = u64::MAX,
+            _ => self.0 = self.0.saturating_div(rhs),
+        }
     }
 }
 
@@ -386,4 +392,59 @@ impl AssetValues {
             _ => {}
         }
     }
+}
+
+#[test]
+fn test_overflow() {
+    println!("add");
+    let token1: TokenAmount = TokenAmount(u64::MAX - 1);
+    let token2: TokenAmount = TokenAmount(2);
+    println!("{:?} + {:?} = {:?}", token1, token2, token1 + token2);
+    // TokenAmount(18446744073709551614) + TokenAmount(2) = TokenAmount(18446744073709551615)
+
+    println!("add_assign");
+    let mut token1: TokenAmount = TokenAmount(u64::MAX - 1);
+    let token2: TokenAmount = TokenAmount(2);
+    token1 += token2;
+    println!("{:?}", token1);
+    // TokenAmount(18446744073709551615)
+    
+    println!("sub");
+    let token1 = TokenAmount(u64::MIN);
+    let token2 = TokenAmount(1);
+    println!("{:?} - {:?} = {:?}", token1, token2, token1 - token2);
+    // TokenAmount(0) - TokenAmount(1) = TokenAmount(0)
+
+    println!("sub_assign");
+    let mut token1 = TokenAmount(u64::MIN);
+    let token2 = TokenAmount(1);
+    token1 -= token2;
+    println!("{:?}", token1);
+    // TokenAmount(0)
+
+    println!("mul");
+    let token = TokenAmount(u64::MAX - 1);
+    let rhs = 2u64;
+    println!("{:?} * {:?} = {:?}", token, rhs, token * rhs);
+    // TokenAmount(18446744073709551614) * 2 = TokenAmount(18446744073709551615)
+
+    println!("mul_assign");
+    let mut token = TokenAmount(u64::MAX - 1);
+    let rhs = 2u64;
+    token *= rhs;
+    println!("{:?}", token);
+    // TokenAmount(18446744073709551615)
+
+    println!("div");
+    let token = TokenAmount(u64::MAX - 1);
+    let rhs = 0u64;
+    println!("{:?} / {:?} = {:?}", token, rhs, token / rhs);
+    // TokenAmount(18446744073709551614) / 0 = TokenAmount(18446744073709551615)
+
+    println!("div_assign");
+    let mut token = TokenAmount(u64::MAX - 1);
+    let rhs = 0u64;
+    token /= rhs;
+    println!("{:?}", token);
+    // TokenAmount(18446744073709551615)
 }
