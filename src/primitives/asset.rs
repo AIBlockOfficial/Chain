@@ -413,56 +413,41 @@ impl AssetValues {
 }
 
 #[test]
-fn test_overflow() {
-    println!("\nadd");
+fn test_token_amount_operations() {
+    // add
     let token1: TokenAmount = TokenAmount(u64::MAX - 1);
     let token2: TokenAmount = TokenAmount(2);
-    println!("{:?} + {:?} = {:?}", token1, token2, token1 + token2);
-    // TokenAmount(18446744073709551614) + TokenAmount(2) = TokenAmount(18446744073709551615)
-
-    println!("\nadd_assign");
+    assert_eq!(token1 + token2, TokenAmount(u64::MAX));
+    // add_assign
     let mut token1: TokenAmount = TokenAmount(u64::MAX - 1);
     let token2: TokenAmount = TokenAmount(2);
     token1 += token2;
-    println!("{:?}", token1);
-    // TokenAmount(18446744073709551615)
-    
-    println!("\nsub");
-    let token1 = TokenAmount(u64::MIN);
-    let token2 = TokenAmount(1);
-    println!("{:?} - {:?} = {:?}", token1, token2, token1 - token2);
-    // TokenAmount(0) - TokenAmount(1) = TokenAmount(0)
-
-    println!("\nsub_assign");
-    let mut token1 = TokenAmount(u64::MIN);
-    let token2 = TokenAmount(1);
+    assert_eq!(token1, TokenAmount(u64::MAX));
+    // sub
+    let token1: TokenAmount = TokenAmount(u64::MIN);
+    let token2: TokenAmount = TokenAmount(1);
+    assert_eq!(token1 - token2, TokenAmount(u64::MIN));
+    // sub_assign
+    let mut token1: TokenAmount = TokenAmount(u64::MIN);
+    let token2: TokenAmount = TokenAmount(1);
     token1 -= token2;
-    println!("{:?}", token1);
-    // TokenAmount(0)
-
-    println!("\nmul");
-    let token = TokenAmount(u64::MAX - 1);
-    let rhs = 2u64;
-    println!("{:?} * {:?} = {:?}", token, rhs, token * rhs);
-    // TokenAmount(18446744073709551614) * 2 = TokenAmount(18446744073709551615)
-
-    println!("\nmul_assign");
-    let mut token = TokenAmount(u64::MAX - 1);
-    let rhs = 2u64;
+    assert_eq!(token1, TokenAmount(u64::MIN));
+    // mul
+    let token: TokenAmount = TokenAmount(u64::MAX - 1);
+    let rhs: u64 = 2;
+    assert_eq!(token * rhs, TokenAmount(u64::MAX));
+    // mul_assign
+    let mut token: TokenAmount = TokenAmount(u64::MAX - 1);
+    let rhs: u64 = 2;
     token *= rhs;
-    println!("{:?}", token);
-    // TokenAmount(18446744073709551615)
-
-    println!("\ndiv");
-    let token = TokenAmount(1);
-    let rhs = 0u64;
-    println!("{:?} / {:?} = {:?}", token, rhs, token / rhs);
-    // TokenAmount(1) / 0 = TokenAmount(18446744073709551615)
-
-    println!("\ndiv_assign");
-    let mut token = TokenAmount(1);
-    let rhs = 0u64;
+    assert_eq!(token, TokenAmount(u64::MAX));
+    // div
+    let token: TokenAmount = TokenAmount(1);
+    let rhs: u64 = 0;
+    assert_eq!(token / rhs, TokenAmount(u64::MAX));
+    // div_assign
+    let mut token: TokenAmount = TokenAmount(1);
+    let rhs: u64 = 0;
     token /= rhs;
-    println!("{:?}", token);
-    // TokenAmount(18446744073709551615)
+    assert_eq!(token, TokenAmount(u64::MAX));
 }
