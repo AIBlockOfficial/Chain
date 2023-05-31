@@ -18,13 +18,19 @@ impl ops::Add for TokenAmount {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
-        Self(self.0 + other.0)
+        match self.0.checked_add(other.0) {
+            Some(v) => Self(v),
+            None => Self(u64::MAX),
+        }
     }
 }
 
 impl ops::AddAssign for TokenAmount {
     fn add_assign(&mut self, other: Self) {
-        self.0 += other.0;
+        self.0 = match self.0.checked_add(other.0) {
+            Some(v) => v,
+            None => u64::MAX,
+        }
     }
 }
 
@@ -32,27 +38,19 @@ impl ops::Sub for TokenAmount {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self {
-        Self(self.0 - other.0)
+        match self.0.checked_sub(other.0) {
+            Some(v) => Self(v),
+            None => Self(u64::MIN),
+        }
     }
 }
 
 impl ops::SubAssign for TokenAmount {
     fn sub_assign(&mut self, other: Self) {
-        self.0 -= other.0;
-    }
-}
-
-impl ops::Div<u64> for TokenAmount {
-    type Output = Self;
-
-    fn div(self, rhs: u64) -> Self {
-        Self(self.0 / rhs)
-    }
-}
-
-impl ops::DivAssign<u64> for TokenAmount {
-    fn div_assign(&mut self, rhs: u64) {
-        self.0 /= rhs;
+        self.0 = match self.0.checked_sub(other.0) {
+            Some(v) => v,
+            None => u64::MIN,
+        }
     }
 }
 
@@ -60,13 +58,39 @@ impl ops::Mul<u64> for TokenAmount {
     type Output = Self;
 
     fn mul(self, rhs: u64) -> Self {
-        Self(self.0 * rhs)
+        match self.0.checked_mul(rhs) {
+            Some(v) => Self(v),
+            None => Self(u64::MAX),
+        }
     }
 }
 
 impl ops::MulAssign<u64> for TokenAmount {
     fn mul_assign(&mut self, rhs: u64) {
-        self.0 *= rhs;
+        self.0 = match self.0.checked_mul(rhs) {
+            Some(v) => v,
+            None => u64::MAX,
+        }
+    }
+}
+
+impl ops::Div<u64> for TokenAmount {
+    type Output = Self;
+
+    fn div(self, rhs: u64) -> Self {
+        match self.0.checked_div(rhs) {
+            Some(v) => Self(v),
+            None => Self(u64::MAX),
+        }
+    }
+}
+
+impl ops::DivAssign<u64> for TokenAmount {
+    fn div_assign(&mut self, rhs: u64) {
+        self.0 = match self.0.checked_div(rhs) {
+            Some(v) => v,
+            None => u64::MAX,
+        }
     }
 }
 
@@ -386,4 +410,59 @@ impl AssetValues {
             _ => {}
         }
     }
+}
+
+#[test]
+fn test_overflow() {
+    println!("\nadd");
+    let token1: TokenAmount = TokenAmount(u64::MAX - 1);
+    let token2: TokenAmount = TokenAmount(2);
+    println!("{:?} + {:?} = {:?}", token1, token2, token1 + token2);
+    // TokenAmount(18446744073709551614) + TokenAmount(2) = TokenAmount(18446744073709551615)
+
+    println!("\nadd_assign");
+    let mut token1: TokenAmount = TokenAmount(u64::MAX - 1);
+    let token2: TokenAmount = TokenAmount(2);
+    token1 += token2;
+    println!("{:?}", token1);
+    // TokenAmount(18446744073709551615)
+    
+    println!("\nsub");
+    let token1 = TokenAmount(u64::MIN);
+    let token2 = TokenAmount(1);
+    println!("{:?} - {:?} = {:?}", token1, token2, token1 - token2);
+    // TokenAmount(0) - TokenAmount(1) = TokenAmount(0)
+
+    println!("\nsub_assign");
+    let mut token1 = TokenAmount(u64::MIN);
+    let token2 = TokenAmount(1);
+    token1 -= token2;
+    println!("{:?}", token1);
+    // TokenAmount(0)
+
+    println!("\nmul");
+    let token = TokenAmount(u64::MAX - 1);
+    let rhs = 2u64;
+    println!("{:?} * {:?} = {:?}", token, rhs, token * rhs);
+    // TokenAmount(18446744073709551614) * 2 = TokenAmount(18446744073709551615)
+
+    println!("\nmul_assign");
+    let mut token = TokenAmount(u64::MAX - 1);
+    let rhs = 2u64;
+    token *= rhs;
+    println!("{:?}", token);
+    // TokenAmount(18446744073709551615)
+
+    println!("\ndiv");
+    let token = TokenAmount(1);
+    let rhs = 0u64;
+    println!("{:?} / {:?} = {:?}", token, rhs, token / rhs);
+    // TokenAmount(1) / 0 = TokenAmount(18446744073709551615)
+
+    println!("\ndiv_assign");
+    let mut token = TokenAmount(1);
+    let rhs = 0u64;
+    token /= rhs;
+    println!("{:?}", token);
+    // TokenAmount(18446744073709551615)
 }

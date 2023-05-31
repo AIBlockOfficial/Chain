@@ -1922,7 +1922,7 @@ pub fn op_sha3(stack: &mut Stack) -> bool {
     let data = match stack.pop() {
         Some(StackEntry::Signature(sig)) => sig.as_ref().to_owned(),
         Some(StackEntry::PubKey(pk)) => pk.as_ref().to_owned(),
-        Some(StackEntry::PubKeyHash(s)) | Some(StackEntry::Bytes(s)) => s.as_bytes().to_owned(),
+        Some(StackEntry::Bytes(s)) => s.as_bytes().to_owned(),
         Some(_) => {
             error_item_type(op);
             return false;
@@ -1958,7 +1958,7 @@ pub fn op_hash256(stack: &mut Stack) -> bool {
         }
     };
     let addr = construct_address(&pk);
-    stack.push(StackEntry::PubKeyHash(addr))
+    stack.push(StackEntry::Bytes(addr))
 }
 
 /// OP_HASH256_V0: Creates v0 address from public key and pushes it onto the stack
@@ -1987,7 +1987,7 @@ pub fn op_hash256_v0(stack: &mut Stack) -> bool {
         }
     };
     let addr_v0 = construct_address_v0(&pk);
-    stack.push(StackEntry::PubKeyHash(addr_v0))
+    stack.push(StackEntry::Bytes(addr_v0))
 }
 
 /// OP_HASH256_TEMP: Creates temporary address from public key and pushes it onto the stack
@@ -2016,7 +2016,7 @@ pub fn op_hash256_temp(stack: &mut Stack) -> bool {
         }
     };
     let addr_temp = construct_address_temp(&pk);
-    stack.push(StackEntry::PubKeyHash(addr_temp))
+    stack.push(StackEntry::Bytes(addr_temp))
 }
 
 /// OP_CHECKSIG: Pushes ONE onto the stack if the signature is valid, ZERO otherwise
