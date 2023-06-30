@@ -67,4 +67,4 @@ structure.
 ## References
 
 - [BitML for Zenotta](https://github.com/Zenotta/NAOM/blob/main/docs/BitML_for_Zenotta.pdf)
-- [ZScript Opcodes Reference](https://github.com/Zenotta/NAOM/blob/main/docs/ZScript_Opcodes_Reference.pdf)
+- [ZScript Standard Opcodes](https://github.com/Zenotta/NAOM/blob/main/docs/ZScript_Standard_Opcodes.pdf)
