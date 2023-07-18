@@ -1,6 +1,6 @@
 [package]
 name = "naom"
-version = "1.3.0"
+version = "1.4.0"
 homepage = "https://zenotta.io"
 description = "NAOM is a distributed blockchain store with a dual double entry (DDE) data structure."
 authors = ["Byron Houwens <byron.houwens@gmail.com>", "Anton Troskie <anton.troskie@zenotta.com>"]
