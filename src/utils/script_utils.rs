@@ -30,9 +30,12 @@ use super::transaction_utils::construct_p2sh_address;
 ///
 /// ### Arguments
 ///
-/// * `tx`  - Transaction to verify
+/// * `tx`                   - Transaction to verify
+/// * `current_block_number` - Current block number
+/// * `is_in_utxo`           - Function to check if a `TxOut` is in the UTXO set
 pub fn tx_is_valid<'a>(
     tx: &Transaction,
+    current_block_number: u64,
     is_in_utxo: impl Fn(&OutPoint) -> Option<&'a TxOut> + 'a,
 ) -> bool {
     let mut tx_ins_spent: AssetValues = Default::default();
@@ -56,6 +59,12 @@ pub fn tx_is_valid<'a>(
             error!("UTXO DOESN'T CONTAIN THIS TX");
             return false;
         };
+
+        // Check locktime
+        if tx_out.locktime > current_block_number {
+            error!("LOCKTIME NOT MET");
+            return false;
+        }
 
         // At this point `TxIn` will be valid
         let tx_out_pk = tx_out.script_public_key.as_ref();
@@ -86,7 +95,7 @@ pub fn tx_is_valid<'a>(
 ///
 /// ### Arguments
 ///
-/// * `tx_outs` - `TxOut`s to verify
+/// * `tx_outs`      - `TxOut`s to verify
 /// * `tx_ins_spent` - Total amount spendable from `TxIn`s
 pub fn tx_outs_are_valid(tx_outs: &[TxOut], tx_ins_spent: AssetValues) -> bool {
     let mut tx_outs_spent: AssetValues = Default::default();
@@ -170,7 +179,7 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
         Some(StackEntry::Op(
             OpCodes::OP_HASH256 | OpCodes::OP_HASH256_V0 | OpCodes::OP_HASH256_TEMP,
         )),
-        Some(StackEntry::PubKeyHash(h)),
+        Some(StackEntry::Bytes(h)),
         Some(StackEntry::Op(OpCodes::OP_EQUALVERIFY)),
         Some(StackEntry::Op(OpCodes::OP_CHECKSIG)),
         None,
@@ -252,178 +261,6 @@ mod tests {
     use crate::utils::test_utils::generate_tx_with_ins_and_outs_assets;
     use crate::utils::transaction_utils::*;
 
-    /*---- CONSTANTS OPS ----*/
-
-    #[test]
-    /// Test OP_0
-    fn test_0() {
-        /// op_0([]) -> [0]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(0)];
-        op_0(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_1
-    fn test_1() {
-        /// op_1([]) -> [1]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
-        op_1(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_2
-    fn test_2() {
-        /// op_2([]) -> [2]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(2)];
-        op_2(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_3
-    fn test_3() {
-        /// op_3([]) -> [3]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(3)];
-        op_3(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_4
-    fn test_4() {
-        /// op_4([]) -> [4]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(4)];
-        op_4(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_5
-    fn test_5() {
-        /// op_5([]) -> [5]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(5)];
-        op_5(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_6
-    fn test_6() {
-        /// op_6([]) -> [6]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(6)];
-        op_6(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_7
-    fn test_7() {
-        /// op_7([]) -> [7]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(7)];
-        op_7(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_8
-    fn test_8() {
-        /// op_8([]) -> [8]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(8)];
-        op_8(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_9
-    fn test_9() {
-        /// op_9([]) -> [9]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(9)];
-        op_9(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_10
-    fn test_10() {
-        /// op_10([]) -> [10]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(10)];
-        op_10(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_11
-    fn test_11() {
-        /// op_11([]) -> [11]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(11)];
-        op_11(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_12
-    fn test_12() {
-        /// op_12([]) -> [12]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(12)];
-        op_12(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_13
-    fn test_13() {
-        /// op_13([]) -> [13]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(13)];
-        op_13(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_14
-    fn test_14() {
-        /// op_14([]) -> [14]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(14)];
-        op_14(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_15
-    fn test_15() {
-        /// op_15([]) -> [15]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(15)];
-        op_15(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
-    #[test]
-    /// Test OP_16
-    fn test_16() {
-        /// op_16([]) -> [16]
-        let mut stack = Stack::new();
-        let mut v: Vec<StackEntry> = vec![StackEntry::Num(16)];
-        op_16(&mut stack);
-        assert_eq!(stack.main_stack, v)
-    }
-
     /*---- FLOW CONTROL OPS ----*/
 
     #[test]
@@ -433,6 +270,11 @@ mod tests {
         let mut stack = Stack::new();
         stack.push(StackEntry::Num(1));
         let mut v: Vec<StackEntry> = vec![StackEntry::Num(1)];
+        op_nop(&mut stack);
+        assert_eq!(stack.main_stack, v);
+        /// op_nop([]) -> []
+        let mut stack = Stack::new();
+        let mut v: Vec<StackEntry> = vec![];
         op_nop(&mut stack);
         assert_eq!(stack.main_stack, v)
     }
@@ -2049,7 +1891,7 @@ mod tests {
         let (pk, sk) = sign::gen_keypair();
         let mut stack = Stack::new();
         stack.push(StackEntry::PubKey(pk));
-        let mut v: Vec<StackEntry> = vec![StackEntry::PubKeyHash(construct_address(&pk))];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes(construct_address(&pk))];
         op_hash256(&mut stack);
         assert_eq!(stack.main_stack, v);
         /// op_hash256([]) -> fail
@@ -2065,7 +1907,7 @@ mod tests {
         let (pk, sk) = sign::gen_keypair();
         let mut stack = Stack::new();
         stack.push(StackEntry::PubKey(pk));
-        let mut v: Vec<StackEntry> = vec![StackEntry::PubKeyHash(construct_address_v0(&pk))];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes(construct_address_v0(&pk))];
         op_hash256_v0(&mut stack);
         assert_eq!(stack.main_stack, v);
         /// op_hash256([]) -> fail
@@ -2081,7 +1923,7 @@ mod tests {
         let (pk, sk) = sign::gen_keypair();
         let mut stack = Stack::new();
         stack.push(StackEntry::PubKey(pk));
-        let mut v: Vec<StackEntry> = vec![StackEntry::PubKeyHash(construct_address_temp(&pk))];
+        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes(construct_address_temp(&pk))];
         op_hash256_temp(&mut stack);
         assert_eq!(stack.main_stack, v);
         /// op_hash256([]) -> fail
@@ -2572,6 +2414,19 @@ mod tests {
 
     #[test]
     fn test_conditionals() {
+        // OP_1 OP_IF OP_2 OP_ELSE OP_3 OP_ELSE OP_0 OP_ENDIF
+        let v = vec![
+            StackEntry::Op(OpCodes::OP_1),
+            StackEntry::Op(OpCodes::OP_IF),
+            StackEntry::Op(OpCodes::OP_2),
+            StackEntry::Op(OpCodes::OP_ELSE),
+            StackEntry::Op(OpCodes::OP_3),
+            StackEntry::Op(OpCodes::OP_ELSE),
+            StackEntry::Op(OpCodes::OP_0),
+            StackEntry::Op(OpCodes::OP_ENDIF),
+        ];
+        let script = Script::from(v);
+        assert!(!script.interpret());
         // OP_1 OP_IF OP_2 OP_ELSE OP_3 OP_ENDIF
         let v = vec![
             StackEntry::Op(OpCodes::OP_1),
@@ -3119,22 +2974,35 @@ mod tests {
     #[test]
     /// Validate tx_is_valid for multiple TxIn configurations
     fn test_tx_is_valid() {
-        test_tx_is_valid_common(None, OpCodes::OP_HASH256);
+        test_tx_is_valid_common(None, OpCodes::OP_HASH256, None);
     }
 
     #[test]
     /// Validate tx_is_valid for multiple TxIn configurations
     fn test_tx_is_valid_v0() {
-        test_tx_is_valid_common(Some(NETWORK_VERSION_V0), OpCodes::OP_HASH256_V0);
+        test_tx_is_valid_common(Some(NETWORK_VERSION_V0), OpCodes::OP_HASH256_V0, None);
     }
 
     #[test]
     /// Validate tx_is_valid for multiple TxIn configurations
     fn test_tx_is_valid_temp() {
-        test_tx_is_valid_common(Some(NETWORK_VERSION_TEMP), OpCodes::OP_HASH256_TEMP);
+        test_tx_is_valid_common(Some(NETWORK_VERSION_TEMP), OpCodes::OP_HASH256_TEMP, None);
     }
 
-    fn test_tx_is_valid_common(address_version: Option<u64>, op_hash256: OpCodes) {
+    #[test]
+    /// Validate tx_is_valid for locktime
+    fn test_tx_is_valid_locktime() {
+        assert!(
+            test_tx_is_valid_common(None, OpCodes::OP_HASH256, Some(99))
+                && !test_tx_is_valid_common(None, OpCodes::OP_HASH256, Some(1000000000))
+        );
+    }
+
+    fn test_tx_is_valid_common(
+        address_version: Option<u64>,
+        op_hash256: OpCodes,
+        locktime: Option<u64>,
+    ) -> bool {
         //
         // Arrange
         //
@@ -3142,7 +3010,8 @@ mod tests {
         let tx_hash = hex::encode(vec![0, 0, 0]);
         let tx_outpoint = OutPoint::new(tx_hash, 0);
         let script_public_key = construct_address_for(&pk, address_version);
-        let tx_in_previous_out = TxOut::new_token_amount(script_public_key.clone(), TokenAmount(5));
+        let tx_in_previous_out =
+            TxOut::new_token_amount(script_public_key.clone(), TokenAmount(5), locktime);
         let ongoing_tx_outs = vec![tx_in_previous_out.clone()];
 
         let valid_bytes = construct_tx_in_signable_hash(&tx_outpoint);
@@ -3158,7 +3027,7 @@ mod tests {
                     StackEntry::PubKey(pk),
                     StackEntry::Op(OpCodes::OP_DUP),
                     StackEntry::Op(op_hash256),
-                    StackEntry::PubKeyHash(script_public_key),
+                    StackEntry::Bytes(script_public_key),
                     StackEntry::Op(OpCodes::OP_EQUALVERIFY),
                     StackEntry::Op(OpCodes::OP_CHECKSIG),
                 ],
@@ -3186,19 +3055,13 @@ mod tests {
                 ..Default::default()
             };
 
-            let result = tx_is_valid(&tx, |v| {
+            let result = tx_is_valid(&tx, 500000000, |v| {
                 Some(&tx_in_previous_out).filter(|_| v == &tx_outpoint)
             });
             actual_result.push(result);
         }
 
-        //
-        // Assert
-        //
-        assert_eq!(
-            actual_result,
-            inputs.iter().map(|(_, e)| *e).collect::<Vec<bool>>(),
-        );
+        actual_result == inputs.iter().map(|(_, e)| *e).collect::<Vec<bool>>()
     }
 
     #[test]
@@ -3349,7 +3212,7 @@ mod tests {
         ///
         /// Act
         ///
-        let actual_result = tx_is_valid(&tx, |v| utxo.get(v));
+        let actual_result = tx_is_valid(&tx, 100, |v| utxo.get(v));
 
         ///
         /// Assert

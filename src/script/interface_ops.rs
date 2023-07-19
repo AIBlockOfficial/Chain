@@ -17,229 +17,6 @@ use hex::encode;
 use std::collections::BTreeMap;
 use tracing::{debug, error, info, trace};
 
-/*---- CONSTANTS OPS ----*/
-
-/// OP_0: Pushes number ZERO onto the stack
-///
-/// Example: OP_0([]) -> [0]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_0(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP0, OP0_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(ZERO))
-}
-
-/// OP_1: Pushes number ONE onto the stack
-///
-/// Example: OP_1([]) -> [1]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_1(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP1, OP1_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(ONE))
-}
-
-/// OP_2: Pushes number TWO onto the stack
-///
-/// Example: OP_2([]) -> [2]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_2(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP2, OP2_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(TWO))
-}
-
-/// OP_3: Pushes number THREE onto the stack
-///
-/// Example: OP_3([]) -> [3]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_3(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP3, OP3_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(THREE))
-}
-
-/// OP_4: Pushes number FOUR onto the stack
-///
-/// Example: OP_4([]) -> [4]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_4(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP4, OP4_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(FOUR))
-}
-
-/// OP_5: Pushes number FIVE onto the stack
-///
-/// Example: OP_5([]) -> [5]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_5(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP5, OP5_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(FIVE))
-}
-
-/// OP_6: Pushes number SIX onto the stack
-///
-/// Example: OP_6([]) -> [6]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_6(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP6, OP6_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(SIX))
-}
-
-/// OP_7: Pushes number SEVEN onto the stack
-///
-/// Example: OP_7([]) -> [7]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_7(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP7, OP7_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(SEVEN))
-}
-
-/// OP_8: Pushes number EIGHT onto the stack
-///
-/// Example: OP_8([]) -> [8]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_8(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP8, OP8_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(EIGHT))
-}
-
-/// OP_9: Pushes number NINE onto the stack
-///
-/// Example: OP_9([]) -> [9]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_9(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP9, OP9_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(NINE))
-}
-
-/// OP_10: Pushes number TEN onto the stack
-///
-/// Example: OP_10([]) -> [10]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_10(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP10, OP10_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(TEN))
-}
-
-/// OP_11: Pushes number ELEVEN onto the stack
-///
-/// Example: OP_11([]) -> [11]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_11(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP11, OP11_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(ELEVEN))
-}
-
-/// OP_12: Pushes number TWELVE onto the stack
-///
-/// Example: OP_12([]) -> [12]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_12(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP12, OP12_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(TWELVE))
-}
-
-/// OP_13: Pushes number THIRTEEN onto the stack
-///
-/// Example: OP_13([]) -> [13]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_13(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP13, OP13_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(THIRTEEN))
-}
-
-/// OP_14: Pushes number FOURTEEN onto the stack
-///
-/// Example: OP_14([]) -> [14]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_14(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP14, OP14_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(FOURTEEN))
-}
-
-/// OP_15: Pushes number FIFTEEN onto the stack
-///
-/// Example: OP_15([]) -> [15]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_15(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP15, OP15_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(FIFTEEN))
-}
-
-/// OP_16: Pushes number SIXTEEN onto the stack
-///
-/// Example: OP_16([]) -> [16]
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_16(stack: &mut Stack) -> bool {
-    let (op, desc) = (OP16, OP16_DESC);
-    trace(op, desc);
-    stack.push(StackEntry::Num(SIXTEEN))
-}
-
 /*---- FLOW CONTROL OPS ----*/
 
 /// OP_NOP: Does nothing
@@ -2145,7 +1922,7 @@ pub fn op_sha3(stack: &mut Stack) -> bool {
     let data = match stack.pop() {
         Some(StackEntry::Signature(sig)) => sig.as_ref().to_owned(),
         Some(StackEntry::PubKey(pk)) => pk.as_ref().to_owned(),
-        Some(StackEntry::PubKeyHash(s)) | Some(StackEntry::Bytes(s)) => s.as_bytes().to_owned(),
+        Some(StackEntry::Bytes(s)) => s.as_bytes().to_owned(),
         Some(_) => {
             error_item_type(op);
             return false;
@@ -2181,7 +1958,7 @@ pub fn op_hash256(stack: &mut Stack) -> bool {
         }
     };
     let addr = construct_address(&pk);
-    stack.push(StackEntry::PubKeyHash(addr))
+    stack.push(StackEntry::Bytes(addr))
 }
 
 /// OP_HASH256_V0: Creates v0 address from public key and pushes it onto the stack
@@ -2210,7 +1987,7 @@ pub fn op_hash256_v0(stack: &mut Stack) -> bool {
         }
     };
     let addr_v0 = construct_address_v0(&pk);
-    stack.push(StackEntry::PubKeyHash(addr_v0))
+    stack.push(StackEntry::Bytes(addr_v0))
 }
 
 /// OP_HASH256_TEMP: Creates temporary address from public key and pushes it onto the stack
@@ -2239,7 +2016,7 @@ pub fn op_hash256_temp(stack: &mut Stack) -> bool {
         }
     };
     let addr_temp = construct_address_temp(&pk);
-    stack.push(StackEntry::PubKeyHash(addr_temp))
+    stack.push(StackEntry::Bytes(addr_temp))
 }
 
 /// OP_CHECKSIG: Pushes ONE onto the stack if the signature is valid, ZERO otherwise
@@ -2485,6 +2262,10 @@ pub fn op_checkmultisigverify(stack: &mut Stack) -> bool {
             sigs.push(sig);
         }
     }
+    if sigs.len() != m {
+        error_num_signatures(op);
+        return false;
+    }
     let msg = match stack.pop() {
         Some(StackEntry::Bytes(s)) => s,
         Some(_) => {
@@ -2512,17 +2293,15 @@ pub fn op_checkmultisigverify(stack: &mut Stack) -> bool {
 /// * `pks`  - public keys to match against
 fn verify_multisig(sigs: &[Signature], msg: &String, pks: &mut Vec<PublicKey>) -> bool {
     let mut num_valid_sigs = ZERO;
-    for (index_sig, sig) in sigs.iter().enumerate() {
-        for (index_pk, pk) in pks.iter().enumerate() {
-            if sign::verify_detached(sig, msg.as_bytes(), pk) {
-                num_valid_sigs += ONE;
-                pks.remove(index_pk);
-                break;
-            }
-        }
-        if num_valid_sigs != index_sig + ONE {
-            return false;
+    for sig in sigs {
+        if let Some((index, _)) = pks
+            .iter()
+            .enumerate()
+            .find(|(_, pk)| sign::verify_detached(sig, msg.as_bytes(), pk))
+        {
+            num_valid_sigs += ONE;
+            pks.remove(index);
         }
     }
-    true
+    num_valid_sigs == sigs.len()
 }

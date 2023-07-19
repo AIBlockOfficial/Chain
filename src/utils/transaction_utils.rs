@@ -30,6 +30,7 @@ pub fn construct_p2sh_address(script: &Script) -> String {
 /// ### Arguments
 ///
 /// * `pub_key` - A public key to build an address from
+/// * `address_version` - Network version to use for the address
 pub fn construct_address_for(pub_key: &PublicKey, address_version: Option<u64>) -> String {
     match address_version {
         Some(NETWORK_VERSION_V0) => construct_address_v0(pub_key),
@@ -159,7 +160,6 @@ pub fn get_stack_entry_signable_string(entry: &StackEntry) -> String {
             format!("Signature:{}", hex::encode(signature.as_ref()))
         }
         StackEntry::PubKey(pub_key) => format!("PubKey:{}", hex::encode(pub_key.as_ref())),
-        StackEntry::PubKeyHash(pub_key_hash) => format!("PubKeyHash:{pub_key_hash}"),
         StackEntry::Num(num) => format!("Num:{num}"),
         StackEntry::Bytes(bytes) => format!("Bytes:{bytes}"),
     }
@@ -298,7 +298,7 @@ pub fn construct_tx_hash(tx: &Transaction) -> String {
     hash
 }
 
-/// Construct a valid TxIn for a new create asset transaction
+/// Constructs a valid TxIn for a new create asset transaction
 ///
 /// ### Arguments
 ///
@@ -456,7 +456,7 @@ pub fn construct_burn_tx(tx_ins: Vec<TxIn>) -> Transaction {
     construct_tx_core(tx_ins, vec![tx_out])
 }
 
-/// Constructs a transaction to pay a receivers
+/// Constructs a transaction to pay a receiver
 /// If TxIn collection does not add up to the exact amount to pay,
 /// payer will always need to provide a return payment in tx_outs,
 /// otherwise the excess will be burnt and unusable.
@@ -752,9 +752,9 @@ mod tests {
         let token_amount = TokenAmount(400000);
         let (tx_ins, drs_block_hash) = test_construct_valid_inputs(Some(NETWORK_VERSION_V0));
 
-        let p2sh_tx = construct_burn_tx(tx_ins);
+        let burn_tx = construct_burn_tx(tx_ins);
 
-        let spending_tx_hash = construct_tx_hash(&p2sh_tx);
+        let spending_tx_hash = construct_tx_hash(&burn_tx);
 
         let tx_const = TxConstructor {
             previous_out: OutPoint::new(spending_tx_hash, 0),
@@ -774,15 +774,15 @@ mod tests {
             Asset::Token(token_amount),
             0,
         );
-        let p2sh_script_pub_key = p2sh_tx.outputs[0].script_public_key.as_ref().unwrap();
-        println!("{:?}", p2sh_script_pub_key);
+        let burn_script_pub_key = burn_tx.outputs[0].script_public_key.as_ref().unwrap();
+        println!("{:?}", burn_script_pub_key);
 
-        assert_eq!(p2sh_script_pub_key.as_bytes()[0], P2SH_PREPEND);
-        assert_eq!(p2sh_script_pub_key.len(), STANDARD_ADDRESS_LENGTH);
+        assert_eq!(burn_script_pub_key.as_bytes()[0], P2SH_PREPEND);
+        assert_eq!(burn_script_pub_key.len(), STANDARD_ADDRESS_LENGTH);
         assert!(!redeeming_tx.inputs[0].script_signature.interpret());
         assert!(!tx_has_valid_p2sh_script(
             &redeeming_tx.inputs[0].script_signature,
-            p2sh_tx.outputs[0].script_public_key.as_ref().unwrap()
+            burn_tx.outputs[0].script_public_key.as_ref().unwrap()
         ));
 
         // TODO: Add assertion for full tx validity
@@ -896,6 +896,7 @@ mod tests {
         let tx_outs = vec![TxOut::new_token_amount(
             hex::encode(vec![0; 32]),
             token_amount,
+            None,
         )];
         let payment_tx_2 = construct_tx_core(tx_ins_2, tx_outs);
 
@@ -1005,7 +1006,8 @@ mod tests {
                 // constructors with enough money for amount and excess, caller responsibility.
                 construct_payment_tx_ins(vec![])
             };
-            let excess_tx_out = TxOut::new_token_amount(sender_address_excess, amount - payment);
+            let excess_tx_out =
+                TxOut::new_token_amount(sender_address_excess, amount - payment, None);
 
             let expectation = DruidExpectation {
                 from: from_addr.clone(),
@@ -1250,7 +1252,7 @@ mod tests {
             .collect();
 
         let expected =
-            "a7b09a0ffc38e41318eb67c781279d4168f6e203810741284c2426b86ed28e3a".to_owned();
+            "c8b62d379f07602956207ea473ce20d9752d24ad6e6cd43cb042d024d7c6a468".to_owned();
         let actual = construct_tx_ins_address(&tx_ins);
 
         //

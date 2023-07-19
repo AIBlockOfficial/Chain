@@ -18,13 +18,19 @@ impl ops::Add for TokenAmount {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
-        Self(self.0 + other.0)
+        match self.0.checked_add(other.0) {
+            Some(v) => Self(v),
+            None => Self(u64::MAX),
+        }
     }
 }
 
 impl ops::AddAssign for TokenAmount {
     fn add_assign(&mut self, other: Self) {
-        self.0 += other.0;
+        self.0 = match self.0.checked_add(other.0) {
+            Some(v) => v,
+            None => u64::MAX,
+        }
     }
 }
 
@@ -32,27 +38,19 @@ impl ops::Sub for TokenAmount {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self {
-        Self(self.0 - other.0)
+        match self.0.checked_sub(other.0) {
+            Some(v) => Self(v),
+            None => Self(u64::MIN),
+        }
     }
 }
 
 impl ops::SubAssign for TokenAmount {
     fn sub_assign(&mut self, other: Self) {
-        self.0 -= other.0;
-    }
-}
-
-impl ops::Div<u64> for TokenAmount {
-    type Output = Self;
-
-    fn div(self, rhs: u64) -> Self {
-        Self(self.0 / rhs)
-    }
-}
-
-impl ops::DivAssign<u64> for TokenAmount {
-    fn div_assign(&mut self, rhs: u64) {
-        self.0 /= rhs;
+        self.0 = match self.0.checked_sub(other.0) {
+            Some(v) => v,
+            None => u64::MIN,
+        }
     }
 }
 
@@ -60,13 +58,39 @@ impl ops::Mul<u64> for TokenAmount {
     type Output = Self;
 
     fn mul(self, rhs: u64) -> Self {
-        Self(self.0 * rhs)
+        match self.0.checked_mul(rhs) {
+            Some(v) => Self(v),
+            None => Self(u64::MAX),
+        }
     }
 }
 
 impl ops::MulAssign<u64> for TokenAmount {
     fn mul_assign(&mut self, rhs: u64) {
-        self.0 *= rhs;
+        self.0 = match self.0.checked_mul(rhs) {
+            Some(v) => v,
+            None => u64::MAX,
+        }
+    }
+}
+
+impl ops::Div<u64> for TokenAmount {
+    type Output = Self;
+
+    fn div(self, rhs: u64) -> Self {
+        match self.0.checked_div(rhs) {
+            Some(v) => Self(v),
+            None => Self(u64::MAX),
+        }
+    }
+}
+
+impl ops::DivAssign<u64> for TokenAmount {
+    fn div_assign(&mut self, rhs: u64) {
+        self.0 = match self.0.checked_div(rhs) {
+            Some(v) => v,
+            None => u64::MAX,
+        }
     }
 }
 
@@ -386,4 +410,44 @@ impl AssetValues {
             _ => {}
         }
     }
+}
+
+#[test]
+fn test_token_amount_operations() {
+    // add
+    let token1: TokenAmount = TokenAmount(u64::MAX - 1);
+    let token2: TokenAmount = TokenAmount(2);
+    assert_eq!(token1 + token2, TokenAmount(u64::MAX));
+    // add_assign
+    let mut token1: TokenAmount = TokenAmount(u64::MAX - 1);
+    let token2: TokenAmount = TokenAmount(2);
+    token1 += token2;
+    assert_eq!(token1, TokenAmount(u64::MAX));
+    // sub
+    let token1: TokenAmount = TokenAmount(u64::MIN);
+    let token2: TokenAmount = TokenAmount(1);
+    assert_eq!(token1 - token2, TokenAmount(u64::MIN));
+    // sub_assign
+    let mut token1: TokenAmount = TokenAmount(u64::MIN);
+    let token2: TokenAmount = TokenAmount(1);
+    token1 -= token2;
+    assert_eq!(token1, TokenAmount(u64::MIN));
+    // mul
+    let token: TokenAmount = TokenAmount(u64::MAX - 1);
+    let rhs: u64 = 2;
+    assert_eq!(token * rhs, TokenAmount(u64::MAX));
+    // mul_assign
+    let mut token: TokenAmount = TokenAmount(u64::MAX - 1);
+    let rhs: u64 = 2;
+    token *= rhs;
+    assert_eq!(token, TokenAmount(u64::MAX));
+    // div
+    let token: TokenAmount = TokenAmount(1);
+    let rhs: u64 = 0;
+    assert_eq!(token / rhs, TokenAmount(u64::MAX));
+    // div_assign
+    let mut token: TokenAmount = TokenAmount(1);
+    let rhs: u64 = 0;
+    token /= rhs;
+    assert_eq!(token, TokenAmount(u64::MAX));
 }

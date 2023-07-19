@@ -66,7 +66,7 @@ impl Stack {
             StackEntry::Op(_) => {
                 return false;
             }
-            StackEntry::PubKeyHash(s) | StackEntry::Bytes(s) => {
+            StackEntry::Bytes(s) => {
                 if s.len() > MAX_SCRIPT_ITEM_SIZE as usize {
                     return false;
                 }
@@ -184,7 +184,7 @@ impl Script {
                 }
                 StackEntry::Signature(_) => len += ED25519_SIGNATURE_LEN,
                 StackEntry::PubKey(_) => len += ED25519_PUBLIC_KEY_LEN,
-                StackEntry::PubKeyHash(s) | StackEntry::Bytes(s) => len += s.len(),
+                StackEntry::Bytes(s) => len += s.len(),
                 StackEntry::Num(_) => len += usize::BITS as usize / EIGHT,
             };
         }
@@ -217,23 +217,23 @@ impl Script {
                     }
                     match op {
                         // constants
-                        OpCodes::OP_0 => test_for_return &= op_0(&mut stack),
-                        OpCodes::OP_1 => test_for_return &= op_1(&mut stack),
-                        OpCodes::OP_2 => test_for_return &= op_2(&mut stack),
-                        OpCodes::OP_3 => test_for_return &= op_3(&mut stack),
-                        OpCodes::OP_4 => test_for_return &= op_4(&mut stack),
-                        OpCodes::OP_5 => test_for_return &= op_5(&mut stack),
-                        OpCodes::OP_6 => test_for_return &= op_6(&mut stack),
-                        OpCodes::OP_7 => test_for_return &= op_7(&mut stack),
-                        OpCodes::OP_8 => test_for_return &= op_8(&mut stack),
-                        OpCodes::OP_9 => test_for_return &= op_9(&mut stack),
-                        OpCodes::OP_10 => test_for_return &= op_10(&mut stack),
-                        OpCodes::OP_11 => test_for_return &= op_11(&mut stack),
-                        OpCodes::OP_12 => test_for_return &= op_12(&mut stack),
-                        OpCodes::OP_13 => test_for_return &= op_13(&mut stack),
-                        OpCodes::OP_14 => test_for_return &= op_14(&mut stack),
-                        OpCodes::OP_15 => test_for_return &= op_15(&mut stack),
-                        OpCodes::OP_16 => test_for_return &= op_16(&mut stack),
+                        OpCodes::OP_0 => test_for_return &= stack.push(StackEntry::Num(ZERO)),
+                        OpCodes::OP_1 => test_for_return &= stack.push(StackEntry::Num(ONE)),
+                        OpCodes::OP_2 => test_for_return &= stack.push(StackEntry::Num(TWO)),
+                        OpCodes::OP_3 => test_for_return &= stack.push(StackEntry::Num(THREE)),
+                        OpCodes::OP_4 => test_for_return &= stack.push(StackEntry::Num(FOUR)),
+                        OpCodes::OP_5 => test_for_return &= stack.push(StackEntry::Num(FIVE)),
+                        OpCodes::OP_6 => test_for_return &= stack.push(StackEntry::Num(SIX)),
+                        OpCodes::OP_7 => test_for_return &= stack.push(StackEntry::Num(SEVEN)),
+                        OpCodes::OP_8 => test_for_return &= stack.push(StackEntry::Num(EIGHT)),
+                        OpCodes::OP_9 => test_for_return &= stack.push(StackEntry::Num(NINE)),
+                        OpCodes::OP_10 => test_for_return &= stack.push(StackEntry::Num(TEN)),
+                        OpCodes::OP_11 => test_for_return &= stack.push(StackEntry::Num(ELEVEN)),
+                        OpCodes::OP_12 => test_for_return &= stack.push(StackEntry::Num(TWELVE)),
+                        OpCodes::OP_13 => test_for_return &= stack.push(StackEntry::Num(THIRTEEN)),
+                        OpCodes::OP_14 => test_for_return &= stack.push(StackEntry::Num(FOURTEEN)),
+                        OpCodes::OP_15 => test_for_return &= stack.push(StackEntry::Num(FIFTEEN)),
+                        OpCodes::OP_16 => test_for_return &= stack.push(StackEntry::Num(SIXTEEN)),
                         // flow control
                         OpCodes::OP_NOP => test_for_return &= op_nop(&mut stack),
                         OpCodes::OP_IF => test_for_return &= op_if(&mut stack, &mut cond_stack),
@@ -326,12 +326,13 @@ impl Script {
                         }
                         // smart data
                         OpCodes::OP_CREATE => (),
+                        // reserved
+                        _ => (),
                     }
                 }
-                /*---- SIGNATURE | PUBKEY | PUBKEYHASH | NUM | BYTES ----*/
+                /*---- SIGNATURE | PUBKEY | NUM | BYTES ----*/
                 StackEntry::Signature(_)
                 | StackEntry::PubKey(_)
-                | StackEntry::PubKeyHash(_)
                 | StackEntry::Num(_)
                 | StackEntry::Bytes(_) => {
                     if cond_stack.all_true() {
@@ -406,7 +407,7 @@ impl Script {
             StackEntry::PubKey(pub_key),
             StackEntry::Op(OpCodes::OP_DUP),
             StackEntry::Op(op_hash_256),
-            StackEntry::PubKeyHash(construct_address_for(&pub_key, address_version)),
+            StackEntry::Bytes(construct_address_for(&pub_key, address_version)),
             StackEntry::Op(OpCodes::OP_EQUALVERIFY),
             StackEntry::Op(OpCodes::OP_CHECKSIG),
         ];
