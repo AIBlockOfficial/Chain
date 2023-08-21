@@ -1,4 +1,4 @@
-//! App using NAOM library.
+//! App using Blockchain library.
 #![allow(dead_code)]
 
 //use naom::db::display::list_assets;

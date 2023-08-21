@@ -5,13 +5,13 @@
 
 <div align="center">
   <a>
-    <img src="https://github.com/Zenotta/NAOM/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
+    <img src="https://github.com/ABlockOfficial/Blockchain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
   </a>
 
-  <h2 align="center">Notarised Append Only Memory (NAOM)</h2> <div style="height:30px"></div>
+  <h2 align="center">Notarised Append Only Memory (Blockchain)</h2> <div style="height:30px"></div>
 
   <div>
-  <img src="https://img.shields.io/github/actions/workflow/status/Zenotta/NAOM/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
+  <img src="https://img.shields.io/github/actions/workflow/status/ABlockOfficial/Blockchain/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
   <img src="https://img.shields.io/crates/v/naom" alt="Cargo Crates Version" style="display:inline-block" />
   </div>
 
@@ -25,15 +25,15 @@
   </p>
 </div>
 
-The NAOM repo contains all the code needed to set up and interact with a local instance of the Zenotta blockchain.
+The Blockchain repo contains all the code needed to set up and interact with a local instance of the A-Block blockchain.
 
-[简体中文](https://github.com/Zenotta/NAOM/blob/develop/readmes/README.zhs.md) | [Español](https://github.com/Zenotta/NAOM/blob/develop/readmes/README.es.md) | [عربي ](https://github.com/Zenotta/NAOM/blob/develop/readmes/README.ar.md)| [Deutsch](https://github.com/Zenotta/NAOM/blob/develop/readmes/README.de.md) | [Français](https://github.com/Zenotta/NAOM/blob/develop/readmes/README.fr.md)
+[简体中文](https://github.com/ABlockOfficial/Blockchain/blob/develop/readmes/README.zhs.md) | [Español](https://github.com/ABlockOfficial/Blockchain/blob/develop/readmes/README.es.md) | [عربي ](https://github.com/ABlockOfficial/Blockchain/blob/develop/readmes/README.ar.md)| [Deutsch](https://github.com/ABlockOfficial/Blockchain/blob/develop/readmes/README.de.md) | [Français](https://github.com/ABlockOfficial/Blockchain/blob/develop/readmes/README.fr.md)
 
 ..
 
 ## Getting Started
 
-Running NAOM assumes you have Rust installed and are using a Unix system. You can clone this repo and run the `Makefile` to set everything up for a development environment:
+Running Blockchain assumes you have Rust installed and are using a Unix system. You can clone this repo and run the `Makefile` to set everything up for a development environment:
 
 ```
 make
@@ -45,7 +45,7 @@ cargo test
 
 ## Use
 
-NAOM can be added to your project as a dependency by adding the following to your `Cargo.toml` file:
+Blockchain can be added to your project as a dependency by adding the following to your `Cargo.toml` file:
 
 ```toml
 [dependencies]
@@ -58,7 +58,7 @@ Or alternatively, via command line:
 cargo add naom
 ```
 
-Running `cargo run --bin main` from a repo clone will currently list all assets on the local instance. NAOM is not generally intended to be
+Running `cargo run --bin main` from a repo clone will currently list all assets on the local instance. Blockchain is not generally intended to be
 used directly though, and is instead intended to be used from other programs that require access to the blockchain data 
 structure.
 
@@ -66,5 +66,5 @@ structure.
 
 ## References
 
-- [BitML for Zenotta](https://github.com/Zenotta/NAOM/blob/main/docs/BitML_for_Zenotta.pdf)
-- [ZScript Standard Opcodes](https://github.com/Zenotta/NAOM/blob/main/docs/ZScript_Standard_Opcodes.pdf)
+- [BitML for A-Block](https://github.com/ABlockOfficial/Blockchain/blob/main/docs/BitML_for_Zenotta.pdf)
+- [ZScript Standard Opcodes](https://github.com/ABlockOfficial/Blockchain/blob/main/docs/ZScript_Standard_Opcodes.pdf)

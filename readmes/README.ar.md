@@ -1,12 +1,12 @@
 <div align="center">
   <a>
-    <img src="https://github.com/Zenotta/NAOM/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
+    <img src="https://github.com/ABlockOfficial/Blockchain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
   </a>
 
-  <h2 align="center">الذاكرة العاملة للملفات مع الإضافة الموثقة (Notarised Append Only Memory, NAOM)</h2> <div style="height:30px"></div>
+  <h2 align="center">الذاكرة العاملة للملفات مع الإضافة الموثقة (Notarised Append Only Memory, Blockchain)</h2> <div style="height:30px"></div>
 
   <div>
-  <img src="https://img.shields.io/github/actions/workflow/status/Zenotta/NAOM/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
+  <img src="https://img.shields.io/github/actions/workflow/status/ABlockOfficial/Blockchain/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
   <img src="https://img.shields.io/crates/v/naom" alt="Cargo Crates Version" style="display:inline-block" />
   </div>
 
@@ -20,13 +20,13 @@
   </p>
 </div>
 
-يحتوي مستودع NAOM على جميع الأكواد اللازمة لإعداد والتفاعل مع نسخة محلية من سلسلة كتل Zenotta.
+يحتوي مستودع Blockchain على جميع الأكواد اللازمة لإعداد والتفاعل مع نسخة محلية من سلسلة كتل A-Block.
 
 ..
 
 ## البدء
 
-يفترض تشغيل NAOM أن لديك Rust مثبتًا وأنت تستخدم نظام Unix. يمكنك استنساخ هذا المستودع وتشغيل `Makefile` لإعداد كل شيء لبيئة تطوير:
+يفترض تشغيل Blockchain أن لديك Rust مثبتًا وأنت تستخدم نظام Unix. يمكنك استنساخ هذا المستودع وتشغيل `Makefile` لإعداد كل شيء لبيئة تطوير:
 
 ```
 make
@@ -38,7 +38,7 @@ cargo test
 
 ## الاستخدام
 
-يمكن إضافة NAOM إلى مشروعك كتبعيّنة عن طريق إضافة ما يلي إلى ملف `Cargo.toml` الخاص بك:
+يمكن إضافة Blockchain إلى مشروعك كتبعيّنة عن طريق إضافة ما يلي إلى ملف `Cargo.toml` الخاص بك:
 
 ```toml
 [dependencies]
@@ -51,11 +51,11 @@ naom = "0.1.0"
 cargo add naom
 ```
 
-تشغيل `cargo run --bin main` من استنساخ مستودع سيستعرض حاليًا جميع الأصول الموجودة في النسخة المحلية. لا يتم تصميم NAOM بشكل عام للاستخدام مباشرة ، ولكن من المقصود استخدامه من خلال برامج أخرى تتطلب الوصول إلى بنية بيانات سلسلة الكتل.
+تشغيل `cargo run --bin main` من استنساخ مستودع سيستعرض حاليًا جميع الأصول الموجودة في النسخة المحلية. لا يتم تصميم Blockchain بشكل عام للاستخدام مباشرة ، ولكن من المقصود استخدامه من خلال برامج أخرى تتطلب الوصول إلى بنية بيانات سلسلة الكتل.
 
 ..
 
 ## المراجع
 
-- [BitML for Zenotta](https://github.com/Zenotta/NAOM/blob/main/docs/BitML_for_Zenotta.pdf)
-- [ZScript Opcodes Reference](https://github.com/Zenotta/NAOM/blob/main/docs/ZScript_Opcodes_Reference.pdf)
+- [BitML for A-Block](https://github.com/ABlockOfficial/Blockchain/blob/main/docs/BitML_for_Zenotta.pdf)
+- [ZScript Opcodes Reference](https://github.com/ABlockOfficial/Blockchain/blob/main/docs/ZScript_Opcodes_Reference.pdf)

@@ -1,12 +1,12 @@
 <div align="center">
   <a>
-    <img src="https://github.com/Zenotta/NAOM/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
+    <img src="https://github.com/ABlockOfficial/Blockchain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
   </a>
 
-  <h2 align="center">公证追加存储器（Notarised Append Only Memory，NAOM）</h2> <div style="height:30px"></div>
+  <h2 align="center">公证追加存储器（Notarised Append Only Memory，Blockchain）</h2> <div style="height:30px"></div>
 
   <div>
-  <img src="https://img.shields.io/github/actions/workflow/status/Zenotta/NAOM/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
+  <img src="https://img.shields.io/github/actions/workflow/status/ABlockOfficial/Blockchain/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
   <img src="https://img.shields.io/crates/v/naom" alt="Cargo Crates Version" style="display:inline-block" />
   </div>
 
@@ -20,13 +20,13 @@
   </p>
 </div>
 
-NAOM 存储库包含了设置和与 Zenotta 区块链本地实例交互所需的全部代码。
+Blockchain 存储库包含了设置和与 A-Block 区块链本地实例交互所需的全部代码。
 
 ..
 
 ## 入门
 
-运行 NAOM 假设您已经安装了 Rust 并正在使用 Unix 系统。您可以克隆此存储库并运行 `Makefile` 来为开发环境设置一切：
+运行 Blockchain 假设您已经安装了 Rust 并正在使用 Unix 系统。您可以克隆此存储库并运行 `Makefile` 来为开发环境设置一切：
 
 ```
 make
@@ -38,7 +38,7 @@ cargo test
 
 ## 使用
 
-您可以通过在 `Cargo.toml` 文件中添加以下内容将NAOM作为依赖项添加到您的项目中：
+您可以通过在 `Cargo.toml` 文件中添加以下内容将Blockchain作为依赖项添加到您的项目中：
 
 ```toml
 [dependencies]
@@ -51,11 +51,11 @@ naom = "0.1.0"
 cargo add naom
 ```
 
-从repo clone运行 `cargo run --bin main` 目前将列出本地实例中的所有资产。但NAOM通常不会直接使用，而是旨在用于需要访问区块链数据结构的其他程序中
+从repo clone运行 `cargo run --bin main` 目前将列出本地实例中的所有资产。但Blockchain通常不会直接使用，而是旨在用于需要访问区块链数据结构的其他程序中
 
 ..
 
 ## 参考
 
-- [Zenotta 的 BitML](https://github.com/Zenotta/NAOM/blob/main/docs/BitML_for_Zenotta.pdf)
-- [ZScript 操作码参考](https://github.com/Zenotta/NAOM/blob/main/docs/ZScript_Opcodes_Reference.pdf)
+- [Zenotta 的 BitML](https://github.com/ABlockOfficial/Blockchain/blob/main/docs/BitML_for_Zenotta.pdf)
+- [ZScript 操作码参考](https://github.com/ABlockOfficial/Blockchain/blob/main/docs/ZScript_Opcodes_Reference.pdf)
