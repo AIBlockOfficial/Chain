@@ -1,12 +1,12 @@
 <div align="center">
   <a>
-    <img src="https://github.com/ABlockOfficial/Blockchain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
+    <img src="https://github.com/ABlockOfficial/Chain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
   </a>
 
   <h2 align="center">Notarised Append Only Memory (Blockchain)</h2> <div style="height:30px"></div>
 
   <div>
-  <img src="https://img.shields.io/github/actions/workflow/status/ABlockOfficial/Blockchain/rust.yml" alt="Estado del pipeline" style="display:inline-block"/>
+  <img src="https://img.shields.io/github/actions/workflow/status/ABlockOfficial/Chain/rust.yml" alt="Estado del pipeline" style="display:inline-block"/>
   <img src="https://img.shields.io/crates/v/naom" alt="Cargo Crates Version" style="display:inline-block" />
   </div>
 
@@ -57,5 +57,5 @@ Ejecutar `cargo run --bin main` desde una clonación del repositorio enumerará 
 
 ## Referencias
 
-- [BitML para A-Block](https://github.com/ABlockOfficial/Blockchain/blob/main/docs/BitML_for_Zenotta.pdf)
-- [Referencia de opcodes de ZScript](https://github.com/ABlockOfficial/Blockchain/blob/main/docs/ZScript_Opcodes_Reference.pdf)
+- [BitML para A-Block](https://github.com/ABlockOfficial/Chain/blob/main/docs/BitML_for_Zenotta.pdf)
+- [Referencia de opcodes de ZScript](https://github.com/ABlockOfficial/Chain/blob/main/docs/ZScript_Opcodes_Reference.pdf)

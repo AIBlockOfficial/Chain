@@ -3,6 +3,26 @@
 version = 3
 
 [[package]]
+name = "a_block_chain"
+version = "1.4.0"
+dependencies = [
+ "actix-rt",
+ "base64",
+ "bincode",
+ "bytes",
+ "colored",
+ "hex",
+ "merkle-log",
+ "rand",
+ "ring",
+ "rocksdb",
+ "serde",
+ "sha3",
+ "time",
+ "tracing",
+]
+
+[[package]]
 name = "actix-macros"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -436,26 +456,6 @@ dependencies = [
  "libc",
  "wasi",
  "windows-sys",
-]
-
-[[package]]
-name = "naom"
-version = "1.4.0"
-dependencies = [
- "actix-rt",
- "base64",
- "bincode",
- "bytes",
- "colored",
- "hex",
- "merkle-log",
- "rand",
- "ring",
- "rocksdb",
- "serde",
- "sha3",
- "time",
- "tracing",
 ]
 
 [[package]]
