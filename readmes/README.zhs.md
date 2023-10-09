@@ -14,7 +14,7 @@
     原始双重输入区块链
     <br />
     <br />
-    <a href="https://zenotta.io"><strong>官方文档 »</strong></a>
+    <a href="https://a-block.io"><strong>官方文档 »</strong></a>
     <br />
     <br />
   </p>
@@ -52,10 +52,3 @@ cargo add naom
 ```
 
 从repo clone运行 `cargo run --bin main` 目前将列出本地实例中的所有资产。但Blockchain通常不会直接使用，而是旨在用于需要访问区块链数据结构的其他程序中
-
-..
-
-## 参考
-
-- [Zenotta 的 BitML](https://github.com/ABlockOfficial/Chain/blob/main/docs/BitML_for_Zenotta.pdf)
-- [ZScript 操作码参考](https://github.com/ABlockOfficial/Chain/blob/main/docs/ZScript_Opcodes_Reference.pdf)

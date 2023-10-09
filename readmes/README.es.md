@@ -14,7 +14,7 @@
     La cadena de bloques de doble entrada dual OG
     <br />
     <br />
-    <a href="https://zenotta.io"><strong>Documentación oficial »</strong></a>
+    <a href="https://a-block.io"><strong>Documentación oficial »</strong></a>
     <br />
     <br />
   </p>
@@ -52,10 +52,3 @@ cargo add naom
 ```
 
 Ejecutar `cargo run --bin main` desde una clonación del repositorio enumerará actualmente todos los activos en la instancia local. Sin embargo, Blockchain no está destinado a ser utilizado directamente y se pretende que se use desde otros programas que requieren acceso a la estructura de datos de la cadena de bloques.
-
-..
-
-## Referencias
-
-- [BitML para A-Block](https://github.com/ABlockOfficial/Chain/blob/main/docs/BitML_for_Zenotta.pdf)
-- [Referencia de opcodes de ZScript](https://github.com/ABlockOfficial/Chain/blob/main/docs/ZScript_Opcodes_Reference.pdf)

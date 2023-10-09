@@ -14,7 +14,7 @@
     سلسلة الكتل المزدوجة الأصلية
     <br />
     <br />
-    <a href="https://zenotta.io"><strong>التوثيق الرسمي »</strong></a>
+    <a href="https://a-block.io"><strong>التوثيق الرسمي »</strong></a>
     <br />
     <br />
   </p>
@@ -52,10 +52,3 @@ cargo add naom
 ```
 
 تشغيل `cargo run --bin main` من استنساخ مستودع سيستعرض حاليًا جميع الأصول الموجودة في النسخة المحلية. لا يتم تصميم Blockchain بشكل عام للاستخدام مباشرة ، ولكن من المقصود استخدامه من خلال برامج أخرى تتطلب الوصول إلى بنية بيانات سلسلة الكتل.
-
-..
-
-## المراجع
-
-- [BitML for A-Block](https://github.com/ABlockOfficial/Chain/blob/main/docs/BitML_for_Zenotta.pdf)
-- [ZScript Opcodes Reference](https://github.com/ABlockOfficial/Chain/blob/main/docs/ZScript_Opcodes_Reference.pdf)

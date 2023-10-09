@@ -14,7 +14,7 @@
     Die OG Dual Double Entry Blockchain
     <br />
     <br />
-    <a href="https://zenotta.io"><strong>Offizielle Dokumentation »</strong></a>
+    <a href="https://a-block.io"><strong>Offizielle Dokumentation »</strong></a>
     <br />
     <br />
   </p>
@@ -52,10 +52,3 @@ cargo add naom
 ```
 
 Wenn Sie `cargo run --bin main` aus einem geklonten Repository ausführen, werden derzeit alle Vermögenswerte in der lokalen Instanz aufgelistet. Blockchain ist jedoch normalerweise nicht dafür vorgesehen, direkt verwendet zu werden, sondern soll von anderen Programmen genutzt werden, die Zugriff auf die Datenstruktur der Blockchain benötigen.
-
-..
-
-## Referenzen
-
-- [BitML für A-Block](https://github.com/ABlockOfficial/Chain/blob/main/docs/BitML_for_Zenotta.pdf)
-- [ZScript Opcodes Reference](https://github.com/ABlockOfficial/Chain/blob/main/docs/ZScript_Opcodes_Reference.pdf)

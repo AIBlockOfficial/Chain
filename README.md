@@ -16,10 +16,10 @@
   </div>
 
   <p align="center">
-    The OG dual double entry blockchain
+    The blockchain that powers the A-Block tech stack
     <br />
     <br />
-    <a href="https://zenotta.io"><strong>Official documentation »</strong></a>
+    <a href="https://a-block.io"><strong>Official documentation »</strong></a>
     <br />
     <br />
   </p>
@@ -62,9 +62,3 @@ Running `cargo run --bin main` from a repo clone will currently list all assets 
 used directly though, and is instead intended to be used from other programs that require access to the blockchain data 
 structure.
 
-..
-
-## References
-
-- [BitML for A-Block](https://github.com/ABlockOfficial/Chain/blob/main/docs/BitML_for_Zenotta.pdf)
-- [ZScript Standard Opcodes](https://github.com/ABlockOfficial/Chain/blob/main/docs/ZScript_Standard_Opcodes.pdf)

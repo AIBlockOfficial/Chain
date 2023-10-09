@@ -15,7 +15,7 @@
     Le double double entrée blockchain OG
     <br />
     <br />
-    <a href="https://zenotta.io"><strong>Documentation officielle »</strong></a>
+    <a href="https://a-block.io"><strong>Documentation officielle »</strong></a>
     <br />
     <br />
   </p>
@@ -53,10 +53,3 @@ cargo add naom
 ```
 
 L'exécution de `cargo run --bin main` à partir d'un clone de référentiel répertorie actuellement tous les actifs de l'instance locale. Cependant, Blockchain n'est généralement pas destiné à être utilisé directement, mais plutôt à être utilisé à partir d'autres programmes qui nécessitent l'accès à la structure de données de la blockchain.
-
-..
-
-## Références
-
-- [BitML pour A-Block](https://github.com/ABlockOfficial/Chain/blob/main/docs/BitML_for_Zenotta.pdf)
-- [Référence des opcodes ZScript](https://github.com/ABlockOfficial/Chain/blob/main/docs/ZScript_Opcodes_Reference.pdf)
