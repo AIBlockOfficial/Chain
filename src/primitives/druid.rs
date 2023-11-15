@@ -21,6 +21,7 @@ pub struct DdeValues {
     pub druid: String,
     pub participants: usize,
     pub expectations: Vec<DruidExpectation>,
+    pub drs_tx_hash: Option<String>,
 }
 
 impl DdeValues {
