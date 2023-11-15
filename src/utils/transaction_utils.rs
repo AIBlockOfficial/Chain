@@ -1,7 +1,7 @@
 use crate::constants::*;
 use crate::crypto::sha3_256;
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, SecretKey};
-use crate::primitives::asset::{Asset, DataAsset, TokenAmount};
+use crate::primitives::asset::{Asset, DataAsset};
 use crate::primitives::druid::{DdeValues, DruidExpectation};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
@@ -11,7 +11,7 @@ use std::collections::BTreeMap;
 
 pub struct ReceiverInfo {
     pub address: String,
-    pub asset: Asset
+    pub asset: Asset,
 }
 
 /// Builds a P2SH address
@@ -476,7 +476,11 @@ pub fn construct_burn_tx(tx_ins: Vec<TxIn>, fee: Option<ReceiverInfo>) -> Transa
 ///
 /// * `tx_ins`     - Address/es to pay from
 /// * `tx_outs`    - Address/es to send to
-pub fn construct_tx_core(tx_ins: Vec<TxIn>, tx_outs: Vec<TxOut>, fee: Option<ReceiverInfo>) -> Transaction {
+pub fn construct_tx_core(
+    tx_ins: Vec<TxIn>,
+    tx_outs: Vec<TxOut>,
+    fee: Option<ReceiverInfo>,
+) -> Transaction {
     let fee_tx_out = match fee {
         Some(fee) => vec![TxOut {
             value: fee.asset,
@@ -484,7 +488,7 @@ pub fn construct_tx_core(tx_ins: Vec<TxIn>, tx_outs: Vec<TxOut>, fee: Option<Rec
             script_public_key: Some(fee.address),
             drs_block_hash: None,
         }],
-        None => vec![]
+        None => vec![],
     };
 
     Transaction {
@@ -517,6 +521,7 @@ pub fn construct_rb_tx_core(
         druid,
         participants: 2,
         expectations: druid_expectation,
+        drs_tx_hash: None,
     });
 
     tx
@@ -534,20 +539,18 @@ pub fn construct_rb_payments_send_tx(
     tx_ins: Vec<TxIn>,
     mut tx_outs: Vec<TxOut>,
     fee: Option<ReceiverInfo>,
-    receiver_address: String,
-    amount: TokenAmount,
+    receiver: ReceiverInfo,
     locktime: u64,
-    druid: String,
-    expectation: Vec<DruidExpectation>,
+    druid_info: DdeValues
 ) -> Transaction {
     let out = TxOut {
-        value: Asset::Token(amount),
+        value: receiver.asset,
         locktime,
-        script_public_key: Some(receiver_address),
+        script_public_key: Some(receiver.address),
         drs_block_hash: None,
     };
     tx_outs.push(out);
-    construct_rb_tx_core(tx_ins, tx_outs, fee, druid, expectation)
+    construct_rb_tx_core(tx_ins, tx_outs, fee, druid_info.druid, druid_info.expectations)
 }
 
 /// Constructs the "receive" half of a item-based payment
@@ -568,18 +571,20 @@ pub fn construct_rb_receive_payment_tx(
     fee: Option<ReceiverInfo>,
     sender_address: String,
     locktime: u64,
-    druid: String,
-    expectation: Vec<DruidExpectation>,
-    drs_tx_hash: Option<String>,
+    druid_info: DdeValues
 ) -> Transaction {
     let out = TxOut {
+<<<<<<< HEAD
         value: Asset::item(1, drs_tx_hash, None),
+=======
+        value: Asset::receipt(1, druid_info.drs_tx_hash, None),
+>>>>>>> 8d3d744 (Manage fees within DDE transactions)
         locktime,
         script_public_key: Some(sender_address),
         drs_block_hash: None, // this will need to change
     };
     tx_outs.push(out);
-    construct_rb_tx_core(tx_ins, tx_outs, fee, druid, expectation)
+    construct_rb_tx_core(tx_ins, tx_outs, fee, druid_info.druid, druid_info.expectations)
 }
 
 /// Constructs a set of TxIns for a payment
@@ -640,19 +645,13 @@ pub fn construct_p2sh_redeem_tx_ins(tx_values: TxConstructor, script: Script) ->
 /// * `(send_address, receive_address)` - Send and receive addresses as a tuple
 /// * `(send_asset, receive_asset)`     - Send and receive assets as a tuple
 pub fn construct_dde_tx(
-    druid: String,
+    druid_info: DdeValues,
     tx_ins: Vec<TxIn>,
     tx_outs: Vec<TxOut>,
     fee: Option<ReceiverInfo>,
-    participants: usize,
-    expectations: Vec<DruidExpectation>,
 ) -> Transaction {
     let mut tx = construct_tx_core(tx_ins, tx_outs, fee);
-    tx.druid_info = Some(DdeValues {
-        druid,
-        participants,
-        expectations,
-    });
+    tx.druid_info = Some(druid_info);
 
     tx
 }
@@ -663,7 +662,11 @@ pub fn construct_dde_tx(
 mod tests {
     use super::*;
     use crate::crypto::sign_ed25519::{self as sign, Signature};
+<<<<<<< HEAD
     use crate::primitives::asset::{AssetValues, ItemAsset};
+=======
+    use crate::primitives::asset::{AssetValues, ReceiptAsset, TokenAmount};
+>>>>>>> 8d3d744 (Manage fees within DDE transactions)
     use crate::script::OpCodes;
     use crate::utils::script_utils::{tx_has_valid_p2sh_script, tx_outs_are_valid};
 
@@ -840,8 +843,32 @@ mod tests {
     }
 
     #[test]
-    /// Checks the validity of the metadata on-spend for items
-    fn test_item_onspend_metadata() {
+    /// Creates a valid payment transaction including fees
+    fn test_construct_valid_payment_tx_with_fees() {
+        let (tx_ins, drs_block_hash) = test_construct_valid_inputs(None);
+
+        let token_amount = TokenAmount(400000);
+        let fee_amount = TokenAmount(1000);
+        let payment_tx = construct_payment_tx(
+            tx_ins,
+            ReceiverInfo {
+                address: hex::encode(vec![0; 32]),
+                asset: Asset::Token(token_amount),
+            },
+            Some(ReceiverInfo {
+                address: hex::encode(vec![0; 32]),
+                asset: Asset::Token(fee_amount),
+            }),
+            Some(drs_block_hash),
+            0,
+        );
+        assert_eq!(Asset::Token(token_amount), payment_tx.outputs[0].value);
+        assert_eq!(Asset::Token(fee_amount), payment_tx.fees[0].value);
+    }
+
+    #[test]
+    /// Checks the validity of the metadata on-spend for receipts
+    fn test_receipt_onspend_metadata() {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
         let t_hash = vec![0, 0, 0];
@@ -874,7 +901,11 @@ mod tests {
         btree.insert(drs_tx_hash, 1000);
         let tx_ins_spent = AssetValues::new(TokenAmount(0), btree);
 
-        assert!(tx_outs_are_valid(&payment_tx_valid.outputs, &vec![], tx_ins_spent));
+        assert!(tx_outs_are_valid(
+            &payment_tx_valid.outputs,
+            &vec![],
+            tx_ins_spent
+        ));
     }
 
     #[test]
@@ -1013,7 +1044,13 @@ mod tests {
         }];
 
         // Actual DDE
-        let dde = construct_dde_tx(druid.clone(), tx_ins, tx_outs, None, participants, expects);
+        let druid_info = DdeValues {
+            druid: druid.clone(),
+            participants,
+            expectations: expects.clone(),
+            drs_tx_hash: None,
+        };
+        let dde = construct_dde_tx(druid_info, tx_ins, tx_outs, None);
 
         assert_eq!(dde.druid_info.clone().unwrap().druid, druid);
         assert_eq!(dde.outputs[0].clone().value, data);
@@ -1057,11 +1094,12 @@ mod tests {
                 tx_ins,
                 Vec::new(),
                 None,
-                bob_addr.clone(),
-                payment,
+                ReceiverInfo {
+                    address: bob_addr.clone(),
+                    asset: Asset::Token(payment),
+                },
                 0,
-                druid.clone(),
-                vec![expectation],
+                DdeValues { druid: druid.clone(), participants: 2, expectations: vec![expectation], drs_tx_hash: None }
             );
 
             tx.outputs.push(excess_tx_out);
@@ -1081,6 +1119,8 @@ mod tests {
                 asset: Asset::Token(payment),
             };
 
+            let druid_info = DdeValues { druid: druid.clone(), participants: 2, expectations: vec![expectation], drs_tx_hash: Some("drs_tx_hash".to_owned()) };
+
             // create the sender that match the receiver.
             construct_rb_receive_payment_tx(
                 tx_ins,
@@ -1088,9 +1128,7 @@ mod tests {
                 None,
                 alice_addr,
                 0,
-                druid.clone(),
-                vec![expectation],
-                Some("drs_tx_hash".to_owned()),
+                druid_info
             )
         };
 
