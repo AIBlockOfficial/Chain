@@ -137,11 +137,7 @@ impl TxOut {
     /// Creates a new TxOut instance for a `Item` asset
     ///
     /// **NOTE:** Only create transactions may have `Item` assets that have a `None` `drs_tx_hash`
-    pub fn new_item_amount(
-        to_address: String,
-        item: ItemAsset,
-        locktime: Option<u64>,
-    ) -> TxOut {
+    pub fn new_item_amount(to_address: String, item: ItemAsset, locktime: Option<u64>) -> TxOut {
         TxOut {
             value: Asset::Item(item),
             locktime: locktime.unwrap_or(ZERO as u64),
