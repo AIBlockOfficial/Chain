@@ -106,11 +106,12 @@ mod tests {
             druid.clone(),
             tx_input.clone(),
             vec![token_tx_out],
+            None,
             2,
             expects.clone(),
         );
 
-        let bob_tx = construct_dde_tx(druid, tx_input, vec![data_tx_out], 2, expects);
+        let bob_tx = construct_dde_tx(druid, tx_input, vec![data_tx_out], None, 2, expects);
 
         vec![alice_tx, bob_tx]
     }
@@ -150,6 +151,7 @@ mod tests {
             let mut tx = construct_rb_payments_send_tx(
                 tx_ins,
                 Vec::new(),
+                None,
                 bob_addr.clone(),
                 payment,
                 0,
@@ -178,6 +180,7 @@ mod tests {
             construct_rb_receive_payment_tx(
                 tx_ins,
                 Vec::new(),
+                None,
                 alice_addr,
                 0,
                 druid,

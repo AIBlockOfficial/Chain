@@ -9,6 +9,11 @@ use crate::script::{OpCodes, StackEntry};
 use bincode::serialize;
 use std::collections::BTreeMap;
 
+pub struct ReceiverInfo {
+    pub address: String,
+    pub asset: Asset
+}
+
 /// Builds a P2SH address
 ///
 /// ### Arguments
@@ -336,6 +341,7 @@ pub fn construct_create_tx(
     public_key: PublicKey,
     secret_key: &SecretKey,
     amount: u64,
+    fee: Option<ReceiverInfo>,
 ) -> Transaction {
     let asset = Asset::Data(DataAsset { data: drs, amount });
     let receiver_address = construct_address(&public_key);
@@ -347,7 +353,7 @@ pub fn construct_create_tx(
         ..Default::default()
     };
 
-    construct_tx_core(tx_ins, vec![tx_out])
+    construct_tx_core(tx_ins, vec![tx_out], fee)
 }
 
 /// Constructs a item data asset for use in accepting payments
@@ -365,6 +371,7 @@ pub fn construct_item_create_tx(
     secret_key: &SecretKey,
     amount: u64,
     drs_tx_hash_spec: DrsTxHashSpec,
+    fee: Option<ReceiverInfo>,
     metadata: Option<String>,
 ) -> Transaction {
     let drs_tx_hash = drs_tx_hash_spec.get_drs_tx_hash();
@@ -378,7 +385,7 @@ pub fn construct_item_create_tx(
         ..Default::default()
     };
 
-    construct_tx_core(tx_ins, vec![tx_out])
+    construct_tx_core(tx_ins, vec![tx_out], fee)
 }
 
 /// Constructs a transaction to pay a receiver
@@ -395,19 +402,19 @@ pub fn construct_item_create_tx(
 /// * `locktime`            - Block height below which the payment is restricted. "0" means no locktime
 pub fn construct_payment_tx(
     tx_ins: Vec<TxIn>,
-    receiver_address: String,
+    receiver: ReceiverInfo,
+    fee: Option<ReceiverInfo>,
     drs_block_hash: Option<String>,
-    asset: Asset,
     locktime: u64,
 ) -> Transaction {
     let tx_out = TxOut {
-        value: asset,
+        value: receiver.asset,
         locktime,
-        script_public_key: Some(receiver_address),
+        script_public_key: Some(receiver.address),
         drs_block_hash,
     };
 
-    construct_tx_core(tx_ins, vec![tx_out])
+    construct_tx_core(tx_ins, vec![tx_out], fee)
 }
 
 /// Constructs a P2SH transaction to pay a receiver
@@ -421,6 +428,7 @@ pub fn construct_payment_tx(
 /// * `locktime`            - Block height below which the payment is restricted. "0" means no locktime
 pub fn construct_p2sh_tx(
     tx_ins: Vec<TxIn>,
+    fee: Option<ReceiverInfo>,
     script: &Script,
     drs_block_hash: Option<String>,
     asset: Asset,
@@ -435,7 +443,7 @@ pub fn construct_p2sh_tx(
         drs_block_hash,
     };
 
-    construct_tx_core(tx_ins, vec![tx_out])
+    construct_tx_core(tx_ins, vec![tx_out], fee)
 }
 
 /// Constructs a P2SH transaction to burn tokens
@@ -443,7 +451,7 @@ pub fn construct_p2sh_tx(
 /// ### Arguments
 ///
 /// * `tx_ins`  - Input/s to pay from
-pub fn construct_burn_tx(tx_ins: Vec<TxIn>) -> Transaction {
+pub fn construct_burn_tx(tx_ins: Vec<TxIn>, fee: Option<ReceiverInfo>) -> Transaction {
     let s = vec![StackEntry::Op(OpCodes::OP_BURN)];
     let script = Script::from(s);
     let script_hash = construct_p2sh_address(&script);
@@ -453,7 +461,7 @@ pub fn construct_burn_tx(tx_ins: Vec<TxIn>) -> Transaction {
         ..Default::default()
     };
 
-    construct_tx_core(tx_ins, vec![tx_out])
+    construct_tx_core(tx_ins, vec![tx_out], fee)
 }
 
 /// Constructs a transaction to pay a receiver
@@ -468,10 +476,21 @@ pub fn construct_burn_tx(tx_ins: Vec<TxIn>) -> Transaction {
 ///
 /// * `tx_ins`     - Address/es to pay from
 /// * `tx_outs`    - Address/es to send to
-pub fn construct_tx_core(tx_ins: Vec<TxIn>, tx_outs: Vec<TxOut>) -> Transaction {
+pub fn construct_tx_core(tx_ins: Vec<TxIn>, tx_outs: Vec<TxOut>, fee: Option<ReceiverInfo>) -> Transaction {
+    let fee_tx_out = match fee {
+        Some(fee) => vec![TxOut {
+            value: fee.asset,
+            locktime: 0,
+            script_public_key: Some(fee.address),
+            drs_block_hash: None,
+        }],
+        None => vec![]
+    };
+
     Transaction {
         outputs: tx_outs,
         inputs: tx_ins,
+        fees: fee_tx_out,
         ..Default::default()
     }
 }
@@ -489,10 +508,11 @@ pub fn construct_tx_core(tx_ins: Vec<TxIn>, tx_outs: Vec<TxOut>) -> Transaction 
 pub fn construct_rb_tx_core(
     tx_ins: Vec<TxIn>,
     tx_outs: Vec<TxOut>,
+    fee: Option<ReceiverInfo>,
     druid: String,
     druid_expectation: Vec<DruidExpectation>,
 ) -> Transaction {
-    let mut tx = construct_tx_core(tx_ins, tx_outs);
+    let mut tx = construct_tx_core(tx_ins, tx_outs, fee);
     tx.druid_info = Some(DdeValues {
         druid,
         participants: 2,
@@ -513,6 +533,7 @@ pub fn construct_rb_tx_core(
 pub fn construct_rb_payments_send_tx(
     tx_ins: Vec<TxIn>,
     mut tx_outs: Vec<TxOut>,
+    fee: Option<ReceiverInfo>,
     receiver_address: String,
     amount: TokenAmount,
     locktime: u64,
@@ -526,7 +547,7 @@ pub fn construct_rb_payments_send_tx(
         drs_block_hash: None,
     };
     tx_outs.push(out);
-    construct_rb_tx_core(tx_ins, tx_outs, druid, expectation)
+    construct_rb_tx_core(tx_ins, tx_outs, fee, druid, expectation)
 }
 
 /// Constructs the "receive" half of a item-based payment
@@ -544,6 +565,7 @@ pub fn construct_rb_payments_send_tx(
 pub fn construct_rb_receive_payment_tx(
     tx_ins: Vec<TxIn>,
     mut tx_outs: Vec<TxOut>,
+    fee: Option<ReceiverInfo>,
     sender_address: String,
     locktime: u64,
     druid: String,
@@ -557,7 +579,7 @@ pub fn construct_rb_receive_payment_tx(
         drs_block_hash: None, // this will need to change
     };
     tx_outs.push(out);
-    construct_rb_tx_core(tx_ins, tx_outs, druid, expectation)
+    construct_rb_tx_core(tx_ins, tx_outs, fee, druid, expectation)
 }
 
 /// Constructs a set of TxIns for a payment
@@ -621,10 +643,11 @@ pub fn construct_dde_tx(
     druid: String,
     tx_ins: Vec<TxIn>,
     tx_outs: Vec<TxOut>,
+    fee: Option<ReceiverInfo>,
     participants: usize,
     expectations: Vec<DruidExpectation>,
 ) -> Transaction {
-    let mut tx = construct_tx_core(tx_ins, tx_outs);
+    let mut tx = construct_tx_core(tx_ins, tx_outs, fee);
     tx.druid_info = Some(DdeValues {
         druid,
         participants,
@@ -652,7 +675,7 @@ mod tests {
         let amount = 1;
         let drs = vec![0, 8, 30, 20, 1];
 
-        let tx = construct_create_tx(0, drs.clone(), pk, &sk, amount);
+        let tx = construct_create_tx(0, drs.clone(), pk, &sk, amount, None);
 
         assert!(tx.is_create_tx());
         assert_eq!(tx.outputs.len(), 1);
@@ -711,6 +734,7 @@ mod tests {
 
         let p2sh_tx = construct_p2sh_tx(
             tx_ins,
+            None,
             &script,
             Some(drs_block_hash.clone()),
             Asset::Token(token_amount),
@@ -729,9 +753,12 @@ mod tests {
         let redeeming_tx_ins = construct_p2sh_redeem_tx_ins(tx_const, script.clone());
         let redeeming_tx = construct_payment_tx(
             redeeming_tx_ins,
-            hex::encode(vec![0; 32]),
+            ReceiverInfo {
+                address: hex::encode(vec![0; 32]),
+                asset: Asset::Token(token_amount),
+            },
+            None,
             Some(drs_block_hash),
-            Asset::Token(token_amount),
             0,
         );
         let p2sh_script_pub_key = p2sh_tx.outputs[0].script_public_key.as_ref().unwrap();
@@ -752,7 +779,7 @@ mod tests {
         let token_amount = TokenAmount(400000);
         let (tx_ins, drs_block_hash) = test_construct_valid_inputs(Some(NETWORK_VERSION_V0));
 
-        let burn_tx = construct_burn_tx(tx_ins);
+        let burn_tx = construct_burn_tx(tx_ins, None);
 
         let spending_tx_hash = construct_tx_hash(&burn_tx);
 
@@ -769,9 +796,12 @@ mod tests {
         let redeeming_tx_ins = construct_p2sh_redeem_tx_ins(tx_const, script);
         let redeeming_tx = construct_payment_tx(
             redeeming_tx_ins,
-            hex::encode(vec![0; 32]),
+            ReceiverInfo {
+                address: hex::encode(vec![0; 32]),
+                asset: Asset::Token(token_amount),
+            },
+            None,
             Some(drs_block_hash),
-            Asset::Token(token_amount),
             0,
         );
         let burn_script_pub_key = burn_tx.outputs[0].script_public_key.as_ref().unwrap();
@@ -794,12 +824,14 @@ mod tests {
         let token_amount = TokenAmount(400000);
         let payment_tx = construct_payment_tx(
             tx_ins,
-            hex::encode(vec![0; 32]),
+            ReceiverInfo {
+                address: hex::encode(vec![0; 32]),
+                asset: Asset::Token(token_amount),
+            },
+            None,
             Some(drs_block_hash),
-            Asset::Token(token_amount),
             0,
         );
-
         assert_eq!(Asset::Token(token_amount), payment_tx.outputs[0].value);
         assert_eq!(
             payment_tx.outputs[0].script_public_key,
@@ -829,9 +861,12 @@ mod tests {
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
         let payment_tx_valid = construct_payment_tx(
             tx_ins,
-            hex::encode(vec![0; 32]),
+            ReceiverInfo {
+                address: hex::encode(vec![0; 32]),
+                asset: Asset::Item(item_asset_valid),
+            },
+            None,
             Some(drs_block_hash),
-            Asset::Item(item_asset_valid),
             0,
         );
 
@@ -839,7 +874,7 @@ mod tests {
         btree.insert(drs_tx_hash, 1000);
         let tx_ins_spent = AssetValues::new(TokenAmount(0), btree);
 
-        assert!(tx_outs_are_valid(&payment_tx_valid.outputs, tx_ins_spent));
+        assert!(tx_outs_are_valid(&payment_tx_valid.outputs, &vec![], tx_ins_spent));
     }
 
     #[test]
@@ -877,9 +912,12 @@ mod tests {
         let tx_ins_1 = construct_payment_tx_ins(vec![tx_1]);
         let payment_tx_1 = construct_payment_tx(
             tx_ins_1,
-            hex::encode(vec![0; 32]),
+            ReceiverInfo {
+                address: hex::encode(vec![0; 32]),
+                asset: Asset::Token(token_amount),
+            },
             None,
-            Asset::Token(token_amount),
+            None,
             0,
         );
         let tx_1_hash = construct_tx_hash(&payment_tx_1);
@@ -898,7 +936,7 @@ mod tests {
             token_amount,
             None,
         )];
-        let payment_tx_2 = construct_tx_core(tx_ins_2, tx_outs);
+        let payment_tx_2 = construct_tx_core(tx_ins_2, tx_outs, None);
 
         let tx_2_hash = construct_tx_hash(&payment_tx_2);
         let tx_2_out_p = OutPoint::new(tx_2_hash, 0);
@@ -975,7 +1013,7 @@ mod tests {
         }];
 
         // Actual DDE
-        let dde = construct_dde_tx(druid.clone(), tx_ins, tx_outs, participants, expects);
+        let dde = construct_dde_tx(druid.clone(), tx_ins, tx_outs, None, participants, expects);
 
         assert_eq!(dde.druid_info.clone().unwrap().druid, druid);
         assert_eq!(dde.outputs[0].clone().value, data);
@@ -1018,6 +1056,7 @@ mod tests {
             let mut tx = construct_rb_payments_send_tx(
                 tx_ins,
                 Vec::new(),
+                None,
                 bob_addr.clone(),
                 payment,
                 0,
@@ -1046,6 +1085,7 @@ mod tests {
             construct_rb_receive_payment_tx(
                 tx_ins,
                 Vec::new(),
+                None,
                 alice_addr,
                 0,
                 druid.clone(),
