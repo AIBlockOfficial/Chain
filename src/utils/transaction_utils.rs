@@ -574,11 +574,7 @@ pub fn construct_rb_receive_payment_tx(
     druid_info: DdeValues
 ) -> Transaction {
     let out = TxOut {
-<<<<<<< HEAD
-        value: Asset::item(1, drs_tx_hash, None),
-=======
-        value: Asset::receipt(1, druid_info.drs_tx_hash, None),
->>>>>>> 8d3d744 (Manage fees within DDE transactions)
+        value: Asset::item(1, druid_info.drs_tx_hash, None),
         locktime,
         script_public_key: Some(sender_address),
         drs_block_hash: None, // this will need to change
@@ -662,11 +658,7 @@ pub fn construct_dde_tx(
 mod tests {
     use super::*;
     use crate::crypto::sign_ed25519::{self as sign, Signature};
-<<<<<<< HEAD
-    use crate::primitives::asset::{AssetValues, ItemAsset};
-=======
-    use crate::primitives::asset::{AssetValues, ReceiptAsset, TokenAmount};
->>>>>>> 8d3d744 (Manage fees within DDE transactions)
+    use crate::primitives::asset::{AssetValues, ItemAsset, TokenAmount};
     use crate::script::OpCodes;
     use crate::utils::script_utils::{tx_has_valid_p2sh_script, tx_outs_are_valid};
 
