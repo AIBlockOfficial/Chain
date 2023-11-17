@@ -262,6 +262,32 @@ pub fn get_tx_out_with_out_point<'a>(
         .map(|(hash, idx, txo)| (OutPoint::new(hash.clone(), idx as i32), txo))
 }
 
+/// Get all fee outputs from the (hash,transactions)
+///
+/// ### Arguments
+///
+/// * `txs` - The entries to to provide an update for.
+pub fn get_fees_with_out_point<'a>(
+    txs: impl Iterator<Item = (&'a String, &'a Transaction)>,
+) -> impl Iterator<Item = (OutPoint, &'a TxOut)> {
+    txs.map(|(hash, tx)| (hash, tx.fees.iter()))
+        .flat_map(|(hash, outs)| outs.enumerate().map(move |(idx, txo)| (hash, idx, txo)))
+        .map(|(hash, idx, txo)| (OutPoint::new(hash.clone(), idx as i32), txo))
+}
+
+/// Get all fee outputs from the (hash,transactions)
+///
+/// ### Arguments
+///
+/// * `txs` - The entries to to provide an update for.
+pub fn get_fees_with_out_point_cloned<'a>(
+    txs: impl Iterator<Item = (&'a String, &'a Transaction)> + 'a,
+) -> impl Iterator<Item = (OutPoint, TxOut)> + 'a {
+    txs.map(|(hash, tx)| (hash, tx.fees.iter()))
+        .flat_map(|(hash, outs)| outs.enumerate().map(move |(idx, txo)| (hash, idx, txo)))
+        .map(|(hash, idx, txo)| (OutPoint::new(hash.clone(), idx as i32), txo.clone()))
+}
+
 /// Get all the OutPoint and TxOut from the (hash,transactions)
 ///
 /// ### Arguments
@@ -541,7 +567,7 @@ pub fn construct_rb_payments_send_tx(
     fee: Option<ReceiverInfo>,
     receiver: ReceiverInfo,
     locktime: u64,
-    druid_info: DdeValues
+    druid_info: DdeValues,
 ) -> Transaction {
     let out = TxOut {
         value: receiver.asset,
@@ -550,7 +576,13 @@ pub fn construct_rb_payments_send_tx(
         drs_block_hash: None,
     };
     tx_outs.push(out);
-    construct_rb_tx_core(tx_ins, tx_outs, fee, druid_info.druid, druid_info.expectations)
+    construct_rb_tx_core(
+        tx_ins,
+        tx_outs,
+        fee,
+        druid_info.druid,
+        druid_info.expectations,
+    )
 }
 
 /// Constructs the "receive" half of a item-based payment
@@ -571,7 +603,7 @@ pub fn construct_rb_receive_payment_tx(
     fee: Option<ReceiverInfo>,
     sender_address: String,
     locktime: u64,
-    druid_info: DdeValues
+    druid_info: DdeValues,
 ) -> Transaction {
     let out = TxOut {
         value: Asset::item(1, druid_info.drs_tx_hash, None),
@@ -580,7 +612,13 @@ pub fn construct_rb_receive_payment_tx(
         drs_block_hash: None, // this will need to change
     };
     tx_outs.push(out);
-    construct_rb_tx_core(tx_ins, tx_outs, fee, druid_info.druid, druid_info.expectations)
+    construct_rb_tx_core(
+        tx_ins,
+        tx_outs,
+        fee,
+        druid_info.druid,
+        druid_info.expectations,
+    )
 }
 
 /// Constructs a set of TxIns for a payment
@@ -1091,7 +1129,12 @@ mod tests {
                     asset: Asset::Token(payment),
                 },
                 0,
-                DdeValues { druid: druid.clone(), participants: 2, expectations: vec![expectation], drs_tx_hash: None }
+                DdeValues {
+                    druid: druid.clone(),
+                    participants: 2,
+                    expectations: vec![expectation],
+                    drs_tx_hash: None,
+                },
             );
 
             tx.outputs.push(excess_tx_out);
@@ -1111,17 +1154,15 @@ mod tests {
                 asset: Asset::Token(payment),
             };
 
-            let druid_info = DdeValues { druid: druid.clone(), participants: 2, expectations: vec![expectation], drs_tx_hash: Some("drs_tx_hash".to_owned()) };
+            let druid_info = DdeValues {
+                druid: druid.clone(),
+                participants: 2,
+                expectations: vec![expectation],
+                drs_tx_hash: Some("drs_tx_hash".to_owned()),
+            };
 
             // create the sender that match the receiver.
-            construct_rb_receive_payment_tx(
-                tx_ins,
-                Vec::new(),
-                None,
-                alice_addr,
-                0,
-                druid_info
-            )
+            construct_rb_receive_payment_tx(tx_ins, Vec::new(), None, alice_addr, 0, druid_info)
         };
 
         // Assert

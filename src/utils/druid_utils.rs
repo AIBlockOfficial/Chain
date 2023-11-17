@@ -108,12 +108,8 @@ mod tests {
             expectations: expects.clone(),
             drs_tx_hash: None,
         };
-        let alice_tx = construct_dde_tx(
-            alice_druid_info,
-            tx_input.clone(),
-            vec![token_tx_out],
-            None,
-        );
+        let alice_tx =
+            construct_dde_tx(alice_druid_info, tx_input.clone(), vec![token_tx_out], None);
 
         let bob_druid_info = DdeValues {
             druid: druid.clone(),
@@ -174,7 +170,7 @@ mod tests {
                     asset: Asset::Token(payment),
                 },
                 0,
-                druid_info
+                druid_info,
             );
 
             tx.outputs.push(excess_tx_out);
@@ -202,14 +198,7 @@ mod tests {
             };
 
             // create the sender that match the receiver.
-            construct_rb_receive_payment_tx(
-                tx_ins,
-                Vec::new(),
-                None,
-                alice_addr,
-                0,
-                druid_info
-            )
+            construct_rb_receive_payment_tx(tx_ins, Vec::new(), None, alice_addr, 0, druid_info)
         };
 
         (send_tx, recv_tx)
