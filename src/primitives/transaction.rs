@@ -173,6 +173,7 @@ pub struct Transaction {
     pub inputs: Vec<TxIn>,
     pub outputs: Vec<TxOut>,
     pub version: usize,
+    pub fees: Vec<TxOut>,
     pub druid_info: Option<DdeValues>,
 }
 
@@ -188,6 +189,7 @@ impl Transaction {
         Transaction {
             inputs: Vec::new(),
             outputs: Vec::new(),
+            fees: Vec::new(),
             version: NETWORK_VERSION as usize,
             druid_info: None,
         }

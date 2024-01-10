@@ -85,7 +85,7 @@ pub fn tx_is_valid<'a>(
         tx_ins_spent.update_add(&asset);
     }
 
-    tx_outs_are_valid(&tx.outputs, tx_ins_spent)
+    tx_outs_are_valid(&tx.outputs, &tx.fees, tx_ins_spent)
 }
 
 /// Verifies that the outgoing `TxOut`s are valid. Returns false if a single
@@ -97,7 +97,7 @@ pub fn tx_is_valid<'a>(
 ///
 /// * `tx_outs`      - `TxOut`s to verify
 /// * `tx_ins_spent` - Total amount spendable from `TxIn`s
-pub fn tx_outs_are_valid(tx_outs: &[TxOut], tx_ins_spent: AssetValues) -> bool {
+pub fn tx_outs_are_valid(tx_outs: &[TxOut], fees: &[TxOut], tx_ins_spent: AssetValues) -> bool {
     let mut tx_outs_spent: AssetValues = Default::default();
 
     for tx_out in tx_outs {
@@ -110,6 +110,19 @@ pub fn tx_outs_are_valid(tx_outs: &[TxOut], tx_ins_spent: AssetValues) -> bool {
         }
 
         tx_outs_spent.update_add(&tx_out.value);
+    }
+
+    // Check fees as well
+    for fee in fees {
+        // Addresses must have valid length
+        if let Some(addr) = &fee.script_public_key {
+            if !address_has_valid_length(addr) {
+                trace!("Address has invalid length");
+                return false;
+            }
+        }
+
+        tx_outs_spent.update_add(&fee.value);
     }
 
     // Ensure that the `TxIn`s correlate with the `TxOut`s

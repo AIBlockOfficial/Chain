@@ -102,15 +102,22 @@ mod tests {
         ];
 
         // Txs
-        let alice_tx = construct_dde_tx(
-            druid.clone(),
-            tx_input.clone(),
-            vec![token_tx_out],
-            2,
-            expects.clone(),
-        );
+        let alice_druid_info = DdeValues {
+            druid: druid.clone(),
+            participants: 2,
+            expectations: expects.clone(),
+            drs_tx_hash: None,
+        };
+        let alice_tx =
+            construct_dde_tx(alice_druid_info, tx_input.clone(), vec![token_tx_out], None);
 
-        let bob_tx = construct_dde_tx(druid, tx_input, vec![data_tx_out], 2, expects);
+        let bob_druid_info = DdeValues {
+            druid: druid.clone(),
+            participants: 2,
+            expectations: expects.clone(),
+            drs_tx_hash: None,
+        };
+        let bob_tx = construct_dde_tx(bob_druid_info, tx_input, vec![data_tx_out], None);
 
         vec![alice_tx, bob_tx]
     }
@@ -147,14 +154,23 @@ mod tests {
                 asset: Asset::item(1, Some("drs_tx_hash".to_owned()), None),
             };
 
+            let druid_info = DdeValues {
+                druid: druid.clone(),
+                participants: 2,
+                expectations: vec![expectation.clone()],
+                drs_tx_hash: None,
+            };
+
             let mut tx = construct_rb_payments_send_tx(
                 tx_ins,
                 Vec::new(),
-                bob_addr.clone(),
-                payment,
+                None,
+                ReceiverInfo {
+                    address: bob_addr.clone(),
+                    asset: Asset::Token(payment),
+                },
                 0,
-                druid.clone(),
-                vec![expectation],
+                druid_info,
             );
 
             tx.outputs.push(excess_tx_out);
@@ -174,16 +190,15 @@ mod tests {
                 asset: Asset::Token(payment),
             };
 
+            let druid_info = DdeValues {
+                druid: druid.clone(),
+                participants: 2,
+                expectations: vec![expectation.clone()],
+                drs_tx_hash: Some("drs_tx_hash".to_owned()),
+            };
+
             // create the sender that match the receiver.
-            construct_rb_receive_payment_tx(
-                tx_ins,
-                Vec::new(),
-                alice_addr,
-                0,
-                druid,
-                vec![expectation],
-                Some("drs_tx_hash".to_owned()),
-            )
+            construct_rb_receive_payment_tx(tx_ins, Vec::new(), None, alice_addr, 0, druid_info)
         };
 
         (send_tx, recv_tx)
@@ -212,6 +227,7 @@ mod tests {
             druid: "VALUE".to_owned(),
             participants: 2,
             expectations: expects,
+            drs_tx_hash: None,
         };
         change_tx.druid_info = Some(nm_druid_info);
 
