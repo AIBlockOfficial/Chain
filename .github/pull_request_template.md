@@ -3,6 +3,10 @@ Provide a clear and concise description of the changes introduced in this pull r
 
 Fixes # (issue number)
 
+## Changelog
+
+- List the changes to the codebase that this PR introduces
+
 ## Type of Change
 Please mark the appropriate option by putting an "x" inside the brackets:
 
