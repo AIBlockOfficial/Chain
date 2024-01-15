@@ -230,11 +230,12 @@ mod tests {
 
         let (mtree, store) = build_merkle_tree(&transactions).await.unwrap();
         let check_entry = sha3_256::digest(transactions[0].as_bytes());
+        let converted_entry: [u8; 32] = check_entry.as_slice().try_into().unwrap();
         let proof = mtree
-            .prove(0, check_entry.as_slice(), &store)
+            .prove(0, &converted_entry, &store)
             .await
             .unwrap();
 
-        assert!(mtree.verify(0, check_entry.as_slice(), &proof));
+        assert!(mtree.verify(0, &converted_entry, &proof));
     }
 }
