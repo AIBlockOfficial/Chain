@@ -22,7 +22,7 @@ pub struct BlockHeader {
     pub bits: usize,
     pub nonce_and_mining_tx_hash: (Vec<u8>, String),
     pub b_num: u64,
-    pub timestamp: String,
+    pub timestamp: i64,
     pub seed_value: Vec<u8>, // for commercial
     pub previous_hash: Option<String>,
     pub txs_merkle_root_and_hash: (String, String),
@@ -42,7 +42,7 @@ impl BlockHeader {
             bits: 0,
             nonce_and_mining_tx_hash: Default::default(),
             b_num: 0,
-            timestamp: String::default(),
+            timestamp: 0,
             seed_value: Vec::new(),
             previous_hash: None,
             txs_merkle_root_and_hash: Default::default(),
@@ -231,10 +231,10 @@ mod tests {
         let (mtree, store) = build_merkle_tree(&transactions).await.unwrap();
         let check_entry = sha3_256::digest(transactions[0].as_bytes());
         let proof = mtree
-            .prove(0, &from_slice(&check_entry), &store)
+            .prove(0, check_entry.as_slice(), &store)
             .await
             .unwrap();
 
-        assert!(mtree.verify(0, &from_slice(&check_entry), &proof));
+        assert!(mtree.verify(0, check_entry.as_slice(), &proof));
     }
 }
