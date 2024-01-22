@@ -1,6 +1,6 @@
 [package]
 name = "a_block_chain"
-version = "1.2.1"
+version = "1.2.2"
 homepage = "https://a-block.io"
 description = "A-Block Chain is a distributed blockchain store with a dual double entry (DDE) data structure."
 authors = ["Byron Houwens <byron.houwens@gmail.com>", "Anton Troskie <troskie.a@gmail.com>"]
