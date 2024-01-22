@@ -8,6 +8,7 @@ use bincode::{deserialize, serialize};
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
+use tracing::warn;
 
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
@@ -79,13 +80,25 @@ impl Block {
 
     /// Sets the internal number of bits based on length
     pub fn set_bits(&mut self) {
-        let bytes = Bytes::from(serialize(&self).unwrap());
+        let bytes = Bytes::from(match serialize(&self) {
+            Ok(bytes) => bytes,
+            Err(e) => {
+                warn!("Failed to serialize block: {:?}", e);
+                return;
+            },
+        });
         self.header.bits = bytes.len();
     }
 
     /// Checks whether a block has hit its maximum size
     pub fn is_full(&self) -> bool {
-        let bytes = Bytes::from(serialize(&self).unwrap());
+        let bytes = Bytes::from(match serialize(&self) {
+            Ok(bytes) => bytes,
+            Err(e) => {
+                warn!("Failed to serialize block: {:?}", e);
+                return false;
+            },
+        });
         bytes.len() >= MAX_BLOCK_SIZE
     }
 
@@ -128,7 +141,13 @@ pub fn gen_random_hash() -> String {
 ///
 /// * `transactions`    - Transactions to construct a merkle tree for
 pub fn build_hex_txs_hash(transactions: &[String]) -> String {
-    let txs = serialize(transactions).unwrap();
+    let txs = match serialize(transactions) {
+        Ok(bytes) => bytes,
+        Err(e) => {
+            warn!("Failed to serialize transactions: {:?}", e);
+            return String::new();
+        },
+    };
     hex::encode(sha3_256::digest(&txs))
 }
 
@@ -154,12 +173,23 @@ pub async fn build_merkle_tree(
     let mut store = MemoryStore::default();
 
     if let Some((first_entry, other_entries)) = transactions.split_first() {
-        let mut log = MerkleLog::<Sha3_256>::new(&first_entry, &mut store)
-            .await
-            .unwrap();
+        let mut log = match MerkleLog::<Sha3_256>::new(&first_entry, &mut store)
+            .await {
+                Ok(log) => log,
+                Err(e) => {
+                    warn!("Failed to create merkle log: {:?}", e);
+                    return None;
+                },
+            };
 
         for entry in other_entries {
-            log.append(entry, &mut store).await.unwrap();
+            match log.append(entry, &mut store).await {
+                Ok(_) => (),
+                Err(e) => {
+                    warn!("Failed to append to merkle log: {:?}", e);
+                    return None;
+                },
+            }
         }
 
         return Some((log, store));

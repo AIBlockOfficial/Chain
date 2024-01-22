@@ -1,6 +1,7 @@
 use bincode::deserialize;
 use colored::*;
 use rocksdb::{Options, DB};
+use tracing::warn;
 
 use naom::primitives::asset::Asset;
 use naom::primitives::block::Block;
@@ -12,14 +13,20 @@ use naom::primitives::transaction::Transaction;
 ///
 /// * `db_path` - Full path to the database
 pub fn list_assets(db_path: String) {
-    let db = DB::open_default(db_path.clone()).unwrap();
+    let db = match DB::open_default(db_path.clone()) {
+        Ok(db) => db,
+        Err(e) => {
+            warn!("Failed to open database: {:?}", e);
+            return;
+        },
+    };
 
     let mut iter = db.raw_iterator();
     iter.seek_to_first();
 
     println!();
     while iter.valid() {
-        let key_raw = iter.key().unwrap().to_vec();
+        let key_raw = iter.key().unwrap_or_default().to_vec();
         let key = String::from_utf8_lossy(&key_raw);
 
         if !key.starts_with('g') {
