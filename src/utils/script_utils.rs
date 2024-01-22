@@ -51,7 +51,13 @@ pub fn tx_is_valid<'a>(
 
     for tx_in in &tx.inputs {
         // Ensure the transaction is in the `UTXO` set
-        let tx_out_point = tx_in.previous_out.as_ref().unwrap().clone();
+        let tx_out_point = match tx_in.previous_out.as_ref() {
+            Some(v) => v,
+            None => {
+                error!("TRANSACTION DOESN'T CONTAIN PREVIOUS OUTPOINT");
+                return false;
+            }
+        };
 
         let tx_out = if let Some(tx_out) = is_in_utxo(&tx_out_point) {
             tx_out

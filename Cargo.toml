@@ -1,6 +1,6 @@
 [package]
 name = "a_block_chain"
-version = "1.2.0"
+version = "1.2.2"
 homepage = "https://a-block.io"
 description = "A-Block Chain is a distributed blockchain store with a dual double entry (DDE) data structure."
 authors = ["Byron Houwens <byron.houwens@gmail.com>", "Anton Troskie <troskie.a@gmail.com>"]
@@ -28,6 +28,8 @@ serde = { version = "1.0.163", features = ["derive"] }
 sha3 = "0.9.1"
 time = "0.3.21"
 tracing = "0.1.37"
+tracing-subscriber = "0.2.3"
+tracing-futures = "0.2.3"
 
 [features]
 default = []
