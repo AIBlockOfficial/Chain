@@ -169,6 +169,13 @@ impl Asset {
         }
     }
 
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Asset::Token(token) => token.0 == 0,
+            Asset::Item(item) => item.amount == 0,
+        }
+    }
+
     pub fn token_u64(amount: u64) -> Self {
         Asset::Token(TokenAmount(amount))
     }

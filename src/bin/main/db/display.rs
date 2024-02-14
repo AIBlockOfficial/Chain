@@ -3,9 +3,9 @@ use colored::*;
 use rocksdb::{Options, DB};
 use tracing::warn;
 
-use naom::primitives::asset::Asset;
-use naom::primitives::block::Block;
-use naom::primitives::transaction::Transaction;
+use a_block_chain::primitives::asset::Asset;
+use a_block_chain::primitives::block::Block;
+use a_block_chain::primitives::transaction::Transaction;
 
 /// Lists all assets in the blockchain and outputs them to stdout
 ///
