@@ -1,6 +1,6 @@
-use bincode::deserialize;
 use a_block_chain::primitives::block::Block;
 use a_block_chain::primitives::transaction::Transaction;
+use bincode::deserialize;
 use rocksdb::DB;
 use std::sync::{Arc, Mutex};
 use tracing::warn;
