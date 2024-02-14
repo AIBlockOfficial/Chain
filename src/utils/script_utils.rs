@@ -41,7 +41,13 @@ pub fn tx_is_valid<'a>(
     let mut tx_ins_spent: AssetValues = Default::default();
     // TODO: Add support for `Data` asset variant
     // `Item` assets MUST have an a DRS value associated with them when they are getting on-spent
+
+    println!("tx: {:?}", tx.outputs);
     if tx.outputs.iter().any(|out| {
+        println!("out is item: {:?}", out.value.is_item());
+        println!("out has drs: {:?}", out.value.get_drs_tx_hash().is_none());
+        println!("out has metadata: {:?}", out.value.get_metadata().is_some());
+
         (out.value.is_item()
             && (out.value.get_drs_tx_hash().is_none() || out.value.get_metadata().is_some()))
     }) {
@@ -90,6 +96,11 @@ pub fn tx_is_valid<'a>(
         let asset = tx_out.value.clone().with_fixed_hash(&tx_out_point);
         tx_ins_spent.update_add(&asset);
     }
+
+    println!(
+        "txs are valid: {:?}",
+        tx_outs_are_valid(&tx.outputs, &tx.fees, tx_ins_spent.clone())
+    );
 
     tx_outs_are_valid(&tx.outputs, &tx.fees, tx_ins_spent)
 }
@@ -274,7 +285,7 @@ fn address_has_valid_length(address: &str) -> bool {
 mod tests {
     use super::*;
     use crate::constants::RECEIPT_ACCEPT_VAL;
-    use crate::primitives::asset::{Asset, DataAsset};
+    use crate::primitives::asset::Asset;
     use crate::primitives::druid::DdeValues;
     use crate::primitives::transaction::OutPoint;
     use crate::utils::test_utils::generate_tx_with_ins_and_outs_assets;

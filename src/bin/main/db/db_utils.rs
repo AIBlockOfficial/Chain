@@ -48,7 +48,7 @@ pub fn find_all_matching_druids(db_path: String, druid: String, block: String) -
                     warn!("Failed to deserialize transaction: {:?}", e);
                     return Vec::new();
                 }
-            }
+            },
             Ok(None) => {
                 warn!("Transaction not found in blockchain");
                 return Vec::new();

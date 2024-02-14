@@ -18,7 +18,7 @@ pub fn list_assets(db_path: String) {
         Err(e) => {
             warn!("Failed to open database: {:?}", e);
             return;
-        },
+        }
     };
 
     let mut iter = db.raw_iterator();
