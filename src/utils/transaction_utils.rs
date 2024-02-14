@@ -8,6 +8,7 @@ use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use bincode::serialize;
 use std::collections::BTreeMap;
+use tracing::debug;
 
 pub struct ReceiverInfo {
     pub address: String,
@@ -189,10 +190,7 @@ pub fn get_tx_in_address_signable_string(tx_in: &TxIn) -> String {
         None => "null".to_owned(),
     };
     let script_signable_string = get_script_signable_string(&tx_in.script_signature.stack);
-    println!(
-        "Formatted string: {}",
-        format!("{out_point_signable_string}-{script_signable_string}")
-    );
+    debug!("Formatted string: {out_point_signable_string}-{script_signable_string}");
     format!("{out_point_signable_string}-{script_signable_string}")
 }
 
@@ -881,7 +879,7 @@ mod tests {
 
         assert!(tx_outs_are_valid(
             &payment_tx_valid.outputs,
-            &vec![],
+            &[],
             tx_ins_spent
         ));
     }
@@ -1153,11 +1151,9 @@ mod tests {
         //
         // Arrange
         //
-        let pub_keys = vec![
-            "5371832122a8e804fa3520ec6861c3fa554a7f6fb617e6f0768452090207e07c",
+        let pub_keys = ["5371832122a8e804fa3520ec6861c3fa554a7f6fb617e6f0768452090207e07c",
             "6e86cc1fc5efbe64c2690efbb966b9fe1957facc497dce311981c68dac88e08c",
-            "8b835e00c57ebff6637ec32276f2c6c0df71129c8f0860131a78a4692a0b59dc",
-        ]
+            "8b835e00c57ebff6637ec32276f2c6c0df71129c8f0860131a78a4692a0b59dc"]
         .iter()
         .map(|v| hex::decode(v).unwrap())
         .map(|v| PublicKey::from_slice(&v).unwrap())
@@ -1262,23 +1258,17 @@ mod tests {
         //
         // Arrange
         //
-        let pub_keys = vec![
-            "5e6d463ec66d7999769fa4de56f690dfb62e685b97032f5926b0cb6c93ba83c6",
+        let pub_keys = ["5e6d463ec66d7999769fa4de56f690dfb62e685b97032f5926b0cb6c93ba83c6",
             "58272ba93c1e79df280d4c417de47dbf6a7e330ba52793d7baa8e00ae5c34e59",
-            "efa9dcba0f3282b3ed4a6aa1ccdb169d6685a30d7b2af7a2171a5682f3112359",
-        ];
+            "efa9dcba0f3282b3ed4a6aa1ccdb169d6685a30d7b2af7a2171a5682f3112359"];
 
-        let signatures = vec![
-            "660e4698d817d409feb209699b15935048c8b3c4ac86a23f25b05aa32fb8b87e7cd029b83220d31a0b2717bd63b47a320a7728355d7fae43a665d6e27743e20d", 
+        let signatures = ["660e4698d817d409feb209699b15935048c8b3c4ac86a23f25b05aa32fb8b87e7cd029b83220d31a0b2717bd63b47a320a7728355d7fae43a665d6e27743e20d", 
             "fd107c9446cdcbd8fbb0d6b88c73067c9bd15de03fff677b0129acf1bd2d14a5ab8a63c7eb6fe8c5acc4b44b033744760847194a15b006368d178c85243d0605", 
-            "e1a436bbfcb3e411be1ce6088cdb4c39d7e79f8fe427943e74307e43864fd0f6ef26123f1439b92c075edd031d17feb4dd265c6fcc2e5ed571df48a03c396100",
-        ];
+            "e1a436bbfcb3e411be1ce6088cdb4c39d7e79f8fe427943e74307e43864fd0f6ef26123f1439b92c075edd031d17feb4dd265c6fcc2e5ed571df48a03c396100"];
 
-        let signable_data = vec![
-            "927b3411743452e5e0d73e9e40a4fa3c842b3d00dabde7f9af7e44661ce02c88",
+        let signable_data = ["927b3411743452e5e0d73e9e40a4fa3c842b3d00dabde7f9af7e44661ce02c88",
             "754dc248d1c847e8a10c6f8ded6ccad96381551ebb162583aea2a86b9bb78dfa",
-            "5585c6f74d5c55f1ab457c31671822ba28c78c397cce1e11680b9f3852f96edb",
-        ];
+            "5585c6f74d5c55f1ab457c31671822ba28c78c397cce1e11680b9f3852f96edb"];
 
         let previous_out_points = vec![
             OutPoint::new("000000".to_owned(), 0),
