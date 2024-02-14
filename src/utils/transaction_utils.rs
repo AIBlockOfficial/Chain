@@ -1,7 +1,7 @@
 use crate::constants::*;
 use crate::crypto::sha3_256;
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, SecretKey};
-use crate::primitives::asset::{Asset, DataAsset};
+use crate::primitives::asset::Asset;
 use crate::primitives::druid::{DdeValues, DruidExpectation};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
@@ -133,11 +133,6 @@ pub fn construct_tx_in_signable_hash(previous_out: &OutPoint) -> String {
 pub fn get_asset_signable_string(asset: &Asset) -> String {
     match asset {
         Asset::Token(token_amount) => format!("Token:{}", token_amount.0),
-        Asset::Data(data_asset) => format!(
-            "Data:{}-{}",
-            hex::encode(&data_asset.data),
-            data_asset.amount
-        ),
         Asset::Item(item) => format!("Item:{}", item.amount),
     }
 }
@@ -194,6 +189,10 @@ pub fn get_tx_in_address_signable_string(tx_in: &TxIn) -> String {
         None => "null".to_owned(),
     };
     let script_signable_string = get_script_signable_string(&tx_in.script_signature.stack);
+    println!(
+        "Formatted string: {}",
+        format!("{out_point_signable_string}-{script_signable_string}")
+    );
     format!("{out_point_signable_string}-{script_signable_string}")
 }
 
@@ -350,36 +349,6 @@ pub fn construct_create_tx_in(
         previous_out: None,
         script_signature: Script::new_create_asset(block_num, asset_hash, signature, public_key),
     }]
-}
-
-/// Constructs a transaction for the creation of a new smart data asset
-///
-/// ### Arguments
-///
-/// * `block_num`           - Block number
-/// * `drs`                 - Digital rights signature for the new asset
-/// * `public_key`          - Public key for the output address
-/// * `secret_key`          - Corresponding secret key for signing data
-/// * `amount`              - Amount of the asset to generate
-pub fn construct_create_tx(
-    block_num: u64,
-    drs: Vec<u8>,
-    public_key: PublicKey,
-    secret_key: &SecretKey,
-    amount: u64,
-    fee: Option<ReceiverInfo>,
-) -> Transaction {
-    let asset = Asset::Data(DataAsset { data: drs, amount });
-    let receiver_address = construct_address(&public_key);
-
-    let tx_ins = construct_create_tx_in(block_num, &asset, public_key, secret_key);
-    let tx_out = TxOut {
-        value: asset,
-        script_public_key: Some(receiver_address),
-        ..Default::default()
-    };
-
-    construct_tx_core(tx_ins, vec![tx_out], fee)
 }
 
 /// Constructs a item data asset for use in accepting payments
@@ -701,27 +670,6 @@ mod tests {
     use crate::utils::script_utils::{tx_has_valid_p2sh_script, tx_outs_are_valid};
 
     #[test]
-    // Creates a valid creation transaction
-    fn test_construct_a_valid_create_tx() {
-        let (pk, sk) = sign::gen_keypair();
-        let receiver_address = construct_address(&pk);
-        let amount = 1;
-        let drs = vec![0, 8, 30, 20, 1];
-
-        let tx = construct_create_tx(0, drs.clone(), pk, &sk, amount, None);
-
-        assert!(tx.is_create_tx());
-        assert_eq!(tx.outputs.len(), 1);
-        assert_eq!(tx.druid_info, None);
-        assert_eq!(tx.outputs[0].drs_block_hash, None);
-        assert_eq!(tx.outputs[0].script_public_key, Some(receiver_address));
-        assert_eq!(
-            tx.outputs[0].value,
-            Asset::Data(DataAsset { data: drs, amount })
-        );
-    }
-
-    #[test]
     // Creates a valid payment transaction
     fn test_construct_a_valid_payment_tx() {
         test_construct_a_valid_payment_tx_common(None);
@@ -1039,9 +987,10 @@ mod tests {
         let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
 
         let to_asset = "2222".to_owned();
-        let data = Asset::Data(DataAsset {
-            data: vec![0, 12, 3, 5, 6],
+        let data = Asset::Item(ItemAsset {
+            metadata: Some("hello".to_string()),
             amount: 1,
+            drs_tx_hash: None,
         });
 
         let tx_const = TxConstructor {
@@ -1286,14 +1235,7 @@ mod tests {
         //
         // Arrange
         //
-        let assets = vec![
-            Asset::token_u64(1),
-            Asset::item(1, None, None),
-            Asset::Data(DataAsset {
-                data: vec![1, 2, 3],
-                amount: 1,
-            }),
-        ];
+        let assets = vec![Asset::token_u64(1), Asset::item(1, None, None)];
 
         //
         // Act
@@ -1306,7 +1248,6 @@ mod tests {
         let expected: Vec<String> = vec![
             "a5b2f5e8dcf824aee45b81294ff8049b680285b976cc6c8fa45eb070acfc5974".to_owned(),
             "cb8f6cba3a62cfb7cd14245f19509b800da3dd446b6d902290efbcc91b3cee0d".to_owned(),
-            "ab72cb41f1f18edfb9c5161029c9695de4d5eed1d323be18ddedfb66a2b32282".to_owned(),
         ];
 
         //

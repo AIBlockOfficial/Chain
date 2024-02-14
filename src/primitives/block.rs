@@ -85,7 +85,7 @@ impl Block {
             Err(e) => {
                 warn!("Failed to serialize block: {:?}", e);
                 return;
-            },
+            }
         });
         self.header.bits = bytes.len();
     }
@@ -97,7 +97,7 @@ impl Block {
             Err(e) => {
                 warn!("Failed to serialize block: {:?}", e);
                 return false;
-            },
+            }
         });
         bytes.len() >= MAX_BLOCK_SIZE
     }
@@ -146,7 +146,7 @@ pub fn build_hex_txs_hash(transactions: &[String]) -> String {
         Err(e) => {
             warn!("Failed to serialize transactions: {:?}", e);
             return String::new();
-        },
+        }
     };
     hex::encode(sha3_256::digest(&txs))
 }
@@ -173,14 +173,13 @@ pub async fn build_merkle_tree(
     let mut store = MemoryStore::default();
 
     if let Some((first_entry, other_entries)) = transactions.split_first() {
-        let mut log = match MerkleLog::<Sha3_256>::new(&first_entry, &mut store)
-            .await {
-                Ok(log) => log,
-                Err(e) => {
-                    warn!("Failed to create merkle log: {:?}", e);
-                    return None;
-                },
-            };
+        let mut log = match MerkleLog::<Sha3_256>::new(&first_entry, &mut store).await {
+            Ok(log) => log,
+            Err(e) => {
+                warn!("Failed to create merkle log: {:?}", e);
+                return None;
+            }
+        };
 
         for entry in other_entries {
             match log.append(entry, &mut store).await {
@@ -188,7 +187,7 @@ pub async fn build_merkle_tree(
                 Err(e) => {
                     warn!("Failed to append to merkle log: {:?}", e);
                     return None;
-                },
+                }
             }
         }
 
@@ -261,10 +260,7 @@ mod tests {
         let (mtree, store) = build_merkle_tree(&transactions).await.unwrap();
         let check_entry = sha3_256::digest(transactions[0].as_bytes());
         let converted_entry: [u8; 32] = check_entry.as_slice().try_into().unwrap();
-        let proof = mtree
-            .prove(0, &converted_entry, &store)
-            .await
-            .unwrap();
+        let proof = mtree.prove(0, &converted_entry, &store).await.unwrap();
 
         assert!(mtree.verify(0, &converted_entry, &proof));
     }
