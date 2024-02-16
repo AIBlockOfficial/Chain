@@ -1,6 +1,6 @@
 pub use ring;
-use tracing::warn;
 use std::convert::TryInto;
+use tracing::warn;
 
 pub mod sign_ed25519 {
     use super::deserialize_slice;
@@ -112,7 +112,7 @@ pub mod sign_ed25519 {
                 Ok(sig) => sig,
                 Err(_) => {
                     warn!("Invalid signature");
-                    return false
+                    return false;
                 }
             });
             let msg = &sm[..start];
@@ -339,7 +339,7 @@ pub fn generate_random<const N: usize>() -> [u8; N] {
     let rand = ring::rand::SystemRandom::new();
     match rand.fill(&mut value) {
         Ok(_) => (),
-        Err(_) => warn!("Failed to generate random bytes")
+        Err(_) => warn!("Failed to generate random bytes"),
     };
 
     value

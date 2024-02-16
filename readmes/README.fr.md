@@ -8,7 +8,7 @@
   <div>
   <img src="https://img.shields.io/github/actions/workflow/status/ABlockOfficial/Chain/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
 
-  <img src="https://img.shields.io/crates/v/naom" alt="Cargo Crates Version" style="display:inline-block" />
+  <img src="https://img.shields.io/crates/v/a_block_chain" alt="Cargo Crates Version" style="display:inline-block" />
   </div>
 
   <p align="center">
@@ -43,13 +43,13 @@ Blockchain peut être ajouté à votre projet en tant que dépendance en ajoutan
 
 ```toml
 [dependencies]
-naom = "0.1.0"
+a_block_chain = "0.1.0"
 ```
 
 Ou bien, via la ligne de commande :
 
 ```
-cargo add naom
+cargo add a_block_chain
 ```
 
 L'exécution de `cargo run --bin main` à partir d'un clone de référentiel répertorie actuellement tous les actifs de l'instance locale. Cependant, Blockchain n'est généralement pas destiné à être utilisé directement, mais plutôt à être utilisé à partir d'autres programmes qui nécessitent l'accès à la structure de données de la blockchain.

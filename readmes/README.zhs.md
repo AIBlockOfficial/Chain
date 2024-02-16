@@ -7,7 +7,7 @@
 
   <div>
   <img src="https://img.shields.io/github/actions/workflow/status/ABlockOfficial/Chain/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
-  <img src="https://img.shields.io/crates/v/naom" alt="Cargo Crates Version" style="display:inline-block" />
+  <img src="https://img.shields.io/crates/v/a_block_chain" alt="Cargo Crates Version" style="display:inline-block" />
   </div>
 
   <p align="center">
@@ -42,13 +42,13 @@ cargo test
 
 ```toml
 [dependencies]
-naom = "0.1.0"
+a_block_chain = "0.1.0"
 ```
 
 或者，通过命令行：
 
 ```
-cargo add naom
+cargo add a_block_chain
 ```
 
 从repo clone运行 `cargo run --bin main` 目前将列出本地实例中的所有资产。但Blockchain通常不会直接使用，而是旨在用于需要访问区块链数据结构的其他程序中

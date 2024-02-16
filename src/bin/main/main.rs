@@ -1,8 +1,8 @@
 //! App using Blockchain library.
 #![allow(dead_code)]
 
-//use naom::db::display::list_assets;
-use naom::primitives::asset::TokenAmount;
+//use a_block_chain::db::display::list_assets;
+use a_block_chain::primitives::asset::TokenAmount;
 
 mod db;
 

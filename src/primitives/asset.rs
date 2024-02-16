@@ -118,13 +118,6 @@ impl ItemAsset {
     }
 }
 
-/// Data asset struct
-#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Ord, PartialOrd)]
-pub struct DataAsset {
-    pub data: Vec<u8>,
-    pub amount: u64,
-}
-
 /// Asset struct
 ///
 /// * `Token`   - An asset struct representation of the ZNT token
@@ -133,7 +126,6 @@ pub struct DataAsset {
 #[derive(Deserialize, Serialize, Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Asset {
     Token(TokenAmount),
-    Data(DataAsset),
     Item(ItemAsset),
 }
 
@@ -159,7 +151,6 @@ impl Asset {
     pub fn get_drs_tx_hash(&self) -> Option<&String> {
         match self {
             Asset::Token(_) => None,
-            Asset::Data(_) => None, /* TODO: This will have to change */
             Asset::Item(item) => item.drs_tx_hash.as_ref(),
         }
     }
@@ -167,7 +158,6 @@ impl Asset {
     pub fn get_metadata(&self) -> Option<&String> {
         match self {
             Asset::Token(_) => None,
-            Asset::Data(_) => None,
             Asset::Item(item) => item.metadata.as_ref(),
         }
     }
@@ -175,8 +165,14 @@ impl Asset {
     pub fn len(&self) -> usize {
         match self {
             Asset::Token(_) => size_of::<TokenAmount>(),
-            Asset::Data(d) => d.data.len(),
             Asset::Item(_) => size_of::<u64>(),
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Asset::Token(token) => token.0 == 0,
+            Asset::Item(item) => item.amount == 0,
         }
     }
 
@@ -293,7 +289,6 @@ impl Asset {
                 item.drs_tx_hash.clone(),
                 item.metadata.clone(),
             ),
-            _ => panic!("Cannot create default of asset type: {:?}", asset_type),
         }
     }
 
@@ -303,13 +298,6 @@ impl Asset {
 
     pub fn is_item(&self) -> bool {
         matches!(self, Asset::Item(_))
-    }
-
-    pub fn is_empty(&self) -> bool {
-        match self {
-            Asset::Data(d) => d.data.is_empty(),
-            _ => false,
-        }
     }
 
     pub fn token_amount(&self) -> TokenAmount {
@@ -376,7 +364,6 @@ impl AssetValues {
                     false
                 }
             }
-            _ => false,
         }
     }
 
@@ -392,7 +379,6 @@ impl AssetValues {
                         .or_insert(items.amount);
                 }
             }
-            _ => {}
         }
     }
 
@@ -407,7 +393,6 @@ impl AssetValues {
                         .map(|amount| *amount -= items.amount)
                 });
             }
-            _ => {}
         }
     }
 }
