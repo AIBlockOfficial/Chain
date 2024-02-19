@@ -22,10 +22,10 @@ pub const NETWORK_VERSION_TEMP: u64 = 99999;
 
 /*------- VALUE HANDLING CONSTANTS --------*/
 // Number of decimal places to divide to in display
-pub const D_DISPLAY_PLACES_U64: u64 = 25200;
-pub const D_DISPLAY_PLACES: f64 = 25200.0;
-// Number of possible tokens in existence (10 billion)
-pub const TOTAL_TOKENS: u64 = D_DISPLAY_PLACES_U64 * 10000000000;
+pub const D_DISPLAY_PLACES_U64: u64 = 72072000;
+pub const D_DISPLAY_PLACES: f64 = 72072000.0;
+// Number of possible tokens in existence (5 billion)
+pub const TOTAL_TOKENS: u64 = D_DISPLAY_PLACES_U64 * 5000000000;
 
 /*------- ASSET CONSTANTS -------*/
 // The value to sign/verify for item-based payments
