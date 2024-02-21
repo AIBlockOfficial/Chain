@@ -19,20 +19,26 @@ pub fn druid_expectations_are_met<'a>(
     let mut tx_source = BTreeSet::new();
 
     for tx in transactions {
+        println!();
         if let Some(druid_info) = &tx.druid_info {
             let ins = construct_tx_ins_address(&tx.inputs);
 
             // Ensure match with passed DRUID
             if druid_info.druid == druid {
+                println!("DRUIDs match");
                 expects.extend(druid_info.expectations.iter());
+
+                println!("Expectations: {:?}", expects);
 
                 for out in &tx.outputs {
                     if let Some(pk) = &out.script_public_key {
                         tx_source.insert((ins.clone(), pk, &out.value));
                     }
                 }
+                println!("Tx Source: {:?}", tx_source);
             }
         }
+        println!();
     }
 
     expects.iter().all(|e| expectation_met(e, &tx_source))
@@ -51,7 +57,7 @@ fn expectation_met(e: &DruidExpectation, tx_source: &BTreeSet<(String, &String, 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::primitives::asset::{Asset, DataAsset, TokenAmount};
+    use crate::primitives::asset::{Asset, ItemAsset, TokenAmount};
     use crate::primitives::druid::{DdeValues, DruidExpectation};
     use crate::primitives::transaction::*;
     use crate::utils::transaction_utils::*;
@@ -68,9 +74,10 @@ mod tests {
         let alice_asset = Asset::Token(amount);
 
         // Bob
-        let bob_asset = Asset::Data(DataAsset {
-            data: "453094573049875".as_bytes().to_vec(),
+        let bob_asset = Asset::Item(ItemAsset {
+            metadata: Some("453094573049875".to_string()),
             amount: 1,
+            drs_tx_hash: None,
         });
         let bob_addr = "22222".to_owned();
 

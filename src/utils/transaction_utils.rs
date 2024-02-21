@@ -1,13 +1,14 @@
 use crate::constants::*;
 use crate::crypto::sha3_256;
 use crate::crypto::sign_ed25519::{self as sign, PublicKey, SecretKey};
-use crate::primitives::asset::{Asset, DataAsset};
+use crate::primitives::asset::Asset;
 use crate::primitives::druid::{DdeValues, DruidExpectation};
 use crate::primitives::transaction::*;
 use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use bincode::serialize;
 use std::collections::BTreeMap;
+use tracing::debug;
 
 pub struct ReceiverInfo {
     pub address: String,
@@ -133,11 +134,6 @@ pub fn construct_tx_in_signable_hash(previous_out: &OutPoint) -> String {
 pub fn get_asset_signable_string(asset: &Asset) -> String {
     match asset {
         Asset::Token(token_amount) => format!("Token:{}", token_amount.0),
-        Asset::Data(data_asset) => format!(
-            "Data:{}-{}",
-            hex::encode(&data_asset.data),
-            data_asset.amount
-        ),
         Asset::Item(item) => format!("Item:{}", item.amount),
     }
 }
@@ -194,6 +190,7 @@ pub fn get_tx_in_address_signable_string(tx_in: &TxIn) -> String {
         None => "null".to_owned(),
     };
     let script_signable_string = get_script_signable_string(&tx_in.script_signature.stack);
+    debug!("Formatted string: {out_point_signable_string}-{script_signable_string}");
     format!("{out_point_signable_string}-{script_signable_string}")
 }
 
@@ -350,36 +347,6 @@ pub fn construct_create_tx_in(
         previous_out: None,
         script_signature: Script::new_create_asset(block_num, asset_hash, signature, public_key),
     }]
-}
-
-/// Constructs a transaction for the creation of a new smart data asset
-///
-/// ### Arguments
-///
-/// * `block_num`           - Block number
-/// * `drs`                 - Digital rights signature for the new asset
-/// * `public_key`          - Public key for the output address
-/// * `secret_key`          - Corresponding secret key for signing data
-/// * `amount`              - Amount of the asset to generate
-pub fn construct_create_tx(
-    block_num: u64,
-    drs: Vec<u8>,
-    public_key: PublicKey,
-    secret_key: &SecretKey,
-    amount: u64,
-    fee: Option<ReceiverInfo>,
-) -> Transaction {
-    let asset = Asset::Data(DataAsset { data: drs, amount });
-    let receiver_address = construct_address(&public_key);
-
-    let tx_ins = construct_create_tx_in(block_num, &asset, public_key, secret_key);
-    let tx_out = TxOut {
-        value: asset,
-        script_public_key: Some(receiver_address),
-        ..Default::default()
-    };
-
-    construct_tx_core(tx_ins, vec![tx_out], fee)
 }
 
 /// Constructs a item data asset for use in accepting payments
@@ -701,27 +668,6 @@ mod tests {
     use crate::utils::script_utils::{tx_has_valid_p2sh_script, tx_outs_are_valid};
 
     #[test]
-    // Creates a valid creation transaction
-    fn test_construct_a_valid_create_tx() {
-        let (pk, sk) = sign::gen_keypair();
-        let receiver_address = construct_address(&pk);
-        let amount = 1;
-        let drs = vec![0, 8, 30, 20, 1];
-
-        let tx = construct_create_tx(0, drs.clone(), pk, &sk, amount, None);
-
-        assert!(tx.is_create_tx());
-        assert_eq!(tx.outputs.len(), 1);
-        assert_eq!(tx.druid_info, None);
-        assert_eq!(tx.outputs[0].drs_block_hash, None);
-        assert_eq!(tx.outputs[0].script_public_key, Some(receiver_address));
-        assert_eq!(
-            tx.outputs[0].value,
-            Asset::Data(DataAsset { data: drs, amount })
-        );
-    }
-
-    #[test]
     // Creates a valid payment transaction
     fn test_construct_a_valid_payment_tx() {
         test_construct_a_valid_payment_tx_common(None);
@@ -933,7 +879,7 @@ mod tests {
 
         assert!(tx_outs_are_valid(
             &payment_tx_valid.outputs,
-            &vec![],
+            &[],
             tx_ins_spent
         ));
     }
@@ -1039,9 +985,10 @@ mod tests {
         let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
 
         let to_asset = "2222".to_owned();
-        let data = Asset::Data(DataAsset {
-            data: vec![0, 12, 3, 5, 6],
+        let data = Asset::Item(ItemAsset {
+            metadata: Some("hello".to_string()),
             amount: 1,
+            drs_tx_hash: None,
         });
 
         let tx_const = TxConstructor {
@@ -1204,7 +1151,7 @@ mod tests {
         //
         // Arrange
         //
-        let pub_keys = vec![
+        let pub_keys = [
             "5371832122a8e804fa3520ec6861c3fa554a7f6fb617e6f0768452090207e07c",
             "6e86cc1fc5efbe64c2690efbb966b9fe1957facc497dce311981c68dac88e08c",
             "8b835e00c57ebff6637ec32276f2c6c0df71129c8f0860131a78a4692a0b59dc",
@@ -1286,14 +1233,7 @@ mod tests {
         //
         // Arrange
         //
-        let assets = vec![
-            Asset::token_u64(1),
-            Asset::item(1, None, None),
-            Asset::Data(DataAsset {
-                data: vec![1, 2, 3],
-                amount: 1,
-            }),
-        ];
+        let assets = vec![Asset::token_u64(1), Asset::item(1, None, None)];
 
         //
         // Act
@@ -1306,7 +1246,6 @@ mod tests {
         let expected: Vec<String> = vec![
             "a5b2f5e8dcf824aee45b81294ff8049b680285b976cc6c8fa45eb070acfc5974".to_owned(),
             "cb8f6cba3a62cfb7cd14245f19509b800da3dd446b6d902290efbcc91b3cee0d".to_owned(),
-            "ab72cb41f1f18edfb9c5161029c9695de4d5eed1d323be18ddedfb66a2b32282".to_owned(),
         ];
 
         //
@@ -1321,19 +1260,17 @@ mod tests {
         //
         // Arrange
         //
-        let pub_keys = vec![
+        let pub_keys = [
             "5e6d463ec66d7999769fa4de56f690dfb62e685b97032f5926b0cb6c93ba83c6",
             "58272ba93c1e79df280d4c417de47dbf6a7e330ba52793d7baa8e00ae5c34e59",
             "efa9dcba0f3282b3ed4a6aa1ccdb169d6685a30d7b2af7a2171a5682f3112359",
         ];
 
-        let signatures = vec![
-            "660e4698d817d409feb209699b15935048c8b3c4ac86a23f25b05aa32fb8b87e7cd029b83220d31a0b2717bd63b47a320a7728355d7fae43a665d6e27743e20d", 
+        let signatures = ["660e4698d817d409feb209699b15935048c8b3c4ac86a23f25b05aa32fb8b87e7cd029b83220d31a0b2717bd63b47a320a7728355d7fae43a665d6e27743e20d", 
             "fd107c9446cdcbd8fbb0d6b88c73067c9bd15de03fff677b0129acf1bd2d14a5ab8a63c7eb6fe8c5acc4b44b033744760847194a15b006368d178c85243d0605", 
-            "e1a436bbfcb3e411be1ce6088cdb4c39d7e79f8fe427943e74307e43864fd0f6ef26123f1439b92c075edd031d17feb4dd265c6fcc2e5ed571df48a03c396100",
-        ];
+            "e1a436bbfcb3e411be1ce6088cdb4c39d7e79f8fe427943e74307e43864fd0f6ef26123f1439b92c075edd031d17feb4dd265c6fcc2e5ed571df48a03c396100"];
 
-        let signable_data = vec![
+        let signable_data = [
             "927b3411743452e5e0d73e9e40a4fa3c842b3d00dabde7f9af7e44661ce02c88",
             "754dc248d1c847e8a10c6f8ded6ccad96381551ebb162583aea2a86b9bb78dfa",
             "5585c6f74d5c55f1ab457c31671822ba28c78c397cce1e11680b9f3852f96edb",

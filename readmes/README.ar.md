@@ -7,7 +7,7 @@
 
   <div>
   <img src="https://img.shields.io/github/actions/workflow/status/ABlockOfficial/Chain/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
-  <img src="https://img.shields.io/crates/v/naom" alt="Cargo Crates Version" style="display:inline-block" />
+  <img src="https://img.shields.io/crates/v/a_block_chain" alt="Cargo Crates Version" style="display:inline-block" />
   </div>
 
   <p align="center">
@@ -42,13 +42,13 @@ cargo test
 
 ```toml
 [dependencies]
-naom = "0.1.0"
+a_block_chain = "0.1.0"
 ```
 
 أو بديلًا ، عبر سطر الأوامر:
 
 ```
-cargo add naom
+cargo add a_block_chain
 ```
 
 تشغيل `cargo run --bin main` من استنساخ مستودع سيستعرض حاليًا جميع الأصول الموجودة في النسخة المحلية. لا يتم تصميم Blockchain بشكل عام للاستخدام مباشرة ، ولكن من المقصود استخدامه من خلال برامج أخرى تتطلب الوصول إلى بنية بيانات سلسلة الكتل.

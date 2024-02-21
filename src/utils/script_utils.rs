@@ -41,7 +41,13 @@ pub fn tx_is_valid<'a>(
     let mut tx_ins_spent: AssetValues = Default::default();
     // TODO: Add support for `Data` asset variant
     // `Item` assets MUST have an a DRS value associated with them when they are getting on-spent
+
+    println!("tx: {:?}", tx.outputs);
     if tx.outputs.iter().any(|out| {
+        println!("out is item: {:?}", out.value.is_item());
+        println!("out has drs: {:?}", out.value.get_drs_tx_hash().is_none());
+        println!("out has metadata: {:?}", out.value.get_metadata().is_some());
+
         (out.value.is_item()
             && (out.value.get_drs_tx_hash().is_none() || out.value.get_metadata().is_some()))
     }) {
@@ -59,7 +65,7 @@ pub fn tx_is_valid<'a>(
             }
         };
 
-        let tx_out = if let Some(tx_out) = is_in_utxo(&tx_out_point) {
+        let tx_out = if let Some(tx_out) = is_in_utxo(tx_out_point) {
             tx_out
         } else {
             error!("UTXO DOESN'T CONTAIN THIS TX");
@@ -74,7 +80,7 @@ pub fn tx_is_valid<'a>(
 
         // At this point `TxIn` will be valid
         let tx_out_pk = tx_out.script_public_key.as_ref();
-        let tx_out_hash = construct_tx_in_signable_hash(&tx_out_point);
+        let tx_out_hash = construct_tx_in_signable_hash(tx_out_point);
 
         if let Some(pk) = tx_out_pk {
             // Check will need to include other signature types here
@@ -87,9 +93,14 @@ pub fn tx_is_valid<'a>(
             return false;
         }
 
-        let asset = tx_out.value.clone().with_fixed_hash(&tx_out_point);
+        let asset = tx_out.value.clone().with_fixed_hash(tx_out_point);
         tx_ins_spent.update_add(&asset);
     }
+
+    println!(
+        "txs are valid: {:?}",
+        tx_outs_are_valid(&tx.outputs, &tx.fees, tx_ins_spent.clone())
+    );
 
     tx_outs_are_valid(&tx.outputs, &tx.fees, tx_ins_spent)
 }
@@ -274,7 +285,7 @@ fn address_has_valid_length(address: &str) -> bool {
 mod tests {
     use super::*;
     use crate::constants::RECEIPT_ACCEPT_VAL;
-    use crate::primitives::asset::{Asset, DataAsset};
+    use crate::primitives::asset::Asset;
     use crate::primitives::druid::DdeValues;
     use crate::primitives::transaction::OutPoint;
     use crate::utils::test_utils::generate_tx_with_ins_and_outs_assets;
@@ -2875,7 +2886,7 @@ mod tests {
 
         let mut tx_ins = Vec::new();
 
-        for entry in vec![tx_const] {
+        for entry in [tx_const] {
             let mut new_tx_in = TxIn::new();
             new_tx_in.script_signature = Script::new();
             new_tx_in.previous_out = Some(entry.previous_out);
@@ -2929,7 +2940,7 @@ mod tests {
 
         let mut tx_ins = Vec::new();
 
-        for entry in vec![tx_const] {
+        for entry in [tx_const] {
             let mut new_tx_in = TxIn::new();
             new_tx_in.script_signature = Script::new();
             new_tx_in
