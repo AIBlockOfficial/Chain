@@ -34,8 +34,3 @@ tracing-futures = "0.2.3"
 [features]
 default = []
 build_bin = ["rocksdb", "colored"]
-
-[[bin]]
-name = "main"
-required-features = ["build_bin"]
-
