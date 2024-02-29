@@ -1,13 +1,13 @@
 <div align="center">
   <a>
-    <img src="https://github.com/ABlockOfficial/Chain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
+    <img src="https://github.com/AIBlockOfficial/Chain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
   </a>
 
   <h2 align="center">الذاكرة العاملة للملفات مع الإضافة الموثقة (Notarised Append Only Memory, Blockchain)</h2> <div style="height:30px"></div>
 
   <div>
-  <img src="https://img.shields.io/github/actions/workflow/status/ABlockOfficial/Chain/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
-  <img src="https://img.shields.io/crates/v/a_block_chain" alt="Cargo Crates Version" style="display:inline-block" />
+  <img src="https://img.shields.io/github/actions/workflow/status/AIBlockOfficial/Chain/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
+  <img src="https://img.shields.io/crates/v/tw_chain" alt="Cargo Crates Version" style="display:inline-block" />
   </div>
 
   <p align="center">
@@ -20,7 +20,7 @@
   </p>
 </div>
 
-يحتوي مستودع Blockchain على جميع الأكواد اللازمة لإعداد والتفاعل مع نسخة محلية من سلسلة كتل A-Block.
+يحتوي مستودع Blockchain على جميع الأكواد اللازمة لإعداد والتفاعل مع نسخة محلية من سلسلة كتل AIBlock.
 
 ..
 
@@ -42,13 +42,13 @@ cargo test
 
 ```toml
 [dependencies]
-a_block_chain = "0.1.0"
+tw_chain = "0.1.0"
 ```
 
 أو بديلًا ، عبر سطر الأوامر:
 
 ```
-cargo add a_block_chain
+cargo add tw_chain
 ```
 
 تشغيل `cargo run --bin main` من استنساخ مستودع سيستعرض حاليًا جميع الأصول الموجودة في النسخة المحلية. لا يتم تصميم Blockchain بشكل عام للاستخدام مباشرة ، ولكن من المقصود استخدامه من خلال برامج أخرى تتطلب الوصول إلى بنية بيانات سلسلة الكتل.

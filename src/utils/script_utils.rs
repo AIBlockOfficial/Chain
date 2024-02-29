@@ -45,11 +45,11 @@ pub fn tx_is_valid<'a>(
     println!("tx: {:?}", tx.outputs);
     if tx.outputs.iter().any(|out| {
         println!("out is item: {:?}", out.value.is_item());
-        println!("out has drs: {:?}", out.value.get_drs_tx_hash().is_none());
+        println!("out has drs: {:?}", out.value.get_genesis_hash().is_none());
         println!("out has metadata: {:?}", out.value.get_metadata().is_some());
 
         (out.value.is_item()
-            && (out.value.get_drs_tx_hash().is_none() || out.value.get_metadata().is_some()))
+            && (out.value.get_genesis_hash().is_none() || out.value.get_metadata().is_some()))
     }) {
         error!("ON-SPENDING NEEDS EMPTY METADATA AND NON-EMPTY DRS SPECIFICATION");
         return false;
@@ -284,7 +284,7 @@ fn address_has_valid_length(address: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::constants::RECEIPT_ACCEPT_VAL;
+    use crate::constants::ITEM_ACCEPT_VAL;
     use crate::primitives::asset::Asset;
     use crate::primitives::druid::DdeValues;
     use crate::primitives::transaction::OutPoint;
@@ -3133,16 +3133,16 @@ mod tests {
     ///  - *Items only*
     /// -  *Failure*
     ///
-    /// 1. Inputs contain two `TxIn`s for `Item`s of amount `3` and `2` with different `drs_tx_hash` values
+    /// 1. Inputs contain two `TxIn`s for `Item`s of amount `3` and `2` with different `genesis_hash` values
     /// 2. Outputs contain `TxOut`s for `Item`s of amount `3` and `3`
     /// 3. `TxIn` DRS matches `TxOut` DRS for `Item`s; Amount of `Item`s spent does not match    
     fn test_tx_drs_items_only_failure_amount_mismatch() {
         test_tx_drs_common(
             &[
-                (3, Some("drs_tx_hash_1"), None),
-                (2, Some("drs_tx_hash_2"), None),
+                (3, Some("genesis_hash_1"), None),
+                (2, Some("genesis_hash_2"), None),
             ],
-            &[(3, Some("drs_tx_hash_1")), (3, Some("drs_tx_hash_2"))],
+            &[(3, Some("genesis_hash_1")), (3, Some("genesis_hash_2"))],
             false,
         );
     }
@@ -3153,16 +3153,19 @@ mod tests {
     ///  - *Items only*
     /// -  *Failure*
     ///
-    /// 1. Inputs contain two `TxIn`s for `Item`s of amount `3` and `2` with different `drs_tx_hash` values
+    /// 1. Inputs contain two `TxIn`s for `Item`s of amount `3` and `2` with different `genesis_hash` values
     /// 2. Outputs contain `TxOut`s for `Item`s of amount `3` and `2`
     /// 3. `TxIn` DRS does not match `TxOut` DRS for `Item`s; Amount of `Item`s spent matches     
     fn test_tx_drs_items_only_failure_drs_mismatch() {
         test_tx_drs_common(
             &[
-                (3, Some("drs_tx_hash_1"), None),
-                (2, Some("drs_tx_hash_2"), None),
+                (3, Some("genesis_hash_1"), None),
+                (2, Some("genesis_hash_2"), None),
             ],
-            &[(3, Some("drs_tx_hash_1")), (2, Some("invalid_drs_tx_hash"))],
+            &[
+                (3, Some("genesis_hash_1")),
+                (2, Some("invalid_genesis_hash")),
+            ],
             false,
         );
     }
@@ -3178,8 +3181,8 @@ mod tests {
     /// 3. `TxIn` DRS matches `TxOut` DRS for `Item`s; Amount of `Item`s and `Token`s spent matches      
     fn test_tx_drs_items_and_tokens_success() {
         test_tx_drs_common(
-            &[(3, Some("drs_tx_hash"), None), (2, None, None)],
-            &[(3, Some("drs_tx_hash")), (2, None)],
+            &[(3, Some("genesis_hash"), None), (2, None, None)],
+            &[(3, Some("genesis_hash")), (2, None)],
             true,
         );
     }
@@ -3195,8 +3198,8 @@ mod tests {
     /// 3. `TxIn` DRS matches `TxOut` DRS for `Item`s; Amount of `Item`s spent does not match      
     fn test_tx_drs_items_and_tokens_failure_amount_mismatch() {
         test_tx_drs_common(
-            &[(3, Some("drs_tx_hash"), None), (2, None, None)],
-            &[(2, Some("drs_tx_hash")), (2, None)],
+            &[(3, Some("genesis_hash"), None), (2, None, None)],
+            &[(2, Some("genesis_hash")), (2, None)],
             false,
         );
     }
@@ -3219,10 +3222,10 @@ mod tests {
 
         test_tx_drs_common(
             &[
-                (3, Some("drs_tx_hash"), test_metadata.clone()),
+                (3, Some("genesis_hash"), test_metadata.clone()),
                 (2, None, test_metadata),
             ],
-            &[(1, Some("invalid_drs_tx_hash")), (1, None)],
+            &[(1, Some("invalid_genesis_hash")), (1, None)],
             false,
         );
     }

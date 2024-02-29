@@ -15,19 +15,19 @@ use std::collections::BTreeMap;
 /// ### Purpose:
 ///
 /// The purpose of this utility function is to generate a transaction that
-/// exhibits a valid Script, but may or may not contain invalid `drs_tx_hash` or amount
+/// exhibits a valid Script, but may or may not contain invalid `genesis_hash` or amount
 /// for a configuration of `TxIn`s and their corresponding `TxOut`s.
 ///
 /// `Item` assets may **NOT** be on-spent if the `TxIn` value has a different
-/// `drs_tx_hash` value than the ongoing `TxOut` value
+/// `genesis_hash` value than the ongoing `TxOut` value
 ///
 /// ### Note:
 ///
 /// When a `None` value is presented alongside an input amount, the asset is assumed
 /// to be of type `Token`.
 pub fn generate_tx_with_ins_and_outs_assets(
-    input_assets: &[(u64, Option<&str>, Option<String>)], /* Input amount, drs_tx_hash, metadata */
-    output_assets: &[(u64, Option<&str>)],                /* Input amount, drs_tx_hash */
+    input_assets: &[(u64, Option<&str>, Option<String>)], /* Input amount, genesis_hash, metadata */
+    output_assets: &[(u64, Option<&str>)],                /* Input amount, genesis_hash */
 ) -> (BTreeMap<OutPoint, TxOut>, Transaction) {
     let (pk, sk) = sign::gen_keypair();
     let spk = construct_address(&pk);
@@ -35,9 +35,9 @@ pub fn generate_tx_with_ins_and_outs_assets(
     let mut utxo_set: BTreeMap<OutPoint, TxOut> = BTreeMap::new();
 
     // Generate inputs
-    for (input_amount, drs_tx_hash, md) in input_assets {
+    for (input_amount, genesis_hash, md) in input_assets {
         let tx_previous_out = OutPoint::new("tx_hash".to_owned(), tx.inputs.len() as i32);
-        let tx_in_previous_out = match drs_tx_hash {
+        let tx_in_previous_out = match genesis_hash {
             Some(drs) => {
                 let item = Asset::item(*input_amount, Some(drs.to_string()), md.clone());
                 TxOut::new_asset(spk.clone(), item, None)
@@ -55,8 +55,8 @@ pub fn generate_tx_with_ins_and_outs_assets(
     }
 
     // Generate outputs
-    for (output_amount, drs_tx_hash) in output_assets {
-        let tx_out = match drs_tx_hash {
+    for (output_amount, genesis_hash) in output_assets {
+        let tx_out = match genesis_hash {
             Some(drs) => {
                 let item = Asset::item(*output_amount, Some(drs.to_string()), None);
                 TxOut::new_asset(spk.clone(), item, None)
