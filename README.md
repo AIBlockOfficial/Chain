@@ -8,7 +8,7 @@
     <!-- <img src="https://github.com/AIBlockOfficial/Chain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px"> -->
   </a>
 
-  <h2 align="center">AIBlock Chain</h2> <div style="height:30px"></div>
+  <h2 align="center">Two Way Chain</h2> <div style="height:30px"></div>
 
   <div>
   <img src="https://img.shields.io/github/actions/workflow/status/AIBlockOfficial/Chain/.github/workflows/rust.yml?branch=main" alt="Pipeline Status" style="display:inline-block"/>
@@ -58,5 +58,4 @@ Or alternatively, via command line:
 cargo add tw_chain
 ```
 
-Running `cargo run --bin main` from a repo clone will currently list all assets on the local instance. Chain is not generally intended to be used directly though, and is instead intended to be used from other programs that require access to the blockchain data structure.
 

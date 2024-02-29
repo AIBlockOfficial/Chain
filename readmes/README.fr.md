@@ -1,9 +1,9 @@
 <div align="center">
-  <a>
+  <!-- <a>
     <img src="https://github.com/AIBlockOfficial/Chain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
-  </a>
+  </a> -->
 
-  <h2 align="center">Notarised Append Only Memory (Blockchain)</h2> <div style="height:30px"></div>
+  <h2 align="center">Two Way Chain (Blockchain)</h2> <div style="height:30px"></div>
 
   <div>
   <img src="https://img.shields.io/github/actions/workflow/status/AIBlockOfficial/Chain/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
@@ -52,4 +52,3 @@ Ou bien, via la ligne de commande :
 cargo add tw_chain
 ```
 
-L'exécution de `cargo run --bin main` à partir d'un clone de référentiel répertorie actuellement tous les actifs de l'instance locale. Cependant, Blockchain n'est généralement pas destiné à être utilisé directement, mais plutôt à être utilisé à partir d'autres programmes qui nécessitent l'accès à la structure de données de la blockchain.

@@ -1,9 +1,9 @@
 <div align="center">
-  <a>
+  <!-- <a>
     <img src="https://github.com/AIBlockOfficial/Chain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
-  </a>
+  </a> -->
 
-  <h2 align="center">公证追加存储器（Notarised Append Only Memory，Blockchain）</h2> <div style="height:30px"></div>
+  <h2 align="center">双向链（Two Way Chain）</h2> <div style="height:30px"></div>
 
   <div>
   <img src="https://img.shields.io/github/actions/workflow/status/AIBlockOfficial/Chain/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
@@ -51,4 +51,3 @@ tw_chain = "0.1.0"
 cargo add tw_chain
 ```
 
-从repo clone运行 `cargo run --bin main` 目前将列出本地实例中的所有资产。但Blockchain通常不会直接使用，而是旨在用于需要访问区块链数据结构的其他程序中

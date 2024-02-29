@@ -1,9 +1,9 @@
 <div align="center">
-  <a>
+  <!-- <a>
     <img src="https://github.com/AIBlockOfficial/Chain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
-  </a>
+  </a> -->
 
-  <h2 align="center">الذاكرة العاملة للملفات مع الإضافة الموثقة (Notarised Append Only Memory, Blockchain)</h2> <div style="height:30px"></div>
+  <h2 align="center">سلسلة ذات اتجاهين (Two Way Chain)</h2> <div style="height:30px"></div>
 
   <div>
   <img src="https://img.shields.io/github/actions/workflow/status/AIBlockOfficial/Chain/rust.yml" alt="Pipeline Status" style="display:inline-block"/>
@@ -50,5 +50,3 @@ tw_chain = "0.1.0"
 ```
 cargo add tw_chain
 ```
-
-تشغيل `cargo run --bin main` من استنساخ مستودع سيستعرض حاليًا جميع الأصول الموجودة في النسخة المحلية. لا يتم تصميم Blockchain بشكل عام للاستخدام مباشرة ، ولكن من المقصود استخدامه من خلال برامج أخرى تتطلب الوصول إلى بنية بيانات سلسلة الكتل.

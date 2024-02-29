@@ -1,9 +1,9 @@
 <div align="center">
-  <a>
+  <!-- <a>
     <img src="https://github.com/AIBlockOfficial/Chain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
-  </a>
+  </a> -->
 
-  <h2 align="center">Notarised Append Only Memory (Blockchain)</h2> <div style="height:30px"></div>
+  <h2 align="center">Two Way Chain (Blockchain)</h2> <div style="height:30px"></div>
 
   <div>
   <img src="https://img.shields.io/github/actions/workflow/status/AIBlockOfficial/Chain/rust.yml" alt="Estado del pipeline" style="display:inline-block"/>
@@ -51,4 +51,3 @@ O alternativamente, a través de la línea de comandos:
 cargo add tw_chain
 ```
 
-Ejecutar `cargo run --bin main` desde una clonación del repositorio enumerará actualmente todos los activos en la instancia local. Sin embargo, Blockchain no está destinado a ser utilizado directamente y se pretende que se use desde otros programas que requieren acceso a la estructura de datos de la cadena de bloques.
