@@ -1,13 +1,13 @@
 <div align="center">
-  <a>
-    <img src="https://github.com/ABlockOfficial/Chain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
-  </a>
+  <!-- <a>
+    <img src="https://github.com/AIBlockOfficial/Chain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
+  </a> -->
 
-  <h2 align="center">Notarised Append Only Memory (Blockchain)</h2> <div style="height:30px"></div>
+  <h2 align="center">Two Way Chain (Blockchain)</h2> <div style="height:30px"></div>
 
   <div>
-  <img src="https://img.shields.io/github/actions/workflow/status/ABlockOfficial/Chain/rust.yml" alt="Estado del pipeline" style="display:inline-block"/>
-  <img src="https://img.shields.io/crates/v/a_block_chain" alt="Cargo Crates Version" style="display:inline-block" />
+  <img src="https://img.shields.io/github/actions/workflow/status/AIBlockOfficial/Chain/rust.yml" alt="Estado del pipeline" style="display:inline-block"/>
+  <img src="https://img.shields.io/crates/v/tw_chain" alt="Cargo Crates Version" style="display:inline-block" />
   </div>
 
   <p align="center">
@@ -20,7 +20,7 @@
   </p>
 </div>
 
-El repositorio de Blockchain contiene todo el código necesario para configurar e interactuar con una instancia local de la cadena de bloques A-Block.
+El repositorio de Blockchain contiene todo el código necesario para configurar e interactuar con una instancia local de la cadena de bloques AIBlock.
 
 ..
 
@@ -42,13 +42,12 @@ Blockchain puede ser añadido a tu proyecto como una dependencia añadiendo lo s
 
 ```toml
 [dependencies]
-a_block_chain = "0.1.0"
+tw_chain = "0.1.0"
 ```
 
 O alternativamente, a través de la línea de comandos:
 
 ```
-cargo add a_block_chain
+cargo add tw_chain
 ```
 
-Ejecutar `cargo run --bin main` desde una clonación del repositorio enumerará actualmente todos los activos en la instancia local. Sin embargo, Blockchain no está destinado a ser utilizado directamente y se pretende que se use desde otros programas que requieren acceso a la estructura de datos de la cadena de bloques.
