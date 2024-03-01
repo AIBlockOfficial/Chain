@@ -77,7 +77,7 @@ mod tests {
         let bob_asset = Asset::Item(ItemAsset {
             metadata: Some("453094573049875".to_string()),
             amount: 1,
-            drs_tx_hash: None,
+            genesis_hash: None,
         });
         let bob_addr = "22222".to_owned();
 
@@ -113,7 +113,7 @@ mod tests {
             druid: druid.clone(),
             participants: 2,
             expectations: expects.clone(),
-            drs_tx_hash: None,
+            genesis_hash: None,
         };
         let alice_tx =
             construct_dde_tx(alice_druid_info, tx_input.clone(), vec![token_tx_out], None);
@@ -122,7 +122,7 @@ mod tests {
             druid: druid.clone(),
             participants: 2,
             expectations: expects.clone(),
-            drs_tx_hash: None,
+            genesis_hash: None,
         };
         let bob_tx = construct_dde_tx(bob_druid_info, tx_input, vec![data_tx_out], None);
 
@@ -158,14 +158,14 @@ mod tests {
             let expectation = DruidExpectation {
                 from: from_addr.clone(),
                 to: alice_addr.clone(),
-                asset: Asset::item(1, Some("drs_tx_hash".to_owned()), None),
+                asset: Asset::item(1, Some("genesis_hash".to_owned()), None),
             };
 
             let druid_info = DdeValues {
                 druid: druid.clone(),
                 participants: 2,
                 expectations: vec![expectation.clone()],
-                drs_tx_hash: None,
+                genesis_hash: None,
             };
 
             let mut tx = construct_rb_payments_send_tx(
@@ -201,7 +201,7 @@ mod tests {
                 druid: druid.clone(),
                 participants: 2,
                 expectations: vec![expectation.clone()],
-                drs_tx_hash: Some("drs_tx_hash".to_owned()),
+                genesis_hash: Some("genesis_hash".to_owned()),
             };
 
             // create the sender that match the receiver.
@@ -234,7 +234,7 @@ mod tests {
             druid: "VALUE".to_owned(),
             participants: 2,
             expectations: expects,
-            drs_tx_hash: None,
+            genesis_hash: None,
         };
         change_tx.druid_info = Some(nm_druid_info);
 
@@ -300,7 +300,7 @@ mod tests {
     /// Checks that item-based payments with non-matching DRS expectations fail
     fn should_fail_rb_payment_drs_expect_mismatch() {
         let (send_tx, mut recv_tx) = create_rb_payment_txs();
-        recv_tx.outputs[0].value = Asset::item(1, Some("invalid_drs_tx_hash".to_string()), None);
+        recv_tx.outputs[0].value = Asset::item(1, Some("invalid_genesis_hash".to_string()), None);
 
         // Non-matching address expectation
         assert!(!druid_expectations_are_met(

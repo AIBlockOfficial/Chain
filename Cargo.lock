@@ -3,28 +3,6 @@
 version = 3
 
 [[package]]
-name = "a_block_chain"
-version = "1.3.0"
-dependencies = [
- "actix-rt",
- "base64",
- "bincode",
- "bytes",
- "colored",
- "hex",
- "merkle-log",
- "rand",
- "ring",
- "rocksdb",
- "serde",
- "sha3",
- "time",
- "tracing",
- "tracing-futures",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "actix-macros"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1051,6 +1029,28 @@ dependencies = [
  "tracing-core",
  "tracing-log",
  "tracing-serde",
+]
+
+[[package]]
+name = "tw_chain"
+version = "1.0.0"
+dependencies = [
+ "actix-rt",
+ "base64",
+ "bincode",
+ "bytes",
+ "colored",
+ "hex",
+ "merkle-log",
+ "rand",
+ "ring",
+ "rocksdb",
+ "serde",
+ "sha3",
+ "time",
+ "tracing",
+ "tracing-futures",
+ "tracing-subscriber",
 ]
 
 [[package]]
