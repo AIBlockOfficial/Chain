@@ -825,8 +825,92 @@ mod tests {
     }
 
     #[test]
-    /// Checks the validity of the metadata on-spend for receipts
-    fn test_receipt_onspend_metadata() {
+    /// Creates a valid payment transaction including fees
+    fn test_token_onspend_with_fees() {
+        let (_pk, sk) = sign::gen_keypair();
+        let (pk, _sk) = sign::gen_keypair();
+        let t_hash = vec![0, 0, 0];
+        let signature = sign::sign_detached(&t_hash, &sk);
+        let tokens = TokenAmount(400000);
+        let fees = TokenAmount(1000);
+
+        let tx_const = TxConstructor {
+            previous_out: OutPoint::new(hex::encode(t_hash), 0),
+            signatures: vec![signature],
+            pub_keys: vec![pk],
+            address_version: Some(2),
+        };
+
+        let tx_ins = construct_payment_tx_ins(vec![tx_const]);
+        let payment_tx_valid = construct_payment_tx(
+            tx_ins,
+            ReceiverInfo {
+                address: hex::encode(vec![0; 32]),
+                asset: Asset::Token(tokens),
+            },
+            Some(ReceiverInfo {
+                address: hex::encode(vec![0; 32]),
+                asset: Asset::Token(fees),
+            }),
+            0,
+        );
+
+        let tx_ins_spent = AssetValues::new(tokens + fees, BTreeMap::new());
+
+        assert!(tx_outs_are_valid(
+            &payment_tx_valid.outputs,
+            &payment_tx_valid.fees,
+            tx_ins_spent
+        ));
+    }
+
+    #[test]
+    /// Checks the validity of on-spend for items with fees
+    fn test_item_onspend_with_fees() {
+        let (_pk, sk) = sign::gen_keypair();
+        let (pk, _sk) = sign::gen_keypair();
+        let t_hash = vec![0, 0, 0];
+        let signature = sign::sign_detached(&t_hash, &sk);
+        let fees = TokenAmount(1000);
+
+        let tx_const = TxConstructor {
+            previous_out: OutPoint::new(hex::encode(t_hash), 0),
+            signatures: vec![signature],
+            pub_keys: vec![pk],
+            address_version: Some(2),
+        };
+
+        let drs_tx_hash = "item_tx_hash".to_string();
+        let item_asset_valid = ItemAsset::new(1000, Some(drs_tx_hash.clone()), None);
+
+        let tx_ins = construct_payment_tx_ins(vec![tx_const]);
+        let payment_tx_valid = construct_payment_tx(
+            tx_ins,
+            ReceiverInfo {
+                address: hex::encode(vec![0; 32]),
+                asset: Asset::Item(item_asset_valid),
+            },
+            Some(ReceiverInfo {
+                address: hex::encode(vec![0; 32]),
+                asset: Asset::Token(fees),
+            }),
+            0,
+        );
+
+        let mut btree = BTreeMap::new();
+        btree.insert(drs_tx_hash, 1000);
+        let tx_ins_spent = AssetValues::new(fees, btree);
+
+        assert!(tx_outs_are_valid(
+            &payment_tx_valid.outputs,
+            &payment_tx_valid.fees,
+            tx_ins_spent
+        ));
+    }
+
+    #[test]
+    /// Checks the validity of the metadata on-spend for items
+    fn test_item_onspend_metadata() {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
         let t_hash = vec![0, 0, 0];

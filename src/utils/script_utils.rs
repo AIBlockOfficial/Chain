@@ -3004,34 +3004,51 @@ mod tests {
     #[test]
     /// Validate tx_is_valid for multiple TxIn configurations
     fn test_tx_is_valid() {
-        test_tx_is_valid_common(None, OpCodes::OP_HASH256, None);
+        test_tx_is_valid_common(None, OpCodes::OP_HASH256, None, false);
     }
 
     #[test]
     /// Validate tx_is_valid for multiple TxIn configurations
     fn test_tx_is_valid_v0() {
-        test_tx_is_valid_common(Some(NETWORK_VERSION_V0), OpCodes::OP_HASH256_V0, None);
+        test_tx_is_valid_common(
+            Some(NETWORK_VERSION_V0),
+            OpCodes::OP_HASH256_V0,
+            None,
+            false,
+        );
     }
 
     #[test]
     /// Validate tx_is_valid for multiple TxIn configurations
     fn test_tx_is_valid_temp() {
-        test_tx_is_valid_common(Some(NETWORK_VERSION_TEMP), OpCodes::OP_HASH256_TEMP, None);
+        test_tx_is_valid_common(
+            Some(NETWORK_VERSION_TEMP),
+            OpCodes::OP_HASH256_TEMP,
+            None,
+            false,
+        );
     }
 
     #[test]
     /// Validate tx_is_valid for locktime
     fn test_tx_is_valid_locktime() {
         assert!(
-            test_tx_is_valid_common(None, OpCodes::OP_HASH256, Some(99))
-                && !test_tx_is_valid_common(None, OpCodes::OP_HASH256, Some(1000000000))
+            test_tx_is_valid_common(None, OpCodes::OP_HASH256, Some(99), false)
+                && !test_tx_is_valid_common(None, OpCodes::OP_HASH256, Some(1000000000), false)
         );
+    }
+
+    #[test]
+    /// Validate tx_is_valid for fees
+    fn test_tx_is_valid_fees() {
+        test_tx_is_valid_common(None, OpCodes::OP_HASH256, None, true);
     }
 
     fn test_tx_is_valid_common(
         address_version: Option<u64>,
         op_hash256: OpCodes,
         locktime: Option<u64>,
+        with_fees: bool,
     ) -> bool {
         //
         // Arrange

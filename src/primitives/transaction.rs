@@ -135,7 +135,6 @@ impl TxOut {
             value: Asset::Token(amount),
             locktime: locktime.unwrap_or(ZERO as u64),
             script_public_key: Some(to_address),
-            ..Default::default()
         }
     }
 
@@ -147,7 +146,6 @@ impl TxOut {
             value: Asset::Item(item),
             locktime: locktime.unwrap_or(ZERO as u64),
             script_public_key: Some(to_address),
-            ..Default::default()
         }
     }
 
