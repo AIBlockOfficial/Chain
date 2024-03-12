@@ -104,25 +104,18 @@ impl iter::Sum for TokenAmount {
 #[derive(Default, Deserialize, Serialize, Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub struct ItemAsset {
     pub amount: u64,
-    pub drs_tx_hash: Option<String>,
+    pub genesis_hash: Option<String>,
     pub metadata: Option<String>,
 }
 
 impl ItemAsset {
-    pub fn new(amount: u64, drs_tx_hash: Option<String>, metadata: Option<String>) -> Self {
+    pub fn new(amount: u64, genesis_hash: Option<String>, metadata: Option<String>) -> Self {
         Self {
             amount,
-            drs_tx_hash,
+            genesis_hash,
             metadata,
         }
     }
-}
-
-/// Data asset struct
-#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Ord, PartialOrd)]
-pub struct DataAsset {
-    pub data: Vec<u8>,
-    pub amount: u64,
 }
 
 /// Asset struct
@@ -133,7 +126,6 @@ pub struct DataAsset {
 #[derive(Deserialize, Serialize, Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Asset {
     Token(TokenAmount),
-    Data(DataAsset),
     Item(ItemAsset),
 }
 
@@ -144,30 +136,28 @@ impl Default for Asset {
 }
 
 impl Asset {
-    /// Modify `self` of `Asset` struct to obtain `drs_tx_hash`
+    /// Modify `self` of `Asset` struct to obtain `genesis_hash`
     /// from either the asset itself or its corresponding `OutPoint`
     pub fn with_fixed_hash(mut self, out_point: &OutPoint) -> Self {
         if let Asset::Item(ref mut item_asset) = self {
-            if item_asset.drs_tx_hash.is_none() {
-                item_asset.drs_tx_hash = Some(&out_point.t_hash).cloned();
+            if item_asset.genesis_hash.is_none() {
+                item_asset.genesis_hash = Some(&out_point.t_hash).cloned();
             }
         }
         self
     }
 
-    /// Get optional `drs_tx_hash` value for `Asset`
-    pub fn get_drs_tx_hash(&self) -> Option<&String> {
+    /// Get optional `genesis_hash` value for `Asset`
+    pub fn get_genesis_hash(&self) -> Option<&String> {
         match self {
             Asset::Token(_) => None,
-            Asset::Data(_) => None, /* TODO: This will have to change */
-            Asset::Item(item) => item.drs_tx_hash.as_ref(),
+            Asset::Item(item) => item.genesis_hash.as_ref(),
         }
     }
 
     pub fn get_metadata(&self) -> Option<&String> {
         match self {
             Asset::Token(_) => None,
-            Asset::Data(_) => None,
             Asset::Item(item) => item.metadata.as_ref(),
         }
     }
@@ -175,8 +165,14 @@ impl Asset {
     pub fn len(&self) -> usize {
         match self {
             Asset::Token(_) => size_of::<TokenAmount>(),
-            Asset::Data(d) => d.data.len(),
             Asset::Item(_) => size_of::<u64>(),
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Asset::Token(token) => token.0 == 0,
+            Asset::Item(item) => item.amount == 0,
         }
     }
 
@@ -184,8 +180,8 @@ impl Asset {
         Asset::Token(TokenAmount(amount))
     }
 
-    pub fn item(amount: u64, drs_tx_hash: Option<String>, metadata: Option<String>) -> Self {
-        Asset::Item(ItemAsset::new(amount, drs_tx_hash, metadata))
+    pub fn item(amount: u64, genesis_hash: Option<String>, metadata: Option<String>) -> Self {
+        Asset::Item(ItemAsset::new(amount, genesis_hash, metadata))
     }
 
     /// Add an asset of the same variant to `self` asset.
@@ -194,7 +190,7 @@ impl Asset {
     /// ### Note
     ///
     /// This function will return false for `Item` assets
-    /// getting added together that do not have the same `drs_tx_hash`
+    /// getting added together that do not have the same `genesis_hash`
     ///
     /// ### Arguments
     ///
@@ -206,7 +202,7 @@ impl Asset {
                 true
             }
             (Asset::Item(lhs_items), Asset::Item(rhs_items)) => {
-                if lhs_items.drs_tx_hash != rhs_items.drs_tx_hash {
+                if lhs_items.genesis_hash != rhs_items.genesis_hash {
                     return false;
                 }
                 lhs_items.amount += rhs_items.amount;
@@ -228,7 +224,7 @@ impl Asset {
                 Some(lhs_token_amount >= rhs_token_amount)
             }
             (Asset::Item(lhs_item), Asset::Item(rhs_item)) => {
-                if lhs_item.drs_tx_hash != rhs_item.drs_tx_hash {
+                if lhs_item.genesis_hash != rhs_item.genesis_hash {
                     return None;
                 }
                 Some(lhs_item.amount >= rhs_item.amount)
@@ -255,11 +251,11 @@ impl Asset {
             }
             (Asset::Item(lhs_items), Asset::Item(rhs_items)) => {
                 if lhs_items.amount > rhs_items.amount
-                    && lhs_items.drs_tx_hash == rhs_items.drs_tx_hash
+                    && lhs_items.genesis_hash == rhs_items.genesis_hash
                 {
                     Some(Asset::item(
                         lhs_items.amount - rhs_items.amount,
-                        lhs_items.drs_tx_hash.clone(),
+                        lhs_items.genesis_hash.clone(),
                         lhs_items.metadata.clone(),
                     ))
                 } else {
@@ -290,10 +286,9 @@ impl Asset {
             Self::Token(_) => Self::Token(Default::default()),
             Self::Item(item) => Self::item(
                 Default::default(),
-                item.drs_tx_hash.clone(),
+                item.genesis_hash.clone(),
                 item.metadata.clone(),
             ),
-            _ => panic!("Cannot create default of asset type: {:?}", asset_type),
         }
     }
 
@@ -303,13 +298,6 @@ impl Asset {
 
     pub fn is_item(&self) -> bool {
         matches!(self, Asset::Item(_))
-    }
-
-    pub fn is_empty(&self) -> bool {
-        match self {
-            Asset::Data(d) => d.data.is_empty(),
-            _ => false,
-        }
     }
 
     pub fn token_amount(&self) -> TokenAmount {
@@ -331,8 +319,8 @@ impl Asset {
 #[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct AssetValues {
     pub tokens: TokenAmount,
-    // Note: Items from create transactions will have `drs_tx_hash` = `t_hash`
-    pub items: BTreeMap<String, u64>, /* `drs_tx_hash` - amount */
+    // Note: Items from create transactions will have `genesis_hash` = `t_hash`
+    pub items: BTreeMap<String, u64>, /* `genesis_hash` - amount */
 }
 
 impl ops::AddAssign for AssetValues {
@@ -368,15 +356,14 @@ impl AssetValues {
         match asset_required {
             Asset::Token(tokens) => self.tokens >= *tokens,
             Asset::Item(items) => {
-                if let Some(drs_tx_hash) = &items.drs_tx_hash {
+                if let Some(genesis_hash) = &items.genesis_hash {
                     self.items
-                        .get(drs_tx_hash)
+                        .get(genesis_hash)
                         .map_or(false, |amount| *amount >= items.amount)
                 } else {
                     false
                 }
             }
-            _ => false,
         }
     }
 
@@ -385,14 +372,13 @@ impl AssetValues {
         match rhs {
             Asset::Token(tokens) => self.tokens += *tokens,
             Asset::Item(items) => {
-                if let Some(drs_tx_hash) = &items.drs_tx_hash {
+                if let Some(genesis_hash) = &items.genesis_hash {
                     self.items
-                        .entry(drs_tx_hash.clone())
+                        .entry(genesis_hash.clone())
                         .and_modify(|amount| *amount += items.amount)
                         .or_insert(items.amount);
                 }
             }
-            _ => {}
         }
     }
 
@@ -401,13 +387,12 @@ impl AssetValues {
         match rhs {
             Asset::Token(tokens) => self.tokens -= *tokens,
             Asset::Item(items) => {
-                items.drs_tx_hash.as_ref().and_then(|drs_tx_hash| {
+                items.genesis_hash.as_ref().and_then(|genesis_hash| {
                     self.items
-                        .get_mut(drs_tx_hash)
+                        .get_mut(genesis_hash)
                         .map(|amount| *amount -= items.amount)
                 });
             }
-            _ => {}
         }
     }
 }

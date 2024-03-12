@@ -8,6 +8,7 @@ use bincode::{deserialize, serialize};
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
+use tracing::warn;
 
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
@@ -22,6 +23,7 @@ pub struct BlockHeader {
     pub bits: usize,
     pub nonce_and_mining_tx_hash: (Vec<u8>, String),
     pub b_num: u64,
+    pub timestamp: i64,
     pub seed_value: Vec<u8>, // for commercial
     pub previous_hash: Option<String>,
     pub txs_merkle_root_and_hash: (String, String),
@@ -41,6 +43,7 @@ impl BlockHeader {
             bits: 0,
             nonce_and_mining_tx_hash: Default::default(),
             b_num: 0,
+            timestamp: 0,
             seed_value: Vec::new(),
             previous_hash: None,
             txs_merkle_root_and_hash: Default::default(),
@@ -77,13 +80,25 @@ impl Block {
 
     /// Sets the internal number of bits based on length
     pub fn set_bits(&mut self) {
-        let bytes = Bytes::from(serialize(&self).unwrap());
+        let bytes = Bytes::from(match serialize(&self) {
+            Ok(bytes) => bytes,
+            Err(e) => {
+                warn!("Failed to serialize block: {:?}", e);
+                return;
+            }
+        });
         self.header.bits = bytes.len();
     }
 
     /// Checks whether a block has hit its maximum size
     pub fn is_full(&self) -> bool {
-        let bytes = Bytes::from(serialize(&self).unwrap());
+        let bytes = Bytes::from(match serialize(&self) {
+            Ok(bytes) => bytes,
+            Err(e) => {
+                warn!("Failed to serialize block: {:?}", e);
+                return false;
+            }
+        });
         bytes.len() >= MAX_BLOCK_SIZE
     }
 
@@ -126,7 +141,13 @@ pub fn gen_random_hash() -> String {
 ///
 /// * `transactions`    - Transactions to construct a merkle tree for
 pub fn build_hex_txs_hash(transactions: &[String]) -> String {
-    let txs = serialize(transactions).unwrap();
+    let txs = match serialize(transactions) {
+        Ok(bytes) => bytes,
+        Err(e) => {
+            warn!("Failed to serialize transactions: {:?}", e);
+            return String::new();
+        }
+    };
     hex::encode(sha3_256::digest(&txs))
 }
 
@@ -152,12 +173,22 @@ pub async fn build_merkle_tree(
     let mut store = MemoryStore::default();
 
     if let Some((first_entry, other_entries)) = transactions.split_first() {
-        let mut log = MerkleLog::<Sha3_256>::new(&first_entry, &mut store)
-            .await
-            .unwrap();
+        let mut log = match MerkleLog::<Sha3_256>::new(&first_entry, &mut store).await {
+            Ok(log) => log,
+            Err(e) => {
+                warn!("Failed to create merkle log: {:?}", e);
+                return None;
+            }
+        };
 
         for entry in other_entries {
-            log.append(entry, &mut store).await.unwrap();
+            match log.append(entry, &mut store).await {
+                Ok(_) => (),
+                Err(e) => {
+                    warn!("Failed to append to merkle log: {:?}", e);
+                    return None;
+                }
+            }
         }
 
         return Some((log, store));
@@ -228,11 +259,9 @@ mod tests {
 
         let (mtree, store) = build_merkle_tree(&transactions).await.unwrap();
         let check_entry = sha3_256::digest(transactions[0].as_bytes());
-        let proof = mtree
-            .prove(0, &from_slice(&check_entry), &store)
-            .await
-            .unwrap();
+        let converted_entry: [u8; 32] = check_entry.as_slice().try_into().unwrap();
+        let proof = mtree.prove(0, &converted_entry, &store).await.unwrap();
 
-        assert!(mtree.verify(0, &from_slice(&check_entry), &proof));
+        assert!(mtree.verify(0, &converted_entry, &proof));
     }
 }

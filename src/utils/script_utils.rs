@@ -41,9 +41,15 @@ pub fn tx_is_valid<'a>(
     let mut tx_ins_spent: AssetValues = Default::default();
     // TODO: Add support for `Data` asset variant
     // `Item` assets MUST have an a DRS value associated with them when they are getting on-spent
+
+    println!("tx: {:?}", tx.outputs);
     if tx.outputs.iter().any(|out| {
+        println!("out is item: {:?}", out.value.is_item());
+        println!("out has drs: {:?}", out.value.get_genesis_hash().is_none());
+        println!("out has metadata: {:?}", out.value.get_metadata().is_some());
+
         (out.value.is_item()
-            && (out.value.get_drs_tx_hash().is_none() || out.value.get_metadata().is_some()))
+            && (out.value.get_genesis_hash().is_none() || out.value.get_metadata().is_some()))
     }) {
         error!("ON-SPENDING NEEDS EMPTY METADATA AND NON-EMPTY DRS SPECIFICATION");
         return false;
@@ -51,9 +57,15 @@ pub fn tx_is_valid<'a>(
 
     for tx_in in &tx.inputs {
         // Ensure the transaction is in the `UTXO` set
-        let tx_out_point = tx_in.previous_out.as_ref().unwrap().clone();
+        let tx_out_point = match tx_in.previous_out.as_ref() {
+            Some(v) => v,
+            None => {
+                error!("TRANSACTION DOESN'T CONTAIN PREVIOUS OUTPOINT");
+                return false;
+            }
+        };
 
-        let tx_out = if let Some(tx_out) = is_in_utxo(&tx_out_point) {
+        let tx_out = if let Some(tx_out) = is_in_utxo(tx_out_point) {
             tx_out
         } else {
             error!("UTXO DOESN'T CONTAIN THIS TX");
@@ -68,7 +80,7 @@ pub fn tx_is_valid<'a>(
 
         // At this point `TxIn` will be valid
         let tx_out_pk = tx_out.script_public_key.as_ref();
-        let tx_out_hash = construct_tx_in_signable_hash(&tx_out_point);
+        let tx_out_hash = construct_tx_in_signable_hash(tx_out_point);
 
         if let Some(pk) = tx_out_pk {
             // Check will need to include other signature types here
@@ -81,9 +93,14 @@ pub fn tx_is_valid<'a>(
             return false;
         }
 
-        let asset = tx_out.value.clone().with_fixed_hash(&tx_out_point);
+        let asset = tx_out.value.clone().with_fixed_hash(tx_out_point);
         tx_ins_spent.update_add(&asset);
     }
+
+    println!(
+        "txs are valid: {:?}",
+        tx_outs_are_valid(&tx.outputs, &tx.fees, tx_ins_spent.clone())
+    );
 
     tx_outs_are_valid(&tx.outputs, &tx.fees, tx_ins_spent)
 }
@@ -267,8 +284,8 @@ fn address_has_valid_length(address: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::constants::RECEIPT_ACCEPT_VAL;
-    use crate::primitives::asset::{Asset, DataAsset};
+    use crate::constants::ITEM_ACCEPT_VAL;
+    use crate::primitives::asset::Asset;
     use crate::primitives::druid::DdeValues;
     use crate::primitives::transaction::OutPoint;
     use crate::utils::test_utils::generate_tx_with_ins_and_outs_assets;
@@ -2869,7 +2886,7 @@ mod tests {
 
         let mut tx_ins = Vec::new();
 
-        for entry in vec![tx_const] {
+        for entry in [tx_const] {
             let mut new_tx_in = TxIn::new();
             new_tx_in.script_signature = Script::new();
             new_tx_in.previous_out = Some(entry.previous_out);
@@ -2923,7 +2940,7 @@ mod tests {
 
         let mut tx_ins = Vec::new();
 
-        for entry in vec![tx_const] {
+        for entry in [tx_const] {
             let mut new_tx_in = TxIn::new();
             new_tx_in.script_signature = Script::new();
             new_tx_in
@@ -3116,16 +3133,16 @@ mod tests {
     ///  - *Items only*
     /// -  *Failure*
     ///
-    /// 1. Inputs contain two `TxIn`s for `Item`s of amount `3` and `2` with different `drs_tx_hash` values
+    /// 1. Inputs contain two `TxIn`s for `Item`s of amount `3` and `2` with different `genesis_hash` values
     /// 2. Outputs contain `TxOut`s for `Item`s of amount `3` and `3`
     /// 3. `TxIn` DRS matches `TxOut` DRS for `Item`s; Amount of `Item`s spent does not match    
     fn test_tx_drs_items_only_failure_amount_mismatch() {
         test_tx_drs_common(
             &[
-                (3, Some("drs_tx_hash_1"), None),
-                (2, Some("drs_tx_hash_2"), None),
+                (3, Some("genesis_hash_1"), None),
+                (2, Some("genesis_hash_2"), None),
             ],
-            &[(3, Some("drs_tx_hash_1")), (3, Some("drs_tx_hash_2"))],
+            &[(3, Some("genesis_hash_1")), (3, Some("genesis_hash_2"))],
             false,
         );
     }
@@ -3136,16 +3153,19 @@ mod tests {
     ///  - *Items only*
     /// -  *Failure*
     ///
-    /// 1. Inputs contain two `TxIn`s for `Item`s of amount `3` and `2` with different `drs_tx_hash` values
+    /// 1. Inputs contain two `TxIn`s for `Item`s of amount `3` and `2` with different `genesis_hash` values
     /// 2. Outputs contain `TxOut`s for `Item`s of amount `3` and `2`
     /// 3. `TxIn` DRS does not match `TxOut` DRS for `Item`s; Amount of `Item`s spent matches     
     fn test_tx_drs_items_only_failure_drs_mismatch() {
         test_tx_drs_common(
             &[
-                (3, Some("drs_tx_hash_1"), None),
-                (2, Some("drs_tx_hash_2"), None),
+                (3, Some("genesis_hash_1"), None),
+                (2, Some("genesis_hash_2"), None),
             ],
-            &[(3, Some("drs_tx_hash_1")), (2, Some("invalid_drs_tx_hash"))],
+            &[
+                (3, Some("genesis_hash_1")),
+                (2, Some("invalid_genesis_hash")),
+            ],
             false,
         );
     }
@@ -3161,8 +3181,8 @@ mod tests {
     /// 3. `TxIn` DRS matches `TxOut` DRS for `Item`s; Amount of `Item`s and `Token`s spent matches      
     fn test_tx_drs_items_and_tokens_success() {
         test_tx_drs_common(
-            &[(3, Some("drs_tx_hash"), None), (2, None, None)],
-            &[(3, Some("drs_tx_hash")), (2, None)],
+            &[(3, Some("genesis_hash"), None), (2, None, None)],
+            &[(3, Some("genesis_hash")), (2, None)],
             true,
         );
     }
@@ -3178,8 +3198,8 @@ mod tests {
     /// 3. `TxIn` DRS matches `TxOut` DRS for `Item`s; Amount of `Item`s spent does not match      
     fn test_tx_drs_items_and_tokens_failure_amount_mismatch() {
         test_tx_drs_common(
-            &[(3, Some("drs_tx_hash"), None), (2, None, None)],
-            &[(2, Some("drs_tx_hash")), (2, None)],
+            &[(3, Some("genesis_hash"), None), (2, None, None)],
+            &[(2, Some("genesis_hash")), (2, None)],
             false,
         );
     }
@@ -3202,10 +3222,10 @@ mod tests {
 
         test_tx_drs_common(
             &[
-                (3, Some("drs_tx_hash"), test_metadata.clone()),
+                (3, Some("genesis_hash"), test_metadata.clone()),
                 (2, None, test_metadata),
             ],
-            &[(1, Some("invalid_drs_tx_hash")), (1, None)],
+            &[(1, Some("invalid_genesis_hash")), (1, None)],
             false,
         );
     }

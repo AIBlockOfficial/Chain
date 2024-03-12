@@ -1,13 +1,13 @@
 [package]
-name = "a_block_chain"
-version = "1.1.0"
+name = "tw_chain"
+version = "1.0.0"
 homepage = "https://a-block.io"
-description = "A-Block Chain is a distributed blockchain store with a dual double entry (DDE) data structure."
+description = "AIBlock Chain is a distributed blockchain store with a 2-way entry data structure."
 authors = ["Byron Houwens <byron.houwens@gmail.com>", "Anton Troskie <troskie.a@gmail.com>"]
 edition = "2018"
 license = "GPL-3.0"
 readme = "README.md"
-repository = "https://github.com/ABlockOfficial/Chain"
+repository = "https://github.com/AIBlockOfficial/Chain"
 keywords = ["blockchain", "distributed", "store", "DDE", "ledger"]
 exclude = ["**/tests/**", "**/examples/**", "**/benchmarks/**", "docs/**", ".hooks/**"]
 
@@ -28,12 +28,9 @@ serde = { version = "1.0.163", features = ["derive"] }
 sha3 = "0.9.1"
 time = "0.3.21"
 tracing = "0.1.37"
+tracing-subscriber = "0.2.3"
+tracing-futures = "0.2.3"
 
 [features]
 default = []
 build_bin = ["rocksdb", "colored"]
-
-[[bin]]
-name = "main"
-required-features = ["build_bin"]
-

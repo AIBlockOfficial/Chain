@@ -13,17 +13,17 @@ use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum DrsTxHashSpec {
+pub enum GenesisTxHashSpec {
     Create,
     Default,
     //TODO: Eventually custom?
 }
 
-impl DrsTxHashSpec {
-    pub fn get_drs_tx_hash(&self) -> Option<String> {
+impl GenesisTxHashSpec {
+    pub fn get_genesis_hash(&self) -> Option<String> {
         match self {
-            DrsTxHashSpec::Create => None, /* Unique DRS transaction hash will be assigned */
-            DrsTxHashSpec::Default => Some(RECEIPT_DEFAULT_DRS_TX_HASH.to_string()),
+            GenesisTxHashSpec::Create => None, /* Unique DRS transaction hash will be assigned */
+            GenesisTxHashSpec::Default => Some(ITEM_DEFAULT_DRS_TX_HASH.to_string()),
         }
     }
 }
@@ -48,6 +48,12 @@ impl OutPoint {
     /// Creates a new outpoint instance
     pub fn new(t_hash: String, n: i32) -> OutPoint {
         OutPoint { t_hash, n }
+    }
+}
+
+impl Default for OutPoint {
+    fn default() -> Self {
+        Self::new(String::new(), 0)
     }
 }
 
@@ -111,7 +117,6 @@ impl TxIn {
 pub struct TxOut {
     pub value: Asset,
     pub locktime: u64,
-    pub drs_block_hash: Option<String>,
     pub script_public_key: Option<String>,
 }
 
@@ -136,7 +141,7 @@ impl TxOut {
 
     /// Creates a new TxOut instance for a `Item` asset
     ///
-    /// **NOTE:** Only create transactions may have `Item` assets that have a `None` `drs_tx_hash`
+    /// **NOTE:** Only create transactions may have `Item` assets that have a `None` `genesis_hash`
     pub fn new_item_amount(to_address: String, item: ItemAsset, locktime: Option<u64>) -> TxOut {
         TxOut {
             value: Asset::Item(item),
