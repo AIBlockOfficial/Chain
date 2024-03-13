@@ -42,7 +42,7 @@ cargo test
 
 ```toml
 [dependencies]
-tw_chain = "0.1.0"
+tw_chain = "1.0.1"
 ```
 
 或者，通过命令行：
