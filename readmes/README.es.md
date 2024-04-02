@@ -1,7 +1,7 @@
 <div align="center">
-  <!-- <a>
-    <img src="https://github.com/AIBlockOfficial/Chain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
-  </a> -->
+  <a>
+    <img src="https://github.com/AIBlockOfficial/Chain/blob/develop/assets/hero.jpg" alt="Logo" style="width:100%;max-width:700px">
+  </a>
 
   <h2 align="center">Two Way Chain (Blockchain)</h2> <div style="height:30px"></div>
 
@@ -42,7 +42,7 @@ Blockchain puede ser añadido a tu proyecto como una dependencia añadiendo lo s
 
 ```toml
 [dependencies]
-tw_chain = "1.0.1"
+tw_chain = "1.0.2"
 ```
 
 O alternativamente, a través de la línea de comandos:
