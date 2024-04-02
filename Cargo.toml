@@ -1,6 +1,6 @@
 [package]
 name = "tw_chain"
-version = "1.0.1"
+version = "1.0.2"
 homepage = "https://aiblock.dev"
 description = "AIBlock Chain is a distributed blockchain store with a 2-way entry data structure."
 authors = ["Byron Houwens <byron.houwens@gmail.com>", "Anton Troskie <troskie.a@gmail.com>"]
