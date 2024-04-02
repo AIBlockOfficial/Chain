@@ -1,7 +1,7 @@
 <div align="center">
-  <!-- <a>
-    <img src="https://github.com/AIBlockOfficial/Chain/blob/develop/assets/hero.svg" alt="Logo" style="width: 350px">
-  </a> -->
+  <a>
+    <img src="https://github.com/AIBlockOfficial/Chain/blob/develop/assets/hero.jpg" alt="Logo" style="width: 350px">
+  </a>
 
   <h2 align="center">Two Way Chain (Blockchain)</h2> <div style="height:30px"></div>
 
