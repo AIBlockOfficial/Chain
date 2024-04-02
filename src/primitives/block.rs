@@ -24,6 +24,7 @@ pub struct BlockHeader {
     pub nonce_and_mining_tx_hash: (Vec<u8>, String),
     pub b_num: u64,
     pub timestamp: i64,
+    pub difficulty: Vec<u8>,
     pub seed_value: Vec<u8>, // for commercial
     pub previous_hash: Option<String>,
     pub txs_merkle_root_and_hash: (String, String),
@@ -44,6 +45,7 @@ impl BlockHeader {
             nonce_and_mining_tx_hash: Default::default(),
             b_num: 0,
             timestamp: 0,
+            difficulty: Vec::new(),
             seed_value: Vec::new(),
             previous_hash: None,
             txs_merkle_root_and_hash: Default::default(),
