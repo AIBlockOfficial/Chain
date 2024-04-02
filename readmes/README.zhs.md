@@ -1,6 +1,6 @@
 <div align="center">
   <a>
-    <img src="https://github.com/AIBlockOfficial/Chain/blob/develop/assets/hero.jpg" alt="Logo" style="width: 350px">
+    <img src="https://github.com/AIBlockOfficial/Chain/blob/develop/assets/hero.jpg" alt="Logo" style="width:100%;max-width:700px">
   </a>
 
   <h2 align="center">双向链（Two Way Chain）</h2> <div style="height:30px"></div>
