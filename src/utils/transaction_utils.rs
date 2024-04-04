@@ -768,7 +768,7 @@ mod tests {
             0,
         );
         let burn_script_pub_key = burn_tx.outputs[0].script_public_key.as_ref().unwrap();
-        println!("{:?}", burn_script_pub_key);
+        debug!("{:?}", burn_script_pub_key);
 
         assert_eq!(burn_script_pub_key.as_bytes()[0], P2SH_PREPEND);
         assert_eq!(burn_script_pub_key.len(), STANDARD_ADDRESS_LENGTH);
