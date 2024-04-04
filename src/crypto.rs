@@ -329,7 +329,7 @@ fn deserialize_slice<'de, D: serde::Deserializer<'de>, const N: usize>(
     let value: &[u8] = serde::Deserialize::deserialize(deserializer)?;
     value
         .try_into()
-        .map_err(|e| serde::de::Error::custom(format!("Invalid array: {e:?}")))
+        .map_err(|_| serde::de::Error::custom(format!("Invalid array in deserialization")))
 }
 
 pub fn generate_random<const N: usize>() -> [u8; N] {
