@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use crate::constants::D_DISPLAY_PLACES;
+use crate::constants::{D_DISPLAY_PLACES, TOTAL_TOKENS};
 use crate::primitives::asset::TokenAmount;
 
 // ------- MODS ------- //
@@ -27,8 +27,12 @@ pub fn is_valid_amount(_value: &TokenAmount) -> bool {
 ///
 /// * `value`   - Value to format for display
 pub fn format_for_display(value: &u64) -> String {
-    let value_f64 = *value as f64;
-    (value_f64 / D_DISPLAY_PLACES).to_string()
+    if value < &TOTAL_TOKENS {
+        let value_f64 = *value as f64;
+        return (value_f64 / D_DISPLAY_PLACES).to_string();
+    }
+
+    "Value out of bounds".to_string()
 }
 
 /// Create a single `BTreeMap<E, T>` struct from two `BTreeMap<E, T>` structs

@@ -42,11 +42,11 @@ pub fn tx_is_valid<'a>(
     // TODO: Add support for `Data` asset variant
     // `Item` assets MUST have an a DRS value associated with them when they are getting on-spent
 
-    println!("tx: {:?}", tx.outputs);
+    debug!("tx: {:?}", tx.outputs);
     if tx.outputs.iter().any(|out| {
-        println!("out is item: {:?}", out.value.is_item());
-        println!("out has drs: {:?}", out.value.get_genesis_hash().is_none());
-        println!("out has metadata: {:?}", out.value.get_metadata().is_some());
+        debug!("out is item: {:?}", out.value.is_item());
+        debug!("out has drs: {:?}", out.value.get_genesis_hash().is_none());
+        debug!("out has metadata: {:?}", out.value.get_metadata().is_some());
 
         (out.value.is_item()
             && (out.value.get_genesis_hash().is_none() || out.value.get_metadata().is_some()))
@@ -97,7 +97,7 @@ pub fn tx_is_valid<'a>(
         tx_ins_spent.update_add(&asset);
     }
 
-    println!(
+    debug!(
         "txs are valid: {:?}",
         tx_outs_are_valid(&tx.outputs, &tx.fees, tx_ins_spent.clone())
     );
