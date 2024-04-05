@@ -1,3 +1,5 @@
+use tracing::info;
+
 use crate::primitives::asset::Asset;
 use crate::primitives::druid::DruidExpectation;
 use crate::primitives::transaction::Transaction;
@@ -19,26 +21,26 @@ pub fn druid_expectations_are_met<'a>(
     let mut tx_source = BTreeSet::new();
 
     for tx in transactions {
-        println!();
+        info!("");
         if let Some(druid_info) = &tx.druid_info {
             let ins = construct_tx_ins_address(&tx.inputs);
 
             // Ensure match with passed DRUID
             if druid_info.druid == druid {
-                println!("DRUIDs match");
+                info!("DRUIDs match");
                 expects.extend(druid_info.expectations.iter());
 
-                println!("Expectations: {:?}", expects);
+                info!("Expectations: {:?}", expects);
 
                 for out in &tx.outputs {
                     if let Some(pk) = &out.script_public_key {
                         tx_source.insert((ins.clone(), pk, &out.value));
                     }
                 }
-                println!("Tx Source: {:?}", tx_source);
+                info!("Tx Source: {:?}", tx_source);
             }
         }
-        println!();
+        info!("");
     }
 
     expects.iter().all(|e| expectation_met(e, &tx_source))
