@@ -11,6 +11,7 @@ use crate::utils::is_valid_amount;
 use bincode::serialize;
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum GenesisTxHashSpec {
@@ -42,6 +43,12 @@ pub struct TxConstructor {
 pub struct OutPoint {
     pub t_hash: String,
     pub n: i32,
+}
+
+impl fmt::Display for OutPoint {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "t_hash:{}-n:{}", self.t_hash, self.n)
+    }
 }
 
 impl OutPoint {
