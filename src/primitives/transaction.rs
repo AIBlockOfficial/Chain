@@ -10,6 +10,7 @@ use crate::script::{OpCodes, StackEntry};
 use crate::utils::is_valid_amount;
 use bincode::serialize;
 use bytes::Bytes;
+use std::fmt;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -42,6 +43,12 @@ pub struct TxConstructor {
 pub struct OutPoint {
     pub t_hash: String,
     pub n: i32,
+}
+
+impl fmt::Display for OutPoint {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "t_hash:{}-n:{}", self.t_hash, self.n)
+    }
 }
 
 impl OutPoint {
