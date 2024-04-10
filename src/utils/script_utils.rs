@@ -12,11 +12,13 @@ use crate::script::lang::{ConditionStack, Script, Stack};
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::error_utils::*;
 use crate::utils::transaction_utils::{
-    construct_address, construct_tx_in_signable_asset_hash, construct_tx_in_signable_hash,
+    construct_address, construct_tx_hash, construct_tx_in_out_signable_hash,
+    construct_tx_in_signable_asset_hash, construct_tx_in_signable_hash,
 };
 use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
+use ring::error;
 use std::collections::{BTreeMap, BTreeSet};
 use std::thread::current;
 use tracing::{debug, error, info, trace};
@@ -81,12 +83,17 @@ pub fn tx_is_valid<'a>(
         // At this point `TxIn` will be valid
         let tx_out_pk = tx_out.script_public_key.as_ref();
         let tx_out_hash = construct_tx_in_signable_hash(tx_out_point);
+        let full_tx_hash = construct_tx_in_out_signable_hash(&tx_in, &tx.outputs);
+
+        debug!("full_tx_hash: {:?}", full_tx_hash);
 
         if let Some(pk) = tx_out_pk {
             // Check will need to include other signature types here
             if !tx_has_valid_p2pkh_sig(&tx_in.script_signature, &tx_out_hash, pk)
+                && !tx_has_valid_p2pkh_sig(&tx_in.script_signature, &full_tx_hash, pk)
                 && !tx_has_valid_p2sh_script(&tx_in.script_signature, pk)
             {
+                error!("INVALID SIGNATURE OR SCRIPT TYPE");
                 return false;
             }
         } else {
@@ -201,6 +208,8 @@ pub fn tx_has_valid_create_script(script: &Script, asset: &Asset) -> bool {
 fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: &str) -> bool {
     let mut it = script.stack.iter();
 
+    debug!("script: {:?}", script.stack);
+
     if let (
         Some(StackEntry::Bytes(b)),
         Some(StackEntry::Signature(_)),
@@ -224,6 +233,7 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
         it.next(),
         it.next(),
     ) {
+        debug!("b: {:?}, h: {:?}", b, h);
         if h == tx_out_pub_key && b == outpoint_hash && script.interpret() {
             return true;
         }
