@@ -10,8 +10,8 @@ use crate::script::{OpCodes, StackEntry};
 use crate::utils::is_valid_amount;
 use bincode::serialize;
 use bytes::Bytes;
-use std::fmt;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum GenesisTxHashSpec {

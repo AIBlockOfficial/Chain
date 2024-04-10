@@ -12,7 +12,8 @@ use crate::script::lang::{ConditionStack, Script, Stack};
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::error_utils::*;
 use crate::utils::transaction_utils::{
-    construct_address, construct_tx_hash, construct_tx_in_out_signable_hash, construct_tx_in_signable_asset_hash, construct_tx_in_signable_hash
+    construct_address, construct_tx_hash, construct_tx_in_out_signable_hash,
+    construct_tx_in_signable_asset_hash, construct_tx_in_signable_hash,
 };
 use bincode::serialize;
 use bytes::Bytes;
