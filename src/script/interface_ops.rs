@@ -11,11 +11,13 @@ use crate::utils::error_utils::*;
 use crate::utils::transaction_utils::{
     construct_address, construct_address_temp, construct_address_v0,
 };
+use bincode::de;
 use bincode::serialize;
 use bytes::Bytes;
 use hex::encode;
 use std::collections::BTreeMap;
 use tracing::{debug, error, info, trace};
+use tracing_subscriber::field::debug;
 
 /*---- FLOW CONTROL OPS ----*/
 
@@ -2065,9 +2067,12 @@ pub fn op_checksig(stack: &mut Stack) -> bool {
             return false;
         }
     };
+    trace!("Signature: {:?}", hex::encode(&sig));
     if (!sign::verify_detached(&sig, msg.as_bytes(), &pk)) {
+        trace!("Signature verification failed");
         stack.push(StackEntry::Num(ZERO))
     } else {
+        trace!("Signature verification succeeded");
         stack.push(StackEntry::Num(ONE))
     }
 }
@@ -2116,7 +2121,9 @@ pub fn op_checksigverify(stack: &mut Stack) -> bool {
             return false;
         }
     };
+    trace!("Signature: {:?}", hex::encode(&sig));
     if (!sign::verify_detached(&sig, msg.as_bytes(), &pk)) {
+        trace!("Signature verification failed");
         error_invalid_signature(op);
         return false;
     }
