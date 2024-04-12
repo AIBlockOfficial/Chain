@@ -8,7 +8,7 @@ use crate::script::lang::Script;
 use crate::script::{OpCodes, StackEntry};
 use bincode::serialize;
 use std::collections::BTreeMap;
-use tracing::{debug, trace};
+use tracing::debug;
 
 pub struct ReceiverInfo {
     pub address: String,
@@ -175,18 +175,21 @@ pub fn get_stack_entry_signable_string(entry: &StackEntry) -> String {
 pub fn construct_tx_in_out_signable_hash(tx_in: &TxIn, tx_out: &Vec<TxOut>) -> String {
     let mut signable_list = tx_out
         .iter()
-        .map(|tx| tx.clone().script_public_key.unwrap_or_default())
+        .map(|tx| {
+            debug!("txout: {:?}", tx);
+            return serde_json::to_string(tx).unwrap_or("".to_string());
+        })
         .collect::<Vec<String>>();
 
-    let tx_in_value = if let Some(outpoint) = &tx_in.previous_out {
-        outpoint.t_hash.clone()
-    } else {
-        "".to_owned()
-    };
+    let tx_in_value = serde_json::to_string(&tx_in.previous_out).unwrap_or("".to_string());
 
     signable_list.push(tx_in_value);
     let signable = signable_list.join("");
-    trace!("Formatted string for signing: {signable}");
+    debug!("Formatted string for signing: {signable}");
+    debug!(
+        "Hash: {:?}",
+        hex::encode(sha3_256::digest(signable.as_bytes()))
+    );
 
     hex::encode(sha3_256::digest(signable.as_bytes()))
 }
