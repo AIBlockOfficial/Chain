@@ -1011,7 +1011,7 @@ dependencies = [
 
 [[package]]
 name = "tw_chain"
-version = "1.0.5"
+version = "1.0.6"
 dependencies = [
  "actix-rt",
  "base64",
