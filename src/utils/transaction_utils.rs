@@ -172,12 +172,12 @@ pub fn get_stack_entry_signable_string(entry: &StackEntry) -> String {
 ///
 /// * `tx_in`   - TxIn values
 /// * `tx_out`  - TxOut values
-pub fn construct_tx_in_out_signable_hash(tx_in: &TxIn, tx_out: &Vec<TxOut>) -> String {
+pub fn construct_tx_in_out_signable_hash(tx_in: &TxIn, tx_out: &[TxOut]) -> String {
     let mut signable_list = tx_out
         .iter()
         .map(|tx| {
             debug!("txout: {:?}", tx);
-            return serde_json::to_string(tx).unwrap_or("".to_string());
+            serde_json::to_string(tx).unwrap_or("".to_string())
         })
         .collect::<Vec<String>>();
 
