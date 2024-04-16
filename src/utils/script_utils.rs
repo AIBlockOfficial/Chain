@@ -83,7 +83,7 @@ pub fn tx_is_valid<'a>(
         // At this point `TxIn` will be valid
         let tx_out_pk = tx_out.script_public_key.as_ref();
         let tx_out_hash = construct_tx_in_signable_hash(tx_out_point);
-        let full_tx_hash = construct_tx_in_out_signable_hash(&tx_in, &tx.outputs);
+        let full_tx_hash = construct_tx_in_out_signable_hash(tx_in, &tx.outputs);
 
         debug!("full_tx_hash: {:?}", full_tx_hash);
 
@@ -3070,8 +3070,12 @@ mod tests {
         let tx_in_previous_out =
             TxOut::new_token_amount(script_public_key.clone(), TokenAmount(5), locktime);
         let ongoing_tx_outs = vec![tx_in_previous_out.clone()];
+        let tx_in = TxIn {
+            script_signature: Script::new(),
+            previous_out: Some(tx_outpoint.clone()),
+        };
 
-        let valid_bytes = construct_tx_in_signable_hash(&tx_outpoint);
+        let valid_bytes = construct_tx_in_out_signable_hash(&tx_in, &ongoing_tx_outs.clone());
         let valid_sig = sign::sign_detached(valid_bytes.as_bytes(), &sk);
 
         // Test cases:

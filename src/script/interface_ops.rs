@@ -2067,7 +2067,7 @@ pub fn op_checksig(stack: &mut Stack) -> bool {
             return false;
         }
     };
-    trace!("Signature: {:?}", hex::encode(&sig));
+    trace!("Signature: {:?}", hex::encode(sig));
     if (!sign::verify_detached(&sig, msg.as_bytes(), &pk)) {
         trace!("Signature verification failed");
         stack.push(StackEntry::Num(ZERO))
@@ -2121,7 +2121,7 @@ pub fn op_checksigverify(stack: &mut Stack) -> bool {
             return false;
         }
     };
-    trace!("Signature: {:?}", hex::encode(&sig));
+    trace!("Signature: {:?}", hex::encode(sig));
     if (!sign::verify_detached(&sig, msg.as_bytes(), &pk)) {
         trace!("Signature verification failed");
         error_invalid_signature(op);
