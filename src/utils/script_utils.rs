@@ -89,8 +89,7 @@ pub fn tx_is_valid<'a>(
 
         if let Some(pk) = tx_out_pk {
             // Check will need to include other signature types here
-            if !tx_has_valid_p2pkh_sig(&tx_in.script_signature, &tx_out_hash, pk)
-                && !tx_has_valid_p2pkh_sig(&tx_in.script_signature, &full_tx_hash, pk)
+            if !tx_has_valid_p2pkh_sig(&tx_in.script_signature, &full_tx_hash, pk)
                 && !tx_has_valid_p2sh_script(&tx_in.script_signature, pk)
             {
                 error!("INVALID SIGNATURE OR SCRIPT TYPE");
