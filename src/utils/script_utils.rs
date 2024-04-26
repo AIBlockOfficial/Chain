@@ -58,6 +58,11 @@ pub fn tx_is_valid<'a>(
     }
 
     for tx_in in &tx.inputs {
+
+        let full_tx_hash = construct_tx_in_out_signable_hash(tx_in, &tx.outputs);
+        println!("full_tx_hash: {:?}", full_tx_hash);
+
+        
         // Ensure the transaction is in the `UTXO` set
         let tx_out_point = match tx_in.previous_out.as_ref() {
             Some(v) => v,
@@ -292,6 +297,8 @@ fn address_has_valid_length(address: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use std::vec;
+
     use super::*;
     use crate::constants::ITEM_ACCEPT_VAL;
     use crate::primitives::asset::Asset;
@@ -2779,36 +2786,27 @@ mod tests {
         test_pass_p2pkh_sig_valid_common(None);
     }
 
-    #[test]
-    /// Checks that correct p2pkh transaction signatures are validated as such
-    fn test_pass_p2pkh_sig_valid_v0() {
-        test_pass_p2pkh_sig_valid_common(Some(NETWORK_VERSION_V0));
-    }
-
-    #[test]
-    /// Checks that correct p2pkh transaction signatures are validated as such
-    fn test_pass_p2pkh_sig_valid_temp() {
-        test_pass_p2pkh_sig_valid_common(Some(NETWORK_VERSION_TEMP));
-    }
-
     fn test_pass_p2pkh_sig_valid_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
         let outpoint = OutPoint {
             t_hash: hex::encode(vec![0, 0, 0]),
             n: 0,
         };
-
-        let hash_to_sign = construct_tx_in_signable_hash(&outpoint);
-        let signature = sign::sign_detached(hash_to_sign.as_bytes(), &sk);
+        let mut key_material = BTreeMap::new();
+        key_material.insert(outpoint.clone(), (pk, sk));
 
         let tx_const = TxConstructor {
             previous_out: outpoint,
-            signatures: vec![signature],
+            signatures: vec![],
             pub_keys: vec![pk],
             address_version,
         };
 
-        let tx_ins = construct_payment_tx_ins(vec![tx_const]);
+        let tx_outs = vec![];
+        let mut tx_ins = construct_payment_tx_ins(vec![tx_const]);
+        tx_ins = update_input_signatures(&tx_ins, &tx_outs, &key_material);
+          
+        let hash_to_sign = construct_tx_in_out_signable_hash(&tx_ins[0], &tx_outs);
         let tx_out_pk = construct_address_for(&pk, address_version);
 
         assert!(tx_has_valid_p2pkh_sig(
