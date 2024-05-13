@@ -43,7 +43,7 @@ Blockchain peut être ajouté à votre projet en tant que dépendance en ajoutan
 
 ```toml
 [dependencies]
-tw_chain = "1.0.2"
+tw_chain = "1.1.2"
 ```
 
 Ou bien, via la ligne de commande :

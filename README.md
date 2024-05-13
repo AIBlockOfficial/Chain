@@ -49,7 +49,7 @@ Blockchain can be added to your project as a dependency by adding the following 
 
 ```toml
 [dependencies]
-tw_chain = "1.0.2"
+tw_chain = "1.1.2"
 ```
 
 Or alternatively, via command line:
