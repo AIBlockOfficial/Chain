@@ -54,21 +54,25 @@ pub fn tx_is_valid<'a>(
             && (out.value.get_genesis_hash().is_none() || out.value.get_metadata().is_some()))
     }) {
         error!("ON-SPENDING NEEDS EMPTY METADATA AND NON-EMPTY DRS SPECIFICATION");
-        return (false, "On-spending items needs empty metadata and non-empty genesis hash".to_string());
+        return (
+            false,
+            "On-spending items needs empty metadata and non-empty genesis hash".to_string(),
+        );
     }
 
     for tx_in in &tx.inputs {
-
         let full_tx_hash = construct_tx_in_out_signable_hash(tx_in, &tx.outputs);
         println!("full_tx_hash: {:?}", full_tx_hash);
 
-        
         // Ensure the transaction is in the `UTXO` set
         let tx_out_point = match tx_in.previous_out.as_ref() {
             Some(v) => v,
             None => {
                 error!("TRANSACTION DOESN'T CONTAIN PREVIOUS OUTPOINT");
-                return (false, "Transaction doesn't contain previous outpoint".to_string());
+                return (
+                    false,
+                    "Transaction doesn't contain previous outpoint".to_string(),
+                );
             }
         };
 
@@ -76,7 +80,11 @@ pub fn tx_is_valid<'a>(
             tx_out
         } else {
             error!("UTXO DOESN'T CONTAIN THIS TX");
-            return (false, "UTXO doesn't contain this transaction, or the locktime has not expired".to_string());
+            return (
+                false,
+                "UTXO doesn't contain this transaction, or the locktime has not expired"
+                    .to_string(),
+            );
         };
 
         // Check locktime
@@ -125,7 +133,11 @@ pub fn tx_is_valid<'a>(
 ///
 /// * `tx_outs`      - `TxOut`s to verify
 /// * `tx_ins_spent` - Total amount spendable from `TxIn`s
-pub fn tx_outs_are_valid(tx_outs: &[TxOut], fees: &[TxOut], tx_ins_spent: AssetValues) -> (bool, String) {
+pub fn tx_outs_are_valid(
+    tx_outs: &[TxOut],
+    fees: &[TxOut],
+    tx_ins_spent: AssetValues,
+) -> (bool, String) {
     let mut tx_outs_spent: AssetValues = Default::default();
 
     for tx_out in tx_outs {
@@ -160,7 +172,6 @@ pub fn tx_outs_are_valid(tx_outs: &[TxOut], fees: &[TxOut], tx_ins_spent: AssetV
             error!("TXOUTS SPENT DOESN'T MATCH TXINS SPENT");
             (false, "TxOuts spent don't match TxIns spent".to_string())
         }
-    
     }
 }
 
@@ -2812,7 +2823,7 @@ mod tests {
         let tx_outs = vec![];
         let mut tx_ins = construct_payment_tx_ins(vec![tx_const]);
         tx_ins = update_input_signatures(&tx_ins, &tx_outs, &key_material);
-          
+
         let hash_to_sign = construct_tx_in_out_signable_hash(&tx_ins[0], &tx_outs);
         let tx_out_pk = construct_address_for(&pk, address_version);
 

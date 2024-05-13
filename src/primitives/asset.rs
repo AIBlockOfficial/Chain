@@ -1,8 +1,8 @@
 use crate::primitives::transaction::OutPoint;
 use crate::utils::{add_btreemap, format_for_display};
 use serde::{Deserialize, Serialize};
-use tracing::debug;
 use std::{collections::BTreeMap, fmt, iter, mem::size_of, ops};
+use tracing::debug;
 
 /// A structure representing the amount of tokens in an instance
 #[derive(Deserialize, Serialize, Default, Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]

@@ -126,8 +126,13 @@ mod tests {
             expectations: expects.clone(),
             genesis_hash: None,
         };
-        let alice_tx =
-            construct_dde_tx(alice_druid_info, tx_input.clone(), vec![token_tx_out], None, &key_material);
+        let alice_tx = construct_dde_tx(
+            alice_druid_info,
+            tx_input.clone(),
+            vec![token_tx_out],
+            None,
+            &key_material,
+        );
 
         let bob_druid_info = DdeValues {
             druid: druid.clone(),
@@ -135,7 +140,13 @@ mod tests {
             expectations: expects.clone(),
             genesis_hash: None,
         };
-        let bob_tx = construct_dde_tx(bob_druid_info, tx_input, vec![data_tx_out], None, &key_material);
+        let bob_tx = construct_dde_tx(
+            bob_druid_info,
+            tx_input,
+            vec![data_tx_out],
+            None,
+            &key_material,
+        );
 
         vec![alice_tx, bob_tx]
     }
@@ -166,7 +177,7 @@ mod tests {
             };
             let excess_tx_out =
                 TxOut::new_token_amount(sender_address_excess, amount - payment, None);
-            
+
             let (pk, sk) = sign::gen_keypair();
             let prev_out = OutPoint::new("t_hash".to_string(), 0);
             key_material.insert(prev_out, (pk, sk));
@@ -222,7 +233,15 @@ mod tests {
             };
 
             // create the sender that match the receiver.
-            construct_rb_receive_payment_tx(tx_ins, Vec::new(), None, alice_addr, 0, druid_info, &key_material)
+            construct_rb_receive_payment_tx(
+                tx_ins,
+                Vec::new(),
+                None,
+                alice_addr,
+                0,
+                druid_info,
+                &key_material,
+            )
         };
 
         (send_tx, recv_tx)
