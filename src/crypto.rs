@@ -1,9 +1,8 @@
 pub use ring;
-use std::convert::TryInto;
 use tracing::warn;
 
 pub mod sign_ed25519 {
-    use super::deserialize_slice;
+    use super::{byte_slice_codec, byte_vec_codec};
     pub use ring::signature::Ed25519KeyPair as SecretKeyBase;
     use ring::signature::KeyPair;
     pub use ring::signature::Signature as SignatureBase;
@@ -25,8 +24,7 @@ pub mod sign_ed25519 {
     /// We used sodiumoxide serialization before (treated it as slice with 64 bit length prefix).
     #[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq, Serialize, Deserialize)]
     pub struct Signature(
-        #[serde(serialize_with = "<[_]>::serialize")]
-        #[serde(deserialize_with = "deserialize_slice")]
+        #[serde(with = "byte_slice_codec")]
         [u8; ED25519_SIGNATURE_LEN],
     );
 
@@ -46,8 +44,7 @@ pub mod sign_ed25519 {
     /// We used sodiumoxide serialization before (treated it as slice with 64 bit length prefix).
     #[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq, Serialize, Deserialize)]
     pub struct PublicKey(
-        #[serde(serialize_with = "<[_]>::serialize")]
-        #[serde(deserialize_with = "deserialize_slice")]
+        #[serde(with = "byte_slice_codec")]
         [u8; ED25519_PUBLIC_KEY_LEN],
     );
 
@@ -67,7 +64,10 @@ pub mod sign_ed25519 {
     /// We used sodiumoxide serialization before (treated it as slice with 64 bit length prefix).
     /// Slice and vector are serialized the same.
     #[derive(Clone, Debug, PartialOrd, Ord, PartialEq, Eq, Serialize, Deserialize)]
-    pub struct SecretKey(Vec<u8>);
+    pub struct SecretKey(
+        #[serde(with = "byte_vec_codec")]
+        Vec<u8>,
+    );
 
     impl SecretKey {
         pub fn from_slice(slice: &[u8]) -> Option<Self> {
@@ -129,9 +129,14 @@ pub mod sign_ed25519 {
         sm
     }
 
+    /// Generates a completely random keypair
     pub fn gen_keypair() -> (PublicKey, SecretKey) {
-        let rand = ring::rand::SystemRandom::new();
-        let pkcs8 = match SecretKeyBase::generate_pkcs8(&rand) {
+        gen_keypair_rand(&ring::rand::SystemRandom::new())
+    }
+
+    /// Generates a keypair using the given random number generator
+    pub fn gen_keypair_rand(rand: &dyn ring::rand::SecureRandom) -> (PublicKey, SecretKey) {
+        let pkcs8 = match SecretKeyBase::generate_pkcs8(rand) {
             Ok(pkcs8) => pkcs8,
             Err(_) => {
                 warn!("Failed to generate secret key base for pkcs8");
@@ -169,7 +174,7 @@ pub mod sign_ed25519 {
 
 pub mod secretbox_chacha20_poly1305 {
     // Use key and nonce separately like rust-tls does
-    use super::{deserialize_slice, generate_random};
+    use super::{byte_slice_codec, generate_random};
     pub use ring::aead::LessSafeKey as KeyBase;
     pub use ring::aead::Nonce as NonceBase;
     pub use ring::aead::NONCE_LEN;
@@ -182,8 +187,7 @@ pub mod secretbox_chacha20_poly1305 {
     /// key data
     #[derive(Clone, Debug, PartialOrd, Ord, PartialEq, Eq, Serialize, Deserialize)]
     pub struct Key(
-        #[serde(serialize_with = "<[_]>::serialize")]
-        #[serde(deserialize_with = "deserialize_slice")]
+        #[serde(with = "byte_slice_codec")]
         [u8; KEY_LEN],
     );
 
@@ -202,8 +206,7 @@ pub mod secretbox_chacha20_poly1305 {
     /// Nonce data
     #[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq, Serialize, Deserialize)]
     pub struct Nonce(
-        #[serde(serialize_with = "<[_]>::serialize")]
-        #[serde(deserialize_with = "deserialize_slice")]
+        #[serde(with = "byte_slice_codec")]
         [u8; NONCE_LEN],
     );
 
@@ -262,7 +265,7 @@ pub mod secretbox_chacha20_poly1305 {
 }
 
 pub mod pbkdf2 {
-    use super::{deserialize_slice, generate_random};
+    use super::{generate_random, byte_slice_codec};
     use ring::pbkdf2::{derive, PBKDF2_HMAC_SHA256};
     use serde::{Deserialize, Serialize};
     use std::convert::TryInto;
@@ -274,8 +277,7 @@ pub mod pbkdf2 {
 
     #[derive(Clone, Copy, Debug, PartialOrd, Ord, PartialEq, Eq, Serialize, Deserialize)]
     pub struct Salt(
-        #[serde(serialize_with = "<[_]>::serialize")]
-        #[serde(deserialize_with = "deserialize_slice")]
+        #[serde(with = "byte_slice_codec")]
         [u8; SALT_LEN],
     );
 
@@ -323,13 +325,90 @@ pub mod sha3_256 {
     }
 }
 
-fn deserialize_slice<'de, D: serde::Deserializer<'de>, const N: usize>(
-    deserializer: D,
-) -> Result<[u8; N], D::Error> {
-    let value: &[u8] = serde::Deserialize::deserialize(deserializer)?;
-    value
-        .try_into()
-        .map_err(|_| serde::de::Error::custom("Invalid array in deserialization".to_string()))
+/// A serializer+deserializer for fixed-size byte arrays.
+mod byte_slice_codec {
+    use std::convert::TryInto;
+    use serde::de::Error;
+
+    pub fn serialize<S: serde::Serializer, const N: usize>(
+        values: &[u8; N],
+        serializer: S,
+    ) -> Result<S::Ok, S::Error> {
+        super::byte_vec_codec::serialize(values, serializer)
+    }
+
+    pub fn deserialize<'de, D: serde::Deserializer<'de>, const N: usize>(
+        deserializer: D,
+    ) -> Result<[u8; N], D::Error> {
+        let vec = super::byte_vec_codec::deserialize(deserializer)?;
+        let bytes : [u8; N] = vec.try_into()
+            .map_err(|vec: Vec<u8>|
+                <D::Error>::custom(format!("Invalid array in deserialization: length {}", vec.len())))?;
+        Ok(bytes)
+    }
+}
+
+/// A serializer+deserializer for variable-length byte arrays.
+/// This intelligently selects the output representation depending on whether the data is being
+/// serialized for a human-readable format (i.e. JSON) or not.
+mod byte_vec_codec {
+    use core::fmt;
+    use serde::Serialize;
+    use serde::de::{SeqAccess, Visitor};
+
+    pub fn serialize<S: serde::Serializer>(
+        values: &[u8],
+        serializer: S,
+    ) -> Result<S::Ok, S::Error> {
+        if serializer.is_human_readable() {
+            // We're serializing for a human-readable format, serialize the bytes as a hex string
+            serde::Serializer::serialize_str(serializer, &hex::encode(values))
+        } else {
+            // We're serializing for a binary format, serialize the bytes as an array of bytes
+            values.serialize(serializer)
+        }
+    }
+
+    pub fn deserialize<'de, D: serde::Deserializer<'de>>(
+        deserializer: D,
+    ) -> Result<Vec<u8>, D::Error> {
+        if deserializer.is_human_readable() {
+            // We're deserializing a human-readable format, we'll accept two different
+            // representations:
+            // - A hexadecimal string
+            // - An array of byte literals (this format should never be produced by the serializer
+            //   for human-readable formats, but it was in the past, so we'll still support reading
+            //   it for backwards-compatibility).
+
+            struct HexStringOrBytes();
+
+            impl<'de> Visitor<'de> for HexStringOrBytes {
+                type Value = Vec<u8>;
+
+                fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                    formatter.write_str("hex string or byte array")
+                }
+
+                fn visit_str<E>(self, value: &str) -> Result<Self::Value, E> where E: serde::de::Error {
+                    hex::decode(value).map_err(E::custom)
+                }
+
+                fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error> where A: SeqAccess<'de> {
+                    let mut vec = Vec::new();
+                    while let Some(elt) = seq.next_element::<u8>()? {
+                        vec.push(elt);
+                    }
+                    Ok(vec)
+                }
+            }
+
+            deserializer.deserialize_any(HexStringOrBytes())
+        } else {
+            // We're deserializing a binary format, read a sequence of raw bytes
+            let value: Vec<u8> = serde::Deserialize::deserialize(deserializer)?;
+            Ok(value)
+        }
+    }
 }
 
 pub fn generate_random<const N: usize>() -> [u8; N] {
@@ -343,4 +422,141 @@ pub fn generate_random<const N: usize>() -> [u8; N] {
     };
 
     value
+}
+
+/*---- TESTS ----*/
+
+#[cfg(test)]
+mod tests {
+    use crate::crypto::pbkdf2::Salt;
+    use crate::crypto::secretbox_chacha20_poly1305::*;
+    use crate::crypto::sign_ed25519::*;
+
+    #[test]
+    fn test_ed25519_signature_serialize() {
+        let sig_hex = "6954e926b9b8af8f37d84fd42b1d0f928b5fe5bc124674e98c19395cf3df39930cbb530b658adce33cbd6df68239304bc973647b9a814720a62c65a8b49d6206";
+        let sig_bytes = hex::decode(sig_hex).unwrap();
+        let sig = Signature::from_slice(&sig_bytes).unwrap();
+
+        // Convert to/from binary
+        let sig_bin = bincode::serialize(&sig).unwrap();
+        assert_eq!(hex::encode(&sig_bin), "40000000000000006954e926b9b8af8f37d84fd42b1d0f928b5fe5bc124674e98c19395cf3df39930cbb530b658adce33cbd6df68239304bc973647b9a814720a62c65a8b49d6206");
+        assert_eq!(bincode::deserialize::<Signature>(&sig_bin).unwrap(), sig);
+
+        // Convert to/from JSON
+        let sig_ugly_json = serde_json::to_string(sig.as_ref()).unwrap();
+        assert_eq!(sig_ugly_json, "[105,84,233,38,185,184,175,143,55,216,79,212,43,29,15,146,139,95,229,188,18,70,116,233,140,25,57,92,243,223,57,147,12,187,83,11,101,138,220,227,60,189,109,246,130,57,48,75,201,115,100,123,154,129,71,32,166,44,101,168,180,157,98,6]");
+        assert_eq!(serde_json::from_str::<Signature>(&sig_ugly_json).unwrap(), sig);
+
+        let sig_json = serde_json::to_string(&sig).unwrap();
+        assert_eq!(sig_json, format!("\"{}\"", sig_hex));
+        assert_eq!(serde_json::from_str::<Signature>(&sig_json).unwrap(), sig);
+    }
+
+    #[test]
+    fn test_ed25519_pubkey_serialize() {
+        let pubkey_hex = "0851f51b47d5000f5ff005a7d138f5ed91ca9ebe62ade8a3283467e55858f14a";
+        let pubkey_bytes = hex::decode(pubkey_hex).unwrap();
+        let pubkey = PublicKey::from_slice(&pubkey_bytes).unwrap();
+
+        // Convert to/from binary
+        let pubkey_bin = bincode::serialize(&pubkey).unwrap();
+        assert_eq!(hex::encode(&pubkey_bin), "20000000000000000851f51b47d5000f5ff005a7d138f5ed91ca9ebe62ade8a3283467e55858f14a");
+        assert_eq!(bincode::deserialize::<PublicKey>(&pubkey_bin).unwrap(), pubkey);
+
+        // Convert to/from JSON
+        let pubkey_ugly_json = serde_json::to_string(pubkey.as_ref()).unwrap();
+        assert_eq!(pubkey_ugly_json, "[8,81,245,27,71,213,0,15,95,240,5,167,209,56,245,237,145,202,158,190,98,173,232,163,40,52,103,229,88,88,241,74]");
+        assert_eq!(serde_json::from_str::<PublicKey>(&pubkey_ugly_json).unwrap(), pubkey);
+
+        let pubkey_json = serde_json::to_string(&pubkey).unwrap();
+        assert_eq!(pubkey_json, format!("\"{}\"", pubkey_hex));
+        assert_eq!(serde_json::from_str::<PublicKey>(&pubkey_json).unwrap(), pubkey);
+    }
+
+    #[test]
+    fn test_ed25519_secretkey_serialize() {
+        let key_hex = "3053020101300506032b6570042204207777777777777777777777777777777777777777777777777777777777777777a123032100c853ad0f0cd2b619aea92ceec4fd56a24d6499d584ce79257e45cfd8139b60a7";
+        let (_, key) = gen_keypair_rand(&ring::test::rand::FixedByteRandom{ byte: 0x77u8 });
+        let key_bytes = key.as_ref().to_vec();
+
+        assert_eq!(hex::encode(&key_bytes), key_hex);
+
+        // Convert to/from binary
+        let key_bin = bincode::serialize(&key).unwrap();
+        assert_eq!(hex::encode(&key_bin), "55000000000000003053020101300506032b6570042204207777777777777777777777777777777777777777777777777777777777777777a123032100c853ad0f0cd2b619aea92ceec4fd56a24d6499d584ce79257e45cfd8139b60a7");
+        assert_eq!(bincode::deserialize::<SecretKey>(&key_bin).unwrap(), key);
+
+        // Convert to/from JSON
+        let key_ugly_json = serde_json::to_string(key.as_ref()).unwrap();
+        assert_eq!(key_ugly_json, "[48,83,2,1,1,48,5,6,3,43,101,112,4,34,4,32,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,119,161,35,3,33,0,200,83,173,15,12,210,182,25,174,169,44,238,196,253,86,162,77,100,153,213,132,206,121,37,126,69,207,216,19,155,96,167]");
+        assert_eq!(serde_json::from_str::<SecretKey>(&key_ugly_json).unwrap(), key);
+
+        let key_json = serde_json::to_string(&key).unwrap();
+        assert_eq!(key_json, format!("\"{}\"", key_hex));
+        assert_eq!(serde_json::from_str::<SecretKey>(&key_json).unwrap(), key);
+    }
+    
+    #[test]
+    fn test_chacha20_poly1305_key_serialize() {
+        let key_hex = "0851f51b47d5000f5ff005a7d138f5ed91ca9ebe62ade8a3283467e55858f14a";
+        let key_bytes = hex::decode(key_hex).unwrap();
+        let key = Key::from_slice(&key_bytes).unwrap();
+
+        // Convert to/from binary
+        let key_bin = bincode::serialize(&key).unwrap();
+        assert_eq!(hex::encode(&key_bin), "20000000000000000851f51b47d5000f5ff005a7d138f5ed91ca9ebe62ade8a3283467e55858f14a");
+        assert_eq!(bincode::deserialize::<Key>(&key_bin).unwrap(), key);
+
+        // Convert to/from JSON
+        let key_ugly_json = serde_json::to_string(key.as_ref()).unwrap();
+        assert_eq!(key_ugly_json, "[8,81,245,27,71,213,0,15,95,240,5,167,209,56,245,237,145,202,158,190,98,173,232,163,40,52,103,229,88,88,241,74]");
+        assert_eq!(serde_json::from_str::<Key>(&key_ugly_json).unwrap(), key);
+
+        let key_json = serde_json::to_string(&key).unwrap();
+        assert_eq!(key_json, format!("\"{}\"", key_hex));
+        assert_eq!(serde_json::from_str::<Key>(&key_json).unwrap(), key);
+    }
+    
+    #[test]
+    fn test_chacha20_poly1305_nonce_serialize() {
+        let nonce_hex = "0851f51b47d5000f5ff005a7";
+        let nonce_bytes = hex::decode(nonce_hex).unwrap();
+        let nonce = Nonce::from_slice(&nonce_bytes).unwrap();
+
+        // Convert to/from binary
+        let nonce_bin = bincode::serialize(&nonce).unwrap();
+        assert_eq!(hex::encode(&nonce_bin), "0c000000000000000851f51b47d5000f5ff005a7");
+        assert_eq!(bincode::deserialize::<Nonce>(&nonce_bin).unwrap(), nonce);
+
+        // Convert to/from JSON
+        let nonce_ugly_json = serde_json::to_string(nonce.as_ref()).unwrap();
+        assert_eq!(nonce_ugly_json, "[8,81,245,27,71,213,0,15,95,240,5,167]");
+        assert_eq!(serde_json::from_str::<Nonce>(&nonce_ugly_json).unwrap(), nonce);
+
+        let nonce_json = serde_json::to_string(&nonce).unwrap();
+        assert_eq!(nonce_json, format!("\"{}\"", nonce_hex));
+        assert_eq!(serde_json::from_str::<Nonce>(&nonce_json).unwrap(), nonce);
+    }
+    
+    #[test]
+    fn test_pbkdf2_salt_serialize() {
+        let salt_hex = "0851f51b47d5000f5ff005a7d138f5ed91ca9ebe62ade8a3283467e55858f14a";
+        let salt_bytes = hex::decode(salt_hex).unwrap();
+        let salt = Salt::from_slice(&salt_bytes).unwrap();
+
+        // Convert to/from binary
+        let salt_bin = bincode::serialize(&salt).unwrap();
+        assert_eq!(hex::encode(&salt_bin), "20000000000000000851f51b47d5000f5ff005a7d138f5ed91ca9ebe62ade8a3283467e55858f14a");
+        assert_eq!(bincode::deserialize::<Salt>(&salt_bin).unwrap(), salt);
+
+        // Convert to/from JSON
+        let salt_ugly_json = serde_json::to_string(salt.as_ref()).unwrap();
+        assert_eq!(salt_ugly_json, "[8,81,245,27,71,213,0,15,95,240,5,167,209,56,245,237,145,202,158,190,98,173,232,163,40,52,103,229,88,88,241,74]");
+        assert_eq!(serde_json::from_str::<Salt>(&salt_ugly_json).unwrap(), salt);
+
+        let salt_json = serde_json::to_string(&salt).unwrap();
+        assert_eq!(salt_json, format!("\"{}\"", salt_hex));
+        assert_eq!(serde_json::from_str::<Salt>(&salt_json).unwrap(), salt);
+    }
 }
