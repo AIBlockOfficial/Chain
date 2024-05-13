@@ -565,13 +565,19 @@ pub fn construct_rb_tx_core(
 /// * `key_material`    - Key material for signing
 pub fn update_input_signatures(tx_ins: &[TxIn], tx_outs: &[TxOut], key_material: &BTreeMap<OutPoint, (PublicKey, SecretKey)>) -> Vec<TxIn> {
     let mut tx_ins = tx_ins.to_vec();
+
+    debug!("TxOuts: {:?}", tx_outs);
     for tx_in in tx_ins.iter_mut() {
         let signable_prev_out = TxIn {
             previous_out: tx_in.previous_out.clone(),
             script_signature: Script::new(),
         };
+
+        debug!("Signable prev out: {:?}", signable_prev_out.previous_out);
         let signable_hash = construct_tx_in_out_signable_hash(&signable_prev_out, tx_outs);
         let previous_out = signable_prev_out.previous_out;
+
+        debug!("Signable hash: {:?}", signable_hash);
 
         if previous_out.is_some() && key_material.get(&previous_out.clone().unwrap()).is_some() {
             let pk = key_material.get(&previous_out.clone().unwrap()).unwrap().0;
@@ -953,7 +959,7 @@ mod tests {
             &payment_tx_valid.outputs,
             &payment_tx_valid.fees,
             tx_ins_spent
-        ));
+        ).0);
     }
 
     #[test]
@@ -1001,7 +1007,7 @@ mod tests {
             &payment_tx_valid.outputs,
             &payment_tx_valid.fees,
             tx_ins_spent
-        ));
+        ).0);
     }
 
     #[test]
@@ -1046,7 +1052,7 @@ mod tests {
             &payment_tx_valid.outputs,
             &[],
             tx_ins_spent
-        ));
+        ).0);
     }
 
     #[test]

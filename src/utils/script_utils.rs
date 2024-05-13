@@ -39,7 +39,7 @@ pub fn tx_is_valid<'a>(
     tx: &Transaction,
     current_block_number: u64,
     is_in_utxo: impl Fn(&OutPoint) -> Option<&'a TxOut> + 'a,
-) -> bool {
+) -> (bool, String) {
     let mut tx_ins_spent: AssetValues = Default::default();
     // TODO: Add support for `Data` asset variant
     // `Item` assets MUST have an a DRS value associated with them when they are getting on-spent
@@ -54,7 +54,7 @@ pub fn tx_is_valid<'a>(
             && (out.value.get_genesis_hash().is_none() || out.value.get_metadata().is_some()))
     }) {
         error!("ON-SPENDING NEEDS EMPTY METADATA AND NON-EMPTY DRS SPECIFICATION");
-        return false;
+        return (false, "On-spending items needs empty metadata and non-empty genesis hash".to_string());
     }
 
     for tx_in in &tx.inputs {
@@ -68,7 +68,7 @@ pub fn tx_is_valid<'a>(
             Some(v) => v,
             None => {
                 error!("TRANSACTION DOESN'T CONTAIN PREVIOUS OUTPOINT");
-                return false;
+                return (false, "Transaction doesn't contain previous outpoint".to_string());
             }
         };
 
@@ -76,13 +76,13 @@ pub fn tx_is_valid<'a>(
             tx_out
         } else {
             error!("UTXO DOESN'T CONTAIN THIS TX");
-            return false;
+            return (false, "UTXO doesn't contain this transaction, or the locktime has not expired".to_string());
         };
 
         // Check locktime
         if tx_out.locktime > current_block_number {
             error!("LOCKTIME NOT MET");
-            return false;
+            return (false, "Locktime not expired".to_string());
         }
 
         // At this point `TxIn` will be valid
@@ -98,10 +98,10 @@ pub fn tx_is_valid<'a>(
                 && !tx_has_valid_p2sh_script(&tx_in.script_signature, pk)
             {
                 error!("INVALID SIGNATURE OR SCRIPT TYPE");
-                return false;
+                return (false, "Invalid signature or script structure".to_string());
             }
         } else {
-            return false;
+            return (false, "Previous outpoint has no public key".to_string());
         }
 
         let asset = tx_out.value.clone().with_fixed_hash(tx_out_point);
@@ -125,7 +125,7 @@ pub fn tx_is_valid<'a>(
 ///
 /// * `tx_outs`      - `TxOut`s to verify
 /// * `tx_ins_spent` - Total amount spendable from `TxIn`s
-pub fn tx_outs_are_valid(tx_outs: &[TxOut], fees: &[TxOut], tx_ins_spent: AssetValues) -> bool {
+pub fn tx_outs_are_valid(tx_outs: &[TxOut], fees: &[TxOut], tx_ins_spent: AssetValues) -> (bool, String) {
     let mut tx_outs_spent: AssetValues = Default::default();
 
     for tx_out in tx_outs {
@@ -133,7 +133,7 @@ pub fn tx_outs_are_valid(tx_outs: &[TxOut], fees: &[TxOut], tx_ins_spent: AssetV
         if let Some(addr) = &tx_out.script_public_key {
             if !address_has_valid_length(addr) {
                 trace!("Address has invalid length");
-                return false;
+                return (false, "Address in output has invalid length".to_string());
             }
         }
 
@@ -146,7 +146,7 @@ pub fn tx_outs_are_valid(tx_outs: &[TxOut], fees: &[TxOut], tx_ins_spent: AssetV
         if let Some(addr) = &fee.script_public_key {
             if !address_has_valid_length(addr) {
                 trace!("Address has invalid length");
-                return false;
+                return (false, "Address in fee has invalid length".to_string());
             }
         }
 
@@ -154,7 +154,14 @@ pub fn tx_outs_are_valid(tx_outs: &[TxOut], fees: &[TxOut], tx_ins_spent: AssetV
     }
 
     // Ensure that the `TxIn`s correlate with the `TxOut`s
-    tx_outs_spent.is_equal(&tx_ins_spent)
+    match tx_outs_spent.is_equal(&tx_ins_spent) {
+        true => (true, "".to_string()),
+        false => {
+            error!("TXOUTS SPENT DOESN'T MATCH TXINS SPENT");
+            (false, "TxOuts spent don't match TxIns spent".to_string())
+        }
+    
+    }
 }
 
 /// Checks whether a create transaction has a valid input script
@@ -3116,7 +3123,7 @@ mod tests {
             let result = tx_is_valid(&tx, 500000000, |v| {
                 Some(&tx_in_previous_out).filter(|_| v == &tx_outpoint)
             });
-            actual_result.push(result);
+            actual_result.push(result.0);
         }
 
         actual_result == inputs.iter().map(|(_, e)| *e).collect::<Vec<bool>>()
@@ -3134,7 +3141,7 @@ mod tests {
         test_tx_drs_common(
             &[(3, None, None), (2, None, None)],
             &[(3, None), (2, None)],
-            true,
+            (true, "".to_string()),
         );
     }
 
@@ -3151,7 +3158,7 @@ mod tests {
         test_tx_drs_common(
             &[(3, None, None), (2, None, None)],
             &[(3, None), (3, None)],
-            false,
+            (false, "TxOuts spent don't match TxIns spent".to_string()),
         );
     }
 
@@ -3171,7 +3178,7 @@ mod tests {
                 (2, Some("genesis_hash_2"), None),
             ],
             &[(3, Some("genesis_hash_1")), (3, Some("genesis_hash_2"))],
-            false,
+            (false, "TxOuts spent don't match TxIns spent".to_string()),
         );
     }
 
@@ -3194,7 +3201,7 @@ mod tests {
                 (3, Some("genesis_hash_1")),
                 (2, Some("invalid_genesis_hash")),
             ],
-            false,
+            (false, "TxOuts spent don't match TxIns spent".to_string()),
         );
     }
 
@@ -3211,7 +3218,7 @@ mod tests {
         test_tx_drs_common(
             &[(3, Some("genesis_hash"), None), (2, None, None)],
             &[(3, Some("genesis_hash")), (2, None)],
-            true,
+            (true, "".to_string()),
         );
     }
 
@@ -3228,7 +3235,7 @@ mod tests {
         test_tx_drs_common(
             &[(3, Some("genesis_hash"), None), (2, None, None)],
             &[(2, Some("genesis_hash")), (2, None)],
-            false,
+            (false, "TxOuts spent don't match TxIns spent".to_string()),
         );
     }
 
@@ -3240,8 +3247,7 @@ mod tests {
     ///
     /// 1. Inputs contain two `TxIn`s for `Item`s of amount `3` and `Token`s of amount `2`
     /// 2. Outputs contain `TxOut`s for `Item`s of amount `1` and Tokens of amount `1`
-    /// 3. `TxIn` DRS does not match `TxOut` DRS for `Item`s; Amount of `Item`s and `Token`s spent does not match;
-    /// Metadata does not match                
+    /// 3. `TxIn` DRS does not match `TxOut` DRS for `Item`s; Amount of `Item`s and `Token`s spent does not match;             
     fn test_tx_drs_items_and_tokens_failure_amount_and_drs_mismatch() {
         let test_metadata: Option<String> = Some(
             "{\"name\":\"test\",\"description\":\"test\",\"image\":\"test\",\"url\":\"test\"}"
@@ -3254,7 +3260,7 @@ mod tests {
                 (2, None, test_metadata),
             ],
             &[(1, Some("invalid_genesis_hash")), (1, None)],
-            false,
+            (false, "TxOuts spent don't match TxIns spent".to_string()),
         );
     }
 
@@ -3263,7 +3269,7 @@ mod tests {
     fn test_tx_drs_common(
         inputs: &[(u64, Option<&str>, Option<String>)],
         outputs: &[(u64, Option<&str>)],
-        expected_result: bool,
+        expected_result: (bool, String),
     ) {
         ///
         /// Arrange
