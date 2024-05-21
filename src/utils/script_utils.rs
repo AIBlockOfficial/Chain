@@ -224,9 +224,7 @@ fn tx_has_valid_p2pkh_sig(script: &Script, outpoint_hash: &str, tx_out_pub_key: 
         Some(StackEntry::Signature(_)),
         Some(StackEntry::PubKey(_)),
         Some(StackEntry::Op(OpCodes::OP_DUP)),
-        Some(StackEntry::Op(
-            OpCodes::OP_HASH256 | OpCodes::OP_HASH256_V0 | OpCodes::OP_HASH256_TEMP,
-        )),
+        Some(StackEntry::Op(OpCodes::OP_HASH256)),
         Some(StackEntry::Bytes(h)),
         Some(StackEntry::Op(OpCodes::OP_EQUALVERIFY)),
         Some(StackEntry::Op(OpCodes::OP_CHECKSIG)),
@@ -1958,38 +1956,6 @@ mod tests {
     }
 
     #[test]
-    /// Test OP_HASH256_V0
-    fn test_hash256_v0() {
-        /// op_hash256_v0([pk]) -> [addr_v0]
-        let (pk, sk) = sign::gen_keypair();
-        let mut stack = Stack::new();
-        stack.push(StackEntry::PubKey(pk));
-        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes(hex::decode(construct_address_v0(&pk)).unwrap())];
-        op_hash256_v0(&mut stack);
-        assert_eq!(stack.main_stack, v);
-        /// op_hash256([]) -> fail
-        let mut stack = Stack::new();
-        let b = op_hash256_v0(&mut stack);
-        assert!(!b)
-    }
-
-    #[test]
-    /// Test OP_HASH256_TEMP
-    fn test_hash256_temp() {
-        /// op_hash256_temp([pk]) -> [addr_temp]
-        let (pk, sk) = sign::gen_keypair();
-        let mut stack = Stack::new();
-        stack.push(StackEntry::PubKey(pk));
-        let mut v: Vec<StackEntry> = vec![StackEntry::Bytes(hex::decode(construct_address_temp(&pk)).unwrap())];
-        op_hash256_temp(&mut stack);
-        assert_eq!(stack.main_stack, v);
-        /// op_hash256([]) -> fail
-        let mut stack = Stack::new();
-        let b = op_hash256_temp(&mut stack);
-        assert!(!b)
-    }
-
-    #[test]
     /// Test OP_CHECKSIG
     fn test_checksig() {
         /// op_checksig([msg,sig,pk]) -> [1]
@@ -2723,22 +2689,6 @@ mod tests {
     #[test]
     /// Checks that correct member multisig scripts are validated as such
     fn test_pass_member_multisig_valid() {
-        test_pass_member_multisig_valid_common(None);
-    }
-
-    #[test]
-    /// Checks that correct member multisig scripts are validated as such
-    fn test_pass_member_multisig_valid_v0() {
-        test_pass_member_multisig_valid_common(Some(NETWORK_VERSION_V0));
-    }
-
-    #[test]
-    /// Checks that correct member multisig scripts are validated as such
-    fn test_pass_member_multisig_valid_temp() {
-        test_pass_member_multisig_valid_common(Some(NETWORK_VERSION_TEMP));
-    }
-
-    fn test_pass_member_multisig_valid_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
         let t_hash = hex::encode(vec![0, 0, 0]);
         let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
@@ -2747,7 +2697,6 @@ mod tests {
             previous_out: OutPoint::new(t_hash, 0),
             signatures: vec![signature],
             pub_keys: vec![pk],
-            address_version,
         };
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
@@ -2758,22 +2707,6 @@ mod tests {
     #[test]
     /// Checks that incorrect member multisig scripts are validated as such
     fn test_fail_member_multisig_invalid() {
-        test_fail_member_multisig_invalid_common(None);
-    }
-
-    #[test]
-    /// Checks that incorrect member multisig scripts are validated as such
-    fn test_fail_member_multisig_invalid_v0() {
-        test_fail_member_multisig_invalid_common(Some(NETWORK_VERSION_V0));
-    }
-
-    #[test]
-    /// Checks that incorrect member multisig scripts are validated as such
-    fn test_fail_member_multisig_invalid_temp() {
-        test_fail_member_multisig_invalid_common(Some(NETWORK_VERSION_TEMP));
-    }
-
-    fn test_fail_member_multisig_invalid_common(address_version: Option<u64>) {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
         let t_hash = hex::encode(vec![0, 0, 0]);
@@ -2783,7 +2716,6 @@ mod tests {
             previous_out: OutPoint::new(t_hash, 0),
             signatures: vec![signature],
             pub_keys: vec![pk],
-            address_version,
         };
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
@@ -2794,10 +2726,6 @@ mod tests {
     #[test]
     /// Checks that correct p2pkh transaction signatures are validated as such
     fn test_pass_p2pkh_sig_valid() {
-        test_pass_p2pkh_sig_valid_common(None);
-    }
-
-    fn test_pass_p2pkh_sig_valid_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
         let outpoint = OutPoint {
             t_hash: hex::encode(vec![0, 0, 0]),
@@ -2810,15 +2738,14 @@ mod tests {
             previous_out: outpoint,
             signatures: vec![],
             pub_keys: vec![pk],
-            address_version,
         };
 
         let tx_outs = vec![];
         let mut tx_ins = construct_payment_tx_ins(vec![tx_const]);
         tx_ins = update_input_signatures(&tx_ins, &tx_outs, &key_material);
-          
+
         let hash_to_sign = construct_tx_in_out_signable_hash(&tx_ins[0], &tx_outs);
-        let tx_out_pk = construct_address_for(&pk, address_version);
+        let tx_out_pk = construct_address(&pk);
 
         assert!(tx_has_valid_p2pkh_sig(
             &tx_ins[0].script_signature,
@@ -2830,16 +2757,6 @@ mod tests {
     #[test]
     /// Checks that invalid p2pkh transaction signatures are validated as such
     fn test_fail_p2pkh_sig_invalid() {
-        test_fail_p2pkh_sig_invalid_common(None);
-    }
-
-    #[test]
-    /// Checks that invalid p2pkh transaction signatures are validated as such
-    fn test_fail_p2pkh_sig_invalid_v0() {
-        test_fail_p2pkh_sig_invalid_common(Some(NETWORK_VERSION_V0));
-    }
-
-    fn test_fail_p2pkh_sig_invalid_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
         let (second_pk, _s) = sign::gen_keypair();
         let outpoint = OutPoint {
@@ -2854,7 +2771,6 @@ mod tests {
             previous_out: outpoint,
             signatures: vec![signature],
             pub_keys: vec![second_pk],
-            address_version,
         };
 
         let tx_ins = construct_payment_tx_ins(vec![tx_const]);
@@ -2870,22 +2786,6 @@ mod tests {
     #[test]
     /// Checks that invalid p2pkh transaction signatures are validated as such
     fn test_fail_p2pkh_sig_script_empty() {
-        test_fail_p2pkh_sig_script_empty_common(None);
-    }
-
-    #[test]
-    /// Checks that invalid p2pkh transaction signatures are validated as such
-    fn test_fail_p2pkh_sig_script_empty_v0() {
-        test_fail_p2pkh_sig_script_empty_common(Some(NETWORK_VERSION_V0));
-    }
-
-    #[test]
-    /// Checks that invalid p2pkh transaction signatures are validated as such
-    fn test_fail_p2pkh_sig_script_empty_temp() {
-        test_fail_p2pkh_sig_script_empty_common(Some(NETWORK_VERSION_V0));
-    }
-
-    fn test_fail_p2pkh_sig_script_empty_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
         let outpoint = OutPoint {
             t_hash: hex::encode(vec![0, 0, 0]),
@@ -2899,7 +2799,6 @@ mod tests {
             previous_out: outpoint,
             signatures: vec![signature],
             pub_keys: vec![pk],
-            address_version,
         };
 
         let mut tx_ins = Vec::new();
@@ -2924,22 +2823,6 @@ mod tests {
     #[test]
     /// Checks that invalid p2pkh transaction signatures are validated as such
     fn test_fail_p2pkh_sig_script_invalid_struct() {
-        test_fail_p2pkh_sig_script_invalid_struct_common(None);
-    }
-
-    #[test]
-    /// Checks that invalid p2pkh transaction signatures are validated as such
-    fn test_fail_p2pkh_sig_script_invalid_struct_v0() {
-        test_fail_p2pkh_sig_script_invalid_struct_common(Some(NETWORK_VERSION_V0));
-    }
-
-    #[test]
-    /// Checks that invalid p2pkh transaction signatures are validated as such
-    fn test_fail_p2pkh_sig_script_invalid_struct_temp() {
-        test_fail_p2pkh_sig_script_invalid_struct_common(Some(NETWORK_VERSION_TEMP));
-    }
-
-    fn test_fail_p2pkh_sig_script_invalid_struct_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
         let outpoint = OutPoint {
             t_hash: hex::encode(vec![0, 0, 0]),
@@ -2953,7 +2836,6 @@ mod tests {
             previous_out: outpoint,
             signatures: vec![signature],
             pub_keys: vec![pk],
-            address_version,
         };
 
         let mut tx_ins = Vec::new();
@@ -2982,22 +2864,6 @@ mod tests {
     #[test]
     /// Checks that correct multisig validation signatures are validated as such
     fn test_pass_multisig_validation_valid() {
-        test_pass_multisig_validation_valid_common(None);
-    }
-
-    #[test]
-    /// Checks that correct multisig validation signatures are validated as such
-    fn test_pass_multisig_validation_valid_v0() {
-        test_pass_multisig_validation_valid_common(Some(NETWORK_VERSION_V0));
-    }
-
-    #[test]
-    /// Checks that correct multisig validation signatures are validated as such
-    fn test_pass_multisig_validation_valid_temp() {
-        test_pass_multisig_validation_valid_common(Some(NETWORK_VERSION_TEMP));
-    }
-
-    fn test_pass_multisig_validation_valid_common(address_version: Option<u64>) {
         let (first_pk, first_sk) = sign::gen_keypair();
         let (second_pk, second_sk) = sign::gen_keypair();
         let (third_pk, third_sk) = sign::gen_keypair();
@@ -3011,7 +2877,6 @@ mod tests {
             previous_out: OutPoint::new(check_data, 0),
             signatures: vec![first_sig, second_sig],
             pub_keys: vec![first_pk, second_pk, third_pk],
-            address_version,
         };
 
         let tx_ins = create_multisig_tx_ins(vec![tx_const], m);
@@ -3022,48 +2887,25 @@ mod tests {
     #[test]
     /// Validate tx_is_valid for multiple TxIn configurations
     fn test_tx_is_valid() {
-        test_tx_is_valid_common(None, OpCodes::OP_HASH256, None, false);
-    }
-
-    #[test]
-    /// Validate tx_is_valid for multiple TxIn configurations
-    fn test_tx_is_valid_v0() {
-        test_tx_is_valid_common(
-            Some(NETWORK_VERSION_V0),
-            OpCodes::OP_HASH256_V0,
-            None,
-            false,
-        );
-    }
-
-    #[test]
-    /// Validate tx_is_valid for multiple TxIn configurations
-    fn test_tx_is_valid_temp() {
-        test_tx_is_valid_common(
-            Some(NETWORK_VERSION_TEMP),
-            OpCodes::OP_HASH256_TEMP,
-            None,
-            false,
-        );
+        test_tx_is_valid_common(OpCodes::OP_HASH256, None, false);
     }
 
     #[test]
     /// Validate tx_is_valid for locktime
     fn test_tx_is_valid_locktime() {
         assert!(
-            test_tx_is_valid_common(None, OpCodes::OP_HASH256, Some(99), false)
-                && !test_tx_is_valid_common(None, OpCodes::OP_HASH256, Some(1000000000), false)
+            test_tx_is_valid_common(OpCodes::OP_HASH256, Some(99), false)
+                && !test_tx_is_valid_common(OpCodes::OP_HASH256, Some(1000000000), false)
         );
     }
 
     #[test]
     /// Validate tx_is_valid for fees
     fn test_tx_is_valid_fees() {
-        test_tx_is_valid_common(None, OpCodes::OP_HASH256, None, true);
+        test_tx_is_valid_common(OpCodes::OP_HASH256, None, true);
     }
 
     fn test_tx_is_valid_common(
-        address_version: Option<u64>,
         op_hash256: OpCodes,
         locktime: Option<u64>,
         with_fees: bool,
@@ -3074,7 +2916,7 @@ mod tests {
         let (pk, sk) = sign::gen_keypair();
         let tx_hash = hex::encode(vec![0, 0, 0]);
         let tx_outpoint = OutPoint::new(tx_hash, 0);
-        let script_public_key = construct_address_for(&pk, address_version);
+        let script_public_key = construct_address(&pk);
         let tx_in_previous_out =
             TxOut::new_token_amount(script_public_key.clone(), TokenAmount(5), locktime);
         let ongoing_tx_outs = vec![tx_in_previous_out.clone()];
@@ -3295,22 +3137,6 @@ mod tests {
     #[test]
     /// Checks that incorrect member interpret scripts are validated as such
     fn test_fail_interpret_valid() {
-        test_fail_interpret_valid_common(None);
-    }
-
-    #[test]
-    /// Checks that incorrect member interpret scripts are validated as such
-    fn test_fail_interpret_valid_v0() {
-        test_fail_interpret_valid_common(Some(NETWORK_VERSION_V0));
-    }
-
-    #[test]
-    /// Checks that incorrect member interpret scripts are validated as such
-    fn test_fail_interpret_valid_temp() {
-        test_fail_interpret_valid_common(Some(NETWORK_VERSION_TEMP));
-    }
-
-    fn test_fail_interpret_valid_common(address_version: Option<u64>) {
         let (_pk, sk) = sign::gen_keypair();
         let (pk, _sk) = sign::gen_keypair();
         let t_hash = hex::encode(vec![0, 0, 0]);
@@ -3320,7 +3146,6 @@ mod tests {
             previous_out: OutPoint::new(t_hash, 0),
             signatures: vec![signature],
             pub_keys: vec![pk],
-            address_version,
         };
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);
@@ -3331,22 +3156,6 @@ mod tests {
     #[test]
     /// Checks that interpret scripts are validated as such
     fn test_pass_interpret_valid() {
-        test_pass_interpret_valid_common(None);
-    }
-
-    #[test]
-    /// Checks that interpret scripts are validated as such
-    fn test_pass_interpret_valid_v0() {
-        test_pass_interpret_valid_common(Some(NETWORK_VERSION_V0));
-    }
-
-    #[test]
-    /// Checks that interpret scripts are validated as such
-    fn test_pass_interpret_valid_temp() {
-        test_pass_interpret_valid_common(Some(NETWORK_VERSION_TEMP));
-    }
-
-    fn test_pass_interpret_valid_common(address_version: Option<u64>) {
         let (pk, sk) = sign::gen_keypair();
         let t_hash = hex::encode(vec![0, 0, 0]);
         let signature = sign::sign_detached(t_hash.as_bytes(), &sk);
@@ -3355,7 +3164,6 @@ mod tests {
             previous_out: OutPoint::new(t_hash, 0),
             signatures: vec![signature],
             pub_keys: vec![pk],
-            address_version,
         };
 
         let tx_ins = create_multisig_member_tx_ins(vec![tx_const]);

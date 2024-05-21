@@ -7,7 +7,7 @@ use crate::crypto::sign_ed25519::{
 use crate::script::interface_ops::*;
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::error_utils::*;
-use crate::utils::transaction_utils::{construct_address, construct_address_for};
+use crate::utils::transaction_utils::construct_address;
 use bincode::serialize;
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
@@ -311,8 +311,6 @@ impl Script {
                         // crypto
                         OpCodes::OP_SHA3 => test_for_return &= op_sha3(&mut stack),
                         OpCodes::OP_HASH256 => test_for_return &= op_hash256(&mut stack),
-                        OpCodes::OP_HASH256_V0 => test_for_return &= op_hash256_v0(&mut stack),
-                        OpCodes::OP_HASH256_TEMP => test_for_return &= op_hash256_temp(&mut stack),
                         OpCodes::OP_CHECKSIG => test_for_return &= op_checksig(&mut stack),
                         OpCodes::OP_CHECKSIGVERIFY => {
                             test_for_return &= op_checksigverify(&mut stack)
@@ -393,20 +391,14 @@ impl Script {
         check_data: Vec<u8>,
         signature: Signature,
         pub_key: PublicKey,
-        address_version: Option<u64>,
     ) -> Self {
-        let op_hash_256 = match address_version {
-            Some(NETWORK_VERSION_V0) => OpCodes::OP_HASH256_V0,
-            Some(NETWORK_VERSION_TEMP) => OpCodes::OP_HASH256_TEMP,
-            _ => OpCodes::OP_HASH256,
-        };
         let stack = vec![
             StackEntry::Bytes(check_data),
             StackEntry::Signature(signature),
             StackEntry::PubKey(pub_key),
             StackEntry::Op(OpCodes::OP_DUP),
-            StackEntry::Op(op_hash_256),
-            StackEntry::Bytes(hex::decode(construct_address_for(&pub_key, address_version))
+            StackEntry::Op(OpCodes::OP_HASH256),
+            StackEntry::Bytes(hex::decode(construct_address(&pub_key))
                 .expect("address contains non-hex characters?")),
             StackEntry::Op(OpCodes::OP_EQUALVERIFY),
             StackEntry::Op(OpCodes::OP_CHECKSIG),

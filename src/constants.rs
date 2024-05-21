@@ -5,7 +5,6 @@ pub const MAX_METADATA_BYTES: usize = 800;
 pub const TX_HASH_LENGTH: usize = 32;
 
 /*------- ADDRESS CONSTANTS -------*/
-pub const V0_ADDRESS_LENGTH: usize = 16;
 pub const STANDARD_ADDRESS_LENGTH: usize = 64;
 // Prepending character for a P2SH address
 pub const P2SH_PREPEND: u8 = b'H';
@@ -14,11 +13,6 @@ pub const P2SH_PREPEND: u8 = b'H';
 // Current network version: Always bump immediately after a version is deployed.
 pub const NETWORK_VERSION: u32 = 6;
 pub const NETWORK_VERSION_SERIALIZED: &[u8] = b"6";
-// Network version 0
-pub const NETWORK_VERSION_V0: u64 = 0;
-// Network version to support temporary address structure on wallet
-// TODO: Deprecate after addresses retire
-pub const NETWORK_VERSION_TEMP: u64 = 99999;
 
 /*------- VALUE HANDLING CONSTANTS --------*/
 // Number of decimal places to divide to in display

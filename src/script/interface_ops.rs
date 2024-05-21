@@ -8,9 +8,7 @@ use crate::primitives::transaction::*;
 use crate::script::lang::{ConditionStack, Script, Stack};
 use crate::script::{OpCodes, StackEntry};
 use crate::utils::error_utils::*;
-use crate::utils::transaction_utils::{
-    construct_address, construct_address_temp, construct_address_v0,
-};
+use crate::utils::transaction_utils::construct_address;
 use bincode::de;
 use bincode::serialize;
 use bytes::Bytes;
@@ -1982,64 +1980,6 @@ pub fn op_hash256(stack: &mut Stack) -> bool {
     };
     let addr = construct_address(&pk);
     stack.push(StackEntry::Bytes(hex::decode(addr).unwrap()))
-}
-
-/// OP_HASH256_V0: Creates v0 address from public key and pushes it onto the stack
-///
-/// Example: OP_HASH256_V0([pk]) -> [addr_v0]
-///
-/// Info: Support for old 32-byte addresses
-///
-/// TODO: Deprecate after addresses retire
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_hash256_v0(stack: &mut Stack) -> bool {
-    let (op, desc) = (OPHASH256V0, OPHASH256V0_DESC);
-    trace(op, desc);
-    let pk = match stack.pop() {
-        Some(StackEntry::PubKey(pk)) => pk,
-        Some(_) => {
-            error_item_type(op);
-            return false;
-        }
-        _ => {
-            error_num_items(op);
-            return false;
-        }
-    };
-    let addr_v0 = construct_address_v0(&pk);
-    stack.push(StackEntry::Bytes(hex::decode(addr_v0).unwrap()))
-}
-
-/// OP_HASH256_TEMP: Creates temporary address from public key and pushes it onto the stack
-///
-/// Example: OP_HASH256_TEMP([pk]) -> [addr_temp]
-///
-/// Info: Support for temporary address scheme used in wallet
-///
-/// TODO: Deprecate after addresses retire
-///
-/// ### Arguments
-///
-/// * `stack`  - mutable reference to the stack
-pub fn op_hash256_temp(stack: &mut Stack) -> bool {
-    let (op, desc) = (OPHASH256TEMP, OPHASH256TEMP_DESC);
-    trace(op, desc);
-    let pk = match stack.pop() {
-        Some(StackEntry::PubKey(pk)) => pk,
-        Some(_) => {
-            error_item_type(op);
-            return false;
-        }
-        _ => {
-            error_num_items(op);
-            return false;
-        }
-    };
-    let addr_temp = construct_address_temp(&pk);
-    stack.push(StackEntry::Bytes(hex::decode(addr_temp).unwrap()))
 }
 
 /// OP_CHECKSIG: Pushes ONE onto the stack if the signature is valid, ZERO otherwise
