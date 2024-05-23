@@ -670,7 +670,7 @@ mod tests {
     use super::*;
     use crate::crypto::sign_ed25519::{self as sign, Signature};
     use crate::primitives::asset::{AssetValues, ItemAsset, TokenAmount};
-    use crate::script::OpCodes;
+    use crate::script::{OpCodes, ScriptError};
     use crate::utils::script_utils::{tx_has_valid_p2sh_script, tx_outs_are_valid};
 
     fn test_construct_valid_inputs() -> (Vec<TxIn>, String, BTreeMap<OutPoint, (PublicKey, SecretKey)>) {
@@ -771,7 +771,7 @@ mod tests {
 
         assert_eq!(burn_script_pub_key.as_bytes()[0], P2SH_PREPEND);
         assert_eq!(burn_script_pub_key.len(), STANDARD_ADDRESS_LENGTH);
-        assert!(!redeeming_tx.inputs[0].script_signature.interpret());
+        assert_eq!(redeeming_tx.inputs[0].script_signature.interpret_full(), Err(ScriptError::Burn));
         assert!(!tx_has_valid_p2sh_script(
             &redeeming_tx.inputs[0].script_signature,
             burn_tx.outputs[0].script_public_key.as_ref().unwrap()

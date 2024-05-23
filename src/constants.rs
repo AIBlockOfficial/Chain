@@ -243,25 +243,3 @@ pub const OPCHECKSIGVERIFY_DESC: &str = "Runs OP_CHECKSIG and OP_VERIFY in seque
 pub const OPCHECKMULTISIG_DESC: &str =
     "Pushes ONE onto the stack if the m-of-n multi-signature is valid, ZERO otherwise";
 pub const OPCHECKMULTISIGVERIFY_DESC: &str = "Runs OP_CHECKMULTISIG and OP_VERIFY in sequence";
-
-/*------- ERROR MESSAGES -------*/
-// opcodes
-pub const ERROR_EMPTY_CONDITION: &str = "Condition stack is empty";
-pub const ERROR_VERIFY: &str = "The top item on the stack is ZERO";
-pub const ERROR_BURN: &str = "OP_BURN executed";
-pub const ERROR_NUM_ITEMS: &str = "Not enough items on the stack";
-pub const ERROR_ITEM_TYPE: &str = "Item type is not correct";
-pub const ERROR_ITEM_INDEX: &str = "Index is out of bound";
-pub const ERROR_ITEM_SIZE: &str = "Item size exceeds MAX_SCRIPT_ITEM_SIZE-byte limit";
-pub const ERROR_NOT_EQUAL_ITEMS: &str = "The two top items are not equal";
-pub const ERROR_OVERFLOW: &str = "Attempt to overflow";
-pub const ERROR_DIV_ZERO: &str = "Attempt to divide by ZERO";
-pub const ERROR_INVALID_SIGNATURE: &str = "Signature is not valid";
-pub const ERROR_INVALID_MULTISIGNATURE: &str = "Multi-signature is not valid";
-pub const ERROR_NUM_PUBKEYS: &str = "Number of public keys provided is not correct";
-pub const ERROR_NUM_SIGNATURES: &str = "Number of signatures provided is not correct";
-// script
-pub const ERROR_MAX_SCRIPT_SIZE: &str = "Script size exceeds MAX_SCRIPT_SIZE-byte limit";
-pub const ERROR_MAX_STACK_SIZE: &str = "Stack size exceeds MAX_STACK_SIZE limit";
-pub const ERROR_MAX_OPS_SCRIPT: &str =
-    "Number of opcodes in script exceeds MAX_OPS_PER_SCRIPT limit";

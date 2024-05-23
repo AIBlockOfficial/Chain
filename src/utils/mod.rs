@@ -6,7 +6,6 @@ use crate::primitives::asset::TokenAmount;
 // ------- MODS ------- //
 
 pub mod druid_utils;
-pub mod error_utils;
 pub mod script_utils;
 pub mod test_utils;
 pub mod transaction_utils;

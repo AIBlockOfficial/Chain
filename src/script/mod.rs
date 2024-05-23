@@ -3,6 +3,7 @@ pub mod interface_ops;
 pub mod lang;
 
 use crate::crypto::sign_ed25519::{PublicKey, Signature};
+use crate::constants::*;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -108,7 +109,7 @@ pub enum OpCodes {
     OP_WITHIN = 0x88,
     // crypto
     OP_SHA3 = 0x90,
-    OP_HASH256 = 0x91,
+    OP_HASH256 = 0x91, // TODO: this is redundant, as OP_SHA3 already does the same thing
     OP_CHECKSIG = 0x94,
     OP_CHECKSIGVERIFY = 0x95,
     OP_CHECKMULTISIG = 0x96,
@@ -146,3 +147,36 @@ impl fmt::Display for OpCodes {
         write!(f, "{self:?}")
     }
 }
+
+make_error_type!(#[derive(Eq, PartialEq)] pub ScriptError {
+    // opcode
+    EmptyCondition; "Condition stack is empty",
+    Verify; "The top item on the stack is ZERO",
+    Burn; "OP_BURN executed",
+    StackEmpty; "Not enough items on the stack",
+    StackFull; "Too many items on the stack",
+    ItemType; "Item type is not correct",
+    StackIndexBounds(index: usize, length: usize);
+            "Index {index} is out of bounds for stack of height {length}",
+    IndexBounds(index: usize, length: usize);
+            "Index {index} is out of bounds for operand of length {length}",
+    SliceBounds(start: usize, n: usize, length: usize);
+            "Index range [{start}..{start}+{n}] is out of bounds for operand of length {length}",
+    ItemSize(size: usize, limit: usize); "Item size {size} exceeds {limit}-byte limit",
+    ItemsNotEqual; "The two top items are not equal",
+    Overflow; "Integer overflow",
+    DivideByZero; "Attempt to divide by ZERO",
+    InvalidSignature; "Signature is not valid",
+    InvalidMultisignature; "Multi-signature is not valid",
+    NumPubkeys; "Number of public keys provided is not correct",
+    NumSignatures; "Number of signatures provided is not correct",
+    ReservedOpcode(op: OpCodes); "Reserved opcode: {op}",
+
+    EndStackDepth(depth: usize); "Stack depth after script evaluation is not 1: {depth}",
+    LastEntryIsZero; "Last stack entry is zero",
+    NotEmptyCondition; "Condition stack after script evaluation is non-empty",
+    // script
+    MaxScriptSize(size: usize); "Script size {size} exceeds {MAX_SCRIPT_SIZE}-byte limit",
+    MaxScriptOps(count: usize); "Script opcode count {count} exceeds limit {MAX_OPS_PER_SCRIPT}",
+    DuplicateElse; "Conditional block contains multiple OP_ELSE opcodes",
+});

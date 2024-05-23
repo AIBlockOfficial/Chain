@@ -5,8 +5,7 @@ use crate::crypto::sign_ed25519::{
     PublicKey, Signature, ED25519_PUBLIC_KEY_LEN, ED25519_SIGNATURE_LEN,
 };
 use crate::script::interface_ops::*;
-use crate::script::{OpCodes, StackEntry};
-use crate::utils::error_utils::*;
+use crate::script::{OpCodes, ScriptError, StackEntry};
 use crate::utils::transaction_utils::construct_address;
 use bincode::serialize;
 use bytes::Bytes;
@@ -36,12 +35,40 @@ impl Stack {
     }
 
     /// Checks if the stack is valid
-    pub fn is_valid(&self) -> bool {
+    pub fn check_preconditions(&self) -> Result<(), ScriptError> {
         if self.main_stack.len() + self.alt_stack.len() > MAX_STACK_SIZE as usize {
-            error_max_stack_size();
-            return false;
+            return Err(ScriptError::StackFull);
         }
-        true
+
+        Self::check_entries_preconditions(&self.main_stack)?;
+        Self::check_entries_preconditions(&self.alt_stack)
+    }
+
+    /// Checks that all entries in the given vector are valid
+    fn check_entries_preconditions(entries: &Vec<StackEntry>) -> Result<(), ScriptError> {
+        for entry in entries {
+            Self::check_entry_preconditions(entry)?;
+        }
+        Ok(())
+    }
+
+    /// Checks that the given entry may be pushed on the stack
+    fn check_entry_preconditions(entry: &StackEntry) -> Result<(), ScriptError> {
+        match entry {
+            StackEntry::Op(_) => return Err(ScriptError::ItemType),
+            StackEntry::Bytes(s) => {
+                if s.len() > MAX_SCRIPT_ITEM_SIZE as usize {
+                    return Err(ScriptError::ItemSize(s.len(), MAX_SCRIPT_ITEM_SIZE as usize));
+                }
+            }
+            _ => (),
+        };
+        Ok(())
+    }
+
+    /// Gets the current stack depth
+    pub fn depth(&self) -> usize {
+        self.main_stack.len()
     }
 
     /// Pops the top item from the stack
@@ -49,31 +76,51 @@ impl Stack {
         self.main_stack.pop()
     }
 
+    /// Pops the top item from the alt stack
+    pub fn pop_alt(&mut self) -> Option<StackEntry> {
+        self.alt_stack.pop()
+    }
+
+    /// Gets the top item from the stack without popping it
+    pub fn peek(&self) -> Option<&StackEntry> {
+        self.main_stack.last()
+    }
+
     /// Returns the top item on the stack
     pub fn last(&self) -> Option<StackEntry> {
         self.main_stack.last().cloned()
     }
 
-    /// Checks if the last item on the stack is not zero
-    pub fn is_last_non_zero(&self) -> bool {
-        self.main_stack.len() == 1 && self.last() != Some(StackEntry::Num(ZERO))
+    /// Checks if the current stack is a valid end state.
+    pub fn check_end_state(&self) -> Result<(), ScriptError> {
+        if self.main_stack.len() != 1 {
+            Err(ScriptError::EndStackDepth(self.main_stack.len()))
+        } else if *self.main_stack.last().unwrap() == StackEntry::Num(0) {
+            Err(ScriptError::LastEntryIsZero)
+        } else {
+            Ok(())
+        }
     }
 
     /// Pushes a new entry onto the stack
-    pub fn push(&mut self, stack_entry: StackEntry) -> bool {
-        match stack_entry.clone() {
-            StackEntry::Op(_) => {
-                return false;
-            }
-            StackEntry::Bytes(s) => {
-                if s.len() > MAX_SCRIPT_ITEM_SIZE as usize {
-                    return false;
-                }
-            }
-            _ => (),
+    pub fn push(&mut self, stack_entry: StackEntry) -> Result<(), ScriptError> {
+        Self::push_to(&mut self.main_stack, &self.alt_stack, stack_entry)
+    }
+
+    /// Pushes a new entry onto the stack
+    pub fn push_alt(&mut self, stack_entry: StackEntry) -> Result<(), ScriptError> {
+        Self::push_to(&mut self.alt_stack, &self.main_stack, stack_entry)
+    }
+
+    /// Pushes a new entry onto the stack
+    fn push_to(dst: &mut Vec<StackEntry>, other: &Vec<StackEntry>, stack_entry: StackEntry) -> Result<(), ScriptError> {
+        if dst.len() + other.len() >= MAX_STACK_SIZE as usize {
+            return Err(ScriptError::StackFull);
         }
-        self.main_stack.push(stack_entry);
-        true
+
+        Self::check_entry_preconditions(&stack_entry)?;
+        dst.push(stack_entry);
+        Ok(())
     }
 }
 
@@ -173,6 +220,13 @@ impl Script {
 
     /// Checks if a script is valid
     pub fn is_valid(&self) -> bool {
+        self.verify().is_ok()
+    }
+
+    /// Checks if a script is valid
+    pub fn verify(&self) -> Result<(), ScriptError> {
+        // TODO: The length doesn't really make sense, because the actual serialized script
+        //       is not actually this size...
         let mut len = ZERO; // script length in bytes
         let mut ops_count = ZERO; // number of opcodes in script
         for entry in &self.stack {
@@ -187,13 +241,11 @@ impl Script {
                 StackEntry::Num(_) => len += usize::BITS as usize / EIGHT,
             };
         }
+
         if len > MAX_SCRIPT_SIZE as usize {
-            error_max_script_size();
-            return false;
-        }
-        if ops_count > MAX_OPS_PER_SCRIPT as usize {
-            error_max_ops_script();
-            return false;
+            return Err(ScriptError::MaxScriptSize(len));
+        } else if ops_count > MAX_OPS_PER_SCRIPT as usize {
+            return Err(ScriptError::MaxScriptOps(ops_count));
         }
 
         // Make sure all IF/NOTIF opcodes have a matching ENDIF, and that there is exactly
@@ -205,38 +257,34 @@ impl Script {
                 StackEntry::Op(OpCodes::OP_ELSE) => match condition_stack.last_mut() {
                     Some(seen_else) => {
                         if *seen_else {
-                            error!("Script Verify: Duplicate OP_ELSE instruction");
-                            return false;
+                            return Err(ScriptError::DuplicateElse);
                         }
                         *seen_else = true;
                     },
-                    None => {
-                        error_empty_condition("Script Verify");
-                        return false;
-                    },
+                    None => return Err(ScriptError::EmptyCondition),
                 },
                 StackEntry::Op(OpCodes::OP_ENDIF) => match condition_stack.pop() {
                     Some(_) => (),
-                    None => {
-                        error_empty_condition("Script Verify");
-                        return false;
-                    },
+                    None => return Err(ScriptError::EmptyCondition),
                 },
                 _ => (),
             }
         }
 
-        true
+        Ok(())
     }
 
     /// Interprets and executes a script
     pub fn interpret(&self) -> bool {
-        if !self.is_valid() {
-            return false;
-        }
+        self.interpret_full().is_ok()
+    }
+
+    /// Interprets and executes a script
+    pub fn interpret_full(&self) -> Result<(), ScriptError> {
+        self.verify()?;
+
         let mut stack = Stack::new();
         let mut cond_stack = ConditionStack::new();
-        let mut test_for_return = true;
         for stack_entry in &self.stack {
             match stack_entry.clone() {
                 /*---- OPCODE ----*/
@@ -247,115 +295,101 @@ impl Script {
                     }
                     match op {
                         // constants
-                        OpCodes::OP_0 => test_for_return &= stack.push(StackEntry::Num(ZERO)),
-                        OpCodes::OP_1 => test_for_return &= stack.push(StackEntry::Num(ONE)),
-                        OpCodes::OP_2 => test_for_return &= stack.push(StackEntry::Num(TWO)),
-                        OpCodes::OP_3 => test_for_return &= stack.push(StackEntry::Num(THREE)),
-                        OpCodes::OP_4 => test_for_return &= stack.push(StackEntry::Num(FOUR)),
-                        OpCodes::OP_5 => test_for_return &= stack.push(StackEntry::Num(FIVE)),
-                        OpCodes::OP_6 => test_for_return &= stack.push(StackEntry::Num(SIX)),
-                        OpCodes::OP_7 => test_for_return &= stack.push(StackEntry::Num(SEVEN)),
-                        OpCodes::OP_8 => test_for_return &= stack.push(StackEntry::Num(EIGHT)),
-                        OpCodes::OP_9 => test_for_return &= stack.push(StackEntry::Num(NINE)),
-                        OpCodes::OP_10 => test_for_return &= stack.push(StackEntry::Num(TEN)),
-                        OpCodes::OP_11 => test_for_return &= stack.push(StackEntry::Num(ELEVEN)),
-                        OpCodes::OP_12 => test_for_return &= stack.push(StackEntry::Num(TWELVE)),
-                        OpCodes::OP_13 => test_for_return &= stack.push(StackEntry::Num(THIRTEEN)),
-                        OpCodes::OP_14 => test_for_return &= stack.push(StackEntry::Num(FOURTEEN)),
-                        OpCodes::OP_15 => test_for_return &= stack.push(StackEntry::Num(FIFTEEN)),
-                        OpCodes::OP_16 => test_for_return &= stack.push(StackEntry::Num(SIXTEEN)),
+                        OpCodes::OP_0 => stack.push(StackEntry::Num(ZERO)),
+                        OpCodes::OP_1 => stack.push(StackEntry::Num(ONE)),
+                        OpCodes::OP_2 => stack.push(StackEntry::Num(TWO)),
+                        OpCodes::OP_3 => stack.push(StackEntry::Num(THREE)),
+                        OpCodes::OP_4 => stack.push(StackEntry::Num(FOUR)),
+                        OpCodes::OP_5 => stack.push(StackEntry::Num(FIVE)),
+                        OpCodes::OP_6 => stack.push(StackEntry::Num(SIX)),
+                        OpCodes::OP_7 => stack.push(StackEntry::Num(SEVEN)),
+                        OpCodes::OP_8 => stack.push(StackEntry::Num(EIGHT)),
+                        OpCodes::OP_9 => stack.push(StackEntry::Num(NINE)),
+                        OpCodes::OP_10 => stack.push(StackEntry::Num(TEN)),
+                        OpCodes::OP_11 => stack.push(StackEntry::Num(ELEVEN)),
+                        OpCodes::OP_12 => stack.push(StackEntry::Num(TWELVE)),
+                        OpCodes::OP_13 => stack.push(StackEntry::Num(THIRTEEN)),
+                        OpCodes::OP_14 => stack.push(StackEntry::Num(FOURTEEN)),
+                        OpCodes::OP_15 => stack.push(StackEntry::Num(FIFTEEN)),
+                        OpCodes::OP_16 => stack.push(StackEntry::Num(SIXTEEN)),
                         // flow control
-                        OpCodes::OP_NOP => test_for_return &= op_nop(&mut stack),
-                        OpCodes::OP_IF => test_for_return &= op_if(&mut stack, &mut cond_stack),
-                        OpCodes::OP_NOTIF => {
-                            test_for_return &= op_notif(&mut stack, &mut cond_stack)
-                        }
-                        OpCodes::OP_ELSE => test_for_return &= op_else(&mut cond_stack),
-                        OpCodes::OP_ENDIF => test_for_return &= op_endif(&mut cond_stack),
-                        OpCodes::OP_VERIFY => test_for_return &= op_verify(&mut stack),
-                        OpCodes::OP_BURN => test_for_return &= op_burn(&mut stack),
+                        OpCodes::OP_NOP => op_nop(&mut stack),
+                        OpCodes::OP_IF => op_if(&mut stack, &mut cond_stack),
+                        OpCodes::OP_NOTIF => op_notif(&mut stack, &mut cond_stack),
+                        OpCodes::OP_ELSE => op_else(&mut cond_stack),
+                        OpCodes::OP_ENDIF => op_endif(&mut cond_stack),
+                        OpCodes::OP_VERIFY => op_verify(&mut stack),
+                        OpCodes::OP_BURN => op_burn(&mut stack),
                         // stack
-                        OpCodes::OP_TOALTSTACK => test_for_return &= op_toaltstack(&mut stack),
-                        OpCodes::OP_FROMALTSTACK => test_for_return &= op_fromaltstack(&mut stack),
-                        OpCodes::OP_2DROP => test_for_return &= op_2drop(&mut stack),
-                        OpCodes::OP_2DUP => test_for_return &= op_2dup(&mut stack),
-                        OpCodes::OP_3DUP => test_for_return &= op_3dup(&mut stack),
-                        OpCodes::OP_2OVER => test_for_return &= op_2over(&mut stack),
-                        OpCodes::OP_2ROT => test_for_return &= op_2rot(&mut stack),
-                        OpCodes::OP_2SWAP => test_for_return &= op_2swap(&mut stack),
-                        OpCodes::OP_IFDUP => test_for_return &= op_ifdup(&mut stack),
-                        OpCodes::OP_DEPTH => test_for_return &= op_depth(&mut stack),
-                        OpCodes::OP_DROP => test_for_return &= op_drop(&mut stack),
-                        OpCodes::OP_DUP => test_for_return &= op_dup(&mut stack),
-                        OpCodes::OP_NIP => test_for_return &= op_nip(&mut stack),
-                        OpCodes::OP_OVER => test_for_return &= op_over(&mut stack),
-                        OpCodes::OP_PICK => test_for_return &= op_pick(&mut stack),
-                        OpCodes::OP_ROLL => test_for_return &= op_roll(&mut stack),
-                        OpCodes::OP_ROT => test_for_return &= op_rot(&mut stack),
-                        OpCodes::OP_SWAP => test_for_return &= op_swap(&mut stack),
-                        OpCodes::OP_TUCK => test_for_return &= op_tuck(&mut stack),
+                        OpCodes::OP_TOALTSTACK => op_toaltstack(&mut stack),
+                        OpCodes::OP_FROMALTSTACK => op_fromaltstack(&mut stack),
+                        OpCodes::OP_2DROP => op_2drop(&mut stack),
+                        OpCodes::OP_2DUP => op_2dup(&mut stack),
+                        OpCodes::OP_3DUP => op_3dup(&mut stack),
+                        OpCodes::OP_2OVER => op_2over(&mut stack),
+                        OpCodes::OP_2ROT => op_2rot(&mut stack),
+                        OpCodes::OP_2SWAP => op_2swap(&mut stack),
+                        OpCodes::OP_IFDUP => op_ifdup(&mut stack),
+                        OpCodes::OP_DEPTH => op_depth(&mut stack),
+                        OpCodes::OP_DROP => op_drop(&mut stack),
+                        OpCodes::OP_DUP => op_dup(&mut stack),
+                        OpCodes::OP_NIP => op_nip(&mut stack),
+                        OpCodes::OP_OVER => op_over(&mut stack),
+                        OpCodes::OP_PICK => op_pick(&mut stack),
+                        OpCodes::OP_ROLL => op_roll(&mut stack),
+                        OpCodes::OP_ROT => op_rot(&mut stack),
+                        OpCodes::OP_SWAP => op_swap(&mut stack),
+                        OpCodes::OP_TUCK => op_tuck(&mut stack),
                         // splice
-                        OpCodes::OP_CAT => test_for_return &= op_cat(&mut stack),
-                        OpCodes::OP_SUBSTR => test_for_return &= op_substr(&mut stack),
-                        OpCodes::OP_LEFT => test_for_return &= op_left(&mut stack),
-                        OpCodes::OP_RIGHT => test_for_return &= op_right(&mut stack),
-                        OpCodes::OP_SIZE => test_for_return &= op_size(&mut stack),
+                        OpCodes::OP_CAT => op_cat(&mut stack),
+                        OpCodes::OP_SUBSTR => op_substr(&mut stack),
+                        OpCodes::OP_LEFT => op_left(&mut stack),
+                        OpCodes::OP_RIGHT => op_right(&mut stack),
+                        OpCodes::OP_SIZE => op_size(&mut stack),
                         // bitwise logic
-                        OpCodes::OP_INVERT => test_for_return &= op_invert(&mut stack),
-                        OpCodes::OP_AND => test_for_return &= op_and(&mut stack),
-                        OpCodes::OP_OR => test_for_return &= op_or(&mut stack),
-                        OpCodes::OP_XOR => test_for_return &= op_xor(&mut stack),
-                        OpCodes::OP_EQUAL => test_for_return &= op_equal(&mut stack),
-                        OpCodes::OP_EQUALVERIFY => test_for_return &= op_equalverify(&mut stack),
+                        OpCodes::OP_INVERT => op_invert(&mut stack),
+                        OpCodes::OP_AND => op_and(&mut stack),
+                        OpCodes::OP_OR => op_or(&mut stack),
+                        OpCodes::OP_XOR => op_xor(&mut stack),
+                        OpCodes::OP_EQUAL => op_equal(&mut stack),
+                        OpCodes::OP_EQUALVERIFY => op_equalverify(&mut stack),
                         // arithmetic
-                        OpCodes::OP_1ADD => test_for_return &= op_1add(&mut stack),
-                        OpCodes::OP_1SUB => test_for_return &= op_1sub(&mut stack),
-                        OpCodes::OP_2MUL => test_for_return &= op_2mul(&mut stack),
-                        OpCodes::OP_2DIV => test_for_return &= op_2div(&mut stack),
-                        OpCodes::OP_NOT => test_for_return &= op_not(&mut stack),
-                        OpCodes::OP_0NOTEQUAL => test_for_return &= op_0notequal(&mut stack),
-                        OpCodes::OP_ADD => test_for_return &= op_add(&mut stack),
-                        OpCodes::OP_SUB => test_for_return &= op_sub(&mut stack),
-                        OpCodes::OP_MUL => test_for_return &= op_mul(&mut stack),
-                        OpCodes::OP_DIV => test_for_return &= op_div(&mut stack),
-                        OpCodes::OP_MOD => test_for_return &= op_mod(&mut stack),
-                        OpCodes::OP_LSHIFT => test_for_return &= op_lshift(&mut stack),
-                        OpCodes::OP_RSHIFT => test_for_return &= op_rshift(&mut stack),
-                        OpCodes::OP_BOOLAND => test_for_return &= op_booland(&mut stack),
-                        OpCodes::OP_BOOLOR => test_for_return &= op_boolor(&mut stack),
-                        OpCodes::OP_NUMEQUAL => test_for_return &= op_numequal(&mut stack),
-                        OpCodes::OP_NUMEQUALVERIFY => {
-                            test_for_return &= op_numequalverify(&mut stack)
-                        }
-                        OpCodes::OP_NUMNOTEQUAL => test_for_return &= op_numnotequal(&mut stack),
-                        OpCodes::OP_LESSTHAN => test_for_return &= op_lessthan(&mut stack),
-                        OpCodes::OP_GREATERTHAN => test_for_return &= op_greaterthan(&mut stack),
-                        OpCodes::OP_LESSTHANOREQUAL => {
-                            test_for_return &= op_lessthanorequal(&mut stack)
-                        }
-                        OpCodes::OP_GREATERTHANOREQUAL => {
-                            test_for_return &= op_greaterthanorequal(&mut stack)
-                        }
-                        OpCodes::OP_MIN => test_for_return &= op_min(&mut stack),
-                        OpCodes::OP_MAX => test_for_return &= op_max(&mut stack),
-                        OpCodes::OP_WITHIN => test_for_return &= op_within(&mut stack),
+                        OpCodes::OP_1ADD => op_1add(&mut stack),
+                        OpCodes::OP_1SUB => op_1sub(&mut stack),
+                        OpCodes::OP_2MUL => op_2mul(&mut stack),
+                        OpCodes::OP_2DIV => op_2div(&mut stack),
+                        OpCodes::OP_NOT => op_not(&mut stack),
+                        OpCodes::OP_0NOTEQUAL => op_0notequal(&mut stack),
+                        OpCodes::OP_ADD => op_add(&mut stack),
+                        OpCodes::OP_SUB => op_sub(&mut stack),
+                        OpCodes::OP_MUL => op_mul(&mut stack),
+                        OpCodes::OP_DIV => op_div(&mut stack),
+                        OpCodes::OP_MOD => op_mod(&mut stack),
+                        OpCodes::OP_LSHIFT => op_lshift(&mut stack),
+                        OpCodes::OP_RSHIFT => op_rshift(&mut stack),
+                        OpCodes::OP_BOOLAND => op_booland(&mut stack),
+                        OpCodes::OP_BOOLOR => op_boolor(&mut stack),
+                        OpCodes::OP_NUMEQUAL => op_numequal(&mut stack),
+                        OpCodes::OP_NUMEQUALVERIFY => op_numequalverify(&mut stack),
+                        OpCodes::OP_NUMNOTEQUAL => op_numnotequal(&mut stack),
+                        OpCodes::OP_LESSTHAN => op_lessthan(&mut stack),
+                        OpCodes::OP_GREATERTHAN => op_greaterthan(&mut stack),
+                        OpCodes::OP_LESSTHANOREQUAL => op_lessthanorequal(&mut stack),
+                        OpCodes::OP_GREATERTHANOREQUAL => op_greaterthanorequal(&mut stack),
+                        OpCodes::OP_MIN => op_min(&mut stack),
+                        OpCodes::OP_MAX => op_max(&mut stack),
+                        OpCodes::OP_WITHIN => op_within(&mut stack),
                         // crypto
-                        OpCodes::OP_SHA3 => test_for_return &= op_sha3(&mut stack),
-                        OpCodes::OP_HASH256 => test_for_return &= op_hash256(&mut stack),
-                        OpCodes::OP_CHECKSIG => test_for_return &= op_checksig(&mut stack),
-                        OpCodes::OP_CHECKSIGVERIFY => {
-                            test_for_return &= op_checksigverify(&mut stack)
-                        }
-                        OpCodes::OP_CHECKMULTISIG => {
-                            test_for_return &= op_checkmultisig(&mut stack)
-                        }
-                        OpCodes::OP_CHECKMULTISIGVERIFY => {
-                            test_for_return &= op_checkmultisigverify(&mut stack)
-                        }
+                        OpCodes::OP_SHA3 => op_sha3(&mut stack),
+                        OpCodes::OP_HASH256 => op_hash256(&mut stack),
+                        OpCodes::OP_CHECKSIG => op_checksig(&mut stack),
+                        OpCodes::OP_CHECKSIGVERIFY => op_checksigverify(&mut stack),
+                        OpCodes::OP_CHECKMULTISIG => op_checkmultisig(&mut stack),
+                        OpCodes::OP_CHECKMULTISIGVERIFY => op_checkmultisigverify(&mut stack),
                         // smart data
-                        OpCodes::OP_CREATE => (),
+                        OpCodes::OP_CREATE => Ok(()),
                         // reserved
-                        _ => (),
+                        op => Err(ScriptError::ReservedOpcode(op)),
                     }
                 }
                 /*---- SIGNATURE | PUBKEY | NUM | BYTES ----*/
@@ -364,15 +398,21 @@ impl Script {
                 | StackEntry::Num(_)
                 | StackEntry::Bytes(_) => {
                     if cond_stack.all_true() {
-                        test_for_return &= stack.push(stack_entry.clone())
+                        stack.push(stack_entry.clone())
+                    } else {
+                        Ok(())
                     }
                 }
-            }
-            if !test_for_return || !stack.is_valid() {
-                return false;
-            }
+            }?;
+
+            stack.check_preconditions()?;
         }
-        test_for_return && stack.is_last_non_zero() && cond_stack.is_empty()
+
+        if !cond_stack.is_empty() {
+            Err(ScriptError::NotEmptyCondition)
+        } else {
+            stack.check_end_state()
+        }
     }
 
     /// Constructs a new script for coinbase
