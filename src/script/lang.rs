@@ -10,7 +10,7 @@ use crate::utils::transaction_utils::construct_address;
 use bincode::serialize;
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
-use tracing::{error, warn};
+use tracing::{error, trace, warn};
 
 /// Stack for script execution
 #[derive(Clone, Debug, PartialOrd, Eq, PartialEq, Serialize, Deserialize)]
@@ -293,6 +293,9 @@ impl Script {
                         // skip opcode if latest condition check failed
                         continue;
                     }
+
+                    trace!("{}: {}", op.name(), op.desc());
+
                     match op {
                         // constants
                         OpCodes::OP_0 => stack.push(StackEntry::Num(ZERO)),

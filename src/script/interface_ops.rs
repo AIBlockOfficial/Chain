@@ -26,8 +26,6 @@ use tracing_subscriber::field::debug;
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_nop(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPNOP, OPNOP_DESC);
-    trace(op, desc);
     Ok(())
 }
 
@@ -38,8 +36,6 @@ pub fn op_nop(stack: &mut Stack) -> Result<(), ScriptError> {
 /// * `stack`  - mutable reference to the stack
 /// * `cond_stack`  - mutable reference to the condition stack
 pub fn op_if(stack: &mut Stack, cond_stack: &mut ConditionStack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPIF, OPIF_DESC);
-    trace(op, desc);
     let cond = if cond_stack.all_true() {
         let n = pop_num(stack)?;
         n != ZERO
@@ -57,8 +53,6 @@ pub fn op_if(stack: &mut Stack, cond_stack: &mut ConditionStack) -> Result<(), S
 /// * `stack`  - mutable reference to the stack
 /// * `cond_stack`  - mutable reference to the condition stack
 pub fn op_notif(stack: &mut Stack, cond_stack: &mut ConditionStack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPNOTIF, OPNOTIF_DESC);
-    trace(op, desc);
     let cond = if cond_stack.all_true() {
         let n = pop_num(stack)?;
         n == ZERO
@@ -75,8 +69,6 @@ pub fn op_notif(stack: &mut Stack, cond_stack: &mut ConditionStack) -> Result<()
 ///
 /// * `cond_stack`  - mutable reference to the condition stack
 pub fn op_else(cond_stack: &mut ConditionStack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPELSE, OPELSE_DESC);
-    trace(op, desc);
     if cond_stack.is_empty() {
         return Err(ScriptError::EmptyCondition);
     }
@@ -90,8 +82,6 @@ pub fn op_else(cond_stack: &mut ConditionStack) -> Result<(), ScriptError> {
 ///
 /// * `cond_stack`  - mutable reference to the condition stack
 pub fn op_endif(cond_stack: &mut ConditionStack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPENDIF, OPENDIF_DESC);
-    trace(op, desc);
     if cond_stack.is_empty() {
         return Err(ScriptError::EmptyCondition);
     }
@@ -108,8 +98,6 @@ pub fn op_endif(cond_stack: &mut ConditionStack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_verify(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPVERIFY, OPVERIFY_DESC);
-    trace(op, desc);
     let x = pop_num(stack)?;
     if x == ZERO {
         return Err(ScriptError::Verify);
@@ -125,8 +113,6 @@ pub fn op_verify(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_burn(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPBURN, OPBURN_DESC);
-    trace(op, desc);
     Err(ScriptError::Burn)
 }
 
@@ -141,8 +127,6 @@ pub fn op_burn(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_toaltstack(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPTOALTSTACK, OPTOALTSTACK_DESC);
-    trace(op, desc);
     match stack.pop() {
         Some(x) => stack.push_alt(x),
         _ => Err(ScriptError::StackEmpty),
@@ -157,8 +141,6 @@ pub fn op_toaltstack(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_fromaltstack(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPFROMALTSTACK, OPFROMALTSTACK_DESC);
-    trace(op, desc);
     match stack.pop_alt() {
         Some(x) => stack.push(x),
         _ => Err(ScriptError::StackEmpty),
@@ -173,8 +155,6 @@ pub fn op_fromaltstack(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_2drop(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OP2DROP, OP2DROP_DESC);
-    trace(op, desc);
     pop_any(stack)?;
     pop_any(stack)?;
     Ok(())
@@ -188,8 +168,6 @@ pub fn op_2drop(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_2dup(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OP2DUP, OP2DUP_DESC);
-    trace(op, desc);
     let len = stack.depth();
     if len < TWO {
         return Err(ScriptError::StackEmpty);
@@ -206,8 +184,6 @@ pub fn op_2dup(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_3dup(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OP3DUP, OP3DUP_DESC);
-    trace(op, desc);
     let len = stack.depth();
     if len < THREE {
         return Err(ScriptError::StackEmpty);
@@ -224,8 +200,6 @@ pub fn op_3dup(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_2over(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OP2OVER, OP2OVER_DESC);
-    trace(op, desc);
     let len = stack.depth();
     if len < FOUR {
         return Err(ScriptError::StackEmpty);
@@ -242,8 +216,6 @@ pub fn op_2over(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_2rot(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OP2ROT, OP2ROT_DESC);
-    trace(op, desc);
     let len = stack.depth();
     if len < SIX {
         return Err(ScriptError::StackEmpty);
@@ -262,8 +234,6 @@ pub fn op_2rot(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_2swap(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OP2SWAP, OP2SWAP_DESC);
-    trace(op, desc);
     let len = stack.depth();
     if len < FOUR {
         return Err(ScriptError::StackEmpty);
@@ -282,8 +252,6 @@ pub fn op_2swap(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_ifdup(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPIFDUP, OPIFDUP_DESC);
-    trace(op, desc);
     match stack.last() {
         Some(x) => {
             if x != StackEntry::Num(ZERO) {
@@ -304,8 +272,6 @@ pub fn op_ifdup(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_depth(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPDEPTH, OPDEPTH_DESC);
-    trace(op, desc);
     stack.push(StackEntry::Num(stack.depth()))
 }
 
@@ -317,8 +283,6 @@ pub fn op_depth(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_drop(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPDROP, OPDROP_DESC);
-    trace(op, desc);
     match stack.pop() {
         Some(_) => Ok(()),
         _ => Err(ScriptError::StackEmpty),
@@ -333,8 +297,6 @@ pub fn op_drop(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_dup(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPDUP, OPDUP_DESC);
-    trace(op, desc);
     match stack.last() {
         Some(x) => stack.push(x),
         _ => Err(ScriptError::StackEmpty),
@@ -349,8 +311,6 @@ pub fn op_dup(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_nip(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPNIP, OPNIP_DESC);
-    trace(op, desc);
     let len = stack.depth();
     if len < TWO {
         return Err(ScriptError::StackEmpty);
@@ -367,8 +327,6 @@ pub fn op_nip(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_over(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPOVER, OPOVER_DESC);
-    trace(op, desc);
     let len = stack.depth();
     if len < TWO {
         return Err(ScriptError::StackEmpty);
@@ -385,8 +343,6 @@ pub fn op_over(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_pick(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPPICK, OPPICK_DESC);
-    trace(op, desc);
     let n = pop_num(stack)?;
     let len = stack.depth();
     if n >= len {
@@ -404,8 +360,6 @@ pub fn op_pick(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_roll(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPROLL, OPROLL_DESC);
-    trace(op, desc);
     let n = pop_num(stack)?;
     let len = stack.depth();
     if n >= len {
@@ -423,8 +377,6 @@ pub fn op_roll(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_rot(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPROT, OPROT_DESC);
-    trace(op, desc);
     let len = stack.depth();
     if len < THREE {
         return Err(ScriptError::StackEmpty);
@@ -442,8 +394,6 @@ pub fn op_rot(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_swap(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPSWAP, OPSWAP_DESC);
-    trace(op, desc);
     let len = stack.depth();
     if len < TWO {
         return Err(ScriptError::StackEmpty);
@@ -460,8 +410,6 @@ pub fn op_swap(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_tuck(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPTUCK, OPTUCK_DESC);
-    trace(op, desc);
     let len = stack.depth();
     if len < TWO {
         return Err(ScriptError::StackEmpty);
@@ -481,8 +429,6 @@ pub fn op_tuck(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_cat(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPCAT, OPCAT_DESC);
-    trace(op, desc);
     let s2 = pop_bytes(stack)?;
     let s1 = pop_bytes(stack)?;
     let cat = [s1, s2].concat();
@@ -497,8 +443,6 @@ pub fn op_cat(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_substr(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPSUBSTR, OPSUBSTR_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     let s = pop_bytes(stack)?;
@@ -522,8 +466,6 @@ pub fn op_substr(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_left(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPLEFT, OPLEFT_DESC);
-    trace(op, desc);
     let n = pop_num(stack)?;
     let s = pop_bytes(stack)?;
     if n >= s.len() {
@@ -547,8 +489,6 @@ pub fn op_left(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_right(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPRIGHT, OPRIGHT_DESC);
-    trace(op, desc);
     let n = pop_num(stack)?;
     let s = pop_bytes(stack)?;
     if n >= s.len() {
@@ -571,8 +511,6 @@ pub fn op_right(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_size(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPSIZE, OPSIZE_DESC);
-    trace(op, desc);
     let len = peek_bytes(&stack)?.len();
     // TODO: As this was previously a hex string, the length doesn't exactly correspond to what
     //       it did originally. However, I don't think there are any existing transactions
@@ -591,8 +529,6 @@ pub fn op_size(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_invert(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPINVERT, OPINVERT_DESC);
-    trace(op, desc);
     let n = pop_num(stack)?;
     stack.push(StackEntry::Num(!n))
 }
@@ -605,8 +541,6 @@ pub fn op_invert(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_and(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPAND, OPAND_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     stack.push(StackEntry::Num(n1 & n2))
@@ -620,8 +554,6 @@ pub fn op_and(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_or(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPOR, OPOR_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     stack.push(StackEntry::Num(n1 | n2))
@@ -635,8 +567,6 @@ pub fn op_or(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_xor(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPXOR, OPXOR_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     stack.push(StackEntry::Num(n1 ^ n2))
@@ -651,8 +581,6 @@ pub fn op_xor(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_equal(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPEQUAL, OPEQUAL_DESC);
-    trace(op, desc);
     let x2 = pop_any(stack)?;
     let x1 = pop_any(stack)?;
     if x1 == x2 {
@@ -671,8 +599,6 @@ pub fn op_equal(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_equalverify(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPEQUALVERIFY, OPEQUALVERIFY_DESC);
-    trace(op, desc);
     let x2 = pop_any(stack)?;
     let x1 = pop_any(stack)?;
     if x1 != x2 {
@@ -691,8 +617,6 @@ pub fn op_equalverify(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_1add(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OP1ADD, OP1ADD_DESC);
-    trace(op, desc);
     let n = pop_num(stack)?;
     match n.checked_add(ONE) {
         Some(n) => stack.push(StackEntry::Num(n)),
@@ -708,8 +632,6 @@ pub fn op_1add(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_1sub(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OP1SUB, OP1SUB_DESC);
-    trace(op, desc);
     let n = pop_num(stack)?;
     match n.checked_sub(ONE) {
         Some(n) => stack.push(StackEntry::Num(n)),
@@ -725,8 +647,6 @@ pub fn op_1sub(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_2mul(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OP2MUL, OP2MUL_DESC);
-    trace(op, desc);
     let n = pop_num(stack)?;
     match n.checked_mul(TWO) {
         Some(n) => stack.push(StackEntry::Num(n)),
@@ -742,8 +662,6 @@ pub fn op_2mul(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_2div(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OP2DIV, OP2DIV_DESC);
-    trace(op, desc);
     let n = pop_num(stack)?;
     stack.push(StackEntry::Num(n / TWO))
 }
@@ -757,8 +675,6 @@ pub fn op_2div(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_not(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPNOT, OPNOT_DESC);
-    trace(op, desc);
     let n = pop_num(stack)?;
     if n == ZERO {
         stack.push(StackEntry::Num(ONE))
@@ -776,8 +692,6 @@ pub fn op_not(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_0notequal(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OP0NOTEQUAL, OP0NOTEQUAL_DESC);
-    trace(op, desc);
     let n = pop_num(stack)?;
     if n != ZERO {
         stack.push(StackEntry::Num(ONE))
@@ -794,8 +708,6 @@ pub fn op_0notequal(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_add(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPADD, OPADD_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     match n1.checked_add(n2) {
@@ -812,8 +724,6 @@ pub fn op_add(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_sub(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPSUB, OPSUB_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     match n1.checked_sub(n2) {
@@ -830,8 +740,6 @@ pub fn op_sub(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_mul(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPMUL, OPMUL_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     match n1.checked_mul(n2) {
@@ -848,8 +756,6 @@ pub fn op_mul(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_div(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPDIV, OPDIV_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     match n1.checked_div(n2) {
@@ -866,8 +772,6 @@ pub fn op_div(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_mod(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPMOD, OPMOD_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     match n1.checked_rem(n2) {
@@ -884,8 +788,6 @@ pub fn op_mod(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_lshift(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPLSHIFT, OPLSHIFT_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     match n1.checked_shl(n2 as u32) {
@@ -902,8 +804,6 @@ pub fn op_lshift(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_rshift(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPRIGHT, OPRIGHT_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     match n1.checked_shr(n2 as u32) {
@@ -921,8 +821,6 @@ pub fn op_rshift(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_booland(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPBOOLAND, OPBOOLAND_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     if n1 != ZERO && n2 != ZERO {
@@ -941,8 +839,6 @@ pub fn op_booland(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_boolor(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPBOOLOR, OPBOOLOR_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     if n1 != ZERO || n2 != ZERO {
@@ -961,8 +857,6 @@ pub fn op_boolor(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_numequal(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPNUMEQUAL, OPNUMEQUAL_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     if n1 == n2 {
@@ -981,8 +875,6 @@ pub fn op_numequal(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_numequalverify(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPNUMEQUALVERIFY, OPNUMEQUALVERIFY_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     if n1 != n2 {
@@ -1000,8 +892,6 @@ pub fn op_numequalverify(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_numnotequal(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPNUMNOTEQUAL, OPNUMNOTEQUAL_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     if n1 != n2 {
@@ -1020,8 +910,6 @@ pub fn op_numnotequal(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_lessthan(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPLESSTHAN, OPLESSTHAN_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     if n1 < n2 {
@@ -1040,8 +928,6 @@ pub fn op_lessthan(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_greaterthan(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OP0NOTEQUAL, OP0NOTEQUAL_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     if n1 > n2 {
@@ -1060,8 +946,6 @@ pub fn op_greaterthan(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_lessthanorequal(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPLESSTHANOREQUAL, OPLESSTHANOREQUAL_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     if n1 <= n2 {
@@ -1080,8 +964,6 @@ pub fn op_lessthanorequal(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_greaterthanorequal(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPGREATERTHANOREQUAL, OPGREATERTHANOREQUAL_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     if n1 >= n2 {
@@ -1100,8 +982,6 @@ pub fn op_greaterthanorequal(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_min(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPMIN, OPMIN_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     stack.push(StackEntry::Num(n1.min(n2)))
@@ -1116,8 +996,6 @@ pub fn op_min(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_max(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPMAX, OPMAX_DESC);
-    trace(op, desc);
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
     stack.push(StackEntry::Num(n1.max(n2)))
@@ -1132,8 +1010,6 @@ pub fn op_max(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_within(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPWITHIN, OPWITHIN_DESC);
-    trace(op, desc);
     let n3 = pop_num(stack)?;
     let n2 = pop_num(stack)?;
     let n1 = pop_num(stack)?;
@@ -1154,8 +1030,6 @@ pub fn op_within(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_sha3(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPSHA3, OPSHA3_DESC);
-    trace(op, desc);
     let data = match stack.pop() {
         Some(StackEntry::Signature(sig)) => sig.as_ref().to_owned(),
         Some(StackEntry::PubKey(pk)) => pk.as_ref().to_owned(),
@@ -1180,8 +1054,6 @@ pub fn op_sha3(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_hash256(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPHASH256, OPHASH256_DESC);
-    trace(op, desc);
     let pk = pop_pubkey(stack)?;
     let addr = construct_address(&pk);
     stack.push(StackEntry::Bytes(hex::decode(addr).unwrap()))
@@ -1198,8 +1070,6 @@ pub fn op_hash256(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_checksig(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPCHECKSIG, OPCHECKSIG_DESC);
-    trace(op, desc);
     let pk = pop_pubkey(stack)?;
     let sig = pop_sig(stack)?;
     let msg = pop_bytes(stack)?;
@@ -1227,9 +1097,6 @@ pub fn op_checksig(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_checksigverify(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPCHECKSIGVERIFY, OPCHECKSIGVERIFY_DESC);
-    trace(op, desc);
-
     op_checksig(stack)?;
     op_verify(stack)
 }
@@ -1246,8 +1113,6 @@ pub fn op_checksigverify(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_checkmultisig(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPCHECKMULTISIG, OPCHECKMULTISIG_DESC);
-    trace(op, desc);
     let n = pop_num(stack)?;
     if n > MAX_PUB_KEYS_PER_MULTISIG as usize {
         return Err(ScriptError::NumPubkeys);
@@ -1291,15 +1156,8 @@ pub fn op_checkmultisig(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_checkmultisigverify(stack: &mut Stack) -> Result<(), ScriptError> {
-    let (op, desc) = (OPCHECKMULTISIG, OPCHECKMULTISIG_DESC);
-    trace(op, desc);
-
     op_checkmultisig(stack)?;
     op_verify(stack)
-}
-
-fn trace(op: &str, desc: &str) {
-    trace!("{op}: {desc}")
 }
 
 /// Verifies an m-of-n multi-signature
