@@ -2390,7 +2390,7 @@ mod tests {
         // empty script
         let v = vec![];
         let script = Script::from(v);
-        assert!(script.interpret());
+        assert!(!script.interpret());
         // OP_0
         let v = vec![StackEntry::Op(OpCodes::OP_0)];
         let script = Script::from(v);
@@ -2412,7 +2412,7 @@ mod tests {
         // script length <= 10000 bytes
         let v = vec![StackEntry::Bytes("a".repeat(500).as_bytes().to_vec()); 20];
         let script = Script::from(v);
-        assert!(script.interpret());
+        assert!(!script.interpret());
         // script length > 10000 bytes
         let v = vec![StackEntry::Bytes("a".repeat(500).as_bytes().to_vec()); 21];
         let script = Script::from(v);
@@ -2420,7 +2420,7 @@ mod tests {
         // # opcodes <= 201
         let v = vec![StackEntry::Op(OpCodes::OP_1); MAX_OPS_PER_SCRIPT as usize];
         let script = Script::from(v);
-        assert!(script.interpret());
+        assert!(!script.interpret());
         // # opcodes > 201
         let v = vec![StackEntry::Op(OpCodes::OP_1); (MAX_OPS_PER_SCRIPT + 1) as usize];
         let script = Script::from(v);
@@ -2428,7 +2428,7 @@ mod tests {
         // # items on interpreter stack <= 1000
         let v = vec![StackEntry::Num(1); MAX_STACK_SIZE as usize];
         let script = Script::from(v);
-        assert!(script.interpret());
+        assert!(!script.interpret());
         // # items on interpreter stack > 1000
         let v = vec![StackEntry::Num(1); (MAX_STACK_SIZE + 1) as usize];
         let script = Script::from(v);

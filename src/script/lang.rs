@@ -56,7 +56,7 @@ impl Stack {
 
     /// Checks if the last item on the stack is not zero
     pub fn is_last_non_zero(&self) -> bool {
-        self.last() != Some(StackEntry::Num(ZERO))
+        self.main_stack.len() == 1 && self.last() != Some(StackEntry::Num(ZERO))
     }
 
     /// Pushes a new entry onto the stack

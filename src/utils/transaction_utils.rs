@@ -701,6 +701,7 @@ mod tests {
         let (tx_ins, _drs_block_hash, key_material) = test_construct_valid_inputs();
         let mut script = Script::new_for_coinbase(10);
         script.stack.push(StackEntry::Op(OpCodes::OP_DROP));
+        script.stack.push(StackEntry::Op(OpCodes::OP_1));
 
         let p2sh_tx = construct_p2sh_tx(tx_ins, None, &script, Asset::Token(token_amount), 0, &key_material);
 
