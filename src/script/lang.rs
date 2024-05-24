@@ -17,6 +17,7 @@ use tracing::{error, trace, warn};
 pub struct Stack {
     pub main_stack: Vec<StackEntry>,
     pub alt_stack: Vec<StackEntry>,
+    pub cond_stack: ConditionStack,
 }
 
 impl Default for Stack {
@@ -31,6 +32,7 @@ impl Stack {
         Self {
             main_stack: Vec::with_capacity(MAX_STACK_SIZE as usize),
             alt_stack: Vec::with_capacity(MAX_STACK_SIZE as usize),
+            cond_stack: ConditionStack::new(),
         }
     }
 
@@ -93,7 +95,9 @@ impl Stack {
 
     /// Checks if the current stack is a valid end state.
     pub fn check_end_state(&self) -> Result<(), ScriptError> {
-        if self.main_stack.len() != 1 {
+        if !self.cond_stack.is_empty() {
+            Err(ScriptError::NotEmptyCondition)
+        } else if self.main_stack.len() != 1 {
             Err(ScriptError::EndStackDepth(self.main_stack.len()))
         } else if *self.main_stack.last().unwrap() == StackEntry::Num(0) {
             Err(ScriptError::LastEntryIsZero)
@@ -130,6 +134,7 @@ impl From<Vec<StackEntry>> for Stack {
         Stack {
             main_stack: stack,
             alt_stack: Vec::with_capacity(MAX_STACK_SIZE as usize),
+            cond_stack: ConditionStack::new(),
         }
     }
 }
@@ -175,27 +180,35 @@ impl ConditionStack {
     }
 
     /// Pops the top value from the condition stack
-    pub fn pop(&mut self) {
+    pub fn pop(&mut self) -> Result<(), ScriptError> {
+        if self.is_empty() {
+            return Err(ScriptError::EmptyCondition);
+        }
+
         self.size -= ONE;
         if let Some(pos) = self.first_false_pos {
             if pos == self.size {
                 self.first_false_pos.take();
             }
         }
+        Ok(())
     }
 
     /// Toggles the top value on the condition stack
-    pub fn toggle(&mut self) {
+    pub fn toggle(&mut self) -> Result<(), ScriptError> {
+        if self.is_empty() {
+            return Err(ScriptError::EmptyCondition);
+        }
+
         match self.first_false_pos {
             Some(pos) => {
                 if pos == self.size - ONE {
                     self.first_false_pos = None;
                 }
             }
-            _ => {
-                self.first_false_pos = Some(self.size - ONE);
-            }
-        }
+            None => self.first_false_pos = Some(self.size - ONE),
+        };
+        Ok(())
     }
 }
 
@@ -284,12 +297,11 @@ impl Script {
         self.verify()?;
 
         let mut stack = Stack::new();
-        let mut cond_stack = ConditionStack::new();
         for stack_entry in &self.stack {
             match stack_entry.clone() {
                 /*---- OPCODE ----*/
                 StackEntry::Op(op) => {
-                    if !cond_stack.all_true() && !op.is_conditional() {
+                    if !stack.cond_stack.all_true() && !op.is_conditional() {
                         // skip opcode if latest condition check failed
                         continue;
                     }
@@ -317,10 +329,10 @@ impl Script {
                         OpCodes::OP_16 => stack.push(StackEntry::Num(SIXTEEN)),
                         // flow control
                         OpCodes::OP_NOP => op_nop(&mut stack),
-                        OpCodes::OP_IF => op_if(&mut stack, &mut cond_stack),
-                        OpCodes::OP_NOTIF => op_notif(&mut stack, &mut cond_stack),
-                        OpCodes::OP_ELSE => op_else(&mut cond_stack),
-                        OpCodes::OP_ENDIF => op_endif(&mut cond_stack),
+                        OpCodes::OP_IF => op_if(&mut stack),
+                        OpCodes::OP_NOTIF => op_notif(&mut stack),
+                        OpCodes::OP_ELSE => op_else(&mut stack),
+                        OpCodes::OP_ENDIF => op_endif(&mut stack),
                         OpCodes::OP_VERIFY => op_verify(&mut stack),
                         OpCodes::OP_BURN => op_burn(&mut stack),
                         // stack
@@ -400,7 +412,7 @@ impl Script {
                 | StackEntry::PubKey(_)
                 | StackEntry::Num(_)
                 | StackEntry::Bytes(_) => {
-                    if cond_stack.all_true() {
+                    if stack.cond_stack.all_true() {
                         stack.push(stack_entry.clone())
                     } else {
                         Ok(())
@@ -411,11 +423,7 @@ impl Script {
             stack.check_preconditions()?;
         }
 
-        if !cond_stack.is_empty() {
-            Err(ScriptError::NotEmptyCondition)
-        } else {
-            stack.check_end_state()
-        }
+        stack.check_end_state()
     }
 
     /// Constructs a new script for coinbase

@@ -35,14 +35,14 @@ pub fn op_nop(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 /// * `cond_stack`  - mutable reference to the condition stack
-pub fn op_if(stack: &mut Stack, cond_stack: &mut ConditionStack) -> Result<(), ScriptError> {
-    let cond = if cond_stack.all_true() {
+pub fn op_if(stack: &mut Stack) -> Result<(), ScriptError> {
+    let cond = if stack.cond_stack.all_true() {
         let n = pop_num(stack)?;
         n != ZERO
     } else {
         false
     };
-    cond_stack.push(cond);
+    stack.cond_stack.push(cond);
     Ok(())
 }
 
@@ -52,14 +52,14 @@ pub fn op_if(stack: &mut Stack, cond_stack: &mut ConditionStack) -> Result<(), S
 ///
 /// * `stack`  - mutable reference to the stack
 /// * `cond_stack`  - mutable reference to the condition stack
-pub fn op_notif(stack: &mut Stack, cond_stack: &mut ConditionStack) -> Result<(), ScriptError> {
-    let cond = if cond_stack.all_true() {
+pub fn op_notif(stack: &mut Stack) -> Result<(), ScriptError> {
+    let cond = if stack.cond_stack.all_true() {
         let n = pop_num(stack)?;
         n == ZERO
     } else {
         false
     };
-    cond_stack.push(cond);
+    stack.cond_stack.push(cond);
     Ok(())
 }
 
@@ -68,12 +68,8 @@ pub fn op_notif(stack: &mut Stack, cond_stack: &mut ConditionStack) -> Result<()
 /// ### Arguments
 ///
 /// * `cond_stack`  - mutable reference to the condition stack
-pub fn op_else(cond_stack: &mut ConditionStack) -> Result<(), ScriptError> {
-    if cond_stack.is_empty() {
-        return Err(ScriptError::EmptyCondition);
-    }
-    cond_stack.toggle();
-    Ok(())
+pub fn op_else(stack: &mut Stack) -> Result<(), ScriptError> {
+    stack.cond_stack.toggle()
 }
 
 /// OP_ENDIF: Ends an OP_IF or OP_NOTIF block
@@ -81,12 +77,8 @@ pub fn op_else(cond_stack: &mut ConditionStack) -> Result<(), ScriptError> {
 /// ### Arguments
 ///
 /// * `cond_stack`  - mutable reference to the condition stack
-pub fn op_endif(cond_stack: &mut ConditionStack) -> Result<(), ScriptError> {
-    if cond_stack.is_empty() {
-        return Err(ScriptError::EmptyCondition);
-    }
-    cond_stack.pop();
-    Ok(())
+pub fn op_endif(stack: &mut Stack) -> Result<(), ScriptError> {
+    stack.cond_stack.pop()
 }
 
 /// OP_VERIFY: Removes the top item from the stack and ends execution with an error if it is ZERO
