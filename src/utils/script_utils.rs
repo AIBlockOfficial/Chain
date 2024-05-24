@@ -2630,8 +2630,6 @@ mod tests {
         for entry in tx_values {
             let mut new_tx_in = TxIn::new();
             new_tx_in.script_signature = Script::multisig_validation(
-                m,
-                entry.pub_keys.len(),
                 hex::decode(&entry.previous_out.t_hash).unwrap(),
                 entry.signatures,
                 entry.pub_keys,

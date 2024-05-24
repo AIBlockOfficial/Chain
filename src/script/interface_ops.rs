@@ -127,10 +127,8 @@ pub fn op_burn(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_toaltstack(stack: &mut Stack) -> Result<(), ScriptError> {
-    match stack.pop() {
-        Some(x) => stack.push_alt(x),
-        _ => Err(ScriptError::StackEmpty),
-    }
+    let x = stack.pop()?;
+    stack.push_alt(x)
 }
 
 /// OP_FROMALTSTACK: Moves the top item from the alt stack to the top of the main stack
@@ -141,10 +139,8 @@ pub fn op_toaltstack(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_fromaltstack(stack: &mut Stack) -> Result<(), ScriptError> {
-    match stack.pop_alt() {
-        Some(x) => stack.push(x),
-        _ => Err(ScriptError::StackEmpty),
-    }
+    let x = stack.pop_alt()?;
+    stack.push(x)
 }
 
 /// OP_2DROP: Removes the top two items from the stack
@@ -155,8 +151,8 @@ pub fn op_fromaltstack(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_2drop(stack: &mut Stack) -> Result<(), ScriptError> {
-    pop_any(stack)?;
-    pop_any(stack)?;
+    stack.pop()?;
+    stack.pop()?;
     Ok(())
 }
 
@@ -252,15 +248,11 @@ pub fn op_2swap(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_ifdup(stack: &mut Stack) -> Result<(), ScriptError> {
-    match stack.last() {
-        Some(x) => {
-            if x != StackEntry::Num(ZERO) {
-                stack.push(x)
-            } else {
-                Ok(())
-            }
-        }
-        _ => Err(ScriptError::StackEmpty),
+    let x = stack.peek()?;
+    if *x != StackEntry::Num(ZERO) {
+        stack.push(x.clone())
+    } else {
+        Ok(())
     }
 }
 
@@ -283,10 +275,8 @@ pub fn op_depth(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_drop(stack: &mut Stack) -> Result<(), ScriptError> {
-    match stack.pop() {
-        Some(_) => Ok(()),
-        _ => Err(ScriptError::StackEmpty),
-    }
+    stack.pop()?;
+    Ok(())
 }
 
 /// OP_DUP: Duplicates the top item on the stack
@@ -297,10 +287,7 @@ pub fn op_drop(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_dup(stack: &mut Stack) -> Result<(), ScriptError> {
-    match stack.last() {
-        Some(x) => stack.push(x),
-        _ => Err(ScriptError::StackEmpty),
-    }
+    stack.push(stack.last()?)
 }
 
 /// OP_NIP: Removes the second-to-top item from the stack
@@ -581,8 +568,8 @@ pub fn op_xor(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_equal(stack: &mut Stack) -> Result<(), ScriptError> {
-    let x2 = pop_any(stack)?;
-    let x1 = pop_any(stack)?;
+    let x2 = stack.pop()?;
+    let x1 = stack.pop()?;
     if x1 == x2 {
         stack.push(StackEntry::Num(ONE))
     } else {
@@ -599,8 +586,8 @@ pub fn op_equal(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_equalverify(stack: &mut Stack) -> Result<(), ScriptError> {
-    let x2 = pop_any(stack)?;
-    let x1 = pop_any(stack)?;
+    let x2 = stack.pop()?;
+    let x1 = stack.pop()?;
     if x1 != x2 {
         return Err(ScriptError::ItemsNotEqual);
     }
@@ -1030,16 +1017,15 @@ pub fn op_within(stack: &mut Stack) -> Result<(), ScriptError> {
 ///
 /// * `stack`  - mutable reference to the stack
 pub fn op_sha3(stack: &mut Stack) -> Result<(), ScriptError> {
-    let data = match stack.pop() {
-        Some(StackEntry::Signature(sig)) => sig.as_ref().to_owned(),
-        Some(StackEntry::PubKey(pk)) => pk.as_ref().to_owned(),
-        Some(StackEntry::Bytes(s)) => {
+    let data = match stack.pop()? {
+        StackEntry::Signature(sig) => sig.as_ref().to_owned(),
+        StackEntry::PubKey(pk) => pk.as_ref().to_owned(),
+        StackEntry::Bytes(s) => {
             // For legacy reasons, the hashed data is the hex representation of the data rather than
             // the data itself.
             hex::encode(&s).as_bytes().to_owned()
         },
-        Some(_) => return Err(ScriptError::ItemType),
-        _ => return Err(ScriptError::StackEmpty),
+        _ => return Err(ScriptError::ItemType),
     };
     let hash = sha3_256::digest(&data).to_vec();
     // TODO: Originally, the hash was converted back to hex!
@@ -1119,7 +1105,7 @@ pub fn op_checkmultisig(stack: &mut Stack) -> Result<(), ScriptError> {
     }
     let mut pks = Vec::with_capacity(n);
     for i in 0..n {
-        if let Some(StackEntry::PubKey(pk)) = stack.pop() {
+        if let Ok(StackEntry::PubKey(pk)) = stack.pop() {
             pks.push(pk);
         }
     }
@@ -1132,7 +1118,7 @@ pub fn op_checkmultisig(stack: &mut Stack) -> Result<(), ScriptError> {
     }
     let mut sigs = Vec::with_capacity(m);
     for i in 0..m {
-        if let Some(StackEntry::Signature(sig)) = stack.pop() {
+        if let Ok(StackEntry::Signature(sig)) = stack.pop() {
             sigs.push(sig);
         }
     }
@@ -1186,28 +1172,15 @@ fn verify_multisig(sigs: &[Signature], msg: &[u8], pks: &mut Vec<PublicKey>) -> 
     num_valid_sigs == sigs.len()
 }
 
-/// Pops any kind of item from the top of the stack
-///
-/// ### Arguments
-///
-/// * `stack` - a reference to the stack
-fn pop_any(stack: &mut Stack) -> Result<StackEntry, ScriptError> {
-    match stack.pop() {
-        Some(e) => Ok(e),
-        _ => return Err(ScriptError::StackEmpty),
-    }
-}
-
 /// Pops a number from the top of the stack
 ///
 /// ### Arguments
 ///
 /// * `stack` - a reference to the stack
 fn pop_num(stack: &mut Stack) -> Result<usize, ScriptError> {
-    match stack.pop() {
-        Some(StackEntry::Num(n)) => Ok(n),
-        Some(_) => return Err(ScriptError::ItemType),
-        _ => return Err(ScriptError::StackEmpty),
+    match stack.pop()? {
+        StackEntry::Num(n) => Ok(n),
+        _ => return Err(ScriptError::ItemType),
     }
 }
 
@@ -1217,10 +1190,9 @@ fn pop_num(stack: &mut Stack) -> Result<usize, ScriptError> {
 ///
 /// * `stack` - a reference to the stack
 fn pop_bytes(stack: &mut Stack) -> Result<Vec<u8>, ScriptError> {
-    match stack.pop() {
-        Some(StackEntry::Bytes(b)) => Ok(b),
-        Some(_) => return Err(ScriptError::ItemType),
-        _ => return Err(ScriptError::StackEmpty),
+    match stack.pop()? {
+        StackEntry::Bytes(b) => Ok(b),
+        _ => return Err(ScriptError::ItemType),
     }
 }
 
@@ -1230,10 +1202,9 @@ fn pop_bytes(stack: &mut Stack) -> Result<Vec<u8>, ScriptError> {
 ///
 /// * `stack` - a reference to the stack
 fn pop_pubkey(stack: &mut Stack) -> Result<PublicKey, ScriptError> {
-    match stack.pop() {
-        Some(StackEntry::PubKey(pubkey)) => Ok(pubkey),
-        Some(_) => return Err(ScriptError::ItemType),
-        _ => return Err(ScriptError::StackEmpty),
+    match stack.pop()? {
+        StackEntry::PubKey(pubkey) => Ok(pubkey),
+        _ => return Err(ScriptError::ItemType),
     }
 }
 
@@ -1243,10 +1214,9 @@ fn pop_pubkey(stack: &mut Stack) -> Result<PublicKey, ScriptError> {
 ///
 /// * `stack` - a reference to the stack
 fn pop_sig(stack: &mut Stack) -> Result<Signature, ScriptError> {
-    match stack.pop() {
-        Some(StackEntry::Signature(sig)) => Ok(sig),
-        Some(_) => return Err(ScriptError::ItemType),
-        _ => return Err(ScriptError::StackEmpty),
+    match stack.pop()? {
+        StackEntry::Signature(sig) => Ok(sig),
+        _ => return Err(ScriptError::ItemType),
     }
 }
 
@@ -1256,9 +1226,8 @@ fn pop_sig(stack: &mut Stack) -> Result<Signature, ScriptError> {
 ///
 /// * `stack` - a reference to the stack
 fn peek_bytes(stack: &Stack) -> Result<&Vec<u8>, ScriptError> {
-    match stack.peek() {
-        Some(StackEntry::Bytes(b)) => Ok(b),
-        Some(_) => return Err(ScriptError::ItemType),
-        _ => return Err(ScriptError::StackEmpty),
+    match stack.peek()? {
+        StackEntry::Bytes(b) => Ok(b),
+        _ => return Err(ScriptError::ItemType),
     }
 }

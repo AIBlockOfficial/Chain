@@ -72,23 +72,23 @@ impl Stack {
     }
 
     /// Pops the top item from the stack
-    pub fn pop(&mut self) -> Option<StackEntry> {
-        self.main_stack.pop()
+    pub fn pop(&mut self) -> Result<StackEntry, ScriptError> {
+        self.main_stack.pop().ok_or(ScriptError::StackEmpty)
     }
 
     /// Pops the top item from the alt stack
-    pub fn pop_alt(&mut self) -> Option<StackEntry> {
-        self.alt_stack.pop()
+    pub fn pop_alt(&mut self) -> Result<StackEntry, ScriptError> {
+        self.alt_stack.pop().ok_or(ScriptError::StackEmpty)
     }
 
     /// Gets the top item from the stack without popping it
-    pub fn peek(&self) -> Option<&StackEntry> {
-        self.main_stack.last()
+    pub fn peek(&self) -> Result<&StackEntry, ScriptError> {
+        self.main_stack.last().ok_or(ScriptError::StackEmpty)
     }
 
     /// Returns the top item on the stack
-    pub fn last(&self) -> Option<StackEntry> {
-        self.main_stack.last().cloned()
+    pub fn last(&self) -> Result<StackEntry, ScriptError> {
+        self.peek().map(StackEntry::clone)
     }
 
     /// Checks if the current stack is a valid end state.
@@ -502,13 +502,17 @@ impl Script {
     /// ### Arguments
     ///
     /// * `m`           - Number of signatures required to unlock
-    /// * `n`           - Number of valid signatures total
     /// * `check_data`  - Data to have checked against signatures
     /// * `pub_keys`    - The constituent public keys
-    pub fn multisig_lock(m: usize, n: usize, check_data: Vec<u8>, pub_keys: Vec<PublicKey>) -> Self {
-        let mut stack = vec![StackEntry::Bytes(check_data), StackEntry::Num(m)];
+    pub fn multisig_lock(m: usize, check_data: Vec<u8>, pub_keys: Vec<PublicKey>) -> Self {
+        assert!(m <= pub_keys.len());
+
+        let mut stack = vec![
+            StackEntry::Bytes(check_data),
+            StackEntry::Num(m),
+        ];
         stack.append(&mut pub_keys.iter().map(|e| StackEntry::PubKey(*e)).collect());
-        stack.push(StackEntry::Num(n));
+        stack.push(StackEntry::Num(pub_keys.len()));
         stack.push(StackEntry::Op(OpCodes::OP_CHECKMULTISIG));
         Self { stack }
     }
@@ -539,12 +543,12 @@ impl Script {
     /// * `signatures`  - Signatures to validate
     /// * `pub_keys`    - Public keys to validate
     pub fn multisig_validation(
-        m: usize,
-        n: usize,
         check_data: Vec<u8>,
         signatures: Vec<Signature>,
         pub_keys: Vec<PublicKey>,
     ) -> Self {
+        assert!(signatures.len() <= pub_keys.len());
+
         let mut stack = vec![StackEntry::Bytes(check_data)];
         stack.append(
             &mut signatures
@@ -552,9 +556,9 @@ impl Script {
                 .map(|e| StackEntry::Signature(*e))
                 .collect(),
         );
-        stack.push(StackEntry::Num(m));
+        stack.push(StackEntry::Num(signatures.len()));
         stack.append(&mut pub_keys.iter().map(|e| StackEntry::PubKey(*e)).collect());
-        stack.push(StackEntry::Num(n));
+        stack.push(StackEntry::Num(pub_keys.len()));
         stack.push(StackEntry::Op(OpCodes::OP_CHECKMULTISIG));
         Self { stack }
     }
