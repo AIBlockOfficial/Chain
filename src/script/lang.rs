@@ -195,6 +195,37 @@ impl Script {
             error_max_ops_script();
             return false;
         }
+
+        // Make sure all IF/NOTIF opcodes have a matching ENDIF, and that there is exactly
+        // 0 or 1 ELSE opcodes between them.
+        let mut condition_stack : Vec<bool> = Vec::new();
+        for entry in &self.stack {
+            match entry {
+                StackEntry::Op(OpCodes::OP_IF | OpCodes::OP_NOTIF) => condition_stack.push(false),
+                StackEntry::Op(OpCodes::OP_ELSE) => match condition_stack.last_mut() {
+                    Some(seen_else) => {
+                        if *seen_else {
+                            error!("Script Verify: Duplicate OP_ELSE instruction");
+                            return false;
+                        }
+                        *seen_else = true;
+                    },
+                    None => {
+                        error_empty_condition("Script Verify");
+                        return false;
+                    },
+                },
+                StackEntry::Op(OpCodes::OP_ENDIF) => match condition_stack.pop() {
+                    Some(_) => (),
+                    None => {
+                        error_empty_condition("Script Verify");
+                        return false;
+                    },
+                },
+                _ => (),
+            }
+        }
+
         true
     }
 
