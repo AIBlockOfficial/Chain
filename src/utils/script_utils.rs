@@ -41,7 +41,7 @@ pub fn tx_is_valid<'a>(
     is_in_utxo: impl Fn(&OutPoint) -> Option<&'a TxOut> + 'a,
 ) -> (bool, String) {
     let mut tx_ins_spent: AssetValues = Default::default();
-    // TODO: Add support for `Data` asset variant
+
     // `Item` assets MUST have an a DRS value associated with them when they are getting on-spent
 
     debug!("tx: {:?}", tx.outputs);
@@ -58,6 +58,12 @@ pub fn tx_is_valid<'a>(
             false,
             "On-spending items needs empty metadata and non-empty genesis hash".to_string(),
         );
+    }
+
+    // Check that inputs and outputs even exist
+    if tx.inputs.is_empty() || tx.outputs.is_empty() {
+        error!("TRANSACTION HAS NO INPUTS OR OUTPUTS");
+        return (false, "Transaction has no inputs or outputs".to_string());
     }
 
     for tx_in in &tx.inputs {
@@ -3052,6 +3058,23 @@ mod tests {
             None,
             false,
         );
+    }
+
+    #[test]
+    /// Validate transaction that has no inputs and no outputs
+    fn test_tx_is_invalid_empty() {
+        let mut tx = Transaction::new();
+        let tx_out = TxOut {
+            value: Asset::Token(TokenAmount(0)),
+            locktime: 0,
+            script_public_key: Some("".to_string()),
+        };
+
+        tx.outputs.push(tx_out);
+
+        let result = tx_is_valid(&tx, 500000000, |_| None);
+        assert!(!result.0);
+        assert_eq!(result.1, "Transaction has no inputs or outputs".to_string());
     }
 
     #[test]
