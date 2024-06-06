@@ -41,7 +41,7 @@ pub fn tx_is_valid<'a>(
     is_in_utxo: impl Fn(&OutPoint) -> Option<&'a TxOut> + 'a,
 ) -> (bool, String) {
     let mut tx_ins_spent: AssetValues = Default::default();
-    
+
     // `Item` assets MUST have an a DRS value associated with them when they are getting on-spent
 
     debug!("tx: {:?}", tx.outputs);
