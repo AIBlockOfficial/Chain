@@ -3061,6 +3061,23 @@ mod tests {
     }
 
     #[test]
+    /// Validate transaction that has no inputs and no outputs
+    fn test_tx_is_invalid_empty() {
+        let mut tx = Transaction::new();
+        let tx_out = TxOut {
+            value: Asset::Token(TokenAmount(0)),
+            locktime: 0,
+            script_public_key: Some("".to_string()),
+        };
+
+        tx.outputs.push(tx_out);
+
+        let result = tx_is_valid(&tx, 500000000, |_| None);
+        assert!(!result.0);
+        assert_eq!(result.1, "Transaction has no inputs or outputs".to_string());
+    }
+
+    #[test]
     /// Validate tx_is_valid for locktime
     fn test_tx_is_valid_locktime() {
         assert!(
