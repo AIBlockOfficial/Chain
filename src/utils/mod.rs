@@ -14,11 +14,9 @@ pub mod transaction_utils;
 // ------- FUNCTIONS ------- //
 
 /// Determines whether the passed value is within bounds of
-/// available tokens in the supply.
-///
-/// TODO: Currently placeholder, needs to be filled in once requirements known
-pub fn is_valid_amount(_value: &TokenAmount) -> bool {
-    true
+/// available tokens in the supply
+pub fn is_valid_amount(value: &TokenAmount) -> bool {
+    value.0 <= TOTAL_TOKENS
 }
 
 /// Formats an incoming value to be displayed
