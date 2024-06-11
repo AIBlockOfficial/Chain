@@ -10,7 +10,7 @@ use crate::primitives::transaction::*;
 use crate::script::interface_ops::*;
 use crate::script::lang::{ConditionStack, Script, Stack};
 use crate::script::{OpCodes, StackEntry};
-use crate::utils::error_utils::*;
+use crate::utils::{error_utils::*, is_valid_amount};
 use crate::utils::transaction_utils::{
     construct_address, construct_tx_hash, construct_tx_in_out_signable_hash,
     construct_tx_in_signable_asset_hash, construct_tx_in_signable_hash,
@@ -172,11 +172,11 @@ pub fn tx_outs_are_valid(
     }
 
     // Ensure that the `TxIn`s correlate with the `TxOut`s
-    match tx_outs_spent.is_equal(&tx_ins_spent) {
+    match tx_outs_spent.is_equal(&tx_ins_spent) && !tx_outs_spent.is_empty() {
         true => (true, "".to_string()),
         false => {
-            error!("TXOUTS SPENT DOESN'T MATCH TXINS SPENT");
-            (false, "TxOuts spent don't match TxIns spent".to_string())
+            error!("TXOUTS SPENT DOESN'T MATCH TXINS SPENT OR INPUTS/OUTPUTS ARE EMPTY");
+            (false, "TxOuts spent don't match TxIns spent, or are empty".to_string())
         }
     }
 }

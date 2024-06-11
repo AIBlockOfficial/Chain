@@ -1,5 +1,5 @@
 use crate::primitives::transaction::OutPoint;
-use crate::utils::{add_btreemap, format_for_display};
+use crate::utils::{add_btreemap, format_for_display, is_valid_amount};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, fmt, iter, mem::size_of, ops};
 use tracing::debug;
@@ -372,7 +372,14 @@ impl AssetValues {
     /// Add the `rhs` parameter to `self`
     pub fn update_add(&mut self, rhs: &Asset) {
         match rhs {
-            Asset::Token(tokens) => self.tokens += *tokens,
+            Asset::Token(tokens) => {
+                let add = self.tokens + *tokens;
+
+                match is_valid_amount(&add) {
+                    true => self.tokens += *tokens,
+                    false => self.tokens += TokenAmount::default(),
+                }
+            },
             Asset::Item(items) => {
                 if let Some(genesis_hash) = &items.genesis_hash {
                     self.items
