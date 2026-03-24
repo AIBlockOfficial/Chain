@@ -1,3 +1,5 @@
+> **Repository moved:** Active development continues at **[lineage-foundation/prime](https://github.com/lineage-foundation/prime)**. Please open issues and pull requests there. This AIBlockOfficial repository is retained for history.
+
 <div id="top"></div>
 
 <!-- PROJECT LOGO -->
